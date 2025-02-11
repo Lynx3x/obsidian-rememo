@@ -9,16 +9,21 @@ interface Props {
   referrerPolicy?: 'no-referrer';
   filepath?: string;
   style?: React.CSSProperties;
+  allImages?: Array<{
+    src: string;
+    filepath?: string;
+  }>;
+  index?: number;
 }
 
 const Image: React.FC<Props> = (props: Props) => {
-  const { className, imgUrl, alt, referrerPolicy, filepath } = props;
+  const { className, imgUrl, alt, referrerPolicy, filepath, allImages, index } = props;
 
   const handleImageClick = () => {
-    if (filepath) {
-      showPreviewImageDialog(imgUrl, filepath);
+    if (allImages && index !== undefined) {
+      showPreviewImageDialog(imgUrl, filepath, allImages, index);
     } else {
-      showPreviewImageDialog(imgUrl);
+      showPreviewImageDialog(imgUrl, filepath);
     }
   };
 

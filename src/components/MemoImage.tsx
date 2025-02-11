@@ -2,7 +2,6 @@ import { TFile, Vault } from 'obsidian';
 import React from 'react';
 import { IMAGE_URL_REG, MARKDOWN_URL_REG, MARKDOWN_WEB_URL_REG, WIKI_IMAGE_URL_REG } from '../helpers/consts';
 import appStore from '../stores/appStore';
-import Only from './common/OnlyWhen';
 import Image from './Image';
 
 const imageGridStyles = {
@@ -47,7 +46,6 @@ const MemoImage: React.FC<Props> = (props: Props) => {
     const internalAltName = WIKI_IMAGE_URL_REG.exec(lineText)?.[5];
     const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), '');
 
-    // console.log(file.path);
     if (file === null) {
       return {
         linkText: internalFileName,
@@ -58,21 +56,12 @@ const MemoImage: React.FC<Props> = (props: Props) => {
     } else {
       const imagePath = getPathOfImage(vault, file);
       const filePath = file.path;
-      if (internalAltName) {
-        return {
-          linkText: internalFileName,
-          altText: internalAltName,
-          path: imagePath,
-          filepath: filePath,
-        };
-      } else {
-        return {
-          linkText: internalFileName,
-          altText: '',
-          path: imagePath,
-          filepath: filePath,
-        };
-      }
+      return {
+        linkText: internalFileName,
+        altText: internalAltName || '',
+        path: imagePath,
+        filepath: filePath,
+      };
     }
   };
 
@@ -81,6 +70,7 @@ const MemoImage: React.FC<Props> = (props: Props) => {
     const internalFileName = MARKDOWN_URL_REG.exec(lineText)?.[5];
     const internalAltName = MARKDOWN_URL_REG.exec(lineText)?.[2];
     const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), '');
+    
     if (file === null) {
       return {
         linkText: internalFileName,
@@ -91,95 +81,77 @@ const MemoImage: React.FC<Props> = (props: Props) => {
     } else {
       const imagePath = getPathOfImage(vault, file);
       const filePath = file.path;
-      if (internalAltName) {
-        return {
-          linkText: internalFileName,
-          altText: internalAltName,
-          path: imagePath,
-          filepath: filePath,
-        };
-      } else {
-        return {
-          linkText: internalFileName,
-          altText: '',
-          path: imagePath,
-          filepath: filePath,
-        };
-      }
+      return {
+        linkText: internalFileName,
+        altText: internalAltName || '',
+        path: imagePath,
+        filepath: filePath,
+      };
     }
   };
 
-  let externalImageUrls = [] as string[];
-  const internalImageUrls = [];
-  let allMarkdownLink: string | any[] = [];
-  let allInternalLink = [] as any[];
-  if (IMAGE_URL_REG.test(memo)) {
-    let allExternalImageUrls = [] as string[];
-    const anotherExternalImageUrls = [] as string[];
-    if (MARKDOWN_URL_REG.test(memo)) {
-      allMarkdownLink = Array.from(memo.match(MARKDOWN_URL_REG));
-      }
-    if (WIKI_IMAGE_URL_REG.test(memo)) {
-      allInternalLink = Array.from(memo.match(WIKI_IMAGE_URL_REG));
-    }
-    // const allInternalLink = Array.from(memo.content.match(WIKI_IMAGE_URL_REG));
-    if (MARKDOWN_WEB_URL_REG.test(memo)) {
-      allExternalImageUrls = Array.from(memo.match(MARKDOWN_WEB_URL_REG));
-    }
-    if (allInternalLink.length) {
-      for (let i = 0; i < allInternalLink.length; i++) {
-        const allInternalLinkElement = allInternalLink[i];
-        internalImageUrls.push(detectWikiInternalLink(allInternalLinkElement));
-      }
-    }
-    if (allMarkdownLink.length) {
-      for (let i = 0; i < allMarkdownLink.length; i++) {
-        const allMarkdownLinkElement = allMarkdownLink[i];
-          if (/(.*)http[s]?(.*)/.test(allMarkdownLinkElement)) {
-              anotherExternalImageUrls.push([...(allMarkdownLinkElement as string).matchAll(MARKDOWN_URL_REG)][0]?.[5]);
-        } else {
-          internalImageUrls.push(detectMDInternalLink(allMarkdownLinkElement));
+  const allImages: Array<{ src: string; filepath?: string }> = [];
+
+  // 处理外部图片
+  if (MARKDOWN_WEB_URL_REG.test(memo)) {
+    const externalUrls = Array.from(memo.match(MARKDOWN_WEB_URL_REG) || []);
+    allImages.push(...externalUrls.map(url => ({ src: url })));
+  }
+
+  // 处理 Markdown 格式的链接
+  if (MARKDOWN_URL_REG.test(memo)) {
+    const markdownLinks = Array.from(memo.match(MARKDOWN_URL_REG) || []);
+    for (const link of markdownLinks) {
+      if (/(.*)http[s]?(.*)/.test(link)) {
+        const url = [...(link as string).matchAll(MARKDOWN_URL_REG)][0]?.[5];
+        if (url) allImages.push({ src: url });
+      } else {
+        const result = detectMDInternalLink(link);
+        if (result?.path) {
+          allImages.push({
+            src: result.path,
+            filepath: result.filepath
+          });
         }
       }
     }
-    externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
-    // externalImageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
+  }
+
+  // 处理 Wiki 格式的链接
+  if (WIKI_IMAGE_URL_REG.test(memo)) {
+    const wikiLinks = Array.from(memo.match(WIKI_IMAGE_URL_REG) || []);
+    for (const link of wikiLinks) {
+      const result = detectWikiInternalLink(link);
+      if (result?.path) {
+        allImages.push({
+          src: result.path,
+          filepath: result.filepath
+        });
+      }
+    }
+  }
+
+  if (allImages.length === 0) {
+    return null;
   }
 
   return (
-    <>
-      <Only when={externalImageUrls.length > 0}>
-        <div className="images-wrapper" style={imageGridStyles}>
-          {externalImageUrls.map((imgUrl, idx) => (
-            <div key={idx} style={imageItemStyles}>
-              <Image
-                alt=""
-                className="memo-img"
-                imgUrl={imgUrl}
-                referrerPolicy="no-referrer"
-                style={imageStyle}
-              />
-            </div>
-          ))}
+    <div className="images-wrapper" style={imageGridStyles}>
+      {allImages.map((image, idx) => (
+        <div key={idx} style={imageItemStyles}>
+          <Image
+            className="memo-img"
+            imgUrl={image.src}
+            alt=""
+            filepath={image.filepath}
+            style={imageStyle}
+            referrerPolicy={!image.filepath ? 'no-referrer' : undefined}
+            allImages={allImages}
+            index={idx}
+          />
         </div>
-      </Only>
-      <Only when={internalImageUrls.length > 0}>
-        <div className="images-wrapper internal-embed image-embed is-loaded" style={imageGridStyles}>
-          {internalImageUrls.map((imgUrl, idx) => (
-            <div key={idx} style={imageItemStyles}>
-              <Image
-                key={idx}
-                className="memo-img"
-                imgUrl={imgUrl.path}
-                alt={imgUrl.altText}
-                filepath={imgUrl.filepath}
-                style={imageStyle}
-              />
-            </div>
-          ))}
-        </div>
-      </Only>
-    </>
+      ))}
+    </div>
   );
 };
 

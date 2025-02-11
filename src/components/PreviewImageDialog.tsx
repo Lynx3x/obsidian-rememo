@@ -1,139 +1,113 @@
-import React, { useEffect, useRef, useState } from 'react';
-import utils from '../helpers/utils';
+import React from 'react';
+import Lightbox from 'yet-another-react-lightbox';
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 import { showDialog } from './Dialog';
 import '../less/preview-image-dialog.less';
 import appStore from '../stores/appStore';
-import Close from '../icons/close.svg?component';
 import { Notice } from 'obsidian';
 import { t } from '../translations/helper';
 
 interface Props extends DialogProps {
   imgUrl: string;
   filepath?: string;
+  allImages?: Array<{
+    src: string;
+    filepath?: string;
+  }>;
+  startIndex?: number;
 }
 
-const PreviewImageDialog: React.FC<Props> = ({ destroy, imgUrl, filepath }: Props) => {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [imgWidth, setImgWidth] = useState<number>(-1);
+const PreviewImageDialog: React.FC<Props> = ({ 
+  destroy, 
+  imgUrl, 
+  filepath, 
+  allImages, 
+  startIndex = 0 
+}: Props) => {
   const { vault } = appStore.getState().dailyNotesState.app;
 
-  useEffect(() => {
-    utils.getImageSize(imgUrl).then(({ width }) => {
-      if (width !== 0) {
-        setImgWidth(80);
-      } else {
-        setImgWidth(0);
-      }
-    });
-  }, []);
-
-  const handleCloseBtnClick = () => {
-    destroy();
-  };
-
-  const handleDecreaseImageSize = () => {
-    if (imgWidth > 30) {
-      setImgWidth(imgWidth - 10);
-    }
-  };
-
-  const handleIncreaseImageSize = () => {
-    setImgWidth(imgWidth + 10);
-  };
-
-  const convertBase64ToBlob = (base64: string, type: string) => {
-    var bytes = window.atob(base64);
-    var ab = new ArrayBuffer(bytes.length);
-    var ia = new Uint8Array(ab);
-    for (var i = 0; i < bytes.length; i++) {
-      ia[i] = bytes.charCodeAt(i);
-    }
-    return new Blob([ab], { type: type });
-  };
-
   const copyImageToClipboard = async () => {
-    if ((filepath === null || filepath === undefined) && imgUrl !== null) {
-      const myBase64 = imgUrl.split('base64,')[1];
-      const blobInput = convertBase64ToBlob(myBase64, 'image/png');
-      const clipboardItemInput = new ClipboardItem({ 'image/png': blobInput });
-      window.navigator['clipboard'].write([clipboardItemInput]);
-      new Notice('Send to clipboard successfully');
-    } else {
-      const buffer = await vault.adapter.readBinary(filepath);
-      const arr = new Uint8Array(buffer);
-
-      const blob = new Blob([arr], { type: 'image/png' });
-
-      const item = new ClipboardItem({ 'image/png': blob });
-      window.navigator['clipboard'].write([item]);
+    try {
+      if (!filepath && imgUrl) {
+        const myBase64 = imgUrl.split('base64,')[1];
+        const blobInput = new Blob([Uint8Array.from(atob(myBase64), c => c.charCodeAt(0))], { type: 'image/png' });
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobInput })]);
+      } else if (filepath) {
+        const buffer = await vault.adapter.readBinary(filepath);
+        const blob = new Blob([buffer], { type: 'image/png' });
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      }
+      new Notice(t('Copied to clipboard Successfully'));
+    } catch (err) {
+      console.error('Failed to copy image:', err);
+      new Notice(t('Fetch Error'));
     }
   };
+
+  const slides = allImages || [{ src: imgUrl }];
+  const hasMultipleImages = slides.length > 1;
 
   return (
-    <>
-      <button className="btn close-btn" onClick={handleCloseBtnClick}>
-        {/*<img className="icon-img" src={close} />*/}
-        <Close className="icon-img" />
+    <div className="preview-dialog-lightbox">
+      <Lightbox
+        open={true}
+        close={destroy}
+        slides={slides}
+        index={startIndex}
+        plugins={[Zoom]}
+        animation={{ fade: 300 }}
+        carousel={{ 
+          finite: !hasMultipleImages,
+          preload: 1
+        }}
+        zoom={{
+          maxZoomPixelRatio: 5,
+          zoomInMultiplier: 1.5,
+          wheelZoomDistanceFactor: 300,
+          pinchZoomDistanceFactor: 300,
+          scrollToZoom: true,
+          doubleClickMaxStops: 2,
+          doubleClickDelay: 300,
+          keyboardMoveDistance: 50
+        }}
+        render={{
+          iconLoading: () => <div>{t('Image is loading...')}</div>,
+          iconError: () => <div>{t('😟 Cannot load image, image link maybe broken')}</div>
+        }}
+        toolbar={{
+          buttons: hasMultipleImages 
+            ? ['prev', 'zoom', 'next', 'close']
+            : ['zoom', 'close']
+        }}
+        styles={{
+          root: { position: 'absolute', inset: 0 },
+          container: { backgroundColor: 'rgba(0, 0, 0, 0.9)' }
+        }}
+      />
+      <button
+        type="button"
+        className="yarl__button copy-button"
+        onClick={copyImageToClipboard}
+      >
+        📋
       </button>
-
-      <div className="img-container internal-embed image-embed is-loaded">
-        <img className={imgWidth <= 0 ? 'hidden' : ''} ref={imgRef} width={imgWidth + '%'} src={imgUrl} />
-        <span className={'loading-text ' + (imgWidth === -1 ? '' : 'hidden')}>{t('Image is loading...')}</span>
-        <span className={'loading-text ' + (imgWidth === 0 ? '' : 'hidden')}>
-          {t('😟 Cannot load image, image link maybe broken')}
-        </span>
-      </div>
-
-      <div className="action-btns-container">
-        <button className="btn" onClick={handleDecreaseImageSize}>
-          ➖
-        </button>
-        <button className="btn" onClick={handleIncreaseImageSize}>
-          ➕
-        </button>
-        <button className="btn" onClick={() => setImgWidth(80)}>
-          ⭕
-        </button>
-        <button className="btn" onClick={copyImageToClipboard}>
-          📄
-        </button>
-      </div>
-    </>
+    </div>
   );
 };
 
-export default function showPreviewImageDialog(imgUrl: string, filepath?: string): void {
-  if (filepath) {
-    showDialog(
-      {
-        className: 'preview-image-dialog',
-      },
-      PreviewImageDialog,
-      { imgUrl, filepath },
-    );
-  } else {
-    showDialog(
-      {
-        className: 'preview-image-dialog',
-      },
-      PreviewImageDialog,
-      { imgUrl },
-    );
-  }
-
-  // setTimeout(() => {
-  //   document.querySelector(".preview-image-dialog").addEventListener("keypress", closeWindowByEsc);
-  // }, 0);
+export default function showPreviewImageDialog(
+  imgUrl: string, 
+  filepath?: string,
+  allImages?: Array<{ src: string; filepath?: string }>,
+  startIndex?: number
+): void {
+  showDialog(
+    {
+      className: 'preview-image-dialog',
+      clickSpaceDestroy: false
+    },
+    PreviewImageDialog,
+    { imgUrl, filepath, allImages, startIndex }
+  );
 }
-
-// function closeWindow() {
-//   document.querySelector(".preview-image-dialog .close-btn").click();
-// }
-
-// function closeWindowByEsc(e) {
-//   if (!e) e = window.event;
-//   var keyCode = e.keyCode || e.which;
-//   if (keyCode == '27') {
-//     closeWindow();
-//   }
-// }

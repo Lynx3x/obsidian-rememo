@@ -21,7 +21,8 @@
     "obsidian-daily-notes-interface": "^0.9.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "tiny-undo": "^0.0.10"
+    "tiny-undo": "^0.0.10",
+    "yet-another-react-lightbox": "^3.21.7"
   },
   "devDependencies": {
     "@honkhonk/vite-plugin-svgr": "^1.1.0",
