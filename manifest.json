@@ -1,10 +1,10 @@
 {
-  "id": "obsidian-memos",
-  "name": "Obsidian Memos",
-  "description": "A plugin for capturing ideas in Obsidian",
-  "version": "1.9.7.1",
-  "author": "Boninall",
-  "authorUrl": "https://github.com/Quorafind/",
-  "isDesktopOnly": false,
-  "minAppVersion": "0.14.0"
+    "id": "obsidian-memos-plus",
+    "name": "Memos Plus",
+    "description": "An enhanced version of Memos for capturing ideas in Obsidian",
+    "version": "1.0.0",
+    "author": "Larynx",
+    "authorUrl": "https://github.com/Lynx3x",
+    "isDesktopOnly": false,
+    "minAppVersion": "0.14.0"
 }
