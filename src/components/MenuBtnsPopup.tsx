@@ -80,10 +80,6 @@ const MenuBtnsPopup: React.FC<Props> = (props: Props) => {
     showAboutSiteDialog();
   };
 
-  const handleHomeBoardBtnClick = async () => {
-    locationService.pushHistory('/homeboard');
-  };
-
   return (
     <div className={`menu-btns-popup ${shownStatus ? '' : 'hidden'}`} ref={popupElRef}>
       <button className="btn action-btn" onClick={handleMyAccountBtnClick}>
@@ -98,9 +94,6 @@ const MenuBtnsPopup: React.FC<Props> = (props: Props) => {
       <button className="btn action-btn" onClick={handleAboutBtnClick}>
         <span className="icon">🤠</span> {t('About Me')}
       </button>
-      {/*<button className="btn action-btn" onClick={handleHomeBoardBtnClick}>*/}
-      {/*  <span className="icon">👋</span> Memos Board(Beta)*/}
-      {/*</button>*/}
     </div>
   );
 };
