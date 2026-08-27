@@ -1,4 +1,4 @@
-import showPreviewImageDialog from './PreviewImageDialog';
+import { showPreviewImageDialog } from './PreviewImageDialog';
 import '../less/image.less';
 import React from 'react';
 
@@ -20,7 +20,7 @@ const Image: React.FC<Props> = (props: Props) => {
   const { className, imgUrl, alt, referrerPolicy, filepath, allImages, index } = props;
 
   const handleImageClick = () => {
-    if (allImages && index !== undefined) {
+    if (allImages && typeof index === 'number') {
       showPreviewImageDialog(imgUrl, filepath, allImages, index);
     } else {
       showPreviewImageDialog(imgUrl, filepath);
@@ -29,7 +29,14 @@ const Image: React.FC<Props> = (props: Props) => {
 
   return (
     <div className={'image-container ' + className} onClick={handleImageClick} style={props.style}>
-      <img src={imgUrl} alt={alt} decoding="async" loading="lazy" referrerPolicy={referrerPolicy} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+      <img 
+        src={imgUrl} 
+        alt={alt} 
+        decoding="async" 
+        loading="lazy" 
+        referrerPolicy={referrerPolicy} 
+        style={{width: '100%', height: '100%', objectFit: 'cover'}} 
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import utils from '../helpers/utils';
 import { formatMemoContent } from './Memo';
 import Only from './common/OnlyWhen';
 import '../less/daily-memo.less';
+import Image from './Image';
 import React from 'react';
 import { App, TFile, Vault } from 'obsidian';
 import appStore from '../stores/appStore';
@@ -138,6 +139,11 @@ const DailyMemo: React.FC<Props> = (props: Props) => {
     externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
     // externalImageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
   }
+  const allImages: Array<{ src: string; filepath?: string }> = [
+    ...externalImageUrls.map((u) => ({ src: u })),
+    ...internalImageUrls.map((imgUrl) => ({ src: imgUrl.path, filepath: imgUrl.filePath })),
+  ];
+
 
   return (
     <div className="daily-memo-wrapper">
@@ -149,14 +155,30 @@ const DailyMemo: React.FC<Props> = (props: Props) => {
         <Only when={externalImageUrls.length > 0}>
           <div className="images-container">
             {externalImageUrls.map((imgUrl, idx) => (
-              <img key={idx} src={imgUrl} referrerPolicy="no-referrer" />
+              <Image
+                key={idx}
+                className="memo-img"
+                imgUrl={imgUrl}
+                alt=""
+                referrerPolicy="no-referrer"
+                allImages={allImages}
+                index={idx}
+              />
             ))}
           </div>
         </Only>
         <Only when={internalImageUrls.length > 0}>
           <div className="images-container internal-embed image-embed is-loaded">
             {internalImageUrls.map((imgUrl, idx) => (
-              <img key={idx} src={imgUrl.path} alt={imgUrl.altText} path={imgUrl.filePath} />
+              <Image
+                key={idx}
+                className="memo-img"
+                imgUrl={imgUrl.path}
+                alt={imgUrl.altText}
+                filepath={imgUrl.filePath}
+                allImages={allImages}
+                index={externalImageUrls.length + idx}
+              />
             ))}
           </div>
         </Only>
