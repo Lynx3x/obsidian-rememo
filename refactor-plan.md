@@ -1,129 +1,133 @@
-# Memo时间处理重构方案
+# Memo评论系统优化方案
 
-## 1. 创建TimeFormatHelper类
+## 当前存在的问题
+
+1. 数据冗余
+- memos 和 commentMemos 存储了重复的信息结构
+- 每条评论都需要完整的时间戳和用户信息
+
+2. 查询效率
+- 需要遍历所有 memos 来找到特定评论的父 memo
+- 评论与原 memo 的关联基于字符串匹配
+
+3. 数据一致性
+- 评论可能分散在不同位置（原笔记 vs 独立存储）
+- 删除原 memo 时可能遗留孤立评论
+
+4. 扩展性
+- 当前结构难以支持多级评论
+- 难以添加新的评论相关功能（如点赞、提醒等）
+
+## 优化建议
+
+### 1. 数据结构优化
 
 ```typescript
-class TimeFormatHelper {
-  private static readonly LIST_MARKER = '^\\s*[\\-\\*]\\s';
-  private static readonly TASK_MARKER = '(\\[(.{1})\\]\\s)?';
-  private static readonly TIME_TAG = '(\\<time\\>)?';
-  private static readonly TIME_END_TAG = '(\\<\\/time\\>)?';
-  private static readonly TIME_FORMAT = '\\d{1,2}\\:\\d{2}(\\:\\d{2})?';
-  private static readonly CONTENT = '[^\\n]*';
-
-  // 基础正则构建器
-  private static buildRegexPattern(withTimeTag: boolean = true, withContent: boolean = true): string {
-    return [
-      this.LIST_MARKER,
-      this.TASK_MARKER,
-      withTimeTag ? this.TIME_TAG : '',
-      this.TIME_FORMAT,
-      withTimeTag ? this.TIME_END_TAG : '',
-      withContent ? this.CONTENT : ''
-    ].join('');
+interface Memo {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  memoType: string;
+  path: string;
+  comments?: Comment[];  // 内联评论数组
+  metadata?: {           // 额外元数据
+    tags?: string[];
+    mentions?: string[];
+    hasComments: boolean;  // 快速检查是否有评论
   }
+}
 
-  // 处理DefaultMemoComposition的模式
-  private static buildMemoCompositionPattern(template: string): string {
-    return template.replace(
-      /{TIME}/g,
-      `${this.TIME_TAG}${this.TIME_FORMAT}${this.TIME_END_TAG}`
-    ).replace(
-      /{CONTENT}/g,
-      this.CONTENT
-    );
-  }
-
-  // 通用的时间提取方法
-  private static extractTimeComponent(
-    line: string,
-    defaultComposition: string,
-    componentIndex: number
-  ): string | undefined {
-    const pattern = defaultComposition
-      ? this.buildMemoCompositionPattern(defaultComposition)
-      : this.buildRegexPattern();
-
-    const regexMatchRe = new RegExp(pattern, '');
-    const match = regexMatchRe.exec(line);
-    return match?.[componentIndex];
-  }
-
-  // 公共接口
-  public static hasTime(line: string, defaultComposition: string = ''): boolean {
-    const pattern = defaultComposition
-      ? this.buildMemoCompositionPattern(defaultComposition)
-      : this.buildRegexPattern();
-    return new RegExp(pattern).test(line);
-  }
-
-  public static hasSeconds(line: string): boolean {
-    const pattern = this.buildRegexPattern(true, false).replace(
-      this.TIME_FORMAT,
-      '\\d{1,2}\\:\\d{2}\\:\\d{2}'
-    );
-    return new RegExp(pattern).test(line);
-  }
-
-  public static extractHour(line: string, defaultComposition: string = ''): string | undefined {
-    return this.extractTimeComponent(line, defaultComposition, 4); // 假设4是小时的捕获组索引
-  }
-
-  public static extractMinute(line: string, defaultComposition: string = ''): string | undefined {
-    return this.extractTimeComponent(line, defaultComposition, 5); // 假设5是分钟的捕获组索引
-  }
-
-  public static extractSecond(line: string, defaultComposition: string = ''): string | undefined {
-    return this.extractTimeComponent(line, defaultComposition, 6); // 假设6是秒的捕获组索引
-  }
-
-  public static extractText(line: string, defaultComposition: string = ''): string | undefined {
-    return this.extractTimeComponent(line, defaultComposition, -1); // 最后一个捕获组是文本内容
+interface Comment {
+  id: string;
+  content: string;
+  createdAt: string;
+  parentId: string;      // 直接引用父评论ID
+  memoId: string;        // 直接引用原memo ID
+  metadata?: {           // 评论特有元数据
+    status?: string;
+    type?: string;
   }
 }
 ```
 
-## 2. 重构步骤
+### 2. 存储优化
 
-1. 创建新的TimeFormatHelper类文件
-2. 修改原有方法，使用TimeFormatHelper：
-   ```typescript
-   const lineContainsTime = (line: string): boolean => {
-     return TimeFormatHelper.hasTime(line, DefaultMemoComposition);
-   };
+#### 方案A: 统一存储模式
+- 所有评论统一存储在原笔记的子项中
+- 优点：
+  * 数据位置统一，便于管理
+  * 保持上下文完整性
+  * 便于数据导出和迁移
+- 缺点：
+  * 可能导致单个笔记文件过大
+  * 不利于评论的单独管理
 
-   const lineContainsSeconds = (line: string): boolean => {
-     return TimeFormatHelper.hasSeconds(line);
-   };
+#### 方案B: 混合存储模式 (推荐)
+- 短评论（如标记、状态更新）存储在原笔记中
+- 长评论存储在单独的评论文件中
+- 优点：
+  * 平衡了存储效率和管理便利性
+  * 支持更复杂的评论场景
+  * 便于实现评论的版本控制
+- 实现建议：
+  ```typescript
+  const COMMENT_LENGTH_THRESHOLD = 100; // 评论长度阈值
+  
+  function determineCommentStorage(comment: Comment): StorageType {
+    return comment.content.length > COMMENT_LENGTH_THRESHOLD 
+      ? StorageType.Separate 
+      : StorageType.Inline;
+  }
+  ```
 
-   const extractHourFromBulletLine = (line: string): string | undefined => {
-     return TimeFormatHelper.extractHour(line, DefaultMemoComposition);
-   };
+### 3. 查询优化
 
-   const extractMinFromBulletLine = (line: string): string | undefined => {
-     return TimeFormatHelper.extractMinute(line, DefaultMemoComposition);
-   };
+1. 索引优化
+- 建立 memo-comment 关系的内存索引
+- 使用 Map 结构提高查询效率
+```typescript
+const memoCommentIndex = new Map<string, Set<string>>();
+```
 
-   const extractSecondFromBulletLine = (line: string): string | undefined => {
-     return TimeFormatHelper.extractSecond(line, DefaultMemoComposition);
-   };
+2. 缓存策略
+- 实现评论数据的内存缓存
+- 增量更新而非全量重新加载
 
-   const extractTextFromTodoLine = (line: string): string | undefined => {
-     return TimeFormatHelper.extractText(line, DefaultMemoComposition);
-   };
-   ```
+### 4. 接口优化
 
-## 3. 优势
+1. 引入新的评论操作接口
+```typescript
+interface CommentOperations {
+  addComment(memoId: string, content: string): Promise<Comment>;
+  removeComment(commentId: string): Promise<boolean>;
+  updateComment(commentId: string, content: string): Promise<Comment>;
+  getComments(memoId: string): Promise<Comment[]>;
+}
+```
 
-1. 正则表达式的构建被集中管理，避免重复代码
-2. 通过常量定义提高可维护性
-3. 统一的接口使代码更容易理解和使用
-4. 更容易进行单元测试
-5. 未来修改时间格式只需要修改一处代码
+2. 评论数据同步机制
+```typescript
+interface CommentSync {
+  onCommentAdded(callback: (comment: Comment) => void): void;
+  onCommentUpdated(callback: (comment: Comment) => void): void;
+  onCommentRemoved(callback: (commentId: string) => void): void;
+}
+```
 
-## 4. 后续扩展可能
+## 实施建议
 
-1. 支持不同的时间格式配置
-2. 添加时间解析和格式化功能
-3. 支持更多的列表格式
-4. 添加错误处理和日志记录
+1. 分阶段实施
+- 第一阶段：数据结构优化
+- 第二阶段：存储模式调整
+- 第三阶段：查询优化
+- 第四阶段：新功能添加
+
+2. 数据迁移
+- 提供数据迁移工具
+- 确保向后兼容性
+
+3. 测试策略
+- 单元测试覆盖核心逻辑
+- 性能测试验证优化效果
+- 集成测试确保系统稳定性
