@@ -6,6 +6,7 @@ import App from './App';
 import type MemosPlugin from './index';
 import { dailyNotesService, globalStateService, memoService } from './services';
 import { getDateFromFile } from 'obsidian-daily-notes-interface';
+import appStore from './stores/appStore';
 
 export class Memos extends ItemView {
   plugin: MemosPlugin;
@@ -129,6 +130,9 @@ export class Memos extends ItemView {
     // );
 
     dailyNotesService.getApp(this.app);
+
+    // 把设置注入响应式 store（组件经 context 订阅，实现响应式）
+    appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.plugin.settings } });
 
     InsertAfter = this.plugin.settings.InsertAfter;
     UserName = this.plugin.settings.UserName;

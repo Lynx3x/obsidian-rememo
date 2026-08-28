@@ -15,14 +15,6 @@ import Only from './common/OnlyWhen';
 import '../less/share-memo-image-dialog.less';
 import { moment, Notice, Platform, TFile, Vault } from 'obsidian';
 import appStore from '../stores/appStore';
-import {
-  AutoSaveWhenOnMobile,
-  DefaultDarkBackgroundImage,
-  DefaultLightBackgroundImage,
-  ShareFooterEnd,
-  ShareFooterStart,
-  UserName,
-} from '../memos';
 import lightBackground from '../icons/lightBackground.svg';
 import darkBackground from '../icons/darkBackground.svg';
 
@@ -116,6 +108,8 @@ const detectMDInternalLink = (lineText: string): LinkMatch | null => {
 const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
   const { memo: propsMemo, destroy } = props;
   const { memos } = appStore.getState().memoState;
+  const { settings } = appStore.getState().settingsState;
+  const { AutoSaveWhenOnMobile, DefaultDarkBackgroundImage, DefaultLightBackgroundImage, ShareFooterEnd, ShareFooterStart, UserName } = settings;
   let memosLength;
   let createdDays;
   if (memos.length) {

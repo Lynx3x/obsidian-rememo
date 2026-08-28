@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, MemosSettings, MemosSettingTab } from './setting';
 import showDailyMemoDiaryDialog from './components/DailyMemoDiaryDialog';
 import { t } from './translations/helper';
 import { memoService } from './services';
+import appStore from './stores/appStore';
 
 export default class MemosPlugin extends Plugin {
     public settings: MemosSettings;
@@ -26,6 +27,8 @@ export default class MemosPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
+        // 设置变更后同步到响应式 store，让 UI 组件立即更新
+        appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.settings } });
     }
 
     onunload() {

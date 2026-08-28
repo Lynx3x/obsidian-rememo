@@ -15,7 +15,6 @@ import { usePopper } from 'react-popper';
 import useState from 'react-usestateref';
 import DatePicker from './common/DatePicker';
 import { moment, Notice, Platform } from 'obsidian';
-import { DefaultEditorLocation, DefaultPrefix, FocusOnEditor, InsertDateFormat, UseButtonToShowEditor } from '../memos';
 import useToggle from '../hooks/useToggle';
 import { MEMOS_VIEW_TYPE } from '../constants';
 import { t } from '../translations/helper';
@@ -69,6 +68,10 @@ let positionX: number;
 
 const MemoEditor: React.FC<Props> = () => {
   const { globalState } = useContext(appContext);
+  const {
+    settingsState: { settings },
+  } = useContext(appContext);
+  const { DefaultEditorLocation, DefaultPrefix, FocusOnEditor, InsertDateFormat, UseButtonToShowEditor } = settings;
   const { app } = dailyNotesService.getState();
 
   const [isListShown, toggleList] = useToggle(false);

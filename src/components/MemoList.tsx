@@ -9,7 +9,6 @@ import '../less/memolist.less';
 import dailyNotesService from '../services/dailyNotesService';
 import appStore from '../stores/appStore';
 import { Notice, Platform } from 'obsidian';
-import { HideDoneTasks } from '../memos';
 import { t } from '../translations/helper';
 import Pagination from './Pagination';
 
@@ -23,12 +22,13 @@ const MemoList: React.FC<Props> = () => {
   const {
     locationState: { query },
     memoState: { memos },
+    settingsState: { settings },
   } = useContext(appContext);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isFetching, setFetchStatus] = useState(true);
   const wrapperElement = useRef<HTMLDivElement>(null);
-  
+
   const { tag: tagQuery, duration, type: memoContentType, text: textQuery, filter: queryId } = query;
   const queryFilter = queryService.getQueryById(queryId);
   const showMemoFilter = Boolean(
@@ -36,12 +36,12 @@ const MemoList: React.FC<Props> = () => {
   );
 
   const shownMemos =
-    showMemoFilter || queryFilter || HideDoneTasks
+    showMemoFilter || queryFilter || settings.HideDoneTasks
       ? memos.filter((memo) => {
           let shouldShow = true;
 
           if (memo.memoType !== undefined) {
-            if (HideDoneTasks && memo.memoType === 'TASK-DONE') {
+            if (settings.HideDoneTasks && memo.memoType === 'TASK-DONE') {
               shouldShow = false;
             }
           }

@@ -14,7 +14,6 @@ import Close from '../icons/close.svg?component';
 import Share from '../icons/share.svg?component';
 import ArrowRight from '../icons/arrow-right.svg?component';
 import ArrowLeft from '../icons/arrow-left.svg?component';
-import { AutoSaveWhenOnMobile } from '../memos';
 import { moment, Platform, TFile } from 'obsidian';
 import { getAllDailyNotes } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
@@ -75,7 +74,7 @@ const DailyMemoDiaryDialog: React.FC<Props> = (props: Props) => {
         pixelRatio: window.devicePixelRatio * 2,
       })
         .then((url) => {
-          if (AutoSaveWhenOnMobile && Platform.isMobile) {
+          if (appStore.getState().settingsState.settings.AutoSaveWhenOnMobile && Platform.isMobile) {
             const myBase64 = url.split('base64,')[1];
             const blobInput = convertBase64ToBlob(myBase64, 'image/png');
             blobInput.arrayBuffer().then(async (buffer) => {

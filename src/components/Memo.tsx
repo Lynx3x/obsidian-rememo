@@ -23,14 +23,6 @@ import More from '../icons/more.svg?component';
 import Comment from '../icons/comment.svg?component';
 import TaskBlank from '../icons/task-blank.svg?component';
 import Task from '../icons/task.svg?component';
-import {
-  CommentOnMemos,
-  CommentsInOriginalNotes,
-  DefaultEditorLocation,
-  ShowCommentOnMemos,
-  ShowTaskLabel,
-  UseButtonToShowEditor,
-} from '../memos';
 import { t } from '../translations/helper';
 import Editor, { EditorRefActions } from './Editor/Editor';
 import MemoImage from './MemoImage';
@@ -48,6 +40,11 @@ interface Props {
 
 const Memo: React.FC<Props> = (props: Props) => {
   const { globalState } = useContext(appContext);
+  const {
+    settingsState: { settings },
+  } = useContext(appContext);
+  // 从响应式设置读取，替代全局变量
+  const { CommentOnMemos, CommentsInOriginalNotes, DefaultEditorLocation, ShowCommentOnMemos, ShowTaskLabel, UseButtonToShowEditor } = settings;
   const { memo: propsMemo } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
   const memoCommentRef = useRef<EditorRefActions>(null);

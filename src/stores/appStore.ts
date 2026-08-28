@@ -6,6 +6,7 @@ import * as memoStore from './memoStore';
 import * as userStore from './userStore';
 import * as queryStore from './queryStore';
 import * as dailyNotesStore from './dailyNotesStore';
+import * as settingsStore from './settingsStore';
 
 interface AppState {
   globalState: globalStore.State;
@@ -14,6 +15,7 @@ interface AppState {
   userState: userStore.State;
   queryState: queryStore.State;
   dailyNotesState: dailyNotesStore.State;
+  settingsState: settingsStore.State;
 }
 
 type AppStateActions =
@@ -22,7 +24,8 @@ type AppStateActions =
   | memoStore.Actions
   | userStore.Actions
   | queryStore.Actions
-  | dailyNotesStore.Actions;
+  | dailyNotesStore.Actions
+  | settingsStore.Actions;
 
 const appStore = createStore<AppState, AppStateActions>(
   {
@@ -32,6 +35,7 @@ const appStore = createStore<AppState, AppStateActions>(
     userState: userStore.defaultState,
     queryState: queryStore.defaultState,
     dailyNotesState: dailyNotesStore.defaultState,
+    settingsState: settingsStore.defaultState,
   },
   combineReducers<AppState, AppStateActions>({
     globalState: globalStore.reducer,
@@ -40,6 +44,7 @@ const appStore = createStore<AppState, AppStateActions>(
     userState: userStore.reducer,
     queryState: queryStore.reducer,
     dailyNotesState: dailyNotesStore.reducer,
+    settingsState: settingsStore.reducer,
   }),
 );
 

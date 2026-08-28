@@ -2,12 +2,15 @@ import MemoEditor from '../components/MemoEditor';
 import MemosHeader from '../components/MemosHeader';
 import MemoFilter from '../components/MemoFilter';
 import MemoList from '../components/MemoList';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Platform } from 'obsidian';
-import { DefaultEditorLocation } from '../memos';
+import appContext from '../stores/appContext';
 
 function Memos() {
-  if (Platform.isMobile && DefaultEditorLocation === 'Bottom') {
+  const {
+    settingsState: { settings },
+  } = useContext(appContext);
+  if (Platform.isMobile && settings.DefaultEditorLocation === 'Bottom') {
     return (
       <>
         <MemosHeader />

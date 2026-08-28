@@ -5,7 +5,6 @@ import utils from '../helpers/utils';
 import MenuBtnsPopup from './MenuBtnsPopup';
 import showDailyMemoDiaryDialog from './DailyMemoDiaryDialog';
 import '../less/user-banner.less';
-import { UserName } from '../memos';
 import More from '../icons/more.svg?component';
 import { t } from '../translations/helper';
 
@@ -15,8 +14,9 @@ const UserBanner: React.FC<Props> = () => {
   const {
     memoState: { memos, tags },
     userState: { user },
+    settingsState: { settings },
   } = useContext(appContext);
-  const username = user ? user.username : UserName;
+  const username = user ? user.username : settings.UserName;
   let memosLength;
   let createdDays;
   if (memos.length) {

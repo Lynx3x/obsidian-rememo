@@ -6959,7 +6959,7 @@ function createStore(preloadedState, reducer2) {
     subscribe
   };
 }
-function reducer$7(state, action) {
+function reducer$8(state, action) {
   switch (action.type) {
     case "SET_MARK_MEMO_ID": {
       if (action.payload.markMemoId === state.markMemoId) {
@@ -7026,7 +7026,7 @@ function reducer$7(state, action) {
     }
   }
 }
-const defaultState$5 = {
+const defaultState$6 = {
   markMemoId: "",
   editMemoId: "",
   commentMemoId: "",
@@ -7038,7 +7038,7 @@ const defaultState$5 = {
   showSiderbarInMobileView: false,
   changedByMemos: false
 };
-function reducer$6(state, action) {
+function reducer$7(state, action) {
   switch (action.type) {
     case "SET_LOCATION": {
       return action.payload;
@@ -7137,7 +7137,7 @@ function reducer$6(state, action) {
     }
   }
 }
-const defaultState$4 = {
+const defaultState$5 = {
   pathname: "/",
   hash: "",
   query: {
@@ -8951,7 +8951,7 @@ function getDailyNotePath() {
   return dailyNotePath;
 }
 var utils$1 = utils;
-function reducer$5(state, action) {
+function reducer$6(state, action) {
   switch (action.type) {
     case "SET_MEMOS": {
       const memos = utils$1.dedupeObjectWithId(
@@ -9047,13 +9047,13 @@ function reducer$5(state, action) {
     }
   }
 }
-const defaultState$3 = {
+const defaultState$4 = {
   memos: [],
   commentMemos: [],
   tags: [],
   tagsNum: {}
 };
-function reducer$4(state, action) {
+function reducer$5(state, action) {
   switch (action.type) {
     case "SIGN_IN": {
       return {
@@ -9070,8 +9070,8 @@ function reducer$4(state, action) {
     }
   }
 }
-const defaultState$2 = { user: null };
-function reducer$3(state, action) {
+const defaultState$3 = { user: null };
+function reducer$4(state, action) {
   switch (action.type) {
     case "SET_QUERIES": {
       const queries = utils$1.dedupeObjectWithId(
@@ -9123,10 +9123,10 @@ function reducer$3(state, action) {
     }
   }
 }
-const defaultState$1 = {
+const defaultState$2 = {
   queries: []
 };
-function reducer$2(state, action) {
+function reducer$3(state, action) {
   switch (action.type) {
     case "SET_DAILYNOTES": {
       const dailyNotes = getAllDailyNotes_1();
@@ -9146,26 +9146,39 @@ function reducer$2(state, action) {
     }
   }
 }
-const defaultState = {
+const defaultState$1 = {
   dailyNotes: null,
   app: null
 };
+const defaultState = {
+  settings: {}
+};
+const reducer$2 = (state = defaultState, action) => {
+  switch (action.type) {
+    case "SET_SETTINGS":
+      return { ...state, settings: action.payload.settings };
+    default:
+      return state;
+  }
+};
 const appStore = createStore(
   {
-    globalState: defaultState$5,
-    locationState: defaultState$4,
-    memoState: defaultState$3,
-    userState: defaultState$2,
-    queryState: defaultState$1,
-    dailyNotesState: defaultState
+    globalState: defaultState$6,
+    locationState: defaultState$5,
+    memoState: defaultState$4,
+    userState: defaultState$3,
+    queryState: defaultState$2,
+    dailyNotesState: defaultState$1,
+    settingsState: defaultState
   },
   combineReducers({
-    globalState: reducer$7,
-    locationState: reducer$6,
-    memoState: reducer$5,
-    userState: reducer$4,
-    queryState: reducer$3,
-    dailyNotesState: reducer$2
+    globalState: reducer$8,
+    locationState: reducer$7,
+    memoState: reducer$6,
+    userState: reducer$5,
+    queryState: reducer$4,
+    dailyNotesState: reducer$3,
+    settingsState: reducer$2
   })
 );
 const appContext = react.exports.createContext(appStore.getState());
@@ -14096,6 +14109,17 @@ const ShareMemoImageDialog = (props) => {
   const {
     memos
   } = appStore.getState().memoState;
+  const {
+    settings
+  } = appStore.getState().settingsState;
+  const {
+    AutoSaveWhenOnMobile,
+    DefaultDarkBackgroundImage,
+    DefaultLightBackgroundImage,
+    ShareFooterEnd,
+    ShareFooterStart,
+    UserName
+  } = settings;
   let memosLength;
   let createdDays;
   if (memos.length) {
@@ -16230,6 +16254,19 @@ const Memo = (props) => {
     globalState
   } = react.exports.useContext(appContext);
   const {
+    settingsState: {
+      settings
+    }
+  } = react.exports.useContext(appContext);
+  const {
+    CommentOnMemos: CommentOnMemos2,
+    CommentsInOriginalNotes: CommentsInOriginalNotes2,
+    DefaultEditorLocation,
+    ShowCommentOnMemos,
+    ShowTaskLabel,
+    UseButtonToShowEditor
+  } = settings;
+  const {
     memo: propsMemo
   } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
@@ -16242,7 +16279,7 @@ const Memo = (props) => {
     if (!memoCommentRef.current) {
       return;
     }
-    if (!CommentOnMemos) {
+    if (!CommentOnMemos2) {
       return;
     }
     const fetchCommentMemos = async () => {
@@ -16328,21 +16365,21 @@ const Memo = (props) => {
     try {
       if (commentMemoId) {
         (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
-        const memo2 = CommentOnMemos && CommentsInOriginalNotes ? memoService.getCommentMemoById(commentMemoId) : memoService.getMemoById(commentMemoId);
+        const memo2 = CommentOnMemos2 && CommentsInOriginalNotes2 ? memoService.getCommentMemoById(commentMemoId) : memoService.getMemoById(commentMemoId);
         if (!memo2) {
           throw new Error("Memo not found");
         }
         const prevMemo = memo2;
-        content = CommentOnMemos && CommentsInOriginalNotes ? require$$0.moment().format("YYYYMMDDHHmmss") + " " + content : prevMemo.content.replace(/^(.*) comment:/g, content + " comment:");
+        content = CommentOnMemos2 && CommentsInOriginalNotes2 ? require$$0.moment().format("YYYYMMDDHHmmss") + " " + content : prevMemo.content.replace(/^(.*) comment:/g, content + " comment:");
         if (prevMemo && prevMemo.content !== content) {
           const editedMemo = await memoService.updateMemo({
             memoId: prevMemo.id,
             originalText: prevMemo.content,
             text: content,
             type: prevMemo.memoType,
-            path: CommentOnMemos && CommentsInOriginalNotes ? prevMemo.path : void 0
+            path: CommentOnMemos2 && CommentsInOriginalNotes2 ? prevMemo.path : void 0
           });
-          if (CommentOnMemos && CommentsInOriginalNotes) {
+          if (CommentOnMemos2 && CommentsInOriginalNotes2) {
             memoService.editCommentMemo(editedMemo);
           } else {
             editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
@@ -16360,14 +16397,14 @@ const Memo = (props) => {
       } else {
         const dailyFormat = getDailyNoteFormat();
         let randomId = propsMemo.hasId || "";
-        if (!randomId && !CommentsInOriginalNotes) {
+        if (!randomId && !CommentsInOriginalNotes2) {
           randomId = Math.random().toString(36).slice(-6);
           setAddRandomIDflag(true);
         }
-        const finalContent = !CommentsInOriginalNotes && randomId ? content + " comment: [[" + require$$0.moment(propsMemo.id.slice(0, 8)).format(dailyFormat) + "#^" + randomId + "]]" : content;
+        const finalContent = !CommentsInOriginalNotes2 && randomId ? content + " comment: [[" + require$$0.moment(propsMemo.id.slice(0, 8)).format(dailyFormat) + "#^" + randomId + "]]" : content;
         (_b = memoCommentRef.current) == null ? void 0 : _b.setContent("");
         let newMemo;
-        if (CommentsInOriginalNotes) {
+        if (CommentsInOriginalNotes2) {
           newMemo = await memoService.createCommentMemo({
             text: finalContent,
             isList: true,
@@ -16506,7 +16543,7 @@ const Memo = (props) => {
   };
   const handleEditCommentClick = react.exports.useCallback((memo2) => {
     var _a2, _b;
-    if (!CommentOnMemos) {
+    if (!CommentOnMemos2) {
       return;
     }
     globalStateService.setCommentMemoId(memo2.id);
@@ -16553,7 +16590,7 @@ const Memo = (props) => {
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "memo-top-right-wrapper",
-        children: [CommentOnMemos ? /* @__PURE__ */ jsxs("div", {
+        children: [CommentOnMemos2 ? /* @__PURE__ */ jsxs("div", {
           className: "comment-button-wrapper",
           children: [/* @__PURE__ */ jsx(SvgComment, {
             className: "icon-img",
@@ -16611,7 +16648,7 @@ const Memo = (props) => {
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       ...imageProps
-    }), CommentOnMemos ? /* @__PURE__ */ jsxs("div", {
+    }), CommentOnMemos2 ? /* @__PURE__ */ jsxs("div", {
       className: `memo-comment-wrapper`,
       children: [commentMemos.length > 0 && isCommentListShown ? /* @__PURE__ */ jsx("div", {
         className: `memo-comment-list`,
@@ -17038,7 +17075,7 @@ const DailyMemoDiaryDialog = (props) => {
         backgroundColor: "#ffffff",
         pixelRatio: window.devicePixelRatio * 2
       }).then((url) => {
-        if (AutoSaveWhenOnMobile && require$$0.Platform.isMobile) {
+        if (appStore.getState().settingsState.settings.AutoSaveWhenOnMobile && require$$0.Platform.isMobile) {
           const myBase64 = url.split("base64,")[1];
           const blobInput = convertBase64ToBlob(myBase64, "image/png");
           blobInput.arrayBuffer().then(async (buffer) => {
@@ -17168,9 +17205,12 @@ const UserBanner = () => {
     },
     userState: {
       user
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
-  const username = user ? user.username : UserName;
+  const username = user ? user.username : settings.UserName;
   let memosLength;
   let createdDays;
   if (memos.length) {
@@ -19963,6 +20003,18 @@ const MemoEditor = () => {
     globalState
   } = react.exports.useContext(appContext);
   const {
+    settingsState: {
+      settings
+    }
+  } = react.exports.useContext(appContext);
+  const {
+    DefaultEditorLocation,
+    DefaultPrefix,
+    FocusOnEditor: FocusOnEditor2,
+    InsertDateFormat,
+    UseButtonToShowEditor
+  } = settings;
+  const {
     app: app2
   } = dailyNotesService.getState();
   const [isListShown, toggleList] = useToggle(false);
@@ -20002,7 +20054,7 @@ const MemoEditor = () => {
     if ((require$$0.Platform.isMobile === true || memosWidth < 875) && UseButtonToShowEditor) {
       toggleEditor(true);
     }
-    if (FocusOnEditor) {
+    if (FocusOnEditor2) {
       (_a = editorRef.current) == null ? void 0 : _a.focus();
     }
   }, []);
@@ -20105,14 +20157,14 @@ const MemoEditor = () => {
       };
     } else if (UseButtonToShowEditor === false && DefaultEditorLocation === "Bottom" && require$$0.Platform.isMobile === true && window.innerWidth < 875) {
       handleShowEditor(false);
-      if (FocusOnEditor) {
+      if (FocusOnEditor2) {
         (_a = editorRef.current) == null ? void 0 : _a.focus();
       }
     } else {
       if (!isEditor) {
         handleShowEditor(false);
       }
-      if (FocusOnEditor) {
+      if (FocusOnEditor2) {
         (_b = editorRef.current) == null ? void 0 : _b.focus();
       }
     }
@@ -20874,6 +20926,9 @@ const MemoList = () => {
     },
     memoState: {
       memos
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
   const [currentPage, setCurrentPage] = react.exports.useState(1);
@@ -20888,11 +20943,11 @@ const MemoList = () => {
   } = query;
   const queryFilter = queryService.getQueryById(queryId);
   const showMemoFilter = Boolean(tagQuery || duration && duration.from < duration.to || memoContentType || textQuery || queryFilter);
-  const shownMemos = showMemoFilter || queryFilter || HideDoneTasks ? memos.filter((memo2) => {
+  const shownMemos = showMemoFilter || queryFilter || settings.HideDoneTasks ? memos.filter((memo2) => {
     var _a, _b, _c;
     let shouldShow = true;
     if (memo2.memoType !== void 0) {
-      if (HideDoneTasks && memo2.memoType === "TASK-DONE") {
+      if (settings.HideDoneTasks && memo2.memoType === "TASK-DONE") {
         shouldShow = false;
       }
     }
@@ -21248,7 +21303,12 @@ const MemoFilter = () => {
   });
 };
 function Memos$1() {
-  if (require$$0.Platform.isMobile && DefaultEditorLocation === "Bottom") {
+  const {
+    settingsState: {
+      settings
+    }
+  } = react.exports.useContext(appContext);
+  if (require$$0.Platform.isMobile && settings.DefaultEditorLocation === "Bottom") {
     return /* @__PURE__ */ jsxs(Fragment, {
       children: [/* @__PURE__ */ jsx(MemosHeader, {}), /* @__PURE__ */ jsx(MemoFilter, {}), /* @__PURE__ */ jsx(MemoList, {}), /* @__PURE__ */ jsx(MemoEditor, {})]
     });
@@ -21760,37 +21820,38 @@ class Memos extends require$$0.ItemView {
       })
     );
     dailyNotesService.getApp(this.app);
+    appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.plugin.settings } });
     InsertAfter = this.plugin.settings.InsertAfter;
-    UserName = this.plugin.settings.UserName;
+    this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
     SaveMemoButtonLabel = this.plugin.settings.SaveMemoButtonLabel;
     SaveMemoButtonIcon = this.plugin.settings.SaveMemoButtonIcon;
-    DefaultPrefix = this.plugin.settings.DefaultPrefix;
-    InsertDateFormat = this.plugin.settings.InsertDateFormat;
-    DefaultEditorLocation = this.plugin.settings.DefaultEditorLocation;
-    UseButtonToShowEditor = this.plugin.settings.UseButtonToShowEditor;
+    this.plugin.settings.DefaultPrefix;
+    this.plugin.settings.InsertDateFormat;
+    this.plugin.settings.DefaultEditorLocation;
+    this.plugin.settings.UseButtonToShowEditor;
     FocusOnEditor = this.plugin.settings.FocusOnEditor;
     OpenDailyMemosWithMemos = this.plugin.settings.OpenDailyMemosWithMemos;
-    HideDoneTasks = this.plugin.settings.HideDoneTasks;
-    ShareFooterStart = this.plugin.settings.ShareFooterStart;
-    ShareFooterEnd = this.plugin.settings.ShareFooterEnd;
+    this.plugin.settings.HideDoneTasks;
+    this.plugin.settings.ShareFooterStart;
+    this.plugin.settings.ShareFooterEnd;
     this.plugin.settings.OpenMemosAutomatically;
     ShowTime = this.plugin.settings.ShowTime;
     ShowDate = this.plugin.settings.ShowDate;
     AddBlankLineWhenDate = this.plugin.settings.AddBlankLineWhenDate;
-    AutoSaveWhenOnMobile = this.plugin.settings.AutoSaveWhenOnMobile;
+    this.plugin.settings.AutoSaveWhenOnMobile;
     QueryFileName = this.plugin.settings.QueryFileName;
     DeleteFileName = this.plugin.settings.DeleteFileName;
     UseVaultTags = this.plugin.settings.UseVaultTags;
-    DefaultDarkBackgroundImage = this.plugin.settings.DefaultDarkBackgroundImage;
-    DefaultLightBackgroundImage = this.plugin.settings.DefaultLightBackgroundImage;
+    this.plugin.settings.DefaultDarkBackgroundImage;
+    this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
-    ShowTaskLabel = this.plugin.settings.ShowTaskLabel;
+    this.plugin.settings.ShowTaskLabel;
     CommentOnMemos = this.plugin.settings.CommentOnMemos;
     CommentsInOriginalNotes = this.plugin.settings.CommentsInOriginalNotes;
     FetchMemosMark = this.plugin.settings.FetchMemosMark;
     FetchMemosFromNote = this.plugin.settings.FetchMemosFromNote;
-    ShowCommentOnMemos = this.plugin.settings.ShowCommentOnMemos;
+    this.plugin.settings.ShowCommentOnMemos;
     UseDailyOrPeriodic = this.plugin.settings.UseDailyOrPeriodic;
     ShowLeftSideBar = this.plugin.settings.ShowLeftSideBar;
     this.memosComponent = React.createElement(StrictApp);
@@ -21800,35 +21861,22 @@ class Memos extends require$$0.ItemView {
   }
 }
 let InsertAfter;
-let UserName;
 let ProcessEntriesBelow;
 let SaveMemoButtonLabel;
 let SaveMemoButtonIcon;
-let DefaultPrefix;
-let InsertDateFormat;
-let DefaultEditorLocation;
-let UseButtonToShowEditor;
 let FocusOnEditor;
 let OpenDailyMemosWithMemos;
-let HideDoneTasks;
-let ShareFooterStart;
-let ShareFooterEnd;
 let ShowTime;
 let ShowDate;
 let AddBlankLineWhenDate;
-let AutoSaveWhenOnMobile;
 let QueryFileName;
 let DeleteFileName;
 let UseVaultTags;
-let DefaultDarkBackgroundImage;
-let DefaultLightBackgroundImage;
 let DefaultMemoComposition;
-let ShowTaskLabel;
 let CommentOnMemos;
 let CommentsInOriginalNotes;
 let FetchMemosMark;
 let FetchMemosFromNote;
-let ShowCommentOnMemos;
 let UseDailyOrPeriodic;
 let ShowLeftSideBar;
 const icons = {
@@ -22161,6 +22209,7 @@ class MemosPlugin extends require$$0.Plugin {
   }
   async saveSettings() {
     await this.saveData(this.settings);
+    appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.settings } });
   }
   onunload() {
     this.app.workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
