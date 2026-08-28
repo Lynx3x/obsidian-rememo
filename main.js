@@ -9773,6 +9773,7 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
   const { vault } = appStore.getState().dailyNotesState.app;
   const Memos2 = await getRemainingMemos(dailyNote);
   let underComments;
+  const toBackfill = [];
   if (Memos2 === 0)
     return;
   if (CommentOnMemos && CommentsInOriginalNotes && getAPI_1().version.compare(">=", "0.5.9") === true) {
@@ -9848,6 +9849,8 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
         if (/\^\S{6}$/g.test(rawText)) {
           hasId = rawText.slice(-6);
           originId = hasId;
+        } else {
+          toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
         }
         allMemos.push({
           id: startDate.format("YYYYMMDDHHmmss") + i,
@@ -9910,6 +9913,35 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
   }
   fileLines = null;
   fileContents = null;
+  if (toBackfill.length > 0) {
+    await backfillMemoIds(vault, toBackfill);
+  }
+}
+async function backfillMemoIds(vault, toBackfill) {
+  const byPath = /* @__PURE__ */ new Map();
+  for (const item of toBackfill) {
+    const arr = byPath.get(item.path) || [];
+    arr.push({ lineIndex: item.lineIndex, generatedId: item.generatedId });
+    byPath.set(item.path, arr);
+  }
+  for (const [path, items] of byPath) {
+    const file = vault.getAbstractFileByPath(path);
+    if (!file)
+      continue;
+    const content = await vault.read(file);
+    const lines = getAllLinesFromFile$7(content);
+    let changed = false;
+    for (const { lineIndex, generatedId } of items) {
+      const line = lines[lineIndex];
+      if (line !== void 0 && !/\^\S{6}\s*$/.test(line)) {
+        lines[lineIndex] = line.trimEnd() + " ^" + generatedId;
+        changed = true;
+      }
+    }
+    if (changed) {
+      await vault.modify(file, lines.join("\n"));
+    }
+  }
 }
 async function getMemosFromNote(allMemos, commentMemos) {
   var _a, _b;

@@ -83,6 +83,8 @@ export async function getMemosFromDailyNote(
     const { vault } = appStore.getState().dailyNotesState.app;
     const Memos = await getRemainingMemos(dailyNote);
     let underComments;
+    // 收集缺 ^id 的 memo 行，读完统一回写（持久 ^id）
+    const toBackfill: { path: string; lineIndex: number; generatedId: string }[] = [];
 
     if (Memos === 0) return;
 
@@ -164,6 +166,9 @@ export async function getMemosFromDailyNote(
                 if (/\^\S{6}$/g.test(rawText)) {
                     hasId = rawText.slice(-6);
                     originId = hasId;
+                } else {
+                    // 持久 ^id：行尾无块 id，生成并收集待回写
+                    toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
                 }
                 allMemos.push({
                     id: startDate.format('YYYYMMDDHHmmss') + i,
@@ -240,6 +245,45 @@ export async function getMemosFromDailyNote(
     }
     fileLines = null;
     fileContents = null;
+    // 持久 ^id：补写缺 id 的 memo 行（一次性迁移，之后稳定）
+    if (toBackfill.length > 0) {
+        await backfillMemoIds(vault, toBackfill);
+    }
+}
+
+/**
+ * 给缺 ^id 的 memo 行补写持久块 id。
+ * 只在行尾追加 ` ^xxxxxx`，不改动其它内容；按文件分组批量读写。
+ */
+async function backfillMemoIds(
+    vault: any,
+    toBackfill: { path: string; lineIndex: number; generatedId: string }[],
+): Promise<void> {
+    // 按文件分组，避免重复读同一文件
+    const byPath = new Map<string, { lineIndex: number; generatedId: string }[]>();
+    for (const item of toBackfill) {
+        const arr = byPath.get(item.path) || [];
+        arr.push({ lineIndex: item.lineIndex, generatedId: item.generatedId });
+        byPath.set(item.path, arr);
+    }
+    for (const [path, items] of byPath) {
+        const file = vault.getAbstractFileByPath(path) as TFile;
+        if (!file) continue;
+        const content = await vault.read(file);
+        const lines = getAllLinesFromFile(content);
+        let changed = false;
+        for (const { lineIndex, generatedId } of items) {
+            const line = lines[lineIndex];
+            // 行尾已无 id（防并发/重复），追加
+            if (line !== undefined && !/\^\S{6}\s*$/.test(line)) {
+                lines[lineIndex] = line.trimEnd() + ' ^' + generatedId;
+                changed = true;
+            }
+        }
+        if (changed) {
+            await vault.modify(file, lines.join('\n'));
+        }
+    }
 }
 
 export async function getMemosFromNote(allMemos: any[], commentMemos: any[]): Promise<void> {
