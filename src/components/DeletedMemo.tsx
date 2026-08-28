@@ -59,6 +59,29 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
     }
   };
 
+  // 如果是评论，找到最顶层的父 memo（跳过中间的评论层级）
+  const allMemos = memoService.getState().memos;
+  let topParent: Model.Memo | null = null;
+  if (propsMemo.linkId) {
+    let current = allMemos.find((m) => m.hasId === propsMemo.linkId);
+    let guard = 0;
+    while (current && current.linkId && guard < 10) {
+      current = allMemos.find((m) => m.hasId === current!.linkId) || null;
+      guard++;
+    }
+    topParent = current;
+  }
+  // 子评论（递归收集该评论的全部子孙）
+  const collectChildren = (parentHasId: string): Model.Memo[] => {
+    const direct = allMemos.filter((m) => m.linkId === parentHasId);
+    let result: Model.Memo[] = [];
+    for (const d of direct) {
+      result = result.concat(d, collectChildren(d.hasId));
+    }
+    return result;
+  };
+  const childComments = propsMemo.hasId ? collectChildren(propsMemo.hasId) : [];
+
   return (
     <div className={`memo-wrapper ${'memos-' + memo.id}`} onMouseLeave={handleMouseLeaveMemoWrapper}>
       <div className="memo-top-wrapper">
@@ -85,8 +108,26 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
           </div>
         </div>
       </div>
+      {topParent ? (
+        <div className="deleted-memo-parent">
+          来自: {topParent.content.slice(0, 40)}
+        </div>
+      ) : null}
       <div className="memo-content-text" dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}></div>
       <MemoImage memo={memo.content} />
+      {childComments.length > 0 ? (
+        <div className="deleted-memo-children">
+          <div className="deleted-memo-children-count">包含 {childComments.length} 条子评论</div>
+          {childComments.slice(0, 5).map((c) => (
+            <div
+              key={c.id}
+              className="deleted-memo-child"
+              dangerouslySetInnerHTML={{ __html: formatMemoContent(c.content.trim()) }}
+            />
+          ))}
+          {childComments.length > 5 ? <div className="deleted-memo-children-more">...</div> : null}
+        </div>
+      ) : null}
       {/* <Only when={externalImageUrls.length > 0}>
         <div className="images-wrapper">
           {externalImageUrls.map((imgUrl, idx) => (

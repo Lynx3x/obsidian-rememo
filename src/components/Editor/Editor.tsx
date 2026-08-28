@@ -8,7 +8,8 @@ import '../../less/editor.less';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import { usedTags } from '../../obComponents/obTagSuggester';
 import '../../less/suggest.less';
-import { FocusOnEditor, SaveMemoButtonIcon, SaveMemoButtonLabel } from '../../memos';
+import { FocusOnEditor } from '../../memos';
+import SendIcon from '../../icons/send.svg?component';
 import { getSuggestions } from '../../obComponents/obFileSuggester';
 import { TFile } from 'obsidian';
 import appStore from '../../stores/appStore';
@@ -383,9 +384,9 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
               className="action-btn confirm-btn"
               disabled={!editorRef.current?.value}
               onClick={handleCommonConfirmBtnClick}
+              title="Send"
             >
-              {SaveMemoButtonLabel}
-              <span className="icon-text">{SaveMemoButtonIcon}️</span>
+              <SendIcon className="icon-img" />
             </button>
           </Only>
         </div>

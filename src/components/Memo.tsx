@@ -21,10 +21,12 @@ import { moment, Notice, Platform } from 'obsidian';
 import { showMemoInDailyNotes } from '../obComponents/obShowMemo';
 import More from '../icons/more.svg?component';
 import Comment from '../icons/comment.svg?component';
+import DeleteIcon from '../icons/delete.svg?component';
 import TaskBlank from '../icons/task-blank.svg?component';
 import Task from '../icons/task.svg?component';
 import { t } from '../translations/helper';
-import Editor, { EditorRefActions } from './Editor/Editor';
+import Editor from './Editor/Editor';
+import CommentInput, { CommentInputRef } from './CommentInput';
 import MemoImage from './MemoImage';
 import appContext from '../stores/appContext';
 
@@ -50,7 +52,7 @@ const Memo: React.FC<Props> = (props: Props) => {
   const CommentsInOriginalNotes = false;
   const { memo: propsMemo } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
-  const memoCommentRef = useRef<EditorRefActions>(null);
+  const memoCommentRef = useRef<CommentInputRef>(null);
   const [isCommentShown, toggleComment] = useToggle(false);
   const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
   const [commentMemos, setCommentMemos, commentMemosRef] = useState<Model.Memo[]>([]);
@@ -433,26 +435,24 @@ const Memo: React.FC<Props> = (props: Props) => {
     [],
   );
 
-  const editorConfig = useMemo(
-    () => ({
-      className: 'memo-editor',
-      inputerType: 'commentMemo',
-      initialContent: '',
-      placeholder: t('Comment it...'),
-      showConfirmBtn: true,
-      showCancelBtn: showEditStatus,
-      showTools: true,
-      onConfirmBtnClick: handleSaveBtnClick,
-      onCancelBtnClick: handleCancelBtnClick,
-      onContentChange: handleContentChange,
-    }),
-    [globalState.commentMemoId],
+  // 删除一条评论（软删，加 deletedAt 标记）
+  const handleDeleteCommentClick = useCallback(
+    async (comment: Model.Memo) => {
+      await memoService.hideMemoById(comment.id);
+      // 刷新评论列表（已删除的评论不再显示）
+      setCommentMemos(
+        memoService
+          .getState()
+          .memos.filter((m) => m.linkId === propsMemo.hasId && !m.isDeleted)
+          .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt)),
+      );
+    },
+    [propsMemo.hasId],
   );
 
   const imageProps = {
     memo: propsMemo.content,
   };
-
   return (
     <div
       className={`memo-wrapper ${'memos-' + propsMemo.id} ${propsMemo.memoType}`}
@@ -551,7 +551,9 @@ const Memo: React.FC<Props> = (props: Props) => {
         <div className={`memo-comment-wrapper`}>
           {commentMemos.length > 0 && isCommentListShown ? (
             <div className={`memo-comment-list`}>
-              {commentMemos.map((m, idx) => (
+              {commentMemos
+                .filter((m) => !m.isDeleted)
+                .map((m, idx) => (
                 <MemoComment
                   key={m.id || idx}
                   comment={m}
@@ -559,6 +561,7 @@ const Memo: React.FC<Props> = (props: Props) => {
                   onContentClick={handleMemoContentClick}
                   onEdit={handleEditCommentClick}
                   onReply={handleReplyClick}
+                  onDelete={handleDeleteCommentClick}
                 />
               ))}
             </div>
@@ -569,7 +572,13 @@ const Memo: React.FC<Props> = (props: Props) => {
                 回复: {replyTo.content.slice(0, 30)}
               </div>
             ) : null}
-            <Editor ref={memoCommentRef} {...editorConfig} />
+            <CommentInput
+              ref={memoCommentRef}
+              placeholder={t('Comment it...')}
+              showCancelBtn={showEditStatus}
+              onConfirmBtnClick={handleSaveBtnClick}
+              onCancelBtnClick={handleCancelBtnClick}
+            />
           </div>
         </div>
       ) : (
@@ -685,11 +694,12 @@ interface MemoCommentProps {
   onContentClick: (e: React.MouseEvent, m: Model.Memo) => void;
   onEdit: (m: Model.Memo) => void;
   onReply: (m: Model.Memo) => void;
+  onDelete: (m: Model.Memo) => void;
 }
 
-const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentClick, onEdit, onReply }) => {
+const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentClick, onEdit, onReply, onDelete }) => {
   const children = allMemos
-    .filter((m) => m.linkId === comment.hasId)
+    .filter((m) => m.linkId === comment.hasId && !m.isDeleted)
     .sort((a, b) => utils.getTimeStampByDate(a.createdAt) - utils.getTimeStampByDate(b.createdAt));
   const [hovered, setHovered] = useState(false);
   return (
@@ -712,6 +722,9 @@ const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentC
           <button className="memo-comment-reply-btn" onClick={() => onReply(comment)} title={t('Reply')}>
             <Comment className="icon-img" />
           </button>
+          <button className="memo-comment-delete-btn" onClick={() => onDelete(comment)} title={t('Delete')}>
+            <DeleteIcon className="icon-img" />
+          </button>
         </div>
       </div>
       {children.length > 0 ? (
@@ -724,6 +737,7 @@ const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentC
               onContentClick={onContentClick}
               onEdit={onEdit}
               onReply={onReply}
+              onDelete={onDelete}
             />
           ))}
         </div>

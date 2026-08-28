@@ -160,8 +160,6 @@ export class Memos extends ItemView {
     DefaultLightBackgroundImage = this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
     ShowTaskLabel = this.plugin.settings.ShowTaskLabel;
-    CommentOnMemos = this.plugin.settings.CommentOnMemos;
-    CommentsInOriginalNotes = this.plugin.settings.CommentsInOriginalNotes;
     FetchMemosMark = this.plugin.settings.FetchMemosMark;
     FetchMemosFromNote = this.plugin.settings.FetchMemosFromNote;
     ShowCommentOnMemos = this.plugin.settings.ShowCommentOnMemos;
@@ -206,8 +204,6 @@ export let DefaultDarkBackgroundImage: string;
 export let DefaultLightBackgroundImage: string;
 export let DefaultMemoComposition: string;
 export let ShowTaskLabel: boolean;
-export let CommentOnMemos: boolean;
-export let CommentsInOriginalNotes: boolean;
 export let FetchMemosMark: string;
 export let FetchMemosFromNote: boolean;
 export let ShowCommentOnMemos: boolean;

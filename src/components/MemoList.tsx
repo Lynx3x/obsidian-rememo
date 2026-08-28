@@ -56,10 +56,6 @@ const MemoList: React.FC<Props> = () => {
             shouldShow = false;
           }
 
-          if (memo.content.contains('comment:')) {
-            shouldShow = false;
-          }
-
           if (queryFilter) {
             const filters = JSON.parse(queryFilter.querystring) as Filter[];
             if (Array.isArray(filters)) {

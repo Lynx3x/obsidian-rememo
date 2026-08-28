@@ -1,7 +1,10 @@
 import { moment } from 'obsidian';
-import { AddBlankLineWhenDate, CommentOnMemos, DefaultMemoComposition, ShowDate, ShowTime } from '../memos';
+import { AddBlankLineWhenDate, DefaultMemoComposition, ShowDate, ShowTime } from '../memos';
 import { memoService } from '../services';
 import utils, { getDailyNoteFormat } from '../helpers/utils';
+
+// 评论功能默认开启（原设置开关已废弃），导出时总是处理评论
+const CommentOnMemos = true;
 
 export const getMemosByDate = (memos: Model.Memo[]) => {
   const dataArr = [] as any[];
@@ -97,7 +100,7 @@ export const transferMemosIntoText = (memosArray: Array<any>): string => {
                     : '    ' + memoType) +
                   moment(cm.createdAt).format('HH:mm') +
                   ' ' +
-                  cm.content.replace(/comment:(.*)$/g, '').replace(/^\d{14}/g, '') +
+                  cm.content +
                   '\n';
               });
             }
@@ -137,7 +140,7 @@ export const transferMemosIntoText = (memosArray: Array<any>): string => {
                   indent +
                   '    ' +
                   memoType +
-                  cm.content.replace(/comment:(.*)$/g, '').replace(/^\d{14}/g, '') +
+                  cm.content +
                   '\n';
               });
             }

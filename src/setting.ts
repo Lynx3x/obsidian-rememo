@@ -35,8 +35,6 @@ export interface MemosSettings {
   DefaultDarkBackgroundImage: string;
   DefaultMemoComposition: string;
   ShowTaskLabel: boolean;
-  CommentOnMemos: boolean;
-  CommentsInOriginalNotes: boolean;
   FetchMemosMark: string;
   FetchMemosFromNote: boolean;
   ShowCommentOnMemos: boolean;
@@ -74,8 +72,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   DefaultLightBackgroundImage: '',
   DefaultDarkBackgroundImage: '',
   DefaultMemoComposition: '{TIME} {CONTENT}',
-  CommentOnMemos: false,
-  CommentsInOriginalNotes: false,
   FetchMemosMark: '#memo',
   FetchMemosFromNote: false,
   ShowCommentOnMemos: false,
@@ -507,31 +503,11 @@ export class MemosSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName(t('Allow Comments On Memos'))
-      .setDesc(t('You can comment on memos. False by default'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.CommentOnMemos).onChange(async (value) => {
-          this.plugin.settings.CommentOnMemos = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
       .setName(t('Always Show Memo Comments'))
       .setDesc(t('Always show memo comments on memos. False by default'))
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.ShowCommentOnMemos).onChange(async (value) => {
           this.plugin.settings.ShowCommentOnMemos = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Comments In Original DailyNotes/Notes'))
-      .setDesc(t('You should install Dataview Plugin ver 0.5.9 or later to use this feature.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.CommentsInOriginalNotes).onChange(async (value) => {
-          this.plugin.settings.CommentsInOriginalNotes = value;
           this.applySettingsUpdate();
         }),
       );

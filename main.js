@@ -8967,18 +8967,6 @@ function reducer$6(state, action) {
         memos: [...memos]
       };
     }
-    case "SET_COMMENT_MEMOS": {
-      const memos = utils$1.dedupeObjectWithId(
-        action.payload.commentMemos.sort(
-          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        ),
-        (m2) => m2.hasId || m2.id
-      );
-      return {
-        ...state,
-        commentMemos: [...memos]
-      };
-    }
     case "SET_TAGS": {
       return {
         ...state,
@@ -8996,18 +8984,6 @@ function reducer$6(state, action) {
       return {
         ...state,
         memos
-      };
-    }
-    case "INSERT_COMMENT_MEMO": {
-      const memos = utils$1.dedupeObjectWithId(
-        [action.payload.memo, ...state.commentMemos].sort(
-          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        ),
-        (m2) => m2.hasId || m2.id
-      );
-      return {
-        ...state,
-        commentMemos: [...memos]
       };
     }
     case "DELETE_MEMO_BY_ID": {
@@ -9032,22 +9008,6 @@ function reducer$6(state, action) {
         memos
       };
     }
-    case "EDIT_COMMENT_MEMO": {
-      const memos = state.commentMemos.map((m2) => {
-        if (m2.id === action.payload.id) {
-          return {
-            ...m2,
-            ...action.payload
-          };
-        } else {
-          return m2;
-        }
-      });
-      return {
-        ...state,
-        commentMemos: [...memos]
-      };
-    }
     default: {
       return state;
     }
@@ -9055,7 +9015,6 @@ function reducer$6(state, action) {
 }
 const defaultState$4 = {
   memos: [],
-  commentMemos: [],
   tags: [],
   tagsNum: {}
 };
@@ -10323,7 +10282,7 @@ class MemoService {
   }
   editCommentMemo(memo2) {
     appStore.dispatch({
-      type: "EDIT_COMMENT_MEMO",
+      type: "EDIT_MEMO",
       payload: memo2
     });
   }
@@ -14265,6 +14224,21 @@ function SvgComment(props) {
     "p-id": 2598
   }));
 }
+function SvgDelete(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "currentColor",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+  }));
+}
 function SvgTaskBlank(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -14295,6 +14269,2295 @@ function SvgTask(props) {
     d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z"
   }));
 }
+function SvgSend(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "currentColor",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+  }));
+}
+const CommentInput = react.exports.forwardRef((props, ref) => {
+  const {
+    placeholder,
+    showCancelBtn,
+    onConfirmBtnClick,
+    onCancelBtnClick
+  } = props;
+  const [value, setValue] = react.exports.useState("");
+  const textareaRef = react.exports.useRef(null);
+  react.exports.useImperativeHandle(ref, () => ({
+    get element() {
+      return textareaRef.current;
+    },
+    focus: () => {
+      var _a;
+      (_a = textareaRef.current) == null ? void 0 : _a.focus();
+    },
+    insertText: (text) => {
+      const el = textareaRef.current;
+      if (!el)
+        return;
+      const start2 = el.selectionStart;
+      const end2 = el.selectionEnd;
+      const next = el.value.slice(0, start2) + text + el.value.slice(end2);
+      setValue(next);
+      requestAnimationFrame(() => {
+        el.focus();
+        el.setSelectionRange(start2 + text.length, start2 + text.length);
+      });
+    },
+    setContent: (text) => {
+      setValue(text);
+    },
+    getContent: () => {
+      var _a, _b;
+      return (_b = (_a = textareaRef.current) == null ? void 0 : _a.value) != null ? _b : "";
+    }
+  }), []);
+  const handleSend = () => {
+    const content = value.trim();
+    if (content === "")
+      return;
+    setValue("");
+    onConfirmBtnClick(content);
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: "memo-comment-input",
+    children: [/* @__PURE__ */ jsx("textarea", {
+      className: "memo-comment-input-textarea",
+      ref: textareaRef,
+      placeholder: placeholder || t$1("Comment it..."),
+      value,
+      onChange: (e) => setValue(e.target.value),
+      onKeyDown: (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      }
+    }), showCancelBtn ? /* @__PURE__ */ jsx("button", {
+      className: "memo-comment-cancel-btn",
+      onClick: onCancelBtnClick,
+      children: t$1("Cancel")
+    }) : null, /* @__PURE__ */ jsx("button", {
+      className: "memo-comment-send-btn",
+      onClick: handleSend,
+      disabled: !value.trim(),
+      title: "Send",
+      children: /* @__PURE__ */ jsx(SvgSend, {
+        className: "icon-img"
+      })
+    })]
+  });
+});
+const Memo = (props) => {
+  var _a;
+  const {
+    globalState
+  } = react.exports.useContext(appContext);
+  const {
+    settingsState: {
+      settings
+    }
+  } = react.exports.useContext(appContext);
+  const {
+    DefaultEditorLocation,
+    ShowCommentOnMemos,
+    ShowTaskLabel,
+    UseButtonToShowEditor
+  } = settings;
+  const {
+    memo: propsMemo
+  } = props;
+  const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
+  const memoCommentRef = react.exports.useRef(null);
+  const [isCommentShown, toggleComment] = useToggle(false);
+  const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
+  const [commentMemos, setCommentMemos, commentMemosRef] = dist([]);
+  const [replyTo, setReplyTo] = dist(null);
+  const replyToRef = react.exports.useRef(null);
+  const setReplyToBoth = react.exports.useCallback((m2) => {
+    replyToRef.current = m2;
+    setReplyTo(m2);
+  }, []);
+  const [, setAddRandomIDflag, RandomIDRef] = dist(false);
+  react.exports.useEffect(() => {
+    if (!memoCommentRef.current) {
+      return;
+    }
+    const fetchCommentMemos = async () => {
+      const allCommentMemos = memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt));
+      setCommentMemos(allCommentMemos);
+    };
+    fetchCommentMemos();
+  }, [propsMemo.content, propsMemo.id]);
+  react.exports.useEffect(() => {
+    if (!memoCommentRef.current) {
+      return;
+    }
+    const handlePasteEvent = async (event) => {
+      var _a2;
+      if (event.clipboardData && event.clipboardData.files.length > 0) {
+        event.preventDefault();
+        const file = event.clipboardData.files[0];
+        const url = await handleUploadFile(file);
+        if (url) {
+          (_a2 = memoCommentRef.current) == null ? void 0 : _a2.insertText(url);
+        }
+      }
+    };
+    const handleDropEvent = async (event) => {
+      var _a2;
+      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        const url = await handleUploadFile(file);
+        if (url) {
+          (_a2 = memoCommentRef.current) == null ? void 0 : _a2.insertText(url);
+        }
+      }
+    };
+    const handleClickEvent = () => {
+      var _a2, _b;
+      handleContentChange((_b = (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.value) != null ? _b : "");
+    };
+    const handleKeyDownEvent = () => {
+      setTimeout(() => {
+        var _a2, _b;
+        handleContentChange((_b = (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.value) != null ? _b : "");
+      });
+    };
+    memoCommentRef.current.element.addEventListener("paste", handlePasteEvent);
+    memoCommentRef.current.element.addEventListener("drop", handleDropEvent);
+    memoCommentRef.current.element.addEventListener("click", handleClickEvent);
+    memoCommentRef.current.element.addEventListener("keydown", handleKeyDownEvent);
+    return () => {
+      var _a2, _b;
+      (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.removeEventListener("paste", handlePasteEvent);
+      (_b = memoCommentRef.current) == null ? void 0 : _b.element.removeEventListener("drop", handleDropEvent);
+    };
+  }, []);
+  const handleCancelBtnClick = react.exports.useCallback(() => {
+    var _a2;
+    globalStateService.setCommentMemoId("");
+    (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
+    toggleComment(false);
+  }, []);
+  const handleContentChange = react.exports.useCallback((content) => {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = content;
+    if (tempDiv.innerText.trim() === "") {
+      content = "";
+    }
+    setTimeout(() => {
+      var _a2;
+      (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
+    });
+  }, []);
+  const handleSaveBtnClick = react.exports.useCallback(async (content) => {
+    var _a2, _b;
+    if (content === "") {
+      new require$$0.Notice(t$1("Content cannot be empty"));
+      return;
+    }
+    const {
+      commentMemoId
+    } = globalStateService.getState();
+    content = content.replaceAll("&nbsp;", " ");
+    globalStateService.setChangedByMemos(true);
+    try {
+      if (commentMemoId) {
+        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
+        const memo2 = memoService.getCommentMemoById(commentMemoId);
+        if (!memo2) {
+          throw new Error("Memo not found");
+        }
+        const prevMemo = memo2;
+        content = content.trim();
+        if (prevMemo && prevMemo.content !== content) {
+          const editedMemo = await memoService.updateMemo({
+            memoId: prevMemo.id,
+            originalText: prevMemo.content,
+            text: content,
+            type: prevMemo.memoType,
+            path: prevMemo.path
+          });
+          memoService.editCommentMemo(editedMemo);
+          setCommentMemos(commentMemosRef.current.map((m2) => {
+            if (m2.id.slice(14) === commentMemoId.slice(14) && m2.path === prevMemo.path) {
+              return editedMemo;
+            }
+            return m2;
+          }));
+        }
+        globalStateService.setCommentMemoId("");
+        toggleComment(false);
+      } else {
+        const parent = replyToRef.current || propsMemo;
+        let randomId = parent.hasId || "";
+        if (!randomId) {
+          randomId = Math.random().toString(36).slice(-6);
+          setAddRandomIDflag(true);
+        }
+        (_b = memoCommentRef.current) == null ? void 0 : _b.setContent("");
+        const newMemo = await memoService.createCommentMemo({
+          text: content.trim(),
+          isList: true,
+          path: parent.path,
+          ID: parent.id,
+          hasID: randomId
+        });
+        memoService.pushCommentMemo(newMemo);
+        setCommentMemos(memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
+        setReplyToBoth(null);
+        toggleComment(false);
+        if (RandomIDRef.current) {
+          const editedMemo = await memoService.updateMemo({
+            memoId: parent.id,
+            originalText: parent.content,
+            text: parent.content + " ^" + randomId,
+            type: parent.memoType
+          });
+          editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
+          memoService.editMemo(editedMemo);
+          setAddRandomIDflag(false);
+        }
+      }
+    } catch (error) {
+      new require$$0.Notice(error.message);
+    }
+  }, []);
+  const handleUploadFile = react.exports.useCallback(async (file) => {
+    const {
+      type
+    } = file;
+    if (!type.startsWith("image")) {
+      return;
+    }
+    try {
+      const image2 = await resourceService.upload(file);
+      const url = `${image2}`;
+      return url;
+    } catch (error) {
+      new require$$0.Notice(error);
+    }
+  }, []);
+  const handleShowMemoStoryDialog = () => {
+    showMemoCardDialog(propsMemo);
+  };
+  const handleMarkMemoClick = () => {
+    if (UseButtonToShowEditor && DefaultEditorLocation === "Bottom") {
+      const elem = document.querySelector("div[data-type='memos_view'] .view-content .memo-show-editor-button");
+      if (elem == null ? void 0 : elem.onclick) {
+        elem.onclick.call(elem, new MouseEvent("click"));
+      }
+    }
+    globalStateService.setMarkMemoId(propsMemo.id);
+  };
+  const handleEditMemoClick = () => {
+    if (UseButtonToShowEditor && DefaultEditorLocation === "Bottom" && require$$0.Platform.isMobile) {
+      const elem = document.querySelector("div[data-type='memos_view'] .view-content .memo-show-editor-button");
+      if (elem.onclick) {
+        elem.onclick.call(elem, new MouseEvent("click"));
+      }
+    }
+    globalStateService.setEditMemoId(propsMemo.id);
+  };
+  const handleSourceMemoClick = (m2) => {
+    showMemoInDailyNotes(m2.id, m2.path || "");
+  };
+  const handleDeleteMemoClick = async () => {
+    if (showConfirmDeleteBtn) {
+      try {
+        await memoService.hideMemoById(propsMemo.id);
+      } catch (error) {
+        new require$$0.Notice(error.message);
+      }
+      if (globalStateService.getState().editMemoId === propsMemo.id) {
+        globalStateService.setEditMemoId("");
+      }
+    } else {
+      toggleConfirmDeleteBtn();
+    }
+  };
+  const handleMouseLeaveMemoWrapper = () => {
+    if (showConfirmDeleteBtn) {
+      toggleConfirmDeleteBtn(false);
+    }
+  };
+  const handleGenMemoImageBtnClick = () => {
+    showShareMemoImageDialog(propsMemo);
+  };
+  const handleMemoTypeShow = () => {
+    if (!ShowTaskLabel) {
+      return null;
+    }
+    if (propsMemo.memoType === "TASK-TODO") {
+      return /* @__PURE__ */ jsx(SvgTaskBlank, {});
+    } else if (propsMemo.memoType === "TASK-DONE") {
+      return /* @__PURE__ */ jsx(SvgTask, {});
+    }
+    return null;
+  };
+  const handleMemoDoubleClick = react.exports.useCallback((event) => {
+    if (event) {
+      handleEditMemoClick();
+    }
+  }, []);
+  const handleMemoContentClick = async (e, m2) => {
+    var _a2;
+    const targetEl = e.target;
+    if (e.ctrlKey || e.metaKey) {
+      handleSourceMemoClick(m2);
+    }
+    if (targetEl.className === "memo-link-text") {
+      const memoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
+      const memoTemp = memoService.getMemoById(memoId != null ? memoId : "");
+      if (memoTemp) {
+        showMemoCardDialog(memoTemp);
+      } else {
+        new require$$0.Notice("MEMO Not Found");
+        targetEl.classList.remove("memo-link-text");
+      }
+    } else if (targetEl.className === "todo-block")
+      ;
+  };
+  const handleCommentBlock = () => {
+    setReplyToBoth(null);
+    if (!isCommentShown) {
+      toggleComment(true);
+    } else {
+      toggleComment(false);
+    }
+    if (!isCommentListShown) {
+      toggleCommentList(true);
+    } else if (!ShowCommentOnMemos && isCommentListShown) {
+      toggleCommentList(false);
+    }
+  };
+  const handleEditCommentClick = react.exports.useCallback((memo2) => {
+    var _a2, _b;
+    globalStateService.setCommentMemoId(memo2.id);
+    if (!isCommentShown) {
+      toggleComment(true);
+    }
+    (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
+    (_b = memoCommentRef.current) == null ? void 0 : _b.setContent(memo2.content.trim());
+  }, []);
+  const showEditStatus = Boolean(globalState.commentMemoId);
+  const handleReplyClick = react.exports.useCallback((comment) => {
+    const current = replyToRef.current;
+    if (current && current.id === comment.id) {
+      setReplyToBoth(null);
+      toggleComment(false);
+    } else {
+      setReplyToBoth(comment);
+      toggleComment(true);
+      setTimeout(() => {
+        var _a2;
+        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
+      }, 0);
+    }
+  }, []);
+  const handleDeleteCommentClick = react.exports.useCallback(async (comment) => {
+    await memoService.hideMemoById(comment.id);
+    setCommentMemos(memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId && !m2.isDeleted).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
+  }, [propsMemo.hasId]);
+  const imageProps = {
+    memo: propsMemo.content
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: `memo-wrapper ${"memos-" + propsMemo.id} ${propsMemo.memoType}`,
+    onMouseLeave: handleMouseLeaveMemoWrapper,
+    draggable: "true",
+    onDragStart: (e) => {
+      e.dataTransfer.setData("text/plain", propsMemo.content.replace(/<br>/g, "\n"));
+    },
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "memo-top-wrapper",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "memo-top-left-wrapper",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "time-text",
+          onClick: handleShowMemoStoryDialog,
+          children: utils$1.getDateTimeString(propsMemo.createdAt)
+        }), /* @__PURE__ */ jsx("div", {
+          className: `memo-type-img ${(propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE") && ShowTaskLabel ? "" : "hidden"}`,
+          children: (_a = handleMemoTypeShow()) != null ? _a : ""
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "memo-top-right-wrapper",
+        children: [/* @__PURE__ */ jsxs("div", {
+          className: "comment-button-wrapper",
+          children: [/* @__PURE__ */ jsx(SvgComment, {
+            className: "icon-img",
+            onClick: handleCommentBlock
+          }), commentMemos.length > 0 ? /* @__PURE__ */ jsx("div", {
+            className: "comment-text-count",
+            children: commentMemos.length
+          }) : null]
+        }), /* @__PURE__ */ jsxs("div", {
+          className: "btns-container",
+          children: [/* @__PURE__ */ jsx("span", {
+            className: "btn more-action-btn",
+            children: /* @__PURE__ */ jsx(SvgMore, {
+              className: "icon-img"
+            })
+          }), /* @__PURE__ */ jsx("div", {
+            className: "more-action-btns-wrapper",
+            children: /* @__PURE__ */ jsxs("div", {
+              className: "more-action-btns-container",
+              children: [/* @__PURE__ */ jsx("span", {
+                className: "btn",
+                onClick: handleShowMemoStoryDialog,
+                children: t$1("READ")
+              }), /* @__PURE__ */ jsx("span", {
+                className: "btn",
+                onClick: handleMarkMemoClick,
+                children: t$1("MARK")
+              }), /* @__PURE__ */ jsx("span", {
+                className: "btn",
+                onClick: handleGenMemoImageBtnClick,
+                children: t$1("SHARE")
+              }), /* @__PURE__ */ jsx("span", {
+                className: "btn",
+                onClick: handleEditMemoClick,
+                children: t$1("EDIT")
+              }), /* @__PURE__ */ jsx("span", {
+                className: "btn",
+                onClick: () => handleSourceMemoClick(propsMemo),
+                children: t$1("SOURCE")
+              }), /* @__PURE__ */ jsx("span", {
+                className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
+                onClick: handleDeleteMemoClick,
+                children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
+              })]
+            })
+          })]
+        })]
+      })]
+    }), /* @__PURE__ */ jsx("div", {
+      className: "memo-content-text",
+      onClick: (e) => handleMemoContentClick(e, propsMemo),
+      onDoubleClick: handleMemoDoubleClick,
+      dangerouslySetInnerHTML: {
+        __html: formatMemoContent(propsMemo.content, propsMemo.id)
+      }
+    }), /* @__PURE__ */ jsx(MemoImage, {
+      ...imageProps
+    }), /* @__PURE__ */ jsxs("div", {
+      className: `memo-comment-wrapper`,
+      children: [commentMemos.length > 0 && isCommentListShown ? /* @__PURE__ */ jsx("div", {
+        className: `memo-comment-list`,
+        children: commentMemos.filter((m2) => !m2.isDeleted).map((m2, idx) => /* @__PURE__ */ jsx(MemoComment, {
+          comment: m2,
+          allMemos: memoService.getState().memos,
+          onContentClick: handleMemoContentClick,
+          onEdit: handleEditCommentClick,
+          onReply: handleReplyClick,
+          onDelete: handleDeleteCommentClick
+        }, m2.id || idx))
+      }) : null, /* @__PURE__ */ jsxs("div", {
+        className: `memo-comment-inputer ${isCommentShown ? "" : "hidden"}`,
+        children: [replyTo && replyTo.id !== propsMemo.id ? /* @__PURE__ */ jsxs("div", {
+          className: "memo-comment-replying",
+          children: ["\u56DE\u590D: ", replyTo.content.slice(0, 30)]
+        }) : null, /* @__PURE__ */ jsx(CommentInput, {
+          ref: memoCommentRef,
+          placeholder: t$1("Comment it..."),
+          showCancelBtn: showEditStatus,
+          onConfirmBtnClick: handleSaveBtnClick,
+          onCancelBtnClick: handleCancelBtnClick
+        })]
+      })]
+    })]
+  });
+};
+function formatMemoContent(content, memoid) {
+  content = encodeHtml(content);
+  content = parseRawTextToHtml(content).split("<br>").map((t2) => {
+    return `<p>${t2 !== "" ? t2 : "<br>"}</p>`;
+  }).join("");
+  const {
+    shouldUseMarkdownParser,
+    shouldHideImageUrl
+  } = globalStateService.getState();
+  if (shouldUseMarkdownParser) {
+    content = parseMarkedToHtml(content, memoid);
+  }
+  if (shouldHideImageUrl) {
+    content = content.replace(WIKI_IMAGE_URL_REG, "").replace(MARKDOWN_URL_REG, "").replace(IMAGE_URL_REG, "");
+  }
+  content = content.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>").replace(/\^\S{6}/g, "");
+  const tagsCollect = (content2) => {
+    let tags = [...content2.matchAll(TAG_REG)];
+    tags = [...tags, ...content2.matchAll(FIRST_TAG_REG)];
+    tags.sort((tag, tag2) => tag.index - tag2.index);
+    content2 = content2.replace(TAG_REG, "").replace(FIRST_TAG_REG, "");
+    let tagsComponent = `<p>`;
+    if (tags.length > 0) {
+      for (const tag of tags) {
+        tagsComponent += `<span class='tag-span'>#${tag[tag.length - 1]}</span>`;
+      }
+      {
+        content2 += tagsComponent;
+      }
+    }
+    return content2;
+  };
+  content = tagsCollect(content);
+  const tempDivContainer = document.createElement("div");
+  tempDivContainer.innerHTML = content;
+  for (let i = 0; i < tempDivContainer.children.length; i++) {
+    const c = tempDivContainer.children[i];
+    if (c.tagName === "P" && c.textContent === "") {
+      c.remove();
+      i--;
+      continue;
+    }
+  }
+  return tempDivContainer.innerHTML;
+}
+const MemoComment = ({
+  comment,
+  allMemos,
+  onContentClick,
+  onEdit,
+  onReply,
+  onDelete
+}) => {
+  const children = allMemos.filter((m2) => m2.linkId === comment.hasId && !m2.isDeleted).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
+  const [hovered, setHovered] = dist(false);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "memo-comment-item",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "memo-comment",
+      onMouseEnter: () => setHovered(true),
+      onMouseLeave: () => setHovered(false),
+      children: [/* @__PURE__ */ jsx("div", {
+        className: "memo-comment-time",
+        children: utils$1.getDateTimeString(comment.createdAt)
+      }), /* @__PURE__ */ jsx("div", {
+        className: "memo-comment-text",
+        onClick: (e) => onContentClick(e, comment),
+        onDoubleClick: () => onEdit(comment),
+        dangerouslySetInnerHTML: {
+          __html: formatMemoContent(comment.content.trim(), comment.id)
+        }
+      }), /* @__PURE__ */ jsxs("div", {
+        className: `memo-comment-actions ${hovered ? "" : "hidden"}`,
+        children: [/* @__PURE__ */ jsx("button", {
+          className: "memo-comment-reply-btn",
+          onClick: () => onReply(comment),
+          title: t$1("Reply"),
+          children: /* @__PURE__ */ jsx(SvgComment, {
+            className: "icon-img"
+          })
+        }), /* @__PURE__ */ jsx("button", {
+          className: "memo-comment-delete-btn",
+          onClick: () => onDelete(comment),
+          title: t$1("Delete"),
+          children: /* @__PURE__ */ jsx(SvgDelete, {
+            className: "icon-img"
+          })
+        })]
+      })]
+    }), children.length > 0 ? /* @__PURE__ */ jsx("div", {
+      className: "memo-comment-children",
+      children: children.map((c) => /* @__PURE__ */ jsx(MemoComment, {
+        comment: c,
+        allMemos,
+        onContentClick,
+        onEdit,
+        onReply,
+        onDelete
+      }, c.id))
+    }) : null]
+  });
+};
+var Memo$1 = react.exports.memo(Memo);
+var dailyMemo = "";
+const DailyMemo = (props) => {
+  var _a;
+  const {
+    app: app2
+  } = appStore.getState().dailyNotesState;
+  const {
+    memo: propsMemo
+  } = props;
+  const memo2 = {
+    ...propsMemo,
+    createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt),
+    timeStr: utils$1.getTimeString(propsMemo.createdAt)
+  };
+  const getPathOfImage2 = (vault, image2) => {
+    return vault.getResourcePath(image2);
+  };
+  const detectWikiInternalLink2 = (lineText, app22) => {
+    var _a2, _b;
+    const internalFileName = (_a2 = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _a2[1];
+    const internalAltName = (_b = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _b[5];
+    const file = app22.metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
+    if (file === null) {
+      return {
+        linkText: internalFileName,
+        altText: internalAltName,
+        path: "",
+        filePath: ""
+      };
+    } else {
+      const imagePath = getPathOfImage2(app22.vault, file);
+      if (internalAltName) {
+        return {
+          linkText: internalFileName,
+          altText: internalAltName,
+          path: imagePath,
+          filePath: file.path
+        };
+      } else {
+        return {
+          linkText: internalFileName,
+          altText: "",
+          path: imagePath,
+          filePath: file.path
+        };
+      }
+    }
+  };
+  const detectMDInternalLink2 = (lineText, app22) => {
+    var _a2, _b;
+    const internalFileName = (_a2 = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _a2[5];
+    const internalAltName = (_b = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _b[2];
+    const file = app22.metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
+    if (file === null) {
+      return {
+        linkText: internalFileName,
+        altText: internalAltName,
+        path: "",
+        filePath: ""
+      };
+    } else {
+      const imagePath = getPathOfImage2(app22.vault, file);
+      if (internalAltName) {
+        return {
+          linkText: internalFileName,
+          altText: internalAltName,
+          path: imagePath,
+          filePath: file.path
+        };
+      } else {
+        return {
+          linkText: internalFileName,
+          altText: "",
+          path: imagePath,
+          filePath: file.path
+        };
+      }
+    }
+  };
+  let externalImageUrls = [];
+  const internalImageUrls = [];
+  let allMarkdownLink = [];
+  let allInternalLink = [];
+  if (IMAGE_URL_REG.test(memo2.content)) {
+    let allExternalImageUrls = [];
+    const anotherExternalImageUrls = [];
+    if (MARKDOWN_URL_REG.test(memo2.content)) {
+      allMarkdownLink = Array.from(memo2.content.match(MARKDOWN_URL_REG));
+    }
+    if (WIKI_IMAGE_URL_REG.test(memo2.content)) {
+      allInternalLink = Array.from(memo2.content.match(WIKI_IMAGE_URL_REG));
+    }
+    if (MARKDOWN_WEB_URL_REG.test(memo2.content)) {
+      allExternalImageUrls = Array.from(memo2.content.match(MARKDOWN_WEB_URL_REG));
+    }
+    if (allInternalLink.length) {
+      for (let i = 0; i < allInternalLink.length; i++) {
+        const allInternalLinkElement = allInternalLink[i];
+        internalImageUrls.push(detectWikiInternalLink2(allInternalLinkElement, app2));
+      }
+    }
+    if (allMarkdownLink.length) {
+      for (let i = 0; i < allMarkdownLink.length; i++) {
+        const allMarkdownLinkElement = allMarkdownLink[i];
+        if (/(.*)http[s]?(.*)/.test(allMarkdownLinkElement)) {
+          anotherExternalImageUrls.push((_a = MARKDOWN_URL_REG.exec(allMarkdownLinkElement)) == null ? void 0 : _a[5]);
+        } else {
+          internalImageUrls.push(detectMDInternalLink2(allMarkdownLinkElement, app2));
+        }
+      }
+    }
+    externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
+  }
+  const allImages = [...externalImageUrls.map((u2) => ({
+    src: u2
+  })), ...internalImageUrls.map((imgUrl) => ({
+    src: imgUrl.path,
+    filepath: imgUrl.filePath
+  }))];
+  return /* @__PURE__ */ jsxs("div", {
+    className: "daily-memo-wrapper",
+    children: [/* @__PURE__ */ jsx("div", {
+      className: "time-wrapper",
+      children: /* @__PURE__ */ jsx("span", {
+        className: "normal-text",
+        children: memo2.timeStr
+      })
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "memo-content-container",
+      children: [/* @__PURE__ */ jsx("div", {
+        className: "memo-content-text",
+        dangerouslySetInnerHTML: {
+          __html: formatMemoContent(memo2.content)
+        }
+      }), /* @__PURE__ */ jsx(Only, {
+        when: externalImageUrls.length > 0,
+        children: /* @__PURE__ */ jsx("div", {
+          className: "images-container",
+          children: externalImageUrls.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
+            className: "memo-img",
+            imgUrl,
+            alt: "",
+            referrerPolicy: "no-referrer",
+            allImages,
+            index: idx
+          }, idx))
+        })
+      }), /* @__PURE__ */ jsx(Only, {
+        when: internalImageUrls.length > 0,
+        children: /* @__PURE__ */ jsx("div", {
+          className: "images-container internal-embed image-embed is-loaded",
+          children: internalImageUrls.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
+            className: "memo-img",
+            imgUrl: imgUrl.path,
+            alt: imgUrl.altText,
+            filepath: imgUrl.filePath,
+            allImages,
+            index: externalImageUrls.length + idx
+          }, idx))
+        })
+      })]
+    })]
+  });
+};
+var datePicker = "";
+function SvgArrowLeft(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"
+  }));
+}
+function SvgArrowRight(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"
+  }));
+}
+const DatePicker = (props) => {
+  var _a, _b;
+  const {
+    className,
+    datestamp,
+    handleDateStampChange
+  } = props;
+  const [currentDateStamp, setCurrentDateStamp] = react.exports.useState(getMonthFirstDayDateStamp(datestamp));
+  react.exports.useEffect(() => {
+    setCurrentDateStamp(getMonthFirstDayDateStamp(datestamp));
+  }, [datestamp]);
+  const firstDate = new Date(currentDateStamp);
+  const firstDateDay = firstDate.getDay() === 0 ? 7 : firstDate.getDay();
+  const dayList = [];
+  for (let i = 0; i < firstDateDay; i++) {
+    dayList.push({
+      date: 0,
+      datestamp: firstDate.getTime() - DAILY_TIMESTAMP * (7 - i)
+    });
+  }
+  const dayAmount = getMonthDayAmount(currentDateStamp);
+  for (let i = 1; i <= dayAmount; i++) {
+    dayList.push({
+      date: i,
+      datestamp: firstDate.getTime() + DAILY_TIMESTAMP * (i - 1)
+    });
+  }
+  const handleDateItemClick = (datestamp2) => {
+    handleDateStampChange(datestamp2);
+  };
+  const handleChangeMonthBtnClick = (i) => {
+    const year = firstDate.getFullYear();
+    const month = firstDate.getMonth() + 1;
+    let nextDateStamp = 0;
+    if (month === 1 && i === -1) {
+      nextDateStamp = new Date(`${year - 1}/12/1`).getTime();
+    } else if (month === 12 && i === 1) {
+      nextDateStamp = new Date(`${year + 1}/1/1`).getTime();
+    } else {
+      nextDateStamp = new Date(`${year}/${month + i}/1`).getTime();
+    }
+    setCurrentDateStamp(getMonthFirstDayDateStamp(nextDateStamp));
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: `date-picker-wrapper ${className}`,
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "date-picker-header",
+      children: [/* @__PURE__ */ jsx("span", {
+        className: "btn-text",
+        onClick: () => handleChangeMonthBtnClick(-1),
+        children: /* @__PURE__ */ jsx(SvgArrowLeft, {
+          className: "icon-img"
+        })
+      }), /* @__PURE__ */ jsxs("span", {
+        className: "normal-text",
+        children: [firstDate.getFullYear(), " ", t$1("year"), " ", (_a = t$1("monthsShort")[firstDate.getMonth()]) != null ? _a : firstDate.getMonth() + 1, " ", (_b = t$1("month")) != null ? _b : ""]
+      }), /* @__PURE__ */ jsx("span", {
+        className: "btn-text",
+        onClick: () => handleChangeMonthBtnClick(1),
+        children: /* @__PURE__ */ jsx(SvgArrowRight, {
+          className: "icon-img"
+        })
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "date-picker-day-container",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "date-picker-day-header",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[0]
+        }), /* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[1]
+        }), /* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[2]
+        }), /* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[3]
+        }), /* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[4]
+        }), /* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[5]
+        }), /* @__PURE__ */ jsx("span", {
+          className: "day-item",
+          children: t$1("weekDaysShort")[6]
+        })]
+      }), dayList.map((d) => {
+        if (d.date === 0) {
+          return /* @__PURE__ */ jsx("span", {
+            className: "day-item null",
+            children: ""
+          }, d.datestamp);
+        } else {
+          return /* @__PURE__ */ jsx("span", {
+            className: `day-item ${d.datestamp === datestamp ? "current" : ""}`,
+            onClick: () => handleDateItemClick(d.datestamp),
+            children: d.date
+          }, d.datestamp);
+        }
+      })]
+    })]
+  });
+};
+function getMonthDayAmount(datestamp) {
+  const dateTemp = new Date(datestamp);
+  const currentDate = new Date(`${dateTemp.getFullYear()}/${dateTemp.getMonth() + 1}/1`);
+  const nextMonthDate = currentDate.getMonth() === 11 ? new Date(`${currentDate.getFullYear() + 1}/1/1`) : new Date(`${currentDate.getFullYear()}/${currentDate.getMonth() + 2}/1`);
+  return (nextMonthDate.getTime() - currentDate.getTime()) / DAILY_TIMESTAMP;
+}
+function getMonthFirstDayDateStamp(timestamp) {
+  const dateTemp = new Date(timestamp);
+  const currentDate = new Date(`${dateTemp.getFullYear()}/${dateTemp.getMonth() + 1}/1`);
+  return currentDate.getTime();
+}
+var dailyMemoDiaryDialog = "";
+const DailyMemoDiaryDialog = (props) => {
+  const loadingState = useLoading();
+  const [memos, setMemos] = react.exports.useState([]);
+  const [currentDateStamp, setCurrentDateStamp] = react.exports.useState(utils$1.getDateStampByDate(utils$1.getDateString(props.currentDateStamp)));
+  const [showDatePicker, toggleShowDatePicker] = useToggle(false);
+  const memosElRef = react.exports.useRef(null);
+  const currentDate = new Date(currentDateStamp);
+  const {
+    vault
+  } = appStore.getState().dailyNotesState.app;
+  react.exports.useEffect(() => {
+    const setDailyMemos = () => {
+      const dailyMemos = memoService.getState().memos.filter((a) => utils$1.getTimeStampByDate(a.createdAt) >= currentDateStamp && utils$1.getTimeStampByDate(a.createdAt) < currentDateStamp + DAILY_TIMESTAMP).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
+      setMemos(dailyMemos);
+      loadingState.setFinish();
+    };
+    setDailyMemos();
+  }, [currentDateStamp]);
+  const convertBase64ToBlob = (base64, type) => {
+    var bytes = window.atob(base64);
+    var ab2 = new ArrayBuffer(bytes.length);
+    var ia2 = new Uint8Array(ab2);
+    for (var i = 0; i < bytes.length; i++) {
+      ia2[i] = bytes.charCodeAt(i);
+    }
+    return new Blob([ab2], {
+      type
+    });
+  };
+  const handleShareBtnClick = async () => {
+    toggleShowDatePicker(false);
+    setTimeout(() => {
+      if (!memosElRef.current) {
+        return;
+      }
+      toImage(memosElRef.current, {
+        backgroundColor: "#ffffff",
+        pixelRatio: window.devicePixelRatio * 2
+      }).then((url) => {
+        if (appStore.getState().settingsState.settings.AutoSaveWhenOnMobile && require$$0.Platform.isMobile) {
+          const myBase64 = url.split("base64,")[1];
+          const blobInput = convertBase64ToBlob(myBase64, "image/png");
+          blobInput.arrayBuffer().then(async (buffer) => {
+            let aFile;
+            const ext = "png";
+            const dailyNotes = getAllDailyNotes_1();
+            for (const string in dailyNotes) {
+              if (dailyNotes[string] instanceof require$$0.TFile) {
+                aFile = dailyNotes[string];
+                break;
+              }
+            }
+            if (aFile !== void 0) {
+              await vault.createBinary(
+                await vault.getAvailablePathForAttachments(`Pasted Image ${require$$0.moment().format("YYYYMMDDHHmmss")}`, ext, aFile),
+                buffer
+              );
+            }
+          });
+        }
+        PreviewImageDialog(url);
+      }).catch(() => {
+      });
+    }, 0);
+  };
+  const handleDataPickerChange = (datestamp) => {
+    setCurrentDateStamp(datestamp);
+    toggleShowDatePicker(false);
+  };
+  return /* @__PURE__ */ jsxs(Fragment, {
+    children: [/* @__PURE__ */ jsx("div", {
+      className: "dialog-header-container",
+      children: /* @__PURE__ */ jsxs("div", {
+        className: "header-wrapper",
+        children: [/* @__PURE__ */ jsx("p", {
+          className: "title-text",
+          children: t$1("Daily Memos")
+        }), /* @__PURE__ */ jsxs("div", {
+          className: "btns-container",
+          children: [/* @__PURE__ */ jsx("span", {
+            className: "btn-text",
+            onClick: () => setCurrentDateStamp(currentDateStamp - DAILY_TIMESTAMP),
+            children: /* @__PURE__ */ jsx(SvgArrowLeft, {
+              className: "icon-img"
+            })
+          }), /* @__PURE__ */ jsx("span", {
+            className: "btn-text",
+            onClick: () => setCurrentDateStamp(currentDateStamp + DAILY_TIMESTAMP),
+            children: /* @__PURE__ */ jsx(SvgArrowRight, {
+              className: "icon-img"
+            })
+          }), /* @__PURE__ */ jsx("span", {
+            className: "btn-text share-btn",
+            onClick: handleShareBtnClick,
+            children: /* @__PURE__ */ jsx(SvgShare, {
+              className: "icon-img"
+            })
+          }), /* @__PURE__ */ jsx("span", {
+            className: "btn-text",
+            onClick: () => props.destroy(),
+            children: /* @__PURE__ */ jsx(SvgClose, {
+              className: "icon-img"
+            })
+          })]
+        })]
+      })
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "dialog-content-container",
+      ref: memosElRef,
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "date-card-container",
+        onClick: () => toggleShowDatePicker(),
+        children: [/* @__PURE__ */ jsx("div", {
+          className: "year-text",
+          children: currentDate.getFullYear()
+        }), /* @__PURE__ */ jsxs("div", {
+          className: "date-container",
+          children: [/* @__PURE__ */ jsx("div", {
+            className: "month-text",
+            children: t$1("months")[currentDate.getMonth()]
+          }), /* @__PURE__ */ jsx("div", {
+            className: "date-text",
+            children: currentDate.getDate()
+          }), /* @__PURE__ */ jsx("div", {
+            className: "day-text",
+            children: t$1("weekDays")[currentDate.getDay()]
+          })]
+        })]
+      }), /* @__PURE__ */ jsx(DatePicker, {
+        className: `date-picker ${showDatePicker ? "" : "hidden"}`,
+        datestamp: currentDateStamp,
+        handleDateStampChange: handleDataPickerChange
+      }), loadingState.isLoading ? /* @__PURE__ */ jsx("div", {
+        className: "tip-container",
+        children: /* @__PURE__ */ jsx("p", {
+          className: "tip-text",
+          children: t$1("Loading...")
+        })
+      }) : memos.length === 0 ? /* @__PURE__ */ jsx("div", {
+        className: "tip-container",
+        children: /* @__PURE__ */ jsx("p", {
+          className: "tip-text",
+          children: t$1("Noooop!")
+        })
+      }) : /* @__PURE__ */ jsx("div", {
+        className: "dailymemos-wrapper",
+        children: memos.map((memo2) => /* @__PURE__ */ jsx(DailyMemo, {
+          memo: memo2
+        }, `${memo2.id}-${memo2.updatedAt}`))
+      })]
+    })]
+  });
+};
+function showDailyMemoDiaryDialog(datestamp = Date.now()) {
+  showDialog({
+    className: "daily-memo-diary-dialog"
+  }, DailyMemoDiaryDialog, {
+    currentDateStamp: datestamp
+  });
+}
+var userBanner = "";
+const UserBanner = () => {
+  const {
+    memoState: {
+      memos,
+      tags
+    },
+    userState: {
+      user
+    },
+    settingsState: {
+      settings
+    }
+  } = react.exports.useContext(appContext);
+  const username = user ? user.username : settings.UserName;
+  let memosLength;
+  let createdDays;
+  if (memos.length) {
+    memosLength = memos.length - 1;
+    createdDays = memos ? Math.ceil((Date.now() - utils$1.getTimeStampByDate(memos[memosLength].createdAt)) / 1e3 / 3600 / 24) + 1 : 0;
+  }
+  const [shouldShowPopupBtns, setShouldShowPopupBtns] = react.exports.useState(false);
+  const handleUsernameClick = react.exports.useCallback(() => {
+    locationService.pushHistory("/");
+    locationService.clearQuery();
+  }, []);
+  const handlePopupBtnClick = () => {
+    const sidebarEl = document.querySelector(".memos-sidebar-wrapper");
+    const popupEl = document.querySelector(".menu-btns-popup");
+    popupEl.style.top = 70 - sidebarEl.scrollTop + "px";
+    setShouldShowPopupBtns(true);
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: "user-banner-container",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "userinfo-header-container",
+      children: [/* @__PURE__ */ jsx("p", {
+        className: "username-text",
+        onClick: handleUsernameClick,
+        children: username
+      }), /* @__PURE__ */ jsx("span", {
+        className: "action-btn menu-popup-btn",
+        onClick: handlePopupBtnClick,
+        children: /* @__PURE__ */ jsx(SvgMore, {
+          className: "icon-img"
+        })
+      }), /* @__PURE__ */ jsx(MenuBtnsPopup, {
+        shownStatus: shouldShowPopupBtns,
+        setShownStatus: setShouldShowPopupBtns
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "status-text-container",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "status-text memos-text",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "amount-text",
+          children: memos.length
+        }), /* @__PURE__ */ jsx("span", {
+          className: "type-text",
+          children: "MEMO"
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "status-text tags-text",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "amount-text",
+          children: tags.length
+        }), /* @__PURE__ */ jsx("span", {
+          className: "type-text",
+          children: t$1("TAG")
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "status-text duration-text",
+        onClick: () => showDailyMemoDiaryDialog(),
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "amount-text",
+          children: createdDays != null ? createdDays : 0
+        }), /* @__PURE__ */ jsx("span", {
+          className: "type-text",
+          children: t$1("DAY")
+        })]
+      })]
+    })]
+  });
+};
+const relationConsts = [
+  { text: "AND", value: "AND" },
+  { text: "OR", value: "OR" }
+];
+const filterConsts = {
+  TAG: {
+    value: "TAG",
+    text: t$1("TAG"),
+    operators: [
+      {
+        text: t$1("INCLUDE"),
+        value: "CONTAIN"
+      },
+      {
+        text: t$1("EXCLUDE"),
+        value: "NOT_CONTAIN"
+      }
+    ]
+  },
+  TYPE: {
+    value: "TYPE",
+    text: t$1("TYPE"),
+    operators: [
+      {
+        value: "IS",
+        text: t$1("IS")
+      },
+      {
+        value: "IS_NOT",
+        text: t$1("ISNOT")
+      }
+    ],
+    values: [
+      {
+        value: "CONNECTED",
+        text: t$1("LINKED")
+      },
+      {
+        value: "NOT_TAGGED",
+        text: t$1("NO TAGS")
+      },
+      {
+        value: "LINKED",
+        text: t$1("HAS LINKS")
+      },
+      {
+        value: "IMAGED",
+        text: t$1("HAS IMAGES")
+      }
+    ]
+  },
+  TEXT: {
+    value: "TEXT",
+    text: t$1("TEXT"),
+    operators: [
+      {
+        value: "CONTAIN",
+        text: t$1("INCLUDE")
+      },
+      {
+        value: "NOT_CONTAIN",
+        text: t$1("EXCLUDE")
+      }
+    ]
+  },
+  DATE: {
+    value: "DATE",
+    text: t$1("DATE"),
+    operators: [
+      {
+        value: "NOT_CONTAIN",
+        text: t$1("BEFORE")
+      },
+      {
+        value: "CONTAIN",
+        text: t$1("AFTER")
+      }
+    ]
+  }
+};
+const memoSpecialTypes = filterConsts["TYPE"].values;
+const getTextWithMemoType = (type) => {
+  for (const t2 of memoSpecialTypes) {
+    if (t2.value === type) {
+      return t2.text;
+    }
+  }
+  return "";
+};
+const getDefaultFilter = () => {
+  return {
+    type: "TAG",
+    value: {
+      operator: "CONTAIN",
+      value: ""
+    },
+    relation: "AND"
+  };
+};
+const checkShouldShowMemoWithFilters = (memo2, filters) => {
+  let shouldShow = true;
+  for (const f2 of filters) {
+    const { relation } = f2;
+    const r2 = checkShouldShowMemo(memo2, f2);
+    if (relation === "OR") {
+      shouldShow = shouldShow || r2;
+    } else {
+      shouldShow = shouldShow && r2;
+    }
+  }
+  return shouldShow;
+};
+const checkShouldShowMemo = (memo2, filter) => {
+  var _a, _b;
+  const {
+    type,
+    value: { operator, value }
+  } = filter;
+  if (value === "") {
+    return true;
+  }
+  let shouldShow = true;
+  if (type === "TAG") {
+    let contained = true;
+    const tagsSet = /* @__PURE__ */ new Set();
+    for (const t2 of Array.from((_a = memo2.content.match(TAG_REG)) != null ? _a : [])) {
+      const tag = t2.replace(TAG_REG, "$1").trim();
+      const items = tag.split("/");
+      let temp = "";
+      for (const i of items) {
+        temp += i;
+        tagsSet.add(temp);
+        temp += "/";
+      }
+    }
+    for (const t2 of Array.from((_b = memo2.content.match(NOP_FIRST_TAG_REG)) != null ? _b : [])) {
+      const tag = t2.replace(NOP_FIRST_TAG_REG, "$1").trim();
+      const items = tag.split("/");
+      let temp = "";
+      for (const i of items) {
+        temp += i;
+        tagsSet.add(temp);
+        temp += "/";
+      }
+    }
+    if (!tagsSet.has(value)) {
+      contained = false;
+    }
+    if (operator === "NOT_CONTAIN") {
+      contained = !contained;
+    }
+    shouldShow = contained;
+  } else if (type === "TYPE") {
+    let matched = false;
+    if (value === "NOT_TAGGED" && memo2.content.match(TAG_REG) === null) {
+      matched = true;
+    } else if (value === "LINKED" && memo2.content.match(LINK_REG) !== null) {
+      matched = true;
+    } else if (value === "IMAGED" && memo2.content.match(IMAGE_URL_REG) !== null) {
+      matched = true;
+    } else if (value === "CONNECTED" && memo2.content.match(MEMO_LINK_REG) !== null) {
+      matched = true;
+    }
+    if (operator === "IS_NOT") {
+      matched = !matched;
+    }
+    shouldShow = matched;
+  } else if (type === "TEXT") {
+    let contained = memo2.content.includes(value);
+    if (operator === "NOT_CONTAIN") {
+      contained = !contained;
+    }
+    shouldShow = contained;
+  } else if (type === "DATE") {
+    if (!app.plugins.enabledPlugins.has("nldates-obsidian")) {
+      new require$$0.Notice(t$1("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
+    } else {
+      const nldatesPlugin = app.plugins.getPlugin("nldates-obsidian");
+      const parsedResult = nldatesPlugin.parseDate(value);
+      let contained;
+      if (parsedResult.date !== null) {
+        contained = parsedResult.moment.isBefore(require$$0.moment(memo2.createdAt), "day");
+      }
+      if (operator === "NOT_CONTAIN") {
+        contained = !contained;
+      }
+      shouldShow = contained;
+    }
+  }
+  shouldShow = memo2.linkId === "" ? shouldShow : false;
+  return shouldShow;
+};
+var selector = "";
+const nullItem = {
+  text: t$1("SELECT"),
+  value: ""
+};
+const Selector = (props) => {
+  const {
+    className,
+    dataSource,
+    handleValueChanged,
+    value
+  } = props;
+  const [showSelector, toggleSelectorStatus] = useToggle(false);
+  const seletorElRef = react.exports.useRef(null);
+  let currentItem = nullItem;
+  for (const d of dataSource) {
+    if (d.value === value) {
+      currentItem = d;
+      break;
+    }
+  }
+  react.exports.useEffect(() => {
+    if (showSelector) {
+      const handleClickOutside = (event) => {
+        var _a;
+        if (!((_a = seletorElRef.current) == null ? void 0 : _a.contains(event.target))) {
+          toggleSelectorStatus(false);
+        }
+      };
+      window.addEventListener("click", handleClickOutside, {
+        capture: true,
+        once: true
+      });
+    }
+  }, [showSelector]);
+  const handleItemClick = (item) => {
+    if (handleValueChanged) {
+      handleValueChanged(item.value);
+    }
+    toggleSelectorStatus(false);
+  };
+  const handleCurrentValueClick = (event) => {
+    event.stopPropagation();
+    toggleSelectorStatus();
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: `selector-wrapper ${className != null ? className : ""}`,
+    ref: seletorElRef,
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: `current-value-container ${showSelector ? "active" : ""}`,
+      onClick: handleCurrentValueClick,
+      children: [/* @__PURE__ */ jsx("span", {
+        className: "value-text",
+        children: currentItem.text
+      }), /* @__PURE__ */ jsx("span", {
+        className: "arrow-text",
+        children: /* @__PURE__ */ jsx(SvgArrowRight, {
+          className: "icon-img"
+        })
+      })]
+    }), /* @__PURE__ */ jsx("div", {
+      className: `items-wrapper ${showSelector ? "" : "hidden"}`,
+      children: dataSource.map((d) => {
+        return /* @__PURE__ */ jsx("div", {
+          className: `item-container ${d.value === value ? "selected" : ""}`,
+          onClick: () => {
+            handleItemClick(d);
+          },
+          children: d.text
+        }, d.value);
+      })
+    })]
+  });
+};
+var Selector$1 = react.exports.memo(Selector);
+var createQueryDialog = "";
+const CreateQueryDialog = (props) => {
+  const {
+    destroy,
+    queryId
+  } = props;
+  const [title, setTitle] = react.exports.useState("");
+  const [filters, setFilters] = react.exports.useState([]);
+  const requestState = useLoading(false);
+  const shownMemoLength = memoService.getState().memos.filter((memo2) => {
+    return checkShouldShowMemoWithFilters(memo2, filters);
+  }).length;
+  react.exports.useEffect(() => {
+    const queryTemp = queryService.getQueryById(queryId != null ? queryId : "");
+    if (queryTemp) {
+      setTitle(queryTemp.title);
+      const temp = JSON.parse(queryTemp.querystring);
+      if (Array.isArray(temp)) {
+        setFilters(temp);
+      }
+    }
+  }, [queryId]);
+  const handleTitleInputChange = (e) => {
+    const text = e.target.value;
+    setTitle(text);
+  };
+  const handleSaveBtnClick = async () => {
+    if (!title) {
+      new require$$0.Notice(t$1("TITLE CANNOT BE NULL!"));
+      return;
+    }
+    if (filters.length === 0) {
+      new require$$0.Notice(t$1("FILTER CANNOT BE NULL!"));
+      return;
+    }
+    try {
+      if (queryId) {
+        const editedQuery = await queryService.updateQuery(queryId, title, JSON.stringify(filters));
+        queryService.editQuery(editedQuery);
+        queryService.getMyAllQueries();
+      } else {
+        const query = await queryService.createQuery(title, JSON.stringify(filters));
+        queryService.pushQuery(query);
+        queryService.getMyAllQueries();
+      }
+    } catch (error) {
+      new require$$0.Notice(error.message);
+    }
+    destroy();
+  };
+  const handleAddFilterBenClick = () => {
+    if (filters.length > 0) {
+      const lastFilter = filters[filters.length - 1];
+      if (lastFilter.value.value === "") {
+        new require$$0.Notice(t$1("Please finish the last filter setting first"));
+        return;
+      }
+    }
+    setFilters([...filters, getDefaultFilter()]);
+  };
+  const handleFilterChange = react.exports.useCallback((index, filter) => {
+    setFilters((filters2) => {
+      const temp = [...filters2];
+      temp[index] = filter;
+      return temp;
+    });
+  }, []);
+  const handleFilterRemove = react.exports.useCallback((index) => {
+    setFilters((filters2) => {
+      const temp = filters2.filter((_, i) => i !== index);
+      return temp;
+    });
+  }, []);
+  return /* @__PURE__ */ jsxs(Fragment, {
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "dialog-header-container",
+      children: [/* @__PURE__ */ jsxs("p", {
+        className: "title-text",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "icon-text",
+          children: "\u{1F516}"
+        }), queryId ? t$1("EDIT QUERY") : t$1("CREATE QUERY")]
+      }), /* @__PURE__ */ jsx("button", {
+        className: "btn close-btn",
+        onClick: destroy,
+        children: /* @__PURE__ */ jsx(SvgClose, {
+          className: "icon-img"
+        })
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "dialog-content-container",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "form-item-container input-form-container",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "normal-text",
+          children: t$1("TITLE")
+        }), /* @__PURE__ */ jsx("input", {
+          className: "title-input",
+          type: "text",
+          value: title,
+          onChange: handleTitleInputChange
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "form-item-container filter-form-container",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "normal-text",
+          children: t$1("FILTER")
+        }), /* @__PURE__ */ jsxs("div", {
+          className: "filters-wrapper",
+          children: [filters.map((f2, index) => {
+            return /* @__PURE__ */ jsx(MemoFilterInputer, {
+              index,
+              filter: f2,
+              handleFilterChange,
+              handleFilterRemove
+            }, index);
+          }), /* @__PURE__ */ jsx("div", {
+            className: "create-filter-btn",
+            onClick: handleAddFilterBenClick,
+            children: t$1("ADD FILTER TERMS")
+          })]
+        })]
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "dialog-footer-container",
+      children: [/* @__PURE__ */ jsx("div", {}), /* @__PURE__ */ jsxs("div", {
+        className: "btns-container",
+        children: [/* @__PURE__ */ jsxs("span", {
+          className: `tip-text ${filters.length === 0 && "hidden"}`,
+          children: [t$1("MATCH"), " Memo ", /* @__PURE__ */ jsx("strong", {
+            children: shownMemoLength
+          }), " ", t$1("TIMES")]
+        }), /* @__PURE__ */ jsx("button", {
+          className: `btn save-btn ${requestState.isLoading ? "requesting" : ""}`,
+          onClick: handleSaveBtnClick,
+          children: "SAVE"
+        })]
+      })]
+    })]
+  });
+};
+const FilterInputer = (props) => {
+  const {
+    index,
+    filter,
+    handleFilterChange,
+    handleFilterRemove
+  } = props;
+  const {
+    type
+  } = filter;
+  const [inputElements, setInputElements] = react.exports.useState(/* @__PURE__ */ jsx(Fragment, {}));
+  react.exports.useEffect(() => {
+    let operatorElement = /* @__PURE__ */ jsx(Fragment, {});
+    if (Object.keys(filterConsts).includes(type)) {
+      operatorElement = /* @__PURE__ */ jsx(Selector$1, {
+        className: "operator-selector",
+        dataSource: Object.values(filterConsts[type].operators),
+        value: filter.value.operator,
+        handleValueChanged: handleOperatorChange
+      });
+    }
+    let valueElement = /* @__PURE__ */ jsx(Fragment, {});
+    switch (type) {
+      case "TYPE": {
+        valueElement = /* @__PURE__ */ jsx(Selector$1, {
+          className: "value-selector",
+          dataSource: filterConsts["TYPE"].values,
+          value: filter.value.value,
+          handleValueChanged: handleValueChange
+        });
+        break;
+      }
+      case "TAG": {
+        valueElement = /* @__PURE__ */ jsx(Selector$1, {
+          className: "value-selector",
+          dataSource: memoService.getState().tags.sort().map((t2) => {
+            return {
+              text: t2,
+              value: t2
+            };
+          }),
+          value: filter.value.value,
+          handleValueChanged: handleValueChange
+        });
+        break;
+      }
+      case "TEXT": {
+        valueElement = /* @__PURE__ */ jsx("input", {
+          type: "text",
+          className: "value-inputer",
+          value: filter.value.value,
+          onChange: (event) => {
+            handleValueChange(event.target.value);
+            event.target.focus();
+          }
+        });
+        break;
+      }
+      case "DATE": {
+        valueElement = /* @__PURE__ */ jsx("input", {
+          type: "text",
+          className: "value-inputer",
+          value: filter.value.value,
+          onChange: (event) => {
+            handleValueChange(event.target.value);
+            event.target.focus();
+          }
+        });
+        break;
+      }
+    }
+    setInputElements(/* @__PURE__ */ jsxs(Fragment, {
+      children: [operatorElement, valueElement]
+    }));
+  }, [type, filter]);
+  const handleRelationChange = react.exports.useCallback((value) => {
+    if (["AND", "OR"].includes(value)) {
+      handleFilterChange(index, {
+        ...filter,
+        relation: value
+      });
+    }
+  }, [filter]);
+  const handleTypeChange = react.exports.useCallback((value) => {
+    if (filter.type !== value) {
+      const ops = Object.values(filterConsts[value].operators);
+      handleFilterChange(index, {
+        ...filter,
+        type: value,
+        value: {
+          operator: ops[0].value,
+          value: ""
+        }
+      });
+    }
+  }, [filter]);
+  const handleOperatorChange = react.exports.useCallback((value) => {
+    handleFilterChange(index, {
+      ...filter,
+      value: {
+        ...filter.value,
+        operator: value
+      }
+    });
+  }, [filter]);
+  const handleValueChange = react.exports.useCallback((value) => {
+    handleFilterChange(index, {
+      ...filter,
+      value: {
+        ...filter.value,
+        value
+      }
+    });
+  }, [filter]);
+  const handleRemoveBtnClick = () => {
+    handleFilterRemove(index);
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: "memo-filter-input-wrapper",
+    children: [index > 0 ? /* @__PURE__ */ jsx(Selector$1, {
+      className: "relation-selector",
+      dataSource: relationConsts,
+      value: filter.relation,
+      handleValueChanged: handleRelationChange
+    }) : null, /* @__PURE__ */ jsx(Selector$1, {
+      className: "type-selector",
+      dataSource: Object.values(filterConsts),
+      value: filter.type,
+      handleValueChanged: handleTypeChange
+    }), inputElements, /* @__PURE__ */ jsx(SvgClose, {
+      className: "remove-btn",
+      onClick: handleRemoveBtnClick
+    })]
+  });
+};
+const MemoFilterInputer = react.exports.memo(FilterInputer);
+function showCreateQueryDialog(queryId) {
+  showDialog({
+    className: "create-query-dialog"
+  }, CreateQueryDialog, {
+    queryId
+  });
+}
+var queryList = "";
+function SvgMoreWhite(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: 24,
+    height: 24,
+    fill: "#FFF",
+    viewBox: "0 0 24 24",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    fill: "none",
+    d: "M0 0h24v24H0V0z"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+  }));
+}
+const QueryList = () => {
+  const {
+    queryState: {
+      queries
+    },
+    locationState: {
+      query: {
+        filter
+      }
+    }
+  } = react.exports.useContext(appContext);
+  const loadingState = useLoading();
+  const sortedQueries = queries.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).sort((a, b) => {
+    var _a, _b;
+    return utils$1.getTimeStampByDate((_a = b.pinnedAt) != null ? _a : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
+  });
+  react.exports.useEffect(() => {
+    queryService.getMyAllQueries().catch(() => {
+    }).finally(() => {
+      loadingState.setFinish();
+    });
+  }, []);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "queries-wrapper",
+    children: [/* @__PURE__ */ jsxs("p", {
+      className: "title-text",
+      children: [/* @__PURE__ */ jsx("span", {
+        className: "normal-text",
+        children: t$1("QUERY")
+      }), /* @__PURE__ */ jsx("span", {
+        className: "btn",
+        onClick: () => showCreateQueryDialog(),
+        children: "+"
+      })]
+    }), /* @__PURE__ */ jsx(Only, {
+      when: loadingState.isSucceed && sortedQueries.length === 0,
+      children: /* @__PURE__ */ jsx("div", {
+        className: "create-query-btn-container",
+        children: /* @__PURE__ */ jsx("span", {
+          className: "btn",
+          onClick: () => showCreateQueryDialog(),
+          children: t$1("CREATE FILTER")
+        })
+      })
+    }), /* @__PURE__ */ jsx("div", {
+      className: "queries-container",
+      children: sortedQueries.map((q2) => {
+        return /* @__PURE__ */ jsx(QueryItemContainer, {
+          query: q2,
+          isActive: q2.id === filter
+        }, q2.id);
+      })
+    })]
+  });
+};
+const QueryItemContainer = (props) => {
+  const {
+    query,
+    isActive
+  } = props;
+  const [showActionBtns, toggleShowActionBtns] = useToggle(false);
+  const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
+  const handleQueryClick = () => {
+    if (isActive) {
+      locationService.setMemoFilter("");
+    } else {
+      locationService.setMemoFilter(query.id);
+    }
+  };
+  const handleShowActionBtnClick = (event) => {
+    event.stopPropagation();
+    toggleShowActionBtns();
+  };
+  const handleActionBtnContainerMouseLeave = () => {
+    toggleShowActionBtns(false);
+  };
+  const handleDeleteMemoClick = async (event) => {
+    event.stopPropagation();
+    if (showConfirmDeleteBtn) {
+      try {
+        await queryService.deleteQuery(query.id);
+      } catch (error) {
+        new require$$0.Notice(error.message);
+      }
+    } else {
+      toggleConfirmDeleteBtn();
+    }
+  };
+  const handleEditQueryBtnClick = (event) => {
+    event.stopPropagation();
+    showCreateQueryDialog(query.id);
+  };
+  const handlePinQueryBtnClick = async (event) => {
+    event.stopPropagation();
+    try {
+      if (query.pinnedAt) {
+        await queryService.unpinQuery(query.id);
+        queryService.editQuery({
+          ...query,
+          pinnedAt: ""
+        });
+      } else {
+        await queryService.pinQuery(query.id);
+        queryService.editQuery({
+          ...query,
+          pinnedAt: utils$1.getDateTimeString(Date.now())
+        });
+      }
+    } catch (error) {
+    }
+  };
+  const handleDeleteBtnMouseLeave = () => {
+    toggleConfirmDeleteBtn(false);
+  };
+  return /* @__PURE__ */ jsx(Fragment, {
+    children: /* @__PURE__ */ jsxs("div", {
+      className: `query-item-container ${isActive ? "active" : ""}`,
+      onClick: handleQueryClick,
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "query-text-container",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "icon-text",
+          children: "#"
+        }), /* @__PURE__ */ jsx("span", {
+          className: "query-text",
+          children: query.title
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "btns-container",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "action-btn toggle-btn",
+          onClick: handleShowActionBtnClick,
+          children: isActive ? /* @__PURE__ */ jsx(SvgMoreWhite, {}) : /* @__PURE__ */ jsx(SvgMore, {})
+        }), /* @__PURE__ */ jsx("div", {
+          className: `action-btns-wrapper ${showActionBtns ? "" : "hidden"}`,
+          onMouseLeave: handleActionBtnContainerMouseLeave,
+          children: /* @__PURE__ */ jsxs("div", {
+            className: "action-btns-container",
+            children: [/* @__PURE__ */ jsx("span", {
+              className: "btn",
+              onClick: handlePinQueryBtnClick,
+              children: query.pinnedAt ? t$1("UNPIN") : t$1("PIN")
+            }), /* @__PURE__ */ jsx("span", {
+              className: "btn",
+              onClick: handleEditQueryBtnClick,
+              children: t$1("EDIT")
+            }), /* @__PURE__ */ jsx("span", {
+              className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
+              onClick: handleDeleteMemoClick,
+              onMouseLeave: handleDeleteBtnMouseLeave,
+              children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
+            })]
+          })
+        })]
+      })]
+    })
+  });
+};
+var tagList = "";
+const TagList = () => {
+  const {
+    locationState: {
+      query: {
+        tag: tagQuery
+      }
+    },
+    memoState: {
+      tags: tagsText,
+      tagsNum: tagsCount,
+      memos
+    }
+  } = react.exports.useContext(appContext);
+  const [tags, setTags] = react.exports.useState([]);
+  react.exports.useEffect(() => {
+    memoService.updateTagsState();
+  }, [memos]);
+  react.exports.useEffect(() => {
+    const sortedTags = Array.from(tagsText).sort();
+    const root = {
+      subTags: []
+    };
+    for (const tag of sortedTags) {
+      const subtags = tag.split("/");
+      let tempObj = root;
+      let tagText = "";
+      for (let i = 0; i < subtags.length; i++) {
+        const key = subtags[i];
+        if (i === 0) {
+          tagText += key;
+        } else {
+          tagText += "/" + key;
+        }
+        let obj = null;
+        for (const t2 of tempObj.subTags) {
+          if (t2.text === tagText) {
+            obj = t2;
+            break;
+          }
+        }
+        if (!obj) {
+          obj = {
+            key,
+            text: tagText,
+            count: tagsCount[tagText],
+            subTags: []
+          };
+          tempObj.subTags.push(obj);
+        }
+        tempObj = obj;
+      }
+    }
+    setTags(root.subTags);
+  }, [tagsText]);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "tags-wrapper",
+    children: [/* @__PURE__ */ jsx("p", {
+      className: "title-text",
+      children: t$1("Frequently Used Tags")
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "tags-container",
+      children: [tags.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
+        tag: t2,
+        tagQuery
+      }, t2.text + "-" + idx)), /* @__PURE__ */ jsx(Only, {
+        when: tags.length < 5 && memoService.initialized,
+        children: /* @__PURE__ */ jsxs("p", {
+          className: "tag-tip-container",
+          children: ["Input", /* @__PURE__ */ jsx("span", {
+            className: "code-text",
+            children: "#Tag "
+          }), "to create tag..."]
+        })
+      })]
+    })]
+  });
+};
+const TagItemContainer = (props) => {
+  const {
+    tag,
+    tagQuery
+  } = props;
+  const isActive = tagQuery === tag.text;
+  const hasSubTags = tag.subTags.length > 0;
+  const [showSubTags, toggleSubTags] = useToggle(false);
+  const handleTagClick = () => {
+    if (isActive) {
+      locationService.setTagQuery("");
+    } else {
+      utils$1.copyTextToClipboard(`#${tag.text} `);
+      if (!["/", "/recycle"].includes(locationService.getState().pathname)) {
+        locationService.setPathname("/");
+      }
+      locationService.setTagQuery(tag.text);
+    }
+  };
+  const handleToggleBtnClick = (event) => {
+    event.stopPropagation();
+    toggleSubTags();
+  };
+  return /* @__PURE__ */ jsxs(Fragment, {
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: `tag-item-container ${isActive ? "active" : ""}`,
+      onClick: handleTagClick,
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "tag-text-container",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "icon-text",
+          children: "#"
+        }), /* @__PURE__ */ jsx("span", {
+          className: "tag-text",
+          children: tag.key
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "btns-container",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "tag-count",
+          children: tag.count
+        }), hasSubTags ? /* @__PURE__ */ jsx("span", {
+          className: `action-btn toggle-btn ${showSubTags ? "shown" : ""}`,
+          onClick: handleToggleBtnClick,
+          children: /* @__PURE__ */ jsx(SvgArrowRight, {
+            className: "icon-img"
+          })
+        }) : null]
+      })]
+    }), hasSubTags ? /* @__PURE__ */ jsx("div", {
+      className: `subtags-container ${showSubTags ? "" : "hidden"}`,
+      children: tag.subTags.map((st, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
+        tag: st,
+        tagQuery
+      }, st.text + "-" + idx))
+    }) : null]
+  });
+};
+var usageHeatMap = "";
+const tableConfig = {
+  width: 12,
+  height: 7
+};
+const getInitialUsageStat = (usedDaysAmount, beginDayTimestamp) => {
+  const initialUsageStat = [];
+  for (let i = 0; i <= usedDaysAmount; i++) {
+    initialUsageStat.push({
+      timestamp: parseInt(require$$0.moment(beginDayTimestamp).add(i, "days").format("x")),
+      count: 0
+    });
+  }
+  return initialUsageStat;
+};
+const UsageHeatMap = () => {
+  const todayTimeStamp = parseInt(require$$0.moment().endOf("day").format("x"));
+  const todayDay = new Date(todayTimeStamp).getDay() || 7;
+  const nullCell = new Array(7 - todayDay).fill(0);
+  const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + todayDay;
+  const beginDayTimestamp = parseInt(require$$0.moment().startOf("day").subtract(usedDaysAmount, "days").format("x"));
+  const startDate = require$$0.moment().startOf("day").subtract(usedDaysAmount, "days");
+  const {
+    memoState: {
+      memos
+    }
+  } = react.exports.useContext(appContext);
+  const newMemos = memos.filter((memo2) => memo2.linkId === "");
+  const [allStat, setAllStat] = dist(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
+  const [popupStat, setPopupStat] = dist(null);
+  const [currentStat, setCurrentStat] = dist(null);
+  const [fromTo, setFromTo, fromToRef] = dist("");
+  const containerElRef = react.exports.useRef(null);
+  const popupRef = react.exports.useRef(null);
+  react.exports.useEffect(() => {
+    const newStat = getInitialUsageStat(usedDaysAmount, beginDayTimestamp);
+    for (const m2 of newMemos) {
+      const creationDate = require$$0.moment(m2.createdAt.replaceAll("/", "-")).startOf("day");
+      const index = creationDate.diff(startDate, "days");
+      if (index >= 0 && index < newStat.length) {
+        newStat[index].count += 1;
+      }
+    }
+    setAllStat([...newStat]);
+  }, [memos]);
+  const handleUsageStatItemMouseEnter = react.exports.useCallback((event, item) => {
+    var _a, _b;
+    setPopupStat(item);
+    if (!popupRef.current) {
+      return;
+    }
+    const {
+      isMobileView
+    } = globalStateService.getState();
+    const targetEl = event.target;
+    const sidebarEl = document.querySelector(".memos-sidebar-wrapper");
+    popupRef.current.style.left = targetEl.offsetLeft - ((_b = (_a = containerElRef.current) == null ? void 0 : _a.offsetLeft) != null ? _b : 0) + "px";
+    let topValue = targetEl.offsetTop;
+    if (!isMobileView) {
+      topValue -= sidebarEl.scrollTop;
+    }
+    popupRef.current.style.top = topValue + "px";
+  }, []);
+  const handleUsageStatItemMouseLeave = react.exports.useCallback(() => {
+    setPopupStat(null);
+  }, []);
+  const handleUsageStatItemClick = react.exports.useCallback((event, item) => {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+    if (((_a = locationService.getState().query.duration) == null ? void 0 : _a.from) === item.timestamp && require$$0.moment((_b = locationService.getState().query.duration) == null ? void 0 : _b.from).diff((_c = locationService.getState().query.duration) == null ? void 0 : _c.to, "day") == 0) {
+      locationService.setFromAndToQuery(0, 0);
+      setCurrentStat(null);
+      setFromTo(null);
+    } else if (((_d = locationService.getState().query.duration) == null ? void 0 : _d.from) !== item.timestamp && ((_e = locationService.getState().query.duration) == null ? void 0 : _e.from) > 0 && event.shiftKey) {
+      const timeStampDays = require$$0.moment(item.timestamp).endOf("day").diff((_f = locationService.getState().query.duration) == null ? void 0 : _f.to, "day");
+      if (timeStampDays > 0 && require$$0.moment((_g = locationService.getState().query.duration) == null ? void 0 : _g.from).diff((_h = locationService.getState().query.duration) == null ? void 0 : _h.to, "day") == 0) {
+        setFromTo("from");
+      } else if (timeStampDays < 0 && require$$0.moment((_i = locationService.getState().query.duration) == null ? void 0 : _i.from).diff((_j = locationService.getState().query.duration) == null ? void 0 : _j.to, "day") == 0) {
+        setFromTo("to");
+      }
+      if (require$$0.moment((_k = locationService.getState().query.duration) == null ? void 0 : _k.from).isBefore(item.timestamp)) {
+        if (fromToRef.current === "to") {
+          if (timeStampDays < 0) {
+            locationService.setFromAndToQuery(item.timestamp, (_l = locationService.getState().query.duration) == null ? void 0 : _l.to);
+          } else {
+            locationService.setFromAndToQuery(parseInt(require$$0.moment((_m = locationService.getState().query.duration) == null ? void 0 : _m.to).startOf("day").format("x")), parseInt(require$$0.moment(item.timestamp).endOf("day").format("x")));
+            setFromTo("from");
+          }
+        } else if (fromToRef.current === "from") {
+          if (timeStampDays < 0) {
+            locationService.setFromAndToQuery((_n = locationService.getState().query.duration) == null ? void 0 : _n.from, parseInt(require$$0.moment(item.timestamp).endOf("day").format("x")));
+          } else {
+            locationService.setFromAndToQuery((_o = locationService.getState().query.duration) == null ? void 0 : _o.from, parseInt(require$$0.moment(item.timestamp).endOf("day").format("x")));
+          }
+        }
+      } else {
+        if (fromToRef.current === "to") {
+          locationService.setFromAndToQuery(item.timestamp, (_p = locationService.getState().query.duration) == null ? void 0 : _p.to);
+        } else if (fromToRef.current === "from") {
+          locationService.setFromAndToQuery(item.timestamp, parseInt(require$$0.moment((_q = locationService.getState().query.duration) == null ? void 0 : _q.from).endOf("day").format("x")));
+          setFromTo("to");
+        }
+      }
+    } else if (((_r = locationService.getState().query.duration) == null ? void 0 : _r.from) === 0 && event.shiftKey) {
+      locationService.setFromAndToQuery(item.timestamp, parseInt(require$$0.moment().endOf("day").format("x")));
+    } else if (item.count > 0 && (event.ctrlKey || event.metaKey)) {
+      const {
+        app: app2,
+        dailyNotes
+      } = dailyNotesService.getState();
+      const file = getDailyNote_1(require$$0.moment(item.timestamp), dailyNotes);
+      if (!require$$0.Platform.isMobile) {
+        const leaf = app2.workspace.splitActiveLeaf();
+        leaf.openFile(file);
+      } else {
+        let leaf = app2.workspace.activeLeaf;
+        if (leaf === null) {
+          leaf = app2.workspace.getLeaf(true);
+        }
+        leaf.openFile(file);
+      }
+    } else if (item.count > 0 && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      if (!["/", "/recycle"].includes(locationService.getState().pathname)) {
+        locationService.setPathname("/");
+      }
+      locationService.setFromAndToQuery(item.timestamp, utils$1.getTimeStampByDate(require$$0.moment(item.timestamp + DAILY_TIMESTAMP).subtract(1, "days").endOf("day").format("YYYY-MM-DD HH:mm:ss")));
+      setCurrentStat(item);
+    }
+  }, []);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "usage-heat-map-wrapper",
+    ref: containerElRef,
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "day-tip-text-container",
+      children: [/* @__PURE__ */ jsx("span", {
+        className: "tip-text",
+        children: t$1("weekDaysShort")[0]
+      }), /* @__PURE__ */ jsx("span", {
+        className: "tip-text"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "tip-text",
+        children: t$1("weekDaysShort")[2]
+      }), /* @__PURE__ */ jsx("span", {
+        className: "tip-text"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "tip-text",
+        children: t$1("weekDaysShort")[4]
+      }), /* @__PURE__ */ jsx("span", {
+        className: "tip-text"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "tip-text",
+        children: t$1("weekDaysShort")[6]
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      ref: popupRef,
+      className: "usage-detail-container pop-up " + (popupStat ? "" : "hidden"),
+      children: [popupStat == null ? void 0 : popupStat.count, " memos on", " ", /* @__PURE__ */ jsx("span", {
+        className: "date-text",
+        children: new Date(popupStat == null ? void 0 : popupStat.timestamp).toDateString()
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "usage-heat-map",
+      children: [allStat.map((v2, i) => {
+        const count = v2.count;
+        const colorLevel = count <= 0 ? "" : count <= 1 ? "stat-day-L1-bg" : count <= 2 ? "stat-day-L2-bg" : count <= 4 ? "stat-day-L3-bg" : "stat-day-L4-bg";
+        return /* @__PURE__ */ jsx("span", {
+          className: `stat-container ${colorLevel} ${currentStat === v2 ? "current" : ""} ${todayTimeStamp === v2.timestamp ? "today" : ""}`,
+          onMouseEnter: (e) => handleUsageStatItemMouseEnter(e, v2),
+          onMouseLeave: handleUsageStatItemMouseLeave,
+          onClick: (e) => handleUsageStatItemClick(e, v2)
+        }, i);
+      }), nullCell.map((v2, i) => /* @__PURE__ */ jsx("span", {
+        className: "stat-container null"
+      }, i))]
+    })]
+  });
+};
+var siderbar = "";
+const Sidebar = () => {
+  const {
+    locationState,
+    globalState: {
+      isMobileView,
+      showSiderbarInMobileView
+    }
+  } = react.exports.useContext(appContext);
+  const wrapperElRef = react.exports.useRef(null);
+  const handleClickOutsideOfWrapper = react.exports.useMemo(() => {
+    return (event) => {
+      var _a, _b, _c;
+      const siderbarShown = globalStateService.getState().showSiderbarInMobileView;
+      if (!siderbarShown) {
+        window.removeEventListener("click", handleClickOutsideOfWrapper, {
+          capture: true
+        });
+        return;
+      }
+      if (!((_a = wrapperElRef.current) == null ? void 0 : _a.contains(event.target))) {
+        if ((_c = (_b = wrapperElRef.current) == null ? void 0 : _b.parentNode) == null ? void 0 : _c.contains(event.target)) {
+          if (siderbarShown) {
+            event.stopPropagation();
+          }
+          globalStateService.setShowSiderbarInMobileView(false);
+          window.removeEventListener("click", handleClickOutsideOfWrapper, {
+            capture: true
+          });
+        }
+      }
+    };
+  }, []);
+  react.exports.useEffect(() => {
+    globalStateService.setShowSiderbarInMobileView(false);
+  }, [locationState]);
+  react.exports.useEffect(() => {
+    if (showSiderbarInMobileView) {
+      document.body.classList.add(SHOW_SIDERBAR_MOBILE_CLASSNAME);
+    } else {
+      document.body.classList.remove(SHOW_SIDERBAR_MOBILE_CLASSNAME);
+    }
+  }, [showSiderbarInMobileView]);
+  react.exports.useEffect(() => {
+    if (isMobileView && showSiderbarInMobileView) {
+      window.addEventListener("click", handleClickOutsideOfWrapper, {
+        capture: true
+      });
+    }
+  }, [isMobileView, showSiderbarInMobileView]);
+  return /* @__PURE__ */ jsxs("aside", {
+    className: "memos-sidebar-wrapper",
+    ref: wrapperElRef,
+    children: [/* @__PURE__ */ jsx(UserBanner, {}), /* @__PURE__ */ jsx(UsageHeatMap, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
+  });
+};
+var home = "";
+function Home() {
+  const {
+    locationState: {
+      pathname
+    }
+  } = react.exports.useContext(appContext);
+  const loadingState = useLoading();
+  react.exports.useEffect(() => {
+    loadingState.setFinish();
+  }, []);
+  return /* @__PURE__ */ jsx(Fragment, {
+    children: /* @__PURE__ */ jsxs("section", {
+      id: "page-wrapper",
+      children: [/* @__PURE__ */ jsx(Sidebar, {}), /* @__PURE__ */ jsx("main", {
+        className: "content-wrapper",
+        children: homeRouterSwitch(pathname)
+      })]
+    })
+  });
+}
+const appRouter = {
+  "*": /* @__PURE__ */ jsx(Home, {})
+};
 const getInitialAction = () => {
   return {
     type: "initialText",
@@ -16047,2215 +18310,20 @@ const Editor = react.exports.forwardRef((props, ref) => {
           })
         }), /* @__PURE__ */ jsx(Only, {
           when: showConfirmBtn,
-          children: /* @__PURE__ */ jsxs("button", {
+          children: /* @__PURE__ */ jsx("button", {
             className: "action-btn confirm-btn",
             disabled: !((_b = editorRef.current) == null ? void 0 : _b.value),
             onClick: handleCommonConfirmBtnClick,
-            children: [SaveMemoButtonLabel, /* @__PURE__ */ jsxs("span", {
-              className: "icon-text",
-              children: [SaveMemoButtonIcon, "\uFE0F"]
-            })]
+            title: "Send",
+            children: /* @__PURE__ */ jsx(SvgSend, {
+              className: "icon-img"
+            })
           })
         })]
       })]
     })]
   });
 });
-const Memo = (props) => {
-  var _a;
-  const {
-    globalState
-  } = react.exports.useContext(appContext);
-  const {
-    settingsState: {
-      settings
-    }
-  } = react.exports.useContext(appContext);
-  const {
-    DefaultEditorLocation,
-    ShowCommentOnMemos,
-    ShowTaskLabel,
-    UseButtonToShowEditor
-  } = settings;
-  const {
-    memo: propsMemo
-  } = props;
-  const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
-  const memoCommentRef = react.exports.useRef(null);
-  const [isCommentShown, toggleComment] = useToggle(false);
-  const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
-  const [commentMemos, setCommentMemos, commentMemosRef] = dist([]);
-  const [replyTo, setReplyTo] = dist(null);
-  const replyToRef = react.exports.useRef(null);
-  const setReplyToBoth = react.exports.useCallback((m2) => {
-    replyToRef.current = m2;
-    setReplyTo(m2);
-  }, []);
-  const [, setAddRandomIDflag, RandomIDRef] = dist(false);
-  react.exports.useEffect(() => {
-    if (!memoCommentRef.current) {
-      return;
-    }
-    const fetchCommentMemos = async () => {
-      const allCommentMemos = memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt));
-      setCommentMemos(allCommentMemos);
-    };
-    fetchCommentMemos();
-  }, [propsMemo.content, propsMemo.id]);
-  react.exports.useEffect(() => {
-    if (!memoCommentRef.current) {
-      return;
-    }
-    const handlePasteEvent = async (event) => {
-      var _a2;
-      if (event.clipboardData && event.clipboardData.files.length > 0) {
-        event.preventDefault();
-        const file = event.clipboardData.files[0];
-        const url = await handleUploadFile(file);
-        if (url) {
-          (_a2 = memoCommentRef.current) == null ? void 0 : _a2.insertText(url);
-        }
-      }
-    };
-    const handleDropEvent = async (event) => {
-      var _a2;
-      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-        event.preventDefault();
-        const file = event.dataTransfer.files[0];
-        const url = await handleUploadFile(file);
-        if (url) {
-          (_a2 = memoCommentRef.current) == null ? void 0 : _a2.insertText(url);
-        }
-      }
-    };
-    const handleClickEvent = () => {
-      var _a2, _b;
-      handleContentChange((_b = (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.value) != null ? _b : "");
-    };
-    const handleKeyDownEvent = () => {
-      setTimeout(() => {
-        var _a2, _b;
-        handleContentChange((_b = (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.value) != null ? _b : "");
-      });
-    };
-    memoCommentRef.current.element.addEventListener("paste", handlePasteEvent);
-    memoCommentRef.current.element.addEventListener("drop", handleDropEvent);
-    memoCommentRef.current.element.addEventListener("click", handleClickEvent);
-    memoCommentRef.current.element.addEventListener("keydown", handleKeyDownEvent);
-    return () => {
-      var _a2, _b;
-      (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.removeEventListener("paste", handlePasteEvent);
-      (_b = memoCommentRef.current) == null ? void 0 : _b.element.removeEventListener("drop", handleDropEvent);
-    };
-  }, []);
-  const handleCancelBtnClick = react.exports.useCallback(() => {
-    var _a2;
-    globalStateService.setCommentMemoId("");
-    (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
-    toggleComment(false);
-  }, []);
-  const handleContentChange = react.exports.useCallback((content) => {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content;
-    if (tempDiv.innerText.trim() === "") {
-      content = "";
-    }
-    setTimeout(() => {
-      var _a2;
-      (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-    });
-  }, []);
-  const handleSaveBtnClick = react.exports.useCallback(async (content) => {
-    var _a2, _b;
-    if (content === "") {
-      new require$$0.Notice(t$1("Content cannot be empty"));
-      return;
-    }
-    const {
-      commentMemoId
-    } = globalStateService.getState();
-    content = content.replaceAll("&nbsp;", " ");
-    globalStateService.setChangedByMemos(true);
-    try {
-      if (commentMemoId) {
-        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
-        const memo2 = memoService.getCommentMemoById(commentMemoId);
-        if (!memo2) {
-          throw new Error("Memo not found");
-        }
-        const prevMemo = memo2;
-        content = content.trim();
-        if (prevMemo && prevMemo.content !== content) {
-          const editedMemo = await memoService.updateMemo({
-            memoId: prevMemo.id,
-            originalText: prevMemo.content,
-            text: content,
-            type: prevMemo.memoType,
-            path: prevMemo.path
-          });
-          memoService.editCommentMemo(editedMemo);
-          setCommentMemos(commentMemosRef.current.map((m2) => {
-            if (m2.id.slice(14) === commentMemoId.slice(14) && m2.path === prevMemo.path) {
-              return editedMemo;
-            }
-            return m2;
-          }));
-        }
-        globalStateService.setCommentMemoId("");
-        toggleComment(false);
-      } else {
-        const parent = replyToRef.current || propsMemo;
-        let randomId = parent.hasId || "";
-        if (!randomId) {
-          randomId = Math.random().toString(36).slice(-6);
-          setAddRandomIDflag(true);
-        }
-        (_b = memoCommentRef.current) == null ? void 0 : _b.setContent("");
-        const newMemo = await memoService.createCommentMemo({
-          text: content.trim(),
-          isList: true,
-          path: parent.path,
-          ID: parent.id,
-          hasID: randomId
-        });
-        memoService.pushCommentMemo(newMemo);
-        setCommentMemos(memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
-        setReplyToBoth(null);
-        toggleComment(false);
-        if (RandomIDRef.current) {
-          const editedMemo = await memoService.updateMemo({
-            memoId: parent.id,
-            originalText: parent.content,
-            text: parent.content + " ^" + randomId,
-            type: parent.memoType
-          });
-          editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
-          memoService.editMemo(editedMemo);
-          setAddRandomIDflag(false);
-        }
-      }
-    } catch (error) {
-      new require$$0.Notice(error.message);
-    }
-  }, []);
-  const handleUploadFile = react.exports.useCallback(async (file) => {
-    const {
-      type
-    } = file;
-    if (!type.startsWith("image")) {
-      return;
-    }
-    try {
-      const image2 = await resourceService.upload(file);
-      const url = `${image2}`;
-      return url;
-    } catch (error) {
-      new require$$0.Notice(error);
-    }
-  }, []);
-  const handleShowMemoStoryDialog = () => {
-    showMemoCardDialog(propsMemo);
-  };
-  const handleMarkMemoClick = () => {
-    if (UseButtonToShowEditor && DefaultEditorLocation === "Bottom") {
-      const elem = document.querySelector("div[data-type='memos_view'] .view-content .memo-show-editor-button");
-      if (elem == null ? void 0 : elem.onclick) {
-        elem.onclick.call(elem, new MouseEvent("click"));
-      }
-    }
-    globalStateService.setMarkMemoId(propsMemo.id);
-  };
-  const handleEditMemoClick = () => {
-    if (UseButtonToShowEditor && DefaultEditorLocation === "Bottom" && require$$0.Platform.isMobile) {
-      const elem = document.querySelector("div[data-type='memos_view'] .view-content .memo-show-editor-button");
-      if (elem.onclick) {
-        elem.onclick.call(elem, new MouseEvent("click"));
-      }
-    }
-    globalStateService.setEditMemoId(propsMemo.id);
-  };
-  const handleSourceMemoClick = (m2) => {
-    showMemoInDailyNotes(m2.id, m2.path || "");
-  };
-  const handleDeleteMemoClick = async () => {
-    if (showConfirmDeleteBtn) {
-      try {
-        await memoService.hideMemoById(propsMemo.id);
-      } catch (error) {
-        new require$$0.Notice(error.message);
-      }
-      if (globalStateService.getState().editMemoId === propsMemo.id) {
-        globalStateService.setEditMemoId("");
-      }
-    } else {
-      toggleConfirmDeleteBtn();
-    }
-  };
-  const handleMouseLeaveMemoWrapper = () => {
-    if (showConfirmDeleteBtn) {
-      toggleConfirmDeleteBtn(false);
-    }
-  };
-  const handleGenMemoImageBtnClick = () => {
-    showShareMemoImageDialog(propsMemo);
-  };
-  const handleMemoTypeShow = () => {
-    if (!ShowTaskLabel) {
-      return null;
-    }
-    if (propsMemo.memoType === "TASK-TODO") {
-      return /* @__PURE__ */ jsx(SvgTaskBlank, {});
-    } else if (propsMemo.memoType === "TASK-DONE") {
-      return /* @__PURE__ */ jsx(SvgTask, {});
-    }
-    return null;
-  };
-  const handleMemoDoubleClick = react.exports.useCallback((event) => {
-    if (event) {
-      handleEditMemoClick();
-    }
-  }, []);
-  const handleMemoContentClick = async (e, m2) => {
-    var _a2;
-    const targetEl = e.target;
-    if (e.ctrlKey || e.metaKey) {
-      handleSourceMemoClick(m2);
-    }
-    if (targetEl.className === "memo-link-text") {
-      const memoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
-      const memoTemp = memoService.getMemoById(memoId != null ? memoId : "");
-      if (memoTemp) {
-        showMemoCardDialog(memoTemp);
-      } else {
-        new require$$0.Notice("MEMO Not Found");
-        targetEl.classList.remove("memo-link-text");
-      }
-    } else if (targetEl.className === "todo-block")
-      ;
-  };
-  const handleCommentBlock = () => {
-    setReplyToBoth(null);
-    if (!isCommentShown) {
-      toggleComment(true);
-    } else {
-      toggleComment(false);
-    }
-    if (!isCommentListShown) {
-      toggleCommentList(true);
-    } else if (!ShowCommentOnMemos && isCommentListShown) {
-      toggleCommentList(false);
-    }
-  };
-  const handleEditCommentClick = react.exports.useCallback((memo2) => {
-    var _a2, _b;
-    globalStateService.setCommentMemoId(memo2.id);
-    if (!isCommentShown) {
-      toggleComment(true);
-    }
-    (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-    (_b = memoCommentRef.current) == null ? void 0 : _b.setContent(memo2.content.trim());
-  }, []);
-  const showEditStatus = Boolean(globalState.commentMemoId);
-  const handleReplyClick = react.exports.useCallback((comment) => {
-    const current = replyToRef.current;
-    if (current && current.id === comment.id) {
-      setReplyToBoth(null);
-      toggleComment(false);
-    } else {
-      setReplyToBoth(comment);
-      toggleComment(true);
-      setTimeout(() => {
-        var _a2;
-        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-      }, 0);
-    }
-  }, []);
-  const editorConfig = react.exports.useMemo(() => ({
-    className: "memo-editor",
-    inputerType: "commentMemo",
-    initialContent: "",
-    placeholder: t$1("Comment it..."),
-    showConfirmBtn: true,
-    showCancelBtn: showEditStatus,
-    showTools: true,
-    onConfirmBtnClick: handleSaveBtnClick,
-    onCancelBtnClick: handleCancelBtnClick,
-    onContentChange: handleContentChange
-  }), [globalState.commentMemoId]);
-  const imageProps = {
-    memo: propsMemo.content
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: `memo-wrapper ${"memos-" + propsMemo.id} ${propsMemo.memoType}`,
-    onMouseLeave: handleMouseLeaveMemoWrapper,
-    draggable: "true",
-    onDragStart: (e) => {
-      e.dataTransfer.setData("text/plain", propsMemo.content.replace(/<br>/g, "\n"));
-    },
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "memo-top-wrapper",
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "memo-top-left-wrapper",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "time-text",
-          onClick: handleShowMemoStoryDialog,
-          children: utils$1.getDateTimeString(propsMemo.createdAt)
-        }), /* @__PURE__ */ jsx("div", {
-          className: `memo-type-img ${(propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE") && ShowTaskLabel ? "" : "hidden"}`,
-          children: (_a = handleMemoTypeShow()) != null ? _a : ""
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "memo-top-right-wrapper",
-        children: [/* @__PURE__ */ jsxs("div", {
-          className: "comment-button-wrapper",
-          children: [/* @__PURE__ */ jsx(SvgComment, {
-            className: "icon-img",
-            onClick: handleCommentBlock
-          }), commentMemos.length > 0 ? /* @__PURE__ */ jsx("div", {
-            className: "comment-text-count",
-            children: commentMemos.length
-          }) : null]
-        }), /* @__PURE__ */ jsxs("div", {
-          className: "btns-container",
-          children: [/* @__PURE__ */ jsx("span", {
-            className: "btn more-action-btn",
-            children: /* @__PURE__ */ jsx(SvgMore, {
-              className: "icon-img"
-            })
-          }), /* @__PURE__ */ jsx("div", {
-            className: "more-action-btns-wrapper",
-            children: /* @__PURE__ */ jsxs("div", {
-              className: "more-action-btns-container",
-              children: [/* @__PURE__ */ jsx("span", {
-                className: "btn",
-                onClick: handleShowMemoStoryDialog,
-                children: t$1("READ")
-              }), /* @__PURE__ */ jsx("span", {
-                className: "btn",
-                onClick: handleMarkMemoClick,
-                children: t$1("MARK")
-              }), /* @__PURE__ */ jsx("span", {
-                className: "btn",
-                onClick: handleGenMemoImageBtnClick,
-                children: t$1("SHARE")
-              }), /* @__PURE__ */ jsx("span", {
-                className: "btn",
-                onClick: handleEditMemoClick,
-                children: t$1("EDIT")
-              }), /* @__PURE__ */ jsx("span", {
-                className: "btn",
-                onClick: () => handleSourceMemoClick(propsMemo),
-                children: t$1("SOURCE")
-              }), /* @__PURE__ */ jsx("span", {
-                className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
-                onClick: handleDeleteMemoClick,
-                children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
-              })]
-            })
-          })]
-        })]
-      })]
-    }), /* @__PURE__ */ jsx("div", {
-      className: "memo-content-text",
-      onClick: (e) => handleMemoContentClick(e, propsMemo),
-      onDoubleClick: handleMemoDoubleClick,
-      dangerouslySetInnerHTML: {
-        __html: formatMemoContent(propsMemo.content, propsMemo.id)
-      }
-    }), /* @__PURE__ */ jsx(MemoImage, {
-      ...imageProps
-    }), /* @__PURE__ */ jsxs("div", {
-      className: `memo-comment-wrapper`,
-      children: [commentMemos.length > 0 && isCommentListShown ? /* @__PURE__ */ jsx("div", {
-        className: `memo-comment-list`,
-        children: commentMemos.map((m2, idx) => /* @__PURE__ */ jsx(MemoComment, {
-          comment: m2,
-          allMemos: memoService.getState().memos,
-          onContentClick: handleMemoContentClick,
-          onEdit: handleEditCommentClick,
-          onReply: handleReplyClick
-        }, m2.id || idx))
-      }) : null, /* @__PURE__ */ jsxs("div", {
-        className: `memo-comment-inputer ${isCommentShown ? "" : "hidden"}`,
-        children: [replyTo && replyTo.id !== propsMemo.id ? /* @__PURE__ */ jsxs("div", {
-          className: "memo-comment-replying",
-          children: ["\u56DE\u590D: ", replyTo.content.slice(0, 30)]
-        }) : null, /* @__PURE__ */ jsx(Editor, {
-          ref: memoCommentRef,
-          ...editorConfig
-        })]
-      })]
-    })]
-  });
-};
-function formatMemoContent(content, memoid) {
-  content = encodeHtml(content);
-  content = parseRawTextToHtml(content).split("<br>").map((t2) => {
-    return `<p>${t2 !== "" ? t2 : "<br>"}</p>`;
-  }).join("");
-  const {
-    shouldUseMarkdownParser,
-    shouldHideImageUrl
-  } = globalStateService.getState();
-  if (shouldUseMarkdownParser) {
-    content = parseMarkedToHtml(content, memoid);
-  }
-  if (shouldHideImageUrl) {
-    content = content.replace(WIKI_IMAGE_URL_REG, "").replace(MARKDOWN_URL_REG, "").replace(IMAGE_URL_REG, "");
-  }
-  content = content.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>").replace(/\^\S{6}/g, "");
-  const tagsCollect = (content2) => {
-    let tags = [...content2.matchAll(TAG_REG)];
-    tags = [...tags, ...content2.matchAll(FIRST_TAG_REG)];
-    tags.sort((tag, tag2) => tag.index - tag2.index);
-    content2 = content2.replace(TAG_REG, "").replace(FIRST_TAG_REG, "");
-    let tagsComponent = `<p>`;
-    if (tags.length > 0) {
-      for (const tag of tags) {
-        tagsComponent += `<span class='tag-span'>#${tag[tag.length - 1]}</span>`;
-      }
-      {
-        content2 += tagsComponent;
-      }
-    }
-    return content2;
-  };
-  content = tagsCollect(content);
-  const tempDivContainer = document.createElement("div");
-  tempDivContainer.innerHTML = content;
-  for (let i = 0; i < tempDivContainer.children.length; i++) {
-    const c = tempDivContainer.children[i];
-    if (c.tagName === "P" && c.textContent === "") {
-      c.remove();
-      i--;
-      continue;
-    }
-  }
-  return tempDivContainer.innerHTML;
-}
-const MemoComment = ({
-  comment,
-  allMemos,
-  onContentClick,
-  onEdit,
-  onReply
-}) => {
-  const children = allMemos.filter((m2) => m2.linkId === comment.hasId).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
-  const [hovered, setHovered] = dist(false);
-  return /* @__PURE__ */ jsxs("div", {
-    className: "memo-comment-item",
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "memo-comment",
-      onMouseEnter: () => setHovered(true),
-      onMouseLeave: () => setHovered(false),
-      children: [/* @__PURE__ */ jsx("div", {
-        className: "memo-comment-time",
-        children: utils$1.getDateTimeString(comment.createdAt)
-      }), /* @__PURE__ */ jsx("div", {
-        className: "memo-comment-text",
-        onClick: (e) => onContentClick(e, comment),
-        onDoubleClick: () => onEdit(comment),
-        dangerouslySetInnerHTML: {
-          __html: formatMemoContent(comment.content.trim(), comment.id)
-        }
-      }), /* @__PURE__ */ jsx("div", {
-        className: `memo-comment-actions ${hovered ? "" : "hidden"}`,
-        children: /* @__PURE__ */ jsx("button", {
-          className: "memo-comment-reply-btn",
-          onClick: () => onReply(comment),
-          title: t$1("Reply"),
-          children: /* @__PURE__ */ jsx(SvgComment, {
-            className: "icon-img"
-          })
-        })
-      })]
-    }), children.length > 0 ? /* @__PURE__ */ jsx("div", {
-      className: "memo-comment-children",
-      children: children.map((c) => /* @__PURE__ */ jsx(MemoComment, {
-        comment: c,
-        allMemos,
-        onContentClick,
-        onEdit,
-        onReply
-      }, c.id))
-    }) : null]
-  });
-};
-var Memo$1 = react.exports.memo(Memo);
-var dailyMemo = "";
-const DailyMemo = (props) => {
-  var _a;
-  const {
-    app: app2
-  } = appStore.getState().dailyNotesState;
-  const {
-    memo: propsMemo
-  } = props;
-  const memo2 = {
-    ...propsMemo,
-    createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt),
-    timeStr: utils$1.getTimeString(propsMemo.createdAt)
-  };
-  const getPathOfImage2 = (vault, image2) => {
-    return vault.getResourcePath(image2);
-  };
-  const detectWikiInternalLink2 = (lineText, app22) => {
-    var _a2, _b;
-    const internalFileName = (_a2 = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _a2[1];
-    const internalAltName = (_b = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _b[5];
-    const file = app22.metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: "",
-        filePath: ""
-      };
-    } else {
-      const imagePath = getPathOfImage2(app22.vault, file);
-      if (internalAltName) {
-        return {
-          linkText: internalFileName,
-          altText: internalAltName,
-          path: imagePath,
-          filePath: file.path
-        };
-      } else {
-        return {
-          linkText: internalFileName,
-          altText: "",
-          path: imagePath,
-          filePath: file.path
-        };
-      }
-    }
-  };
-  const detectMDInternalLink2 = (lineText, app22) => {
-    var _a2, _b;
-    const internalFileName = (_a2 = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _a2[5];
-    const internalAltName = (_b = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _b[2];
-    const file = app22.metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: "",
-        filePath: ""
-      };
-    } else {
-      const imagePath = getPathOfImage2(app22.vault, file);
-      if (internalAltName) {
-        return {
-          linkText: internalFileName,
-          altText: internalAltName,
-          path: imagePath,
-          filePath: file.path
-        };
-      } else {
-        return {
-          linkText: internalFileName,
-          altText: "",
-          path: imagePath,
-          filePath: file.path
-        };
-      }
-    }
-  };
-  let externalImageUrls = [];
-  const internalImageUrls = [];
-  let allMarkdownLink = [];
-  let allInternalLink = [];
-  if (IMAGE_URL_REG.test(memo2.content)) {
-    let allExternalImageUrls = [];
-    const anotherExternalImageUrls = [];
-    if (MARKDOWN_URL_REG.test(memo2.content)) {
-      allMarkdownLink = Array.from(memo2.content.match(MARKDOWN_URL_REG));
-    }
-    if (WIKI_IMAGE_URL_REG.test(memo2.content)) {
-      allInternalLink = Array.from(memo2.content.match(WIKI_IMAGE_URL_REG));
-    }
-    if (MARKDOWN_WEB_URL_REG.test(memo2.content)) {
-      allExternalImageUrls = Array.from(memo2.content.match(MARKDOWN_WEB_URL_REG));
-    }
-    if (allInternalLink.length) {
-      for (let i = 0; i < allInternalLink.length; i++) {
-        const allInternalLinkElement = allInternalLink[i];
-        internalImageUrls.push(detectWikiInternalLink2(allInternalLinkElement, app2));
-      }
-    }
-    if (allMarkdownLink.length) {
-      for (let i = 0; i < allMarkdownLink.length; i++) {
-        const allMarkdownLinkElement = allMarkdownLink[i];
-        if (/(.*)http[s]?(.*)/.test(allMarkdownLinkElement)) {
-          anotherExternalImageUrls.push((_a = MARKDOWN_URL_REG.exec(allMarkdownLinkElement)) == null ? void 0 : _a[5]);
-        } else {
-          internalImageUrls.push(detectMDInternalLink2(allMarkdownLinkElement, app2));
-        }
-      }
-    }
-    externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
-  }
-  const allImages = [...externalImageUrls.map((u2) => ({
-    src: u2
-  })), ...internalImageUrls.map((imgUrl) => ({
-    src: imgUrl.path,
-    filepath: imgUrl.filePath
-  }))];
-  return /* @__PURE__ */ jsxs("div", {
-    className: "daily-memo-wrapper",
-    children: [/* @__PURE__ */ jsx("div", {
-      className: "time-wrapper",
-      children: /* @__PURE__ */ jsx("span", {
-        className: "normal-text",
-        children: memo2.timeStr
-      })
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "memo-content-container",
-      children: [/* @__PURE__ */ jsx("div", {
-        className: "memo-content-text",
-        dangerouslySetInnerHTML: {
-          __html: formatMemoContent(memo2.content)
-        }
-      }), /* @__PURE__ */ jsx(Only, {
-        when: externalImageUrls.length > 0,
-        children: /* @__PURE__ */ jsx("div", {
-          className: "images-container",
-          children: externalImageUrls.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
-            className: "memo-img",
-            imgUrl,
-            alt: "",
-            referrerPolicy: "no-referrer",
-            allImages,
-            index: idx
-          }, idx))
-        })
-      }), /* @__PURE__ */ jsx(Only, {
-        when: internalImageUrls.length > 0,
-        children: /* @__PURE__ */ jsx("div", {
-          className: "images-container internal-embed image-embed is-loaded",
-          children: internalImageUrls.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
-            className: "memo-img",
-            imgUrl: imgUrl.path,
-            alt: imgUrl.altText,
-            filepath: imgUrl.filePath,
-            allImages,
-            index: externalImageUrls.length + idx
-          }, idx))
-        })
-      })]
-    })]
-  });
-};
-var datePicker = "";
-function SvgArrowLeft(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    height: "24px",
-    viewBox: "0 0 24 24",
-    width: "24px",
-    fill: "#37352f",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M0 0h24v24H0V0z",
-    fill: "none"
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"
-  }));
-}
-function SvgArrowRight(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    height: "24px",
-    viewBox: "0 0 24 24",
-    width: "24px",
-    fill: "#37352f",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M0 0h24v24H0V0z",
-    fill: "none"
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"
-  }));
-}
-const DatePicker = (props) => {
-  var _a, _b;
-  const {
-    className,
-    datestamp,
-    handleDateStampChange
-  } = props;
-  const [currentDateStamp, setCurrentDateStamp] = react.exports.useState(getMonthFirstDayDateStamp(datestamp));
-  react.exports.useEffect(() => {
-    setCurrentDateStamp(getMonthFirstDayDateStamp(datestamp));
-  }, [datestamp]);
-  const firstDate = new Date(currentDateStamp);
-  const firstDateDay = firstDate.getDay() === 0 ? 7 : firstDate.getDay();
-  const dayList = [];
-  for (let i = 0; i < firstDateDay; i++) {
-    dayList.push({
-      date: 0,
-      datestamp: firstDate.getTime() - DAILY_TIMESTAMP * (7 - i)
-    });
-  }
-  const dayAmount = getMonthDayAmount(currentDateStamp);
-  for (let i = 1; i <= dayAmount; i++) {
-    dayList.push({
-      date: i,
-      datestamp: firstDate.getTime() + DAILY_TIMESTAMP * (i - 1)
-    });
-  }
-  const handleDateItemClick = (datestamp2) => {
-    handleDateStampChange(datestamp2);
-  };
-  const handleChangeMonthBtnClick = (i) => {
-    const year = firstDate.getFullYear();
-    const month = firstDate.getMonth() + 1;
-    let nextDateStamp = 0;
-    if (month === 1 && i === -1) {
-      nextDateStamp = new Date(`${year - 1}/12/1`).getTime();
-    } else if (month === 12 && i === 1) {
-      nextDateStamp = new Date(`${year + 1}/1/1`).getTime();
-    } else {
-      nextDateStamp = new Date(`${year}/${month + i}/1`).getTime();
-    }
-    setCurrentDateStamp(getMonthFirstDayDateStamp(nextDateStamp));
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: `date-picker-wrapper ${className}`,
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "date-picker-header",
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "btn-text",
-        onClick: () => handleChangeMonthBtnClick(-1),
-        children: /* @__PURE__ */ jsx(SvgArrowLeft, {
-          className: "icon-img"
-        })
-      }), /* @__PURE__ */ jsxs("span", {
-        className: "normal-text",
-        children: [firstDate.getFullYear(), " ", t$1("year"), " ", (_a = t$1("monthsShort")[firstDate.getMonth()]) != null ? _a : firstDate.getMonth() + 1, " ", (_b = t$1("month")) != null ? _b : ""]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "btn-text",
-        onClick: () => handleChangeMonthBtnClick(1),
-        children: /* @__PURE__ */ jsx(SvgArrowRight, {
-          className: "icon-img"
-        })
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "date-picker-day-container",
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "date-picker-day-header",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[0]
-        }), /* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[1]
-        }), /* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[2]
-        }), /* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[3]
-        }), /* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[4]
-        }), /* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[5]
-        }), /* @__PURE__ */ jsx("span", {
-          className: "day-item",
-          children: t$1("weekDaysShort")[6]
-        })]
-      }), dayList.map((d) => {
-        if (d.date === 0) {
-          return /* @__PURE__ */ jsx("span", {
-            className: "day-item null",
-            children: ""
-          }, d.datestamp);
-        } else {
-          return /* @__PURE__ */ jsx("span", {
-            className: `day-item ${d.datestamp === datestamp ? "current" : ""}`,
-            onClick: () => handleDateItemClick(d.datestamp),
-            children: d.date
-          }, d.datestamp);
-        }
-      })]
-    })]
-  });
-};
-function getMonthDayAmount(datestamp) {
-  const dateTemp = new Date(datestamp);
-  const currentDate = new Date(`${dateTemp.getFullYear()}/${dateTemp.getMonth() + 1}/1`);
-  const nextMonthDate = currentDate.getMonth() === 11 ? new Date(`${currentDate.getFullYear() + 1}/1/1`) : new Date(`${currentDate.getFullYear()}/${currentDate.getMonth() + 2}/1`);
-  return (nextMonthDate.getTime() - currentDate.getTime()) / DAILY_TIMESTAMP;
-}
-function getMonthFirstDayDateStamp(timestamp) {
-  const dateTemp = new Date(timestamp);
-  const currentDate = new Date(`${dateTemp.getFullYear()}/${dateTemp.getMonth() + 1}/1`);
-  return currentDate.getTime();
-}
-var dailyMemoDiaryDialog = "";
-const DailyMemoDiaryDialog = (props) => {
-  const loadingState = useLoading();
-  const [memos, setMemos] = react.exports.useState([]);
-  const [currentDateStamp, setCurrentDateStamp] = react.exports.useState(utils$1.getDateStampByDate(utils$1.getDateString(props.currentDateStamp)));
-  const [showDatePicker, toggleShowDatePicker] = useToggle(false);
-  const memosElRef = react.exports.useRef(null);
-  const currentDate = new Date(currentDateStamp);
-  const {
-    vault
-  } = appStore.getState().dailyNotesState.app;
-  react.exports.useEffect(() => {
-    const setDailyMemos = () => {
-      const dailyMemos = memoService.getState().memos.filter((a) => utils$1.getTimeStampByDate(a.createdAt) >= currentDateStamp && utils$1.getTimeStampByDate(a.createdAt) < currentDateStamp + DAILY_TIMESTAMP).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
-      setMemos(dailyMemos);
-      loadingState.setFinish();
-    };
-    setDailyMemos();
-  }, [currentDateStamp]);
-  const convertBase64ToBlob = (base64, type) => {
-    var bytes = window.atob(base64);
-    var ab2 = new ArrayBuffer(bytes.length);
-    var ia2 = new Uint8Array(ab2);
-    for (var i = 0; i < bytes.length; i++) {
-      ia2[i] = bytes.charCodeAt(i);
-    }
-    return new Blob([ab2], {
-      type
-    });
-  };
-  const handleShareBtnClick = async () => {
-    toggleShowDatePicker(false);
-    setTimeout(() => {
-      if (!memosElRef.current) {
-        return;
-      }
-      toImage(memosElRef.current, {
-        backgroundColor: "#ffffff",
-        pixelRatio: window.devicePixelRatio * 2
-      }).then((url) => {
-        if (appStore.getState().settingsState.settings.AutoSaveWhenOnMobile && require$$0.Platform.isMobile) {
-          const myBase64 = url.split("base64,")[1];
-          const blobInput = convertBase64ToBlob(myBase64, "image/png");
-          blobInput.arrayBuffer().then(async (buffer) => {
-            let aFile;
-            const ext = "png";
-            const dailyNotes = getAllDailyNotes_1();
-            for (const string in dailyNotes) {
-              if (dailyNotes[string] instanceof require$$0.TFile) {
-                aFile = dailyNotes[string];
-                break;
-              }
-            }
-            if (aFile !== void 0) {
-              await vault.createBinary(
-                await vault.getAvailablePathForAttachments(`Pasted Image ${require$$0.moment().format("YYYYMMDDHHmmss")}`, ext, aFile),
-                buffer
-              );
-            }
-          });
-        }
-        PreviewImageDialog(url);
-      }).catch(() => {
-      });
-    }, 0);
-  };
-  const handleDataPickerChange = (datestamp) => {
-    setCurrentDateStamp(datestamp);
-    toggleShowDatePicker(false);
-  };
-  return /* @__PURE__ */ jsxs(Fragment, {
-    children: [/* @__PURE__ */ jsx("div", {
-      className: "dialog-header-container",
-      children: /* @__PURE__ */ jsxs("div", {
-        className: "header-wrapper",
-        children: [/* @__PURE__ */ jsx("p", {
-          className: "title-text",
-          children: t$1("Daily Memos")
-        }), /* @__PURE__ */ jsxs("div", {
-          className: "btns-container",
-          children: [/* @__PURE__ */ jsx("span", {
-            className: "btn-text",
-            onClick: () => setCurrentDateStamp(currentDateStamp - DAILY_TIMESTAMP),
-            children: /* @__PURE__ */ jsx(SvgArrowLeft, {
-              className: "icon-img"
-            })
-          }), /* @__PURE__ */ jsx("span", {
-            className: "btn-text",
-            onClick: () => setCurrentDateStamp(currentDateStamp + DAILY_TIMESTAMP),
-            children: /* @__PURE__ */ jsx(SvgArrowRight, {
-              className: "icon-img"
-            })
-          }), /* @__PURE__ */ jsx("span", {
-            className: "btn-text share-btn",
-            onClick: handleShareBtnClick,
-            children: /* @__PURE__ */ jsx(SvgShare, {
-              className: "icon-img"
-            })
-          }), /* @__PURE__ */ jsx("span", {
-            className: "btn-text",
-            onClick: () => props.destroy(),
-            children: /* @__PURE__ */ jsx(SvgClose, {
-              className: "icon-img"
-            })
-          })]
-        })]
-      })
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "dialog-content-container",
-      ref: memosElRef,
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "date-card-container",
-        onClick: () => toggleShowDatePicker(),
-        children: [/* @__PURE__ */ jsx("div", {
-          className: "year-text",
-          children: currentDate.getFullYear()
-        }), /* @__PURE__ */ jsxs("div", {
-          className: "date-container",
-          children: [/* @__PURE__ */ jsx("div", {
-            className: "month-text",
-            children: t$1("months")[currentDate.getMonth()]
-          }), /* @__PURE__ */ jsx("div", {
-            className: "date-text",
-            children: currentDate.getDate()
-          }), /* @__PURE__ */ jsx("div", {
-            className: "day-text",
-            children: t$1("weekDays")[currentDate.getDay()]
-          })]
-        })]
-      }), /* @__PURE__ */ jsx(DatePicker, {
-        className: `date-picker ${showDatePicker ? "" : "hidden"}`,
-        datestamp: currentDateStamp,
-        handleDateStampChange: handleDataPickerChange
-      }), loadingState.isLoading ? /* @__PURE__ */ jsx("div", {
-        className: "tip-container",
-        children: /* @__PURE__ */ jsx("p", {
-          className: "tip-text",
-          children: t$1("Loading...")
-        })
-      }) : memos.length === 0 ? /* @__PURE__ */ jsx("div", {
-        className: "tip-container",
-        children: /* @__PURE__ */ jsx("p", {
-          className: "tip-text",
-          children: t$1("Noooop!")
-        })
-      }) : /* @__PURE__ */ jsx("div", {
-        className: "dailymemos-wrapper",
-        children: memos.map((memo2) => /* @__PURE__ */ jsx(DailyMemo, {
-          memo: memo2
-        }, `${memo2.id}-${memo2.updatedAt}`))
-      })]
-    })]
-  });
-};
-function showDailyMemoDiaryDialog(datestamp = Date.now()) {
-  showDialog({
-    className: "daily-memo-diary-dialog"
-  }, DailyMemoDiaryDialog, {
-    currentDateStamp: datestamp
-  });
-}
-var userBanner = "";
-const UserBanner = () => {
-  const {
-    memoState: {
-      memos,
-      tags
-    },
-    userState: {
-      user
-    },
-    settingsState: {
-      settings
-    }
-  } = react.exports.useContext(appContext);
-  const username = user ? user.username : settings.UserName;
-  let memosLength;
-  let createdDays;
-  if (memos.length) {
-    memosLength = memos.length - 1;
-    createdDays = memos ? Math.ceil((Date.now() - utils$1.getTimeStampByDate(memos[memosLength].createdAt)) / 1e3 / 3600 / 24) + 1 : 0;
-  }
-  const [shouldShowPopupBtns, setShouldShowPopupBtns] = react.exports.useState(false);
-  const handleUsernameClick = react.exports.useCallback(() => {
-    locationService.pushHistory("/");
-    locationService.clearQuery();
-  }, []);
-  const handlePopupBtnClick = () => {
-    const sidebarEl = document.querySelector(".memos-sidebar-wrapper");
-    const popupEl = document.querySelector(".menu-btns-popup");
-    popupEl.style.top = 70 - sidebarEl.scrollTop + "px";
-    setShouldShowPopupBtns(true);
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: "user-banner-container",
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "userinfo-header-container",
-      children: [/* @__PURE__ */ jsx("p", {
-        className: "username-text",
-        onClick: handleUsernameClick,
-        children: username
-      }), /* @__PURE__ */ jsx("span", {
-        className: "action-btn menu-popup-btn",
-        onClick: handlePopupBtnClick,
-        children: /* @__PURE__ */ jsx(SvgMore, {
-          className: "icon-img"
-        })
-      }), /* @__PURE__ */ jsx(MenuBtnsPopup, {
-        shownStatus: shouldShowPopupBtns,
-        setShownStatus: setShouldShowPopupBtns
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "status-text-container",
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "status-text memos-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "amount-text",
-          children: memos.length
-        }), /* @__PURE__ */ jsx("span", {
-          className: "type-text",
-          children: "MEMO"
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "status-text tags-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "amount-text",
-          children: tags.length
-        }), /* @__PURE__ */ jsx("span", {
-          className: "type-text",
-          children: t$1("TAG")
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "status-text duration-text",
-        onClick: () => showDailyMemoDiaryDialog(),
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "amount-text",
-          children: createdDays != null ? createdDays : 0
-        }), /* @__PURE__ */ jsx("span", {
-          className: "type-text",
-          children: t$1("DAY")
-        })]
-      })]
-    })]
-  });
-};
-const relationConsts = [
-  { text: "AND", value: "AND" },
-  { text: "OR", value: "OR" }
-];
-const filterConsts = {
-  TAG: {
-    value: "TAG",
-    text: t$1("TAG"),
-    operators: [
-      {
-        text: t$1("INCLUDE"),
-        value: "CONTAIN"
-      },
-      {
-        text: t$1("EXCLUDE"),
-        value: "NOT_CONTAIN"
-      }
-    ]
-  },
-  TYPE: {
-    value: "TYPE",
-    text: t$1("TYPE"),
-    operators: [
-      {
-        value: "IS",
-        text: t$1("IS")
-      },
-      {
-        value: "IS_NOT",
-        text: t$1("ISNOT")
-      }
-    ],
-    values: [
-      {
-        value: "CONNECTED",
-        text: t$1("LINKED")
-      },
-      {
-        value: "NOT_TAGGED",
-        text: t$1("NO TAGS")
-      },
-      {
-        value: "LINKED",
-        text: t$1("HAS LINKS")
-      },
-      {
-        value: "IMAGED",
-        text: t$1("HAS IMAGES")
-      }
-    ]
-  },
-  TEXT: {
-    value: "TEXT",
-    text: t$1("TEXT"),
-    operators: [
-      {
-        value: "CONTAIN",
-        text: t$1("INCLUDE")
-      },
-      {
-        value: "NOT_CONTAIN",
-        text: t$1("EXCLUDE")
-      }
-    ]
-  },
-  DATE: {
-    value: "DATE",
-    text: t$1("DATE"),
-    operators: [
-      {
-        value: "NOT_CONTAIN",
-        text: t$1("BEFORE")
-      },
-      {
-        value: "CONTAIN",
-        text: t$1("AFTER")
-      }
-    ]
-  }
-};
-const memoSpecialTypes = filterConsts["TYPE"].values;
-const getTextWithMemoType = (type) => {
-  for (const t2 of memoSpecialTypes) {
-    if (t2.value === type) {
-      return t2.text;
-    }
-  }
-  return "";
-};
-const getDefaultFilter = () => {
-  return {
-    type: "TAG",
-    value: {
-      operator: "CONTAIN",
-      value: ""
-    },
-    relation: "AND"
-  };
-};
-const checkShouldShowMemoWithFilters = (memo2, filters) => {
-  let shouldShow = true;
-  for (const f2 of filters) {
-    const { relation } = f2;
-    const r2 = checkShouldShowMemo(memo2, f2);
-    if (relation === "OR") {
-      shouldShow = shouldShow || r2;
-    } else {
-      shouldShow = shouldShow && r2;
-    }
-  }
-  return shouldShow;
-};
-const checkShouldShowMemo = (memo2, filter) => {
-  var _a, _b;
-  const {
-    type,
-    value: { operator, value }
-  } = filter;
-  if (value === "") {
-    return true;
-  }
-  let shouldShow = true;
-  if (type === "TAG") {
-    let contained = true;
-    const tagsSet = /* @__PURE__ */ new Set();
-    for (const t2 of Array.from((_a = memo2.content.match(TAG_REG)) != null ? _a : [])) {
-      const tag = t2.replace(TAG_REG, "$1").trim();
-      const items = tag.split("/");
-      let temp = "";
-      for (const i of items) {
-        temp += i;
-        tagsSet.add(temp);
-        temp += "/";
-      }
-    }
-    for (const t2 of Array.from((_b = memo2.content.match(NOP_FIRST_TAG_REG)) != null ? _b : [])) {
-      const tag = t2.replace(NOP_FIRST_TAG_REG, "$1").trim();
-      const items = tag.split("/");
-      let temp = "";
-      for (const i of items) {
-        temp += i;
-        tagsSet.add(temp);
-        temp += "/";
-      }
-    }
-    if (!tagsSet.has(value)) {
-      contained = false;
-    }
-    if (operator === "NOT_CONTAIN") {
-      contained = !contained;
-    }
-    shouldShow = contained;
-  } else if (type === "TYPE") {
-    let matched = false;
-    if (value === "NOT_TAGGED" && memo2.content.match(TAG_REG) === null) {
-      matched = true;
-    } else if (value === "LINKED" && memo2.content.match(LINK_REG) !== null) {
-      matched = true;
-    } else if (value === "IMAGED" && memo2.content.match(IMAGE_URL_REG) !== null) {
-      matched = true;
-    } else if (value === "CONNECTED" && memo2.content.match(MEMO_LINK_REG) !== null) {
-      matched = true;
-    }
-    if (operator === "IS_NOT") {
-      matched = !matched;
-    }
-    shouldShow = matched;
-  } else if (type === "TEXT") {
-    let contained = memo2.content.includes(value);
-    if (operator === "NOT_CONTAIN") {
-      contained = !contained;
-    }
-    shouldShow = contained;
-  } else if (type === "DATE") {
-    if (!app.plugins.enabledPlugins.has("nldates-obsidian")) {
-      new require$$0.Notice(t$1("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
-    } else {
-      const nldatesPlugin = app.plugins.getPlugin("nldates-obsidian");
-      const parsedResult = nldatesPlugin.parseDate(value);
-      let contained;
-      if (parsedResult.date !== null) {
-        contained = parsedResult.moment.isBefore(require$$0.moment(memo2.createdAt), "day");
-      }
-      if (operator === "NOT_CONTAIN") {
-        contained = !contained;
-      }
-      shouldShow = contained;
-    }
-  }
-  shouldShow = memo2.linkId === "" ? shouldShow : false;
-  return shouldShow;
-};
-var selector = "";
-const nullItem = {
-  text: t$1("SELECT"),
-  value: ""
-};
-const Selector = (props) => {
-  const {
-    className,
-    dataSource,
-    handleValueChanged,
-    value
-  } = props;
-  const [showSelector, toggleSelectorStatus] = useToggle(false);
-  const seletorElRef = react.exports.useRef(null);
-  let currentItem = nullItem;
-  for (const d of dataSource) {
-    if (d.value === value) {
-      currentItem = d;
-      break;
-    }
-  }
-  react.exports.useEffect(() => {
-    if (showSelector) {
-      const handleClickOutside = (event) => {
-        var _a;
-        if (!((_a = seletorElRef.current) == null ? void 0 : _a.contains(event.target))) {
-          toggleSelectorStatus(false);
-        }
-      };
-      window.addEventListener("click", handleClickOutside, {
-        capture: true,
-        once: true
-      });
-    }
-  }, [showSelector]);
-  const handleItemClick = (item) => {
-    if (handleValueChanged) {
-      handleValueChanged(item.value);
-    }
-    toggleSelectorStatus(false);
-  };
-  const handleCurrentValueClick = (event) => {
-    event.stopPropagation();
-    toggleSelectorStatus();
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: `selector-wrapper ${className != null ? className : ""}`,
-    ref: seletorElRef,
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: `current-value-container ${showSelector ? "active" : ""}`,
-      onClick: handleCurrentValueClick,
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "value-text",
-        children: currentItem.text
-      }), /* @__PURE__ */ jsx("span", {
-        className: "arrow-text",
-        children: /* @__PURE__ */ jsx(SvgArrowRight, {
-          className: "icon-img"
-        })
-      })]
-    }), /* @__PURE__ */ jsx("div", {
-      className: `items-wrapper ${showSelector ? "" : "hidden"}`,
-      children: dataSource.map((d) => {
-        return /* @__PURE__ */ jsx("div", {
-          className: `item-container ${d.value === value ? "selected" : ""}`,
-          onClick: () => {
-            handleItemClick(d);
-          },
-          children: d.text
-        }, d.value);
-      })
-    })]
-  });
-};
-var Selector$1 = react.exports.memo(Selector);
-var createQueryDialog = "";
-const CreateQueryDialog = (props) => {
-  const {
-    destroy,
-    queryId
-  } = props;
-  const [title, setTitle] = react.exports.useState("");
-  const [filters, setFilters] = react.exports.useState([]);
-  const requestState = useLoading(false);
-  const shownMemoLength = memoService.getState().memos.filter((memo2) => {
-    return checkShouldShowMemoWithFilters(memo2, filters);
-  }).length;
-  react.exports.useEffect(() => {
-    const queryTemp = queryService.getQueryById(queryId != null ? queryId : "");
-    if (queryTemp) {
-      setTitle(queryTemp.title);
-      const temp = JSON.parse(queryTemp.querystring);
-      if (Array.isArray(temp)) {
-        setFilters(temp);
-      }
-    }
-  }, [queryId]);
-  const handleTitleInputChange = (e) => {
-    const text = e.target.value;
-    setTitle(text);
-  };
-  const handleSaveBtnClick = async () => {
-    if (!title) {
-      new require$$0.Notice(t$1("TITLE CANNOT BE NULL!"));
-      return;
-    }
-    if (filters.length === 0) {
-      new require$$0.Notice(t$1("FILTER CANNOT BE NULL!"));
-      return;
-    }
-    try {
-      if (queryId) {
-        const editedQuery = await queryService.updateQuery(queryId, title, JSON.stringify(filters));
-        queryService.editQuery(editedQuery);
-        queryService.getMyAllQueries();
-      } else {
-        const query = await queryService.createQuery(title, JSON.stringify(filters));
-        queryService.pushQuery(query);
-        queryService.getMyAllQueries();
-      }
-    } catch (error) {
-      new require$$0.Notice(error.message);
-    }
-    destroy();
-  };
-  const handleAddFilterBenClick = () => {
-    if (filters.length > 0) {
-      const lastFilter = filters[filters.length - 1];
-      if (lastFilter.value.value === "") {
-        new require$$0.Notice(t$1("Please finish the last filter setting first"));
-        return;
-      }
-    }
-    setFilters([...filters, getDefaultFilter()]);
-  };
-  const handleFilterChange = react.exports.useCallback((index, filter) => {
-    setFilters((filters2) => {
-      const temp = [...filters2];
-      temp[index] = filter;
-      return temp;
-    });
-  }, []);
-  const handleFilterRemove = react.exports.useCallback((index) => {
-    setFilters((filters2) => {
-      const temp = filters2.filter((_, i) => i !== index);
-      return temp;
-    });
-  }, []);
-  return /* @__PURE__ */ jsxs(Fragment, {
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "dialog-header-container",
-      children: [/* @__PURE__ */ jsxs("p", {
-        className: "title-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "icon-text",
-          children: "\u{1F516}"
-        }), queryId ? t$1("EDIT QUERY") : t$1("CREATE QUERY")]
-      }), /* @__PURE__ */ jsx("button", {
-        className: "btn close-btn",
-        onClick: destroy,
-        children: /* @__PURE__ */ jsx(SvgClose, {
-          className: "icon-img"
-        })
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "dialog-content-container",
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "form-item-container input-form-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "normal-text",
-          children: t$1("TITLE")
-        }), /* @__PURE__ */ jsx("input", {
-          className: "title-input",
-          type: "text",
-          value: title,
-          onChange: handleTitleInputChange
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "form-item-container filter-form-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "normal-text",
-          children: t$1("FILTER")
-        }), /* @__PURE__ */ jsxs("div", {
-          className: "filters-wrapper",
-          children: [filters.map((f2, index) => {
-            return /* @__PURE__ */ jsx(MemoFilterInputer, {
-              index,
-              filter: f2,
-              handleFilterChange,
-              handleFilterRemove
-            }, index);
-          }), /* @__PURE__ */ jsx("div", {
-            className: "create-filter-btn",
-            onClick: handleAddFilterBenClick,
-            children: t$1("ADD FILTER TERMS")
-          })]
-        })]
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "dialog-footer-container",
-      children: [/* @__PURE__ */ jsx("div", {}), /* @__PURE__ */ jsxs("div", {
-        className: "btns-container",
-        children: [/* @__PURE__ */ jsxs("span", {
-          className: `tip-text ${filters.length === 0 && "hidden"}`,
-          children: [t$1("MATCH"), " Memo ", /* @__PURE__ */ jsx("strong", {
-            children: shownMemoLength
-          }), " ", t$1("TIMES")]
-        }), /* @__PURE__ */ jsx("button", {
-          className: `btn save-btn ${requestState.isLoading ? "requesting" : ""}`,
-          onClick: handleSaveBtnClick,
-          children: "SAVE"
-        })]
-      })]
-    })]
-  });
-};
-const FilterInputer = (props) => {
-  const {
-    index,
-    filter,
-    handleFilterChange,
-    handleFilterRemove
-  } = props;
-  const {
-    type
-  } = filter;
-  const [inputElements, setInputElements] = react.exports.useState(/* @__PURE__ */ jsx(Fragment, {}));
-  react.exports.useEffect(() => {
-    let operatorElement = /* @__PURE__ */ jsx(Fragment, {});
-    if (Object.keys(filterConsts).includes(type)) {
-      operatorElement = /* @__PURE__ */ jsx(Selector$1, {
-        className: "operator-selector",
-        dataSource: Object.values(filterConsts[type].operators),
-        value: filter.value.operator,
-        handleValueChanged: handleOperatorChange
-      });
-    }
-    let valueElement = /* @__PURE__ */ jsx(Fragment, {});
-    switch (type) {
-      case "TYPE": {
-        valueElement = /* @__PURE__ */ jsx(Selector$1, {
-          className: "value-selector",
-          dataSource: filterConsts["TYPE"].values,
-          value: filter.value.value,
-          handleValueChanged: handleValueChange
-        });
-        break;
-      }
-      case "TAG": {
-        valueElement = /* @__PURE__ */ jsx(Selector$1, {
-          className: "value-selector",
-          dataSource: memoService.getState().tags.sort().map((t2) => {
-            return {
-              text: t2,
-              value: t2
-            };
-          }),
-          value: filter.value.value,
-          handleValueChanged: handleValueChange
-        });
-        break;
-      }
-      case "TEXT": {
-        valueElement = /* @__PURE__ */ jsx("input", {
-          type: "text",
-          className: "value-inputer",
-          value: filter.value.value,
-          onChange: (event) => {
-            handleValueChange(event.target.value);
-            event.target.focus();
-          }
-        });
-        break;
-      }
-      case "DATE": {
-        valueElement = /* @__PURE__ */ jsx("input", {
-          type: "text",
-          className: "value-inputer",
-          value: filter.value.value,
-          onChange: (event) => {
-            handleValueChange(event.target.value);
-            event.target.focus();
-          }
-        });
-        break;
-      }
-    }
-    setInputElements(/* @__PURE__ */ jsxs(Fragment, {
-      children: [operatorElement, valueElement]
-    }));
-  }, [type, filter]);
-  const handleRelationChange = react.exports.useCallback((value) => {
-    if (["AND", "OR"].includes(value)) {
-      handleFilterChange(index, {
-        ...filter,
-        relation: value
-      });
-    }
-  }, [filter]);
-  const handleTypeChange = react.exports.useCallback((value) => {
-    if (filter.type !== value) {
-      const ops = Object.values(filterConsts[value].operators);
-      handleFilterChange(index, {
-        ...filter,
-        type: value,
-        value: {
-          operator: ops[0].value,
-          value: ""
-        }
-      });
-    }
-  }, [filter]);
-  const handleOperatorChange = react.exports.useCallback((value) => {
-    handleFilterChange(index, {
-      ...filter,
-      value: {
-        ...filter.value,
-        operator: value
-      }
-    });
-  }, [filter]);
-  const handleValueChange = react.exports.useCallback((value) => {
-    handleFilterChange(index, {
-      ...filter,
-      value: {
-        ...filter.value,
-        value
-      }
-    });
-  }, [filter]);
-  const handleRemoveBtnClick = () => {
-    handleFilterRemove(index);
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: "memo-filter-input-wrapper",
-    children: [index > 0 ? /* @__PURE__ */ jsx(Selector$1, {
-      className: "relation-selector",
-      dataSource: relationConsts,
-      value: filter.relation,
-      handleValueChanged: handleRelationChange
-    }) : null, /* @__PURE__ */ jsx(Selector$1, {
-      className: "type-selector",
-      dataSource: Object.values(filterConsts),
-      value: filter.type,
-      handleValueChanged: handleTypeChange
-    }), inputElements, /* @__PURE__ */ jsx(SvgClose, {
-      className: "remove-btn",
-      onClick: handleRemoveBtnClick
-    })]
-  });
-};
-const MemoFilterInputer = react.exports.memo(FilterInputer);
-function showCreateQueryDialog(queryId) {
-  showDialog({
-    className: "create-query-dialog"
-  }, CreateQueryDialog, {
-    queryId
-  });
-}
-var queryList = "";
-function SvgMoreWhite(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: 24,
-    height: 24,
-    fill: "#FFF",
-    viewBox: "0 0 24 24",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    fill: "none",
-    d: "M0 0h24v24H0V0z"
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
-  }));
-}
-const QueryList = () => {
-  const {
-    queryState: {
-      queries
-    },
-    locationState: {
-      query: {
-        filter
-      }
-    }
-  } = react.exports.useContext(appContext);
-  const loadingState = useLoading();
-  const sortedQueries = queries.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).sort((a, b) => {
-    var _a, _b;
-    return utils$1.getTimeStampByDate((_a = b.pinnedAt) != null ? _a : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
-  });
-  react.exports.useEffect(() => {
-    queryService.getMyAllQueries().catch(() => {
-    }).finally(() => {
-      loadingState.setFinish();
-    });
-  }, []);
-  return /* @__PURE__ */ jsxs("div", {
-    className: "queries-wrapper",
-    children: [/* @__PURE__ */ jsxs("p", {
-      className: "title-text",
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "normal-text",
-        children: t$1("QUERY")
-      }), /* @__PURE__ */ jsx("span", {
-        className: "btn",
-        onClick: () => showCreateQueryDialog(),
-        children: "+"
-      })]
-    }), /* @__PURE__ */ jsx(Only, {
-      when: loadingState.isSucceed && sortedQueries.length === 0,
-      children: /* @__PURE__ */ jsx("div", {
-        className: "create-query-btn-container",
-        children: /* @__PURE__ */ jsx("span", {
-          className: "btn",
-          onClick: () => showCreateQueryDialog(),
-          children: t$1("CREATE FILTER")
-        })
-      })
-    }), /* @__PURE__ */ jsx("div", {
-      className: "queries-container",
-      children: sortedQueries.map((q2) => {
-        return /* @__PURE__ */ jsx(QueryItemContainer, {
-          query: q2,
-          isActive: q2.id === filter
-        }, q2.id);
-      })
-    })]
-  });
-};
-const QueryItemContainer = (props) => {
-  const {
-    query,
-    isActive
-  } = props;
-  const [showActionBtns, toggleShowActionBtns] = useToggle(false);
-  const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
-  const handleQueryClick = () => {
-    if (isActive) {
-      locationService.setMemoFilter("");
-    } else {
-      locationService.setMemoFilter(query.id);
-    }
-  };
-  const handleShowActionBtnClick = (event) => {
-    event.stopPropagation();
-    toggleShowActionBtns();
-  };
-  const handleActionBtnContainerMouseLeave = () => {
-    toggleShowActionBtns(false);
-  };
-  const handleDeleteMemoClick = async (event) => {
-    event.stopPropagation();
-    if (showConfirmDeleteBtn) {
-      try {
-        await queryService.deleteQuery(query.id);
-      } catch (error) {
-        new require$$0.Notice(error.message);
-      }
-    } else {
-      toggleConfirmDeleteBtn();
-    }
-  };
-  const handleEditQueryBtnClick = (event) => {
-    event.stopPropagation();
-    showCreateQueryDialog(query.id);
-  };
-  const handlePinQueryBtnClick = async (event) => {
-    event.stopPropagation();
-    try {
-      if (query.pinnedAt) {
-        await queryService.unpinQuery(query.id);
-        queryService.editQuery({
-          ...query,
-          pinnedAt: ""
-        });
-      } else {
-        await queryService.pinQuery(query.id);
-        queryService.editQuery({
-          ...query,
-          pinnedAt: utils$1.getDateTimeString(Date.now())
-        });
-      }
-    } catch (error) {
-    }
-  };
-  const handleDeleteBtnMouseLeave = () => {
-    toggleConfirmDeleteBtn(false);
-  };
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsxs("div", {
-      className: `query-item-container ${isActive ? "active" : ""}`,
-      onClick: handleQueryClick,
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "query-text-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "icon-text",
-          children: "#"
-        }), /* @__PURE__ */ jsx("span", {
-          className: "query-text",
-          children: query.title
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "btns-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "action-btn toggle-btn",
-          onClick: handleShowActionBtnClick,
-          children: isActive ? /* @__PURE__ */ jsx(SvgMoreWhite, {}) : /* @__PURE__ */ jsx(SvgMore, {})
-        }), /* @__PURE__ */ jsx("div", {
-          className: `action-btns-wrapper ${showActionBtns ? "" : "hidden"}`,
-          onMouseLeave: handleActionBtnContainerMouseLeave,
-          children: /* @__PURE__ */ jsxs("div", {
-            className: "action-btns-container",
-            children: [/* @__PURE__ */ jsx("span", {
-              className: "btn",
-              onClick: handlePinQueryBtnClick,
-              children: query.pinnedAt ? t$1("UNPIN") : t$1("PIN")
-            }), /* @__PURE__ */ jsx("span", {
-              className: "btn",
-              onClick: handleEditQueryBtnClick,
-              children: t$1("EDIT")
-            }), /* @__PURE__ */ jsx("span", {
-              className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
-              onClick: handleDeleteMemoClick,
-              onMouseLeave: handleDeleteBtnMouseLeave,
-              children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
-            })]
-          })
-        })]
-      })]
-    })
-  });
-};
-var tagList = "";
-const TagList = () => {
-  const {
-    locationState: {
-      query: {
-        tag: tagQuery
-      }
-    },
-    memoState: {
-      tags: tagsText,
-      tagsNum: tagsCount,
-      memos
-    }
-  } = react.exports.useContext(appContext);
-  const [tags, setTags] = react.exports.useState([]);
-  react.exports.useEffect(() => {
-    memoService.updateTagsState();
-  }, [memos]);
-  react.exports.useEffect(() => {
-    const sortedTags = Array.from(tagsText).sort();
-    const root = {
-      subTags: []
-    };
-    for (const tag of sortedTags) {
-      const subtags = tag.split("/");
-      let tempObj = root;
-      let tagText = "";
-      for (let i = 0; i < subtags.length; i++) {
-        const key = subtags[i];
-        if (i === 0) {
-          tagText += key;
-        } else {
-          tagText += "/" + key;
-        }
-        let obj = null;
-        for (const t2 of tempObj.subTags) {
-          if (t2.text === tagText) {
-            obj = t2;
-            break;
-          }
-        }
-        if (!obj) {
-          obj = {
-            key,
-            text: tagText,
-            count: tagsCount[tagText],
-            subTags: []
-          };
-          tempObj.subTags.push(obj);
-        }
-        tempObj = obj;
-      }
-    }
-    setTags(root.subTags);
-  }, [tagsText]);
-  return /* @__PURE__ */ jsxs("div", {
-    className: "tags-wrapper",
-    children: [/* @__PURE__ */ jsx("p", {
-      className: "title-text",
-      children: t$1("Frequently Used Tags")
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "tags-container",
-      children: [tags.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
-        tag: t2,
-        tagQuery
-      }, t2.text + "-" + idx)), /* @__PURE__ */ jsx(Only, {
-        when: tags.length < 5 && memoService.initialized,
-        children: /* @__PURE__ */ jsxs("p", {
-          className: "tag-tip-container",
-          children: ["Input", /* @__PURE__ */ jsx("span", {
-            className: "code-text",
-            children: "#Tag "
-          }), "to create tag..."]
-        })
-      })]
-    })]
-  });
-};
-const TagItemContainer = (props) => {
-  const {
-    tag,
-    tagQuery
-  } = props;
-  const isActive = tagQuery === tag.text;
-  const hasSubTags = tag.subTags.length > 0;
-  const [showSubTags, toggleSubTags] = useToggle(false);
-  const handleTagClick = () => {
-    if (isActive) {
-      locationService.setTagQuery("");
-    } else {
-      utils$1.copyTextToClipboard(`#${tag.text} `);
-      if (!["/", "/recycle"].includes(locationService.getState().pathname)) {
-        locationService.setPathname("/");
-      }
-      locationService.setTagQuery(tag.text);
-    }
-  };
-  const handleToggleBtnClick = (event) => {
-    event.stopPropagation();
-    toggleSubTags();
-  };
-  return /* @__PURE__ */ jsxs(Fragment, {
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: `tag-item-container ${isActive ? "active" : ""}`,
-      onClick: handleTagClick,
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "tag-text-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "icon-text",
-          children: "#"
-        }), /* @__PURE__ */ jsx("span", {
-          className: "tag-text",
-          children: tag.key
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "btns-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "tag-count",
-          children: tag.count
-        }), hasSubTags ? /* @__PURE__ */ jsx("span", {
-          className: `action-btn toggle-btn ${showSubTags ? "shown" : ""}`,
-          onClick: handleToggleBtnClick,
-          children: /* @__PURE__ */ jsx(SvgArrowRight, {
-            className: "icon-img"
-          })
-        }) : null]
-      })]
-    }), hasSubTags ? /* @__PURE__ */ jsx("div", {
-      className: `subtags-container ${showSubTags ? "" : "hidden"}`,
-      children: tag.subTags.map((st, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
-        tag: st,
-        tagQuery
-      }, st.text + "-" + idx))
-    }) : null]
-  });
-};
-var usageHeatMap = "";
-const tableConfig = {
-  width: 12,
-  height: 7
-};
-const getInitialUsageStat = (usedDaysAmount, beginDayTimestamp) => {
-  const initialUsageStat = [];
-  for (let i = 0; i <= usedDaysAmount; i++) {
-    initialUsageStat.push({
-      timestamp: parseInt(require$$0.moment(beginDayTimestamp).add(i, "days").format("x")),
-      count: 0
-    });
-  }
-  return initialUsageStat;
-};
-const UsageHeatMap = () => {
-  const todayTimeStamp = parseInt(require$$0.moment().endOf("day").format("x"));
-  const todayDay = new Date(todayTimeStamp).getDay() || 7;
-  const nullCell = new Array(7 - todayDay).fill(0);
-  const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + todayDay;
-  const beginDayTimestamp = parseInt(require$$0.moment().startOf("day").subtract(usedDaysAmount, "days").format("x"));
-  const startDate = require$$0.moment().startOf("day").subtract(usedDaysAmount, "days");
-  const {
-    memoState: {
-      memos
-    }
-  } = react.exports.useContext(appContext);
-  const newMemos = memos.filter((memo2) => memo2.linkId === "");
-  const [allStat, setAllStat] = dist(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
-  const [popupStat, setPopupStat] = dist(null);
-  const [currentStat, setCurrentStat] = dist(null);
-  const [fromTo, setFromTo, fromToRef] = dist("");
-  const containerElRef = react.exports.useRef(null);
-  const popupRef = react.exports.useRef(null);
-  react.exports.useEffect(() => {
-    const newStat = getInitialUsageStat(usedDaysAmount, beginDayTimestamp);
-    for (const m2 of newMemos) {
-      const creationDate = require$$0.moment(m2.createdAt.replaceAll("/", "-")).startOf("day");
-      const index = creationDate.diff(startDate, "days");
-      if (index >= 0 && index < newStat.length) {
-        newStat[index].count += 1;
-      }
-    }
-    setAllStat([...newStat]);
-  }, [memos]);
-  const handleUsageStatItemMouseEnter = react.exports.useCallback((event, item) => {
-    var _a, _b;
-    setPopupStat(item);
-    if (!popupRef.current) {
-      return;
-    }
-    const {
-      isMobileView
-    } = globalStateService.getState();
-    const targetEl = event.target;
-    const sidebarEl = document.querySelector(".memos-sidebar-wrapper");
-    popupRef.current.style.left = targetEl.offsetLeft - ((_b = (_a = containerElRef.current) == null ? void 0 : _a.offsetLeft) != null ? _b : 0) + "px";
-    let topValue = targetEl.offsetTop;
-    if (!isMobileView) {
-      topValue -= sidebarEl.scrollTop;
-    }
-    popupRef.current.style.top = topValue + "px";
-  }, []);
-  const handleUsageStatItemMouseLeave = react.exports.useCallback(() => {
-    setPopupStat(null);
-  }, []);
-  const handleUsageStatItemClick = react.exports.useCallback((event, item) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
-    if (((_a = locationService.getState().query.duration) == null ? void 0 : _a.from) === item.timestamp && require$$0.moment((_b = locationService.getState().query.duration) == null ? void 0 : _b.from).diff((_c = locationService.getState().query.duration) == null ? void 0 : _c.to, "day") == 0) {
-      locationService.setFromAndToQuery(0, 0);
-      setCurrentStat(null);
-      setFromTo(null);
-    } else if (((_d = locationService.getState().query.duration) == null ? void 0 : _d.from) !== item.timestamp && ((_e = locationService.getState().query.duration) == null ? void 0 : _e.from) > 0 && event.shiftKey) {
-      const timeStampDays = require$$0.moment(item.timestamp).endOf("day").diff((_f = locationService.getState().query.duration) == null ? void 0 : _f.to, "day");
-      if (timeStampDays > 0 && require$$0.moment((_g = locationService.getState().query.duration) == null ? void 0 : _g.from).diff((_h = locationService.getState().query.duration) == null ? void 0 : _h.to, "day") == 0) {
-        setFromTo("from");
-      } else if (timeStampDays < 0 && require$$0.moment((_i = locationService.getState().query.duration) == null ? void 0 : _i.from).diff((_j = locationService.getState().query.duration) == null ? void 0 : _j.to, "day") == 0) {
-        setFromTo("to");
-      }
-      if (require$$0.moment((_k = locationService.getState().query.duration) == null ? void 0 : _k.from).isBefore(item.timestamp)) {
-        if (fromToRef.current === "to") {
-          if (timeStampDays < 0) {
-            locationService.setFromAndToQuery(item.timestamp, (_l = locationService.getState().query.duration) == null ? void 0 : _l.to);
-          } else {
-            locationService.setFromAndToQuery(parseInt(require$$0.moment((_m = locationService.getState().query.duration) == null ? void 0 : _m.to).startOf("day").format("x")), parseInt(require$$0.moment(item.timestamp).endOf("day").format("x")));
-            setFromTo("from");
-          }
-        } else if (fromToRef.current === "from") {
-          if (timeStampDays < 0) {
-            locationService.setFromAndToQuery((_n = locationService.getState().query.duration) == null ? void 0 : _n.from, parseInt(require$$0.moment(item.timestamp).endOf("day").format("x")));
-          } else {
-            locationService.setFromAndToQuery((_o = locationService.getState().query.duration) == null ? void 0 : _o.from, parseInt(require$$0.moment(item.timestamp).endOf("day").format("x")));
-          }
-        }
-      } else {
-        if (fromToRef.current === "to") {
-          locationService.setFromAndToQuery(item.timestamp, (_p = locationService.getState().query.duration) == null ? void 0 : _p.to);
-        } else if (fromToRef.current === "from") {
-          locationService.setFromAndToQuery(item.timestamp, parseInt(require$$0.moment((_q = locationService.getState().query.duration) == null ? void 0 : _q.from).endOf("day").format("x")));
-          setFromTo("to");
-        }
-      }
-    } else if (((_r = locationService.getState().query.duration) == null ? void 0 : _r.from) === 0 && event.shiftKey) {
-      locationService.setFromAndToQuery(item.timestamp, parseInt(require$$0.moment().endOf("day").format("x")));
-    } else if (item.count > 0 && (event.ctrlKey || event.metaKey)) {
-      const {
-        app: app2,
-        dailyNotes
-      } = dailyNotesService.getState();
-      const file = getDailyNote_1(require$$0.moment(item.timestamp), dailyNotes);
-      if (!require$$0.Platform.isMobile) {
-        const leaf = app2.workspace.splitActiveLeaf();
-        leaf.openFile(file);
-      } else {
-        let leaf = app2.workspace.activeLeaf;
-        if (leaf === null) {
-          leaf = app2.workspace.getLeaf(true);
-        }
-        leaf.openFile(file);
-      }
-    } else if (item.count > 0 && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
-      if (!["/", "/recycle"].includes(locationService.getState().pathname)) {
-        locationService.setPathname("/");
-      }
-      locationService.setFromAndToQuery(item.timestamp, utils$1.getTimeStampByDate(require$$0.moment(item.timestamp + DAILY_TIMESTAMP).subtract(1, "days").endOf("day").format("YYYY-MM-DD HH:mm:ss")));
-      setCurrentStat(item);
-    }
-  }, []);
-  return /* @__PURE__ */ jsxs("div", {
-    className: "usage-heat-map-wrapper",
-    ref: containerElRef,
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "day-tip-text-container",
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$1("weekDaysShort")[0]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text"
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$1("weekDaysShort")[2]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text"
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$1("weekDaysShort")[4]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text"
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$1("weekDaysShort")[6]
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      ref: popupRef,
-      className: "usage-detail-container pop-up " + (popupStat ? "" : "hidden"),
-      children: [popupStat == null ? void 0 : popupStat.count, " memos on", " ", /* @__PURE__ */ jsx("span", {
-        className: "date-text",
-        children: new Date(popupStat == null ? void 0 : popupStat.timestamp).toDateString()
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "usage-heat-map",
-      children: [allStat.map((v2, i) => {
-        const count = v2.count;
-        const colorLevel = count <= 0 ? "" : count <= 1 ? "stat-day-L1-bg" : count <= 2 ? "stat-day-L2-bg" : count <= 4 ? "stat-day-L3-bg" : "stat-day-L4-bg";
-        return /* @__PURE__ */ jsx("span", {
-          className: `stat-container ${colorLevel} ${currentStat === v2 ? "current" : ""} ${todayTimeStamp === v2.timestamp ? "today" : ""}`,
-          onMouseEnter: (e) => handleUsageStatItemMouseEnter(e, v2),
-          onMouseLeave: handleUsageStatItemMouseLeave,
-          onClick: (e) => handleUsageStatItemClick(e, v2)
-        }, i);
-      }), nullCell.map((v2, i) => /* @__PURE__ */ jsx("span", {
-        className: "stat-container null"
-      }, i))]
-    })]
-  });
-};
-var siderbar = "";
-const Sidebar = () => {
-  const {
-    locationState,
-    globalState: {
-      isMobileView,
-      showSiderbarInMobileView
-    }
-  } = react.exports.useContext(appContext);
-  const wrapperElRef = react.exports.useRef(null);
-  const handleClickOutsideOfWrapper = react.exports.useMemo(() => {
-    return (event) => {
-      var _a, _b, _c;
-      const siderbarShown = globalStateService.getState().showSiderbarInMobileView;
-      if (!siderbarShown) {
-        window.removeEventListener("click", handleClickOutsideOfWrapper, {
-          capture: true
-        });
-        return;
-      }
-      if (!((_a = wrapperElRef.current) == null ? void 0 : _a.contains(event.target))) {
-        if ((_c = (_b = wrapperElRef.current) == null ? void 0 : _b.parentNode) == null ? void 0 : _c.contains(event.target)) {
-          if (siderbarShown) {
-            event.stopPropagation();
-          }
-          globalStateService.setShowSiderbarInMobileView(false);
-          window.removeEventListener("click", handleClickOutsideOfWrapper, {
-            capture: true
-          });
-        }
-      }
-    };
-  }, []);
-  react.exports.useEffect(() => {
-    globalStateService.setShowSiderbarInMobileView(false);
-  }, [locationState]);
-  react.exports.useEffect(() => {
-    if (showSiderbarInMobileView) {
-      document.body.classList.add(SHOW_SIDERBAR_MOBILE_CLASSNAME);
-    } else {
-      document.body.classList.remove(SHOW_SIDERBAR_MOBILE_CLASSNAME);
-    }
-  }, [showSiderbarInMobileView]);
-  react.exports.useEffect(() => {
-    if (isMobileView && showSiderbarInMobileView) {
-      window.addEventListener("click", handleClickOutsideOfWrapper, {
-        capture: true
-      });
-    }
-  }, [isMobileView, showSiderbarInMobileView]);
-  return /* @__PURE__ */ jsxs("aside", {
-    className: "memos-sidebar-wrapper",
-    ref: wrapperElRef,
-    children: [/* @__PURE__ */ jsx(UserBanner, {}), /* @__PURE__ */ jsx(UsageHeatMap, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
-  });
-};
-var home = "";
-function Home() {
-  const {
-    locationState: {
-      pathname
-    }
-  } = react.exports.useContext(appContext);
-  const loadingState = useLoading();
-  react.exports.useEffect(() => {
-    loadingState.setFinish();
-  }, []);
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsxs("section", {
-      id: "page-wrapper",
-      children: [/* @__PURE__ */ jsx(Sidebar, {}), /* @__PURE__ */ jsx("main", {
-        className: "content-wrapper",
-        children: homeRouterSwitch(pathname)
-      })]
-    })
-  });
-}
-const appRouter = {
-  "*": /* @__PURE__ */ jsx(Home, {})
-};
 var memoEditor = "";
 var selectDatePicker = "";
 function SvgTag(props) {
@@ -20816,9 +20884,6 @@ const MemoList = () => {
     if (memo2.linkId) {
       shouldShow = false;
     }
-    if (memo2.content.contains("comment:")) {
-      shouldShow = false;
-    }
     if (queryFilter) {
       const filters = JSON.parse(queryFilter.querystring);
       if (Array.isArray(filters)) {
@@ -20962,6 +21027,7 @@ const MemoList = () => {
     })]
   });
 };
+const CommentOnMemos = true;
 const getMemosByDate = (memos) => {
   const dataArr = [];
   memos.map((mapItem) => {
@@ -21021,7 +21087,7 @@ const transferMemosIntoText = (memosArray) => {
           }
         }
         outputText = outputText.replace(/ \^\S{6}/g, "");
-        if (CommentOnMemos) {
+        {
           if (dataArr[i].hasId !== void 0) {
             const commentMemos = getCommentMemos(dataArr[i]);
             if (commentMemos.length > 0) {
@@ -21034,7 +21100,7 @@ const transferMemosIntoText = (memosArray) => {
                 } else if (cm.memoType.match(/TASK-(.*)?/g)) {
                   memoType = "- [" + cm.memoType.match(/TASK-(.*)?/g)[1] + "] ";
                 }
-                outputText = outputText + indent + (ShowDate ? "    " + memoType + "[[" + require$$0.moment(cm.createdAt).format(dailyNotesformat) + "]] " : "    " + memoType) + require$$0.moment(cm.createdAt).format("HH:mm") + " " + cm.content.replace(/comment:(.*)$/g, "").replace(/^\d{14}/g, "") + "\n";
+                outputText = outputText + indent + (ShowDate ? "    " + memoType + "[[" + require$$0.moment(cm.createdAt).format(dailyNotesformat) + "]] " : "    " + memoType) + require$$0.moment(cm.createdAt).format("HH:mm") + " " + cm.content + "\n";
               });
             }
           }
@@ -21055,7 +21121,7 @@ const transferMemosIntoText = (memosArray) => {
           }
         }
         outputText = outputText.replace(/ \^\S{6}/g, "");
-        if (CommentOnMemos) {
+        {
           if (dataArr[i].hasId !== void 0) {
             const commentMemos = getCommentMemos(dataArr[i]);
             if (commentMemos.length > 0) {
@@ -21068,7 +21134,7 @@ const transferMemosIntoText = (memosArray) => {
                 } else if (cm.memoType.match(/TASK-(.*)?/g)) {
                   memoType = "- [" + cm.memoType.match(/TASK-(.*)?/g)[1] + "] ";
                 }
-                outputText = outputText + indent + "    " + memoType + cm.content.replace(/comment:(.*)$/g, "").replace(/^\d{14}/g, "") + "\n";
+                outputText = outputText + indent + "    " + memoType + cm.content + "\n";
               });
             }
           }
@@ -21221,6 +21287,26 @@ const DeletedMemo = (props) => {
       toggleConfirmDeleteBtn(false);
     }
   };
+  const allMemos = memoService.getState().memos;
+  let topParent = null;
+  if (propsMemo.linkId) {
+    let current = allMemos.find((m2) => m2.hasId === propsMemo.linkId);
+    let guard = 0;
+    while (current && current.linkId && guard < 10) {
+      current = allMemos.find((m2) => m2.hasId === current.linkId) || null;
+      guard++;
+    }
+    topParent = current;
+  }
+  const collectChildren = (parentHasId) => {
+    const direct = allMemos.filter((m2) => m2.linkId === parentHasId);
+    let result = [];
+    for (const d of direct) {
+      result = result.concat(d, collectChildren(d.hasId));
+    }
+    return result;
+  };
+  const childComments = propsMemo.hasId ? collectChildren(propsMemo.hasId) : [];
   return /* @__PURE__ */ jsxs("div", {
     className: `memo-wrapper ${"memos-" + memo2.id}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
@@ -21252,14 +21338,31 @@ const DeletedMemo = (props) => {
           })
         })]
       })]
-    }), /* @__PURE__ */ jsx("div", {
+    }), topParent ? /* @__PURE__ */ jsxs("div", {
+      className: "deleted-memo-parent",
+      children: ["\u6765\u81EA: ", topParent.content.slice(0, 40)]
+    }) : null, /* @__PURE__ */ jsx("div", {
       className: "memo-content-text",
       dangerouslySetInnerHTML: {
         __html: formatMemoContent(memo2.content)
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       memo: memo2.content
-    })]
+    }), childComments.length > 0 ? /* @__PURE__ */ jsxs("div", {
+      className: "deleted-memo-children",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "deleted-memo-children-count",
+        children: ["\u5305\u542B ", childComments.length, " \u6761\u5B50\u8BC4\u8BBA"]
+      }), childComments.slice(0, 5).map((c) => /* @__PURE__ */ jsx("div", {
+        className: "deleted-memo-child",
+        dangerouslySetInnerHTML: {
+          __html: formatMemoContent(c.content.trim())
+        }
+      }, c.id)), childComments.length > 5 ? /* @__PURE__ */ jsx("div", {
+        className: "deleted-memo-children-more",
+        children: "..."
+      }) : null]
+    }) : null]
   });
 };
 var memoTrash = "";
@@ -21689,8 +21792,8 @@ class Memos extends require$$0.ItemView {
     InsertAfter = this.plugin.settings.InsertAfter;
     this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
-    SaveMemoButtonLabel = this.plugin.settings.SaveMemoButtonLabel;
-    SaveMemoButtonIcon = this.plugin.settings.SaveMemoButtonIcon;
+    this.plugin.settings.SaveMemoButtonLabel;
+    this.plugin.settings.SaveMemoButtonIcon;
     this.plugin.settings.DefaultPrefix;
     this.plugin.settings.InsertDateFormat;
     this.plugin.settings.DefaultEditorLocation;
@@ -21712,8 +21815,6 @@ class Memos extends require$$0.ItemView {
     this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
     this.plugin.settings.ShowTaskLabel;
-    CommentOnMemos = this.plugin.settings.CommentOnMemos;
-    this.plugin.settings.CommentsInOriginalNotes;
     FetchMemosMark = this.plugin.settings.FetchMemosMark;
     FetchMemosFromNote = this.plugin.settings.FetchMemosFromNote;
     this.plugin.settings.ShowCommentOnMemos;
@@ -21727,8 +21828,6 @@ class Memos extends require$$0.ItemView {
 }
 let InsertAfter;
 let ProcessEntriesBelow;
-let SaveMemoButtonLabel;
-let SaveMemoButtonIcon;
 let FocusOnEditor;
 let OpenDailyMemosWithMemos;
 let ShowTime;
@@ -21738,7 +21837,6 @@ let QueryFileName;
 let DeleteFileName;
 let UseVaultTags;
 let DefaultMemoComposition;
-let CommentOnMemos;
 let FetchMemosMark;
 let FetchMemosFromNote;
 let UseDailyOrPeriodic;
@@ -21781,8 +21879,6 @@ const DEFAULT_SETTINGS = {
   DefaultLightBackgroundImage: "",
   DefaultDarkBackgroundImage: "",
   DefaultMemoComposition: "{TIME} {CONTENT}",
-  CommentOnMemos: false,
-  CommentsInOriginalNotes: false,
   FetchMemosMark: "#memo",
   FetchMemosFromNote: false,
   ShowCommentOnMemos: false,
@@ -22017,21 +22113,9 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Allow Comments On Memos")).setDesc(t$1("You can comment on memos. False by default")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.CommentOnMemos).onChange(async (value) => {
-        this.plugin.settings.CommentOnMemos = value;
-        this.applySettingsUpdate();
-      })
-    );
     new require$$0.Setting(containerEl).setName(t$1("Always Show Memo Comments")).setDesc(t$1("Always show memo comments on memos. False by default")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.ShowCommentOnMemos).onChange(async (value) => {
         this.plugin.settings.ShowCommentOnMemos = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Comments In Original DailyNotes/Notes")).setDesc(t$1("You should install Dataview Plugin ver 0.5.9 or later to use this feature.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.CommentsInOriginalNotes).onChange(async (value) => {
-        this.plugin.settings.CommentsInOriginalNotes = value;
         this.applySettingsUpdate();
       })
     );

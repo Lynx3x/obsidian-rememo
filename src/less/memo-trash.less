@@ -529,3 +529,54 @@
     }
   }
 }
+
+// 回收站里评论的父 memo 提示 + 子评论列表
+.theme-light div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper,
+.theme-dark div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
+  > .deleted-memo-parent {
+    font-size: 11px;
+    color: rgb(168, 168, 168);
+    margin-bottom: 4px;
+    padding: 2px 8px;
+    background-color: rgba(128, 128, 128, 0.1);
+    border-radius: 4px;
+  }
+
+  > .deleted-memo-children {
+    width: 100%;
+    margin-top: 6px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(128, 128, 128, 0.2);
+
+    > .deleted-memo-child {
+      font-size: 12px;
+      color: rgb(168, 168, 168);
+      margin-top: 4px;
+
+      > p {
+        display: inline-block;
+        width: 100%;
+        margin-bottom: 2px;
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+// 回收站里评论子评论的提示样式
+.theme-light div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper,
+.theme-dark div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
+  > .deleted-memo-children {
+    > .deleted-memo-children-count {
+      font-size: 11px;
+      color: rgb(168, 168, 168);
+      margin-bottom: 4px;
+    }
+
+    > .deleted-memo-children-more {
+      font-size: 11px;
+      color: rgb(168, 168, 168);
+      margin-top: 2px;
+    }
+  }
+}

@@ -139,11 +139,11 @@ class MemoService {
     }
 
     /**
-     * 编辑评论备忘录内容
+     * 编辑评论备忘录内容（评论已统一在 memos 中）
      */
     public editCommentMemo(memo: Model.Memo): void {
         appStore.dispatch({
-            type: 'EDIT_COMMENT_MEMO',
+            type: 'EDIT_MEMO',
             payload: memo
         });
     }

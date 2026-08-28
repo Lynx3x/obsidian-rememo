@@ -217,19 +217,38 @@
           position: absolute;
           top: 2px;
           right: 2px;
+          display: flex;
+          align-items: center;
+          gap: 2px;
 
-          .memo-comment-reply-btn {
+          .memo-comment-reply-btn,
+          .memo-comment-delete-btn {
             background: none;
             border: none;
             color: rgb(168, 168, 168);
             font-size: 12px;
             cursor: pointer;
-            padding: 2px 4px;
-            line-height: 1;
+            padding: 0;
+            line-height: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            > .icon-img {
+              width: 16px;
+              height: 16px;
+              display: block;
+            }
           }
 
           .memo-comment-reply-btn:hover {
             color: var(--text-accent);
+          }
+
+          .memo-comment-delete-btn:hover {
+            color: @text-red;
           }
         }
       }
@@ -254,32 +273,82 @@
     }
 
     > .memo-comment-inputer {
+      width: 100%;
 
-      > .common-editor-wrapper {
-        border: 1px solid @bg-gray;
+      > .memo-comment-input {
+        position: relative;
+        width: 100%;
         margin-top: 8px;
-        border-radius: 8px;
-        padding-bottom: 10px;
-        padding-top: 8px;
+        padding: 0 42px 0 0;
+        box-sizing: border-box;
+        background-color: transparent;
 
-        > .common-editor-inputer {
+        > .memo-comment-input-textarea {
+          width: 100%;
+          border: 1px solid @bg-gray;
+          border-radius: 8px;
+          outline: none;
+          resize: none;
           font-size: 12px;
+          line-height: 20px;
+          min-height: 20px;
+          max-height: 120px;
+          padding: 5px 10px;
+          background: transparent;
+          box-sizing: border-box;
+
+          &::placeholder {
+            color: rgb(168, 168, 168);
+          }
         }
 
-        // 评论输入框紧凑化：隐藏空工具栏容器，只留发送按钮行
-        > .common-tools-wrapper {
-          min-height: 0;
+        > .memo-comment-send-btn {
+          position: absolute;
+          right: 10px;
+          bottom: 6px;
+          background: @text-green;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          padding: 0;
+          line-height: 0;
 
-          > .common-tools-container {
-            display: none;
+          > .icon-img {
+            width: 13px;
+            height: 13px;
+            margin: auto;
           }
 
-          > .btns-container {
-            padding-top: 4px;
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
 
-            .confirm-btn {
-              transform: scale(0.85);
-            }
+          &:hover:not(:disabled) {
+            opacity: 0.85;
+          }
+        }
+
+        > .memo-comment-cancel-btn {
+          position: absolute;
+          right: 40px;
+          bottom: 10px;
+          background: none;
+          border: none;
+          color: gray;
+          font-size: 11px;
+          cursor: pointer;
+          padding: 0;
+          line-height: 1;
+
+          &:hover {
+            color: var(--text-accent);
           }
         }
       }
