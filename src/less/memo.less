@@ -183,10 +183,20 @@
       margin-top: 8px;
       overflow-y: auto;
       max-height: 300px;
-      .hide-scroll-bar();
+      scrollbar-width: thin;
+      scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
+
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(128, 128, 128, 0.5);
+        border-radius: 8px;
+      }
 
       .memo-comment {
         .flex(column, flex-start, flex-start);
+        position: relative;
         //line-height: 2;
 
         .memo-comment-time {
@@ -202,7 +212,45 @@
           font-size: 12px;
 
         }
+
+        .memo-comment-actions {
+          position: absolute;
+          top: 2px;
+          right: 2px;
+
+          .memo-comment-reply-btn {
+            background: none;
+            border: none;
+            color: rgb(168, 168, 168);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 4px;
+            line-height: 1;
+          }
+
+          .memo-comment-reply-btn:hover {
+            color: var(--text-accent);
+          }
+        }
       }
+
+      .memo-comment-item {
+        width: 100%;
+
+        > .memo-comment-children {
+          width: 100%;
+          padding-left: 12px;
+          border-left: 2px solid rgba(128, 128, 128, 0.2);
+          margin-top: 4px;
+        }
+      }
+    }
+
+    .memo-comment-replying {
+      font-size: 11px;
+      color: var(--text-accent);
+      margin-top: 8px;
+      padding: 2px 4px;
     }
 
     > .memo-comment-inputer {
@@ -216,6 +264,23 @@
 
         > .common-editor-inputer {
           font-size: 12px;
+        }
+
+        // 评论输入框紧凑化：隐藏空工具栏容器，只留发送按钮行
+        > .common-tools-wrapper {
+          min-height: 0;
+
+          > .common-tools-container {
+            display: none;
+          }
+
+          > .btns-container {
+            padding-top: 4px;
+
+            .confirm-btn {
+              transform: scale(0.85);
+            }
+          }
         }
       }
     }
@@ -444,10 +509,20 @@
       margin-top: 8px;
       overflow-y: auto;
       max-height: 400px;
-      .hide-scroll-bar();
+      scrollbar-width: thin;
+      scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
+
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(128, 128, 128, 0.5);
+        border-radius: 8px;
+      }
 
       .memo-comment {
         .flex(column, flex-start, flex-start);
+        position: relative;
         //line-height: 2;
 
         .memo-comment-time {

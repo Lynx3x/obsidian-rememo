@@ -1,10 +1,7 @@
 import { moment, normalizePath, Notice, TFile, TFolder } from 'obsidian';
-import { DataviewListItem } from '../types/memo';
 import { getAllDailyNotes, getDateFromFile } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
 import {
-    CommentOnMemos,
-    CommentsInOriginalNotes,
     DefaultMemoComposition,
     DeleteFileName,
     FetchMemosFromNote,
@@ -15,16 +12,7 @@ import {
 import { getAPI } from 'obsidian-dataview';
 import { t } from '../translations/helper';
 import { getDailyNotePath } from '../helpers/utils';
-import {
-    extractHourFromBulletLine,
-    extractMemoTaskTypeFromLine,
-    extractMinFromBulletLine,
-    extractSecondFromBulletLine,
-    extractTextFromTodoLine,
-    getTaskType,
-    lineContainsSeconds,
-    lineContainsTime,
-} from '../helpers/memoLine';
+import { extractMemoTaskTypeFromLine, extractMemoTime, getIndentLevel, getIndentWidth, getTaskType } from '../helpers/memoLine';
 
 export class DailyNotesFolderMissingError extends Error { }
 
@@ -82,174 +70,97 @@ export async function getMemosFromDailyNote(
     }
     const { vault } = appStore.getState().dailyNotesState.app;
     const Memos = await getRemainingMemos(dailyNote);
-    let underComments;
     // 收集缺 ^id 的 memo 行，读完统一回写（持久 ^id）
     const toBackfill: { path: string; lineIndex: number; generatedId: string }[] = [];
+    // 收集旧时间格式的行，统一回写为 HH:mm:ss
+    const toFixTime: { path: string; lineIndex: number }[] = [];
 
     if (Memos === 0) return;
 
-    // console.log(getAPI().version.compare('>=', '0.5.9'));
-
-    // Get Comments Near the Original Memos. Maybe use Dataview to fetch all memos in the near future.
-    if (CommentOnMemos && CommentsInOriginalNotes && getAPI().version.compare('>=', '0.5.9') === true) {
-        const dataviewAPI = getAPI();
-        if (dataviewAPI !== undefined && ProcessEntriesBelow !== '') {
-            try {
-                underComments = dataviewAPI
-                    .page(dailyNote.path)
-                    ?.file.lists.values?.filter(
-                        (item: DataviewListItem) =>
-                            item.header?.subpath === ProcessEntriesBelow?.replace(/#{1,} /g, '').trim() && item.children?.length > 0,
-                    );
-            } catch (e) {
-                console.error(e);
-            }
-        } else {
-            try {
-                underComments = dataviewAPI
-                    .page(dailyNote.path)
-                    ?.file.lists.values?.filter((item: DataviewListItem) => item.children?.length > 0);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }
-
     let fileContents = await vault.read(dailyNote);
     let fileLines = getAllLinesFromFile(fileContents);
-    const startDate = getDateFromFile(dailyNote as any, 'day');
-    const endDate = getDateFromFile(dailyNote as any, 'day');
-    let processHeaderFound = false;
-    let memoType: string;
+    const baseDate = getDateFromFile(dailyNote as any, 'day');
+    let processHeaderFound = ProcessEntriesBelow === '';
+    // 缩进栈：记录各层级最近一行的 hasId，用于多级评论父关联
+    const indentStack: { level: number; hasId: string }[] = [];
+
     for (let i = 0; i < fileLines.length; i++) {
         const line = fileLines[i];
-
         if (line.length === 0) continue;
-        // if (line.contains('comment: ')) continue;
-        if (processHeaderFound == false && lineContainsParseBelowToken(line)) {
+        // 标题过滤（ProcessEntriesBelow）：匹配标题进入处理区，遇到其它标题退出
+        if (lineContainsParseBelowToken(line)) {
             processHeaderFound = true;
+            indentStack.length = 0;
+            continue;
         }
-        if (processHeaderFound == true && !lineContainsParseBelowToken(line) && /^#{1,} /g.test(line)) {
+        if (processHeaderFound && /^#{1,} /g.test(line)) {
             processHeaderFound = false;
+            continue;
         }
+        if (!processHeaderFound) continue;
+        // 只处理列表项（顶层 memo 或缩进评论）
+        if (!/^\s*[-*]\s/.test(line)) continue;
 
-        if (lineContainsTime(line) && processHeaderFound) {
-            const hourText = extractHourFromBulletLine(line);
-            const minText = extractMinFromBulletLine(line);
-            startDate.hours(parseInt(hourText));
-            startDate.minutes(parseInt(minText));
-            if (lineContainsSeconds(line)) {
-                const secText = extractSecondFromBulletLine(line);
-                startDate.seconds(parseInt(secText));
-            }
-            endDate.hours(parseInt(hourText));
-            if (parseInt(hourText) > 22) {
-                endDate.minutes(parseInt(minText));
-            } else {
-                endDate.minutes(parseInt(minText));
-            }
-            if (/^\s*[-*]\s(\[(.{1})\])\s/g.test(line)) {
-                const memoTaskType = extractMemoTaskTypeFromLine(line);
-                memoType = getTaskType(memoTaskType);
-            } else {
-                memoType = 'JOURNAL';
-            }
-            const rawText = extractTextFromTodoLine(line);
-            let originId = '';
-            if (rawText !== '') {
-                let hasId = Math.random().toString(36).slice(-6);
-                originId = hasId;
-                let linkId = '';
-                if (CommentOnMemos && /comment:(.*)#\^\S{6}]]/g.test(rawText)) {
-                    linkId = extractCommentFromLine(rawText);
-                }
-                // 从原始行检测块 id（rawText 已被 parseMemoLine 剥离块 id）
-                const lineIdMatch = /\^(\S{6})\s*$/.exec(line);
-                if (lineIdMatch) {
-                    hasId = lineIdMatch[1];
-                    originId = hasId;
-                } else {
-                    // 持久 ^id：行尾无块 id，生成并收集待回写
-                    toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
-                }
-                allMemos.push({
-                    id: startDate.format('YYYYMMDDHHmmss') + i,
-                    content: rawText,
-                    user_id: 1,
-                    createdAt: startDate.format('YYYY/MM/DD HH:mm:ss'),
-                    updatedAt: endDate.format('YYYY/MM/DD HH:mm:ss'),
-                    memoType: memoType,
-                    hasId: hasId,
-                    linkId: linkId,
-                    path: dailyNote.path,
-                });
-            }
-            if (/comment:(.*)#\^\S{6}]]/g.test(rawText) && CommentOnMemos && CommentsInOriginalNotes !== true) {
-                const commentId = extractCommentFromLine(rawText);
-                const hasId = '';
-                commentMemos.push({
-                    id: startDate.format('YYYYMMDDHHmmss') + i,
-                    content: rawText,
-                    user_id: 1,
-                    createdAt: startDate.format('YYYY/MM/DD HH:mm:ss'),
-                    updatedAt: endDate.format('YYYY/MM/DD HH:mm:ss'),
-                    memoType: memoType,
-                    hasId: hasId,
-                    linkId: commentId,
-                });
-                continue;
-            }
-            if (
-                rawText !== '' &&
-                !rawText.contains(' comment') &&
-                underComments !== null &&
-                underComments !== undefined &&
-                underComments.length > 0
-            ) {
-                // console.log(underComments.map((item) => console.log(item.text.replace(/^\d{2}:\d{2}/, ''))));
-                const originalText = line.replace(/^[-*]\s(\[(.{1})\]\s?)?/, '')?.trim();
-                const commentsInMemos = underComments.filter(
-                    (item) => item.text === originalText || item.line === i || item.blockId === originId,
-                );
-
-                if (commentsInMemos.length === 0) continue;
-
-                if (commentsInMemos[0].children?.length > 0) {
-                    // console.log(commentsInMemos[0].children.values);
-                    for (let j = 0; j < commentsInMemos[0].children.length; j++) {
-                        // console.log(commentsInMemos[0].children.values[j].text);
-                        const hasId = '';
-                        let commentTime;
-                        if (/^\d{12}/.test(commentsInMemos[0].children[j].text)) {
-                            commentTime = commentsInMemos[0].children[j].text?.match(/^\d{14}/)[0];
-                        } else {
-                            commentTime = startDate.format('YYYYMMDDHHmmss');
-                        }
-                        commentMemos.push({
-                            id: commentTime + commentsInMemos[0].children[j].line,
-                            content: commentsInMemos[0].children[j].text,
-                            user_id: 1,
-                            createdAt: moment(commentTime, 'YYYYMMDDHHmmss').format('YYYY/MM/DD HH:mm:ss'),
-                            updatedAt: moment(commentTime, 'YYYYMMDDHHmmss').format('YYYY/MM/DD HH:mm:ss'),
-                            memoType: commentsInMemos[0].children[j].task
-                                ? getTaskType(commentsInMemos[0].children[j].status)
-                                : 'JOURNAL',
-                            hasId: hasId,
-                            linkId: originId,
-                            path: commentsInMemos[0].children[j].path,
-                        });
-                    }
-                }
-
-                // console.log(underComments.filter((item: object) => item.text === rawText.trim()));
-            }
+        const indent = getIndentLevel(getIndentWidth(line));
+        // 去列表标记（- [ ] / - / * + 缩进）
+        const stripped = line.replace(/^\s*[-*]\s(\[(?:.{1})\]\s?)?/, '');
+        // 时间：支持新 HH:mm(:ss) 和旧 14 位时间戳，统一标准化
+        const { time, isOld, rest } = extractMemoTime(stripped);
+        const memoDate = moment(baseDate);
+        if (time) {
+            const [h, m, s] = time.split(':').map((x) => parseInt(x));
+            memoDate.hours(h).minutes(m);
+            if (!isNaN(s)) memoDate.seconds(s);
+            if (isOld) toFixTime.push({ path: dailyNote.path, lineIndex: i });
         }
+        // 块 id
+        let content = rest;
+        let hasId = '';
+        const idMatch = /\^(\S{6})\s*$/.exec(content);
+        if (idMatch) {
+            hasId = idMatch[1];
+            content = content.slice(0, -8).trim();
+        } else {
+            hasId = Math.random().toString(36).slice(-6);
+            toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
+        }
+        // 父关联：缩进 > 0 时找最近的低层级父行
+        let linkId = '';
+        if (indent > 0) {
+            while (indentStack.length > 0 && indentStack[indentStack.length - 1].level >= indent) {
+                indentStack.pop();
+            }
+            const parent = indentStack.length > 0 ? indentStack[indentStack.length - 1] : null;
+            if (parent) linkId = parent.hasId;
+        } else {
+            indentStack.length = 0;
+        }
+        indentStack.push({ level: indent, hasId });
+
+        const memoType = /^\s*[-*]\s\[(.{1})\]\s/.test(line)
+            ? getTaskType(extractMemoTaskTypeFromLine(line))
+            : 'JOURNAL';
+        allMemos.push({
+            id: memoDate.format('YYYYMMDDHHmmss') + i,
+            content,
+            user_id: 1,
+            createdAt: memoDate.format('YYYY/MM/DD HH:mm:ss'),
+            updatedAt: memoDate.format('YYYY/MM/DD HH:mm:ss'),
+            memoType,
+            hasId,
+            linkId,
+            path: dailyNote.path,
+        });
     }
     fileLines = null;
     fileContents = null;
     // 持久 ^id：补写缺 id 的 memo 行（一次性迁移，之后稳定）
     if (toBackfill.length > 0) {
         await backfillMemoIds(vault, toBackfill);
+    }
+    // 时间格式统一：旧格式回写为 HH:mm:ss
+    if (toFixTime.length > 0) {
+        await backfillMemoTimes(vault, toFixTime);
     }
 }
 
@@ -279,6 +190,54 @@ async function backfillMemoIds(
             // 行尾已无 id（防并发/重复），追加
             if (line !== undefined && !/\^\S{6}\s*$/.test(line)) {
                 lines[lineIndex] = line.trimEnd() + ' ^' + generatedId;
+                changed = true;
+            }
+        }
+        if (changed) {
+            await vault.modify(file, lines.join('\n'));
+        }
+    }
+}
+
+/**
+ * 统一旧时间格式为 `HH:mm:ss`（迁移）：
+ *   - `HH:mm` → `HH:mm:00`
+ *   - 14 位时间戳（旧评论）→ `HH:mm:ss`
+ * 只改行内时间部分，不动其它内容。
+ */
+async function backfillMemoTimes(vault: any, toFix: { path: string; lineIndex: number }[]): Promise<void> {
+    const byPath = new Map<string, number[]>();
+    for (const item of toFix) {
+        const arr = byPath.get(item.path) || [];
+        arr.push(item.lineIndex);
+        byPath.set(item.path, arr);
+    }
+    for (const [path, indices] of byPath) {
+        const file = vault.getAbstractFileByPath(path) as TFile;
+        if (!file) continue;
+        const content = await vault.read(file);
+        const lines = getAllLinesFromFile(content);
+        let changed = false;
+        for (const lineIndex of indices) {
+            const line = lines[lineIndex];
+            if (line === undefined) continue;
+            // 去缩进 + 列表标记后处理
+            const m = /^(\s*[-*]\s(\[(?:.{1})\]\s?)?)(.*)$/.exec(line);
+            if (!m) continue;
+            const prefix = m[1] + (m[2] || '');
+            const rest = m[3];
+            // 旧 14 位时间戳
+            const ts = /^(\d{14})\s?(.*)$/.exec(rest);
+            if (ts) {
+                const hh = ts[1].slice(8, 10), mm = ts[1].slice(10, 12), ss = ts[1].slice(12, 14);
+                lines[lineIndex] = prefix + `${hh}:${mm}:${ss} ` + ts[2];
+                changed = true;
+                continue;
+            }
+            // HH:mm 无秒 → 补 :00
+            const t = /^(\d{1,2}:\d{2})(?!:\d{2})(\s|$)/.exec(rest);
+            if (t) {
+                lines[lineIndex] = prefix + rest.replace(/^\d{1,2}:\d{2}/, t[1] + ':00');
                 changed = true;
             }
         }
@@ -400,10 +359,9 @@ export async function getMemosFromNote(allMemos: any[], commentMemos: any[]): Pr
 }
 
 export async function getMemos(
-    onBatch?: (memos: Model.Memo[], commentMemos: Model.Memo[]) => void | Promise<void>,
+    onBatch?: (memos: Model.Memo[]) => void | Promise<void>,
 ): Promise<allKindsofMemos> {
     const memos: any[] | PromiseLike<any[]> = [];
-    const commentMemos: any[] | PromiseLike<any[]> = [];
     const { vault } = appStore.getState().dailyNotesState.app;
     const folder = getDailyNotePath();
 
@@ -426,20 +384,21 @@ export async function getMemos(
 
     const BATCH_SIZE = 5;
     for (let i = 0; i < files.length; i++) {
-        await getMemosFromDailyNote(files[i][1] as any, memos, commentMemos);
+        await getMemosFromDailyNote(files[i][1] as any, memos, []);
         if (onBatch && (i + 1) % BATCH_SIZE === 0) {
-            await onBatch([...memos], [...commentMemos]);
+            await onBatch([...memos]);
         }
     }
     if (onBatch && files.length > 0) {
-        await onBatch([...memos], [...commentMemos]);
+        await onBatch([...memos]);
     }
 
     if (FetchMemosFromNote) {
-        await getMemosFromNote(memos, commentMemos);
+        await getMemosFromNote(memos, []);
     }
 
-    return { memos, commentMemos };
+    // 评论已统一在 memos 中（linkId 非空表示评论），不再单独返回 commentMemos
+    return { memos, commentMemos: [] };
 }
 
 const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/);
@@ -448,8 +407,9 @@ const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/);
 //   return /^\s*[\-\*]\s\[(\s|x|X|\\|\-|\>|D|\?|\/|\+|R|\!|i|B|P|C)\]\s?\s*\S/.test(line)
 // }
 const lineContainsParseBelowToken = (line: string) => {
+    // ProcessEntriesBelow 为空 = 无需标题过滤，任何行都不触发"进入处理区"
     if (ProcessEntriesBelow === '') {
-        return true;
+        return false;
     }
     const re = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'), '');
     return re.test(line);

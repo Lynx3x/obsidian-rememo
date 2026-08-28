@@ -9519,7 +9519,7 @@ class LocationService {
 const locationService = new LocationService();
 const hasCustomComposition = () => DefaultMemoComposition !== "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition);
 const buildMemoLineRegexString = () => {
-  const indent = CommentsInOriginalNotes ? "" : "\\s*";
+  const indent = "\\s*";
   const taskGroup = "(\\[(?:.{1})\\]\\s?)?";
   const timeGroup = "(<time>)?(\\d{1,2}:\\d{2}(?::\\d{2})?)?(</time>)?";
   if (hasCustomComposition()) {
@@ -9557,10 +9557,6 @@ const parseMemoLine = (line) => {
   }
   return { time, content, taskMark, hasId };
 };
-const lineContainsTime = (line) => getMemoLineRegex().test(line);
-function lineContainsSeconds(line) {
-  return /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?\d{1,2}:\d{2}:\d{2}(<\/time>)?/.test(line);
-}
 function extractHourFromBulletLine(line) {
   const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):\d{2}(:\d{2})?(<\/time>)?/.exec(line);
   return match ? match[4] : "";
@@ -9596,6 +9592,40 @@ const serializeMemoLine = (fields) => {
   }
   return line;
 };
+const INDENT_UNIT = 4;
+function getIndentWidth(line) {
+  let width = 0;
+  for (const ch2 of line) {
+    if (ch2 === " ")
+      width += 1;
+    else if (ch2 === "	")
+      width += INDENT_UNIT;
+    else
+      break;
+  }
+  return width;
+}
+function getIndentLevel(indentWidth) {
+  return Math.round(indentWidth / INDENT_UNIT);
+}
+function extractMemoTime(rawContent) {
+  const t2 = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(rawContent);
+  if (t2) {
+    return {
+      time: t2[3] ? `${t2[1]}:${t2[2]}:${t2[3]}` : `${t2[1]}:${t2[2]}`,
+      isOld: !t2[3],
+      rest: rawContent.slice(t2[0].length).trim()
+    };
+  }
+  const ts = /^(\d{14})\s?(.*)$/.exec(rawContent);
+  if (ts) {
+    const hh2 = ts[1].slice(8, 10);
+    const mm = ts[1].slice(10, 12);
+    const ss = ts[1].slice(12, 14);
+    return { time: `${hh2}:${mm}:${ss}`, isOld: true, rest: ts[2].trim() };
+  }
+  return { time: "", isOld: false, rest: rawContent.trim() };
+}
 async function escapeRegExp(text) {
   return await text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
@@ -9643,7 +9673,7 @@ async function writeMemoToDailyNote(date, newEvent, memo2) {
     if (newFileContent.content) {
       await vault.modify(file, newFileContent.content);
       if (newFileContent.posNum === -1) {
-        const allLines = getAllLinesFromFile$9(newFileContent.content);
+        const allLines = getAllLinesFromFile$a(newFileContent.content);
         lineNum = allLines.length + 1;
       } else {
         lineNum = newFileContent.posNum + 1;
@@ -9655,7 +9685,7 @@ async function writeMemoToDailyNote(date, newEvent, memo2) {
     const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
     await vault.modify(existingFile, newFileContent.content);
     if (newFileContent.posNum === -1) {
-      const allLines = getAllLinesFromFile$9(newFileContent.content);
+      const allLines = getAllLinesFromFile$a(newFileContent.content);
       lineNum = allLines.length + 1;
     } else {
       lineNum = newFileContent.posNum + 1;
@@ -9683,12 +9713,12 @@ async function insertAfterHandler(targetString, formatted, fileContent) {
         break;
       }
     }
-    return await insertTextAfterPositionInBody$1(formatted, fileContent, insertPosition, foundNextHeader);
+    return await insertTextAfterPositionInBody(formatted, fileContent, insertPosition, foundNextHeader);
   } else {
-    return await insertTextAfterPositionInBody$1(formatted, fileContent, fileContentLines.length - 1, foundNextHeader);
+    return await insertTextAfterPositionInBody(formatted, fileContent, fileContentLines.length - 1, foundNextHeader);
   }
 }
-async function insertTextAfterPositionInBody$1(text, body, pos, found) {
+async function insertTextAfterPositionInBody(text, body, pos, found) {
   if (pos === -1) {
     return {
       content: `${body}
@@ -9724,7 +9754,7 @@ ${post}`,
     }
   }
 }
-const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
+const getAllLinesFromFile$a = (cache) => cache.split(/\r?\n/);
 function convertDailyNotes(notes) {
   return notes;
 }
@@ -9751,7 +9781,7 @@ async function changeMemo(memoid, originalContent, content, memoType, path) {
     throw new Error("File not found");
   }
   const fileContent = await vault.read(file);
-  const fileLines = getAllLinesFromFile$8(fileContent);
+  const fileLines = getAllLinesFromFile$9(fileContent);
   const removeEnter = content.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
   const originalLine = fileLines[idString];
   const newLine = fileLines[idString].replace(originalContent, removeEnter);
@@ -9770,7 +9800,78 @@ async function changeMemo(memoid, originalContent, content, memoType, path) {
     path: file.path
   };
 }
+const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
 const getAllLinesFromFile$8 = (cache) => cache.split(/\r?\n/);
+async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
+  const { vault, metadataCache } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
+  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2").trim();
+  if (path === void 0) {
+    throw new Error("commentMemo: missing path");
+  }
+  const file = metadataCache.getFirstLinkpathDest("", path);
+  if (!file) {
+    throw new Error("commentMemo: cannot find file " + path);
+  }
+  const fileContents = await vault.read(file);
+  const lines = getAllLinesFromFile$8(fileContents);
+  let parentLineIdx = -1;
+  if (hasID) {
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes("^" + hasID)) {
+        parentLineIdx = i;
+        break;
+      }
+    }
+  }
+  if (parentLineIdx === -1 && oriID) {
+    const lineNo = parseInt(oriID.slice(14));
+    if (!isNaN(lineNo) && lineNo >= 0 && lineNo < lines.length) {
+      parentLineIdx = lineNo;
+    }
+  }
+  if (parentLineIdx === -1) {
+    throw new Error("commentMemo: cannot locate parent memo line");
+  }
+  const parentLine = lines[parentLineIdx];
+  const indentMatch = /^(\s*)/.exec(parentLine);
+  const baseIndent = indentMatch ? indentMatch[1] : "";
+  const commentIndent = baseIndent + "    ";
+  let insertIdx = parentLineIdx;
+  for (let i = parentLineIdx + 1; i < lines.length; i++) {
+    const l2 = lines[i];
+    if (l2.trim() === "") {
+      insertIdx = i;
+      break;
+    }
+    if (/^#{1,}/.test(l2)) {
+      insertIdx = i;
+      break;
+    }
+    const lIndentMatch = /^(\s*)/.exec(l2);
+    const lIndent = lIndentMatch ? lIndentMatch[1] : "";
+    if (lIndent.length <= baseIndent.length && /^\s*[-*]\s/.test(l2)) {
+      insertIdx = i - 1;
+      break;
+    }
+    insertIdx = i;
+  }
+  const time = require$$0.moment();
+  const generatedId = Math.random().toString(36).slice(-6);
+  const commentLine = `${commentIndent}- ${time.format("HH:mm:ss")} ${removeEnter} ^${generatedId}`;
+  const newLines = [...lines.slice(0, insertIdx + 1), commentLine, ...lines.slice(insertIdx + 1)];
+  await vault.modify(file, newLines.join("\n"));
+  return {
+    id: time.format("YYYYMMDDHHmmss") + (insertIdx + 1),
+    content: removeEnter,
+    deletedAt: "",
+    createdAt: time.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: time.format("YYYY/MM/DD HH:mm:ss"),
+    memoType: "JOURNAL",
+    path: file.path,
+    hasId: generatedId,
+    linkId: hasID || ""
+  };
+}
 var lib = {};
 Object.defineProperty(lib, "__esModule", { value: true });
 const getAPI = (app2) => {
@@ -9783,82 +9884,6 @@ const getAPI = (app2) => {
 const isPluginEnabled = (app2) => app2.plugins.enabledPlugins.has("dataview");
 var getAPI_1 = lib.getAPI = getAPI;
 lib.isPluginEnabled = isPluginEnabled;
-async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
-  var _a, _b;
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
-  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
-  if (path === void 0) {
-    return;
-  }
-  const file = metadataCache.getFirstLinkpathDest("", path);
-  const time = require$$0.moment();
-  const formatTime = time.format("YYYYMMDDHHmmss");
-  const ID = oriID.slice(14);
-  const indent = "    ";
-  const newContent = formatTime + " " + removeEnter.trim();
-  const newLineContent = indent + "- " + formatTime + " " + removeEnter.trim();
-  if (file) {
-    let underComments;
-    if (CommentOnMemos && CommentsInOriginalNotes) {
-      const dataviewAPI = getAPI_1();
-      if (dataviewAPI !== void 0) {
-        try {
-          underComments = (_b = (_a = dataviewAPI.page(file.path)) == null ? void 0 : _a.file.lists.values) == null ? void 0 : _b.filter((item) => item.line === parseInt(ID));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    const fileContents = await vault.read(file);
-    let endLine = 0;
-    if (underComments[0].children.values.length > 0) {
-      endLine = underComments[0].children.values[underComments[0].children.values.length - 1].line;
-    } else {
-      endLine = underComments[0].line;
-    }
-    const newFileContent = await insertTextAfterPositionInBody(newLineContent, fileContents, endLine);
-    await vault.modify(file, newFileContent.content);
-    if (isList2) {
-      return {
-        id: formatTime + (endLine + 1),
-        content: newContent,
-        deletedAt: "",
-        createdAt: time.format("YYYY/MM/DD HH:mm:ss"),
-        updatedAt: time.format("YYYY/MM/DD HH:mm:ss"),
-        memoType: "JOURNAL",
-        path: file.path,
-        hasId: "",
-        linkId: hasID
-      };
-    }
-  }
-}
-async function insertTextAfterPositionInBody(text, body, pos) {
-  if (pos === -1) {
-    return {
-      content: `${body}
-${text}`,
-      posNum: -1
-    };
-  }
-  const splitContent = body.split("\n");
-  const pre = splitContent.slice(0, pos + 1).join("\n");
-  const post = splitContent.slice(pos + 1).join("\n");
-  if (/^\s*$/g.test(splitContent[pos + 1])) {
-    return {
-      content: `${pre}
-${text}
-${post}`,
-      posNum: pos
-    };
-  }
-  return {
-    content: `${pre}
-${text}
-${post}`,
-    posNum: pos
-  };
-}
 class DailyNotesFolderMissingError extends Error {
 }
 async function getRemainingMemos(note) {
@@ -9884,156 +9909,91 @@ async function getRemainingMemos(note) {
   return 0;
 }
 async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
-  var _a, _b, _c, _d, _e, _f, _g;
   if (!dailyNote) {
     return [];
   }
   const { vault } = appStore.getState().dailyNotesState.app;
   const Memos2 = await getRemainingMemos(dailyNote);
-  let underComments;
   const toBackfill = [];
+  const toFixTime = [];
   if (Memos2 === 0)
     return;
-  if (CommentOnMemos && CommentsInOriginalNotes && getAPI_1().version.compare(">=", "0.5.9") === true) {
-    const dataviewAPI = getAPI_1();
-    if (dataviewAPI !== void 0 && ProcessEntriesBelow !== "") {
-      try {
-        underComments = (_b = (_a = dataviewAPI.page(dailyNote.path)) == null ? void 0 : _a.file.lists.values) == null ? void 0 : _b.filter(
-          (item) => {
-            var _a2, _b2;
-            return ((_a2 = item.header) == null ? void 0 : _a2.subpath) === (ProcessEntriesBelow == null ? void 0 : ProcessEntriesBelow.replace(/#{1,} /g, "").trim()) && ((_b2 = item.children) == null ? void 0 : _b2.length) > 0;
-          }
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      try {
-        underComments = (_d = (_c = dataviewAPI.page(dailyNote.path)) == null ? void 0 : _c.file.lists.values) == null ? void 0 : _d.filter((item) => {
-          var _a2;
-          return ((_a2 = item.children) == null ? void 0 : _a2.length) > 0;
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }
   let fileContents = await vault.read(dailyNote);
   let fileLines = getAllLinesFromFile$7(fileContents);
-  const startDate = getDateFromFile_1(dailyNote, "day");
-  const endDate = getDateFromFile_1(dailyNote, "day");
-  let processHeaderFound = false;
-  let memoType;
+  const baseDate = getDateFromFile_1(dailyNote, "day");
+  let processHeaderFound = ProcessEntriesBelow === "";
+  const indentStack = [];
   for (let i = 0; i < fileLines.length; i++) {
     const line = fileLines[i];
     if (line.length === 0)
       continue;
-    if (processHeaderFound == false && lineContainsParseBelowToken(line)) {
+    if (lineContainsParseBelowToken(line)) {
       processHeaderFound = true;
+      indentStack.length = 0;
+      continue;
     }
-    if (processHeaderFound == true && !lineContainsParseBelowToken(line) && /^#{1,} /g.test(line)) {
+    if (processHeaderFound && /^#{1,} /g.test(line)) {
       processHeaderFound = false;
+      continue;
     }
-    if (lineContainsTime(line) && processHeaderFound) {
-      const hourText = extractHourFromBulletLine(line);
-      const minText = extractMinFromBulletLine(line);
-      startDate.hours(parseInt(hourText));
-      startDate.minutes(parseInt(minText));
-      if (lineContainsSeconds(line)) {
-        const secText = extractSecondFromBulletLine(line);
-        startDate.seconds(parseInt(secText));
-      }
-      endDate.hours(parseInt(hourText));
-      if (parseInt(hourText) > 22) {
-        endDate.minutes(parseInt(minText));
-      } else {
-        endDate.minutes(parseInt(minText));
-      }
-      if (/^\s*[-*]\s(\[(.{1})\])\s/g.test(line)) {
-        const memoTaskType = extractMemoTaskTypeFromLine(line);
-        memoType = getTaskType(memoTaskType);
-      } else {
-        memoType = "JOURNAL";
-      }
-      const rawText = extractTextFromTodoLine(line);
-      let originId = "";
-      if (rawText !== "") {
-        let hasId = Math.random().toString(36).slice(-6);
-        originId = hasId;
-        let linkId = "";
-        if (CommentOnMemos && /comment:(.*)#\^\S{6}]]/g.test(rawText)) {
-          linkId = extractCommentFromLine(rawText);
-        }
-        const lineIdMatch = /\^(\S{6})\s*$/.exec(line);
-        if (lineIdMatch) {
-          hasId = lineIdMatch[1];
-          originId = hasId;
-        } else {
-          toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
-        }
-        allMemos.push({
-          id: startDate.format("YYYYMMDDHHmmss") + i,
-          content: rawText,
-          user_id: 1,
-          createdAt: startDate.format("YYYY/MM/DD HH:mm:ss"),
-          updatedAt: endDate.format("YYYY/MM/DD HH:mm:ss"),
-          memoType,
-          hasId,
-          linkId,
-          path: dailyNote.path
-        });
-      }
-      if (/comment:(.*)#\^\S{6}]]/g.test(rawText) && CommentOnMemos && CommentsInOriginalNotes !== true) {
-        const commentId = extractCommentFromLine(rawText);
-        const hasId = "";
-        commentMemos.push({
-          id: startDate.format("YYYYMMDDHHmmss") + i,
-          content: rawText,
-          user_id: 1,
-          createdAt: startDate.format("YYYY/MM/DD HH:mm:ss"),
-          updatedAt: endDate.format("YYYY/MM/DD HH:mm:ss"),
-          memoType,
-          hasId,
-          linkId: commentId
-        });
-        continue;
-      }
-      if (rawText !== "" && !rawText.contains(" comment") && underComments !== null && underComments !== void 0 && underComments.length > 0) {
-        const originalText = (_e = line.replace(/^[-*]\s(\[(.{1})\]\s?)?/, "")) == null ? void 0 : _e.trim();
-        const commentsInMemos = underComments.filter(
-          (item) => item.text === originalText || item.line === i || item.blockId === originId
-        );
-        if (commentsInMemos.length === 0)
-          continue;
-        if (((_f = commentsInMemos[0].children) == null ? void 0 : _f.length) > 0) {
-          for (let j = 0; j < commentsInMemos[0].children.length; j++) {
-            const hasId = "";
-            let commentTime;
-            if (/^\d{12}/.test(commentsInMemos[0].children[j].text)) {
-              commentTime = (_g = commentsInMemos[0].children[j].text) == null ? void 0 : _g.match(/^\d{14}/)[0];
-            } else {
-              commentTime = startDate.format("YYYYMMDDHHmmss");
-            }
-            commentMemos.push({
-              id: commentTime + commentsInMemos[0].children[j].line,
-              content: commentsInMemos[0].children[j].text,
-              user_id: 1,
-              createdAt: require$$0.moment(commentTime, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss"),
-              updatedAt: require$$0.moment(commentTime, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss"),
-              memoType: commentsInMemos[0].children[j].task ? getTaskType(commentsInMemos[0].children[j].status) : "JOURNAL",
-              hasId,
-              linkId: originId,
-              path: commentsInMemos[0].children[j].path
-            });
-          }
-        }
-      }
+    if (!processHeaderFound)
+      continue;
+    if (!/^\s*[-*]\s/.test(line))
+      continue;
+    const indent = getIndentLevel(getIndentWidth(line));
+    const stripped = line.replace(/^\s*[-*]\s(\[(?:.{1})\]\s?)?/, "");
+    const { time, isOld, rest } = extractMemoTime(stripped);
+    const memoDate = require$$0.moment(baseDate);
+    if (time) {
+      const [h2, m2, s] = time.split(":").map((x2) => parseInt(x2));
+      memoDate.hours(h2).minutes(m2);
+      if (!isNaN(s))
+        memoDate.seconds(s);
+      if (isOld)
+        toFixTime.push({ path: dailyNote.path, lineIndex: i });
     }
+    let content = rest;
+    let hasId = "";
+    const idMatch = /\^(\S{6})\s*$/.exec(content);
+    if (idMatch) {
+      hasId = idMatch[1];
+      content = content.slice(0, -8).trim();
+    } else {
+      hasId = Math.random().toString(36).slice(-6);
+      toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
+    }
+    let linkId = "";
+    if (indent > 0) {
+      while (indentStack.length > 0 && indentStack[indentStack.length - 1].level >= indent) {
+        indentStack.pop();
+      }
+      const parent = indentStack.length > 0 ? indentStack[indentStack.length - 1] : null;
+      if (parent)
+        linkId = parent.hasId;
+    } else {
+      indentStack.length = 0;
+    }
+    indentStack.push({ level: indent, hasId });
+    const memoType = /^\s*[-*]\s\[(.{1})\]\s/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
+    allMemos.push({
+      id: memoDate.format("YYYYMMDDHHmmss") + i,
+      content,
+      user_id: 1,
+      createdAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
+      updatedAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
+      memoType,
+      hasId,
+      linkId,
+      path: dailyNote.path
+    });
   }
   fileLines = null;
   fileContents = null;
   if (toBackfill.length > 0) {
     await backfillMemoIds(vault, toBackfill);
+  }
+  if (toFixTime.length > 0) {
+    await backfillMemoTimes(vault, toFixTime);
   }
 }
 async function backfillMemoIds(vault, toBackfill) {
@@ -10054,6 +10014,47 @@ async function backfillMemoIds(vault, toBackfill) {
       const line = lines[lineIndex];
       if (line !== void 0 && !/\^\S{6}\s*$/.test(line)) {
         lines[lineIndex] = line.trimEnd() + " ^" + generatedId;
+        changed = true;
+      }
+    }
+    if (changed) {
+      await vault.modify(file, lines.join("\n"));
+    }
+  }
+}
+async function backfillMemoTimes(vault, toFix) {
+  const byPath = /* @__PURE__ */ new Map();
+  for (const item of toFix) {
+    const arr = byPath.get(item.path) || [];
+    arr.push(item.lineIndex);
+    byPath.set(item.path, arr);
+  }
+  for (const [path, indices] of byPath) {
+    const file = vault.getAbstractFileByPath(path);
+    if (!file)
+      continue;
+    const content = await vault.read(file);
+    const lines = getAllLinesFromFile$7(content);
+    let changed = false;
+    for (const lineIndex of indices) {
+      const line = lines[lineIndex];
+      if (line === void 0)
+        continue;
+      const m2 = /^(\s*[-*]\s(\[(?:.{1})\]\s?)?)(.*)$/.exec(line);
+      if (!m2)
+        continue;
+      const prefix = m2[1] + (m2[2] || "");
+      const rest = m2[3];
+      const ts = /^(\d{14})\s?(.*)$/.exec(rest);
+      if (ts) {
+        const hh2 = ts[1].slice(8, 10), mm = ts[1].slice(10, 12), ss = ts[1].slice(12, 14);
+        lines[lineIndex] = prefix + `${hh2}:${mm}:${ss} ` + ts[2];
+        changed = true;
+        continue;
+      }
+      const t2 = /^(\d{1,2}:\d{2})(?!:\d{2})(\s|$)/.exec(rest);
+      if (t2) {
+        lines[lineIndex] = prefix + rest.replace(/^\d{1,2}:\d{2}/, t2[1] + ":00");
         changed = true;
       }
     }
@@ -10158,7 +10159,6 @@ async function getMemosFromNote(allMemos, commentMemos) {
 }
 async function getMemos(onBatch) {
   const memos = [];
-  const commentMemos = [];
   const { vault } = appStore.getState().dailyNotesState.app;
   const folder = getDailyNotePath();
   if (folder === "" || folder === void 0) {
@@ -10173,32 +10173,26 @@ async function getMemos(onBatch) {
   const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").sort((a, b) => b[0].localeCompare(a[0]));
   const BATCH_SIZE = 5;
   for (let i = 0; i < files.length; i++) {
-    await getMemosFromDailyNote(files[i][1], memos, commentMemos);
+    await getMemosFromDailyNote(files[i][1], memos);
     if (onBatch && (i + 1) % BATCH_SIZE === 0) {
-      await onBatch([...memos], [...commentMemos]);
+      await onBatch([...memos]);
     }
   }
   if (onBatch && files.length > 0) {
-    await onBatch([...memos], [...commentMemos]);
+    await onBatch([...memos]);
   }
   if (FetchMemosFromNote) {
-    await getMemosFromNote(memos, commentMemos);
+    await getMemosFromNote(memos, []);
   }
-  return { memos, commentMemos };
+  return { memos, commentMemos: [] };
 }
 const getAllLinesFromFile$7 = (cache) => cache.split(/\r?\n/);
 const lineContainsParseBelowToken = (line) => {
   if (ProcessEntriesBelow === "") {
-    return true;
+    return false;
   }
   const re2 = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"), "");
   return re2.test(line);
-};
-const extractCommentFromLine = (line) => {
-  const regex = "#\\^(\\S{6})";
-  const regexMatchRe = new RegExp(regex, "");
-  const match = regexMatchRe.exec(line);
-  return match ? match[1] : "";
 };
 async function restoreDeletedMemo(deletedMemoid) {
   const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
@@ -10407,11 +10401,9 @@ class MemoService {
   }
   async fetchAllMemos() {
     const accumulatedMemos = [];
-    const accumulatedCommentMemos = [];
-    await getMemos(async (batchMemos, batchCommentMemos) => {
+    await getMemos(async (batchMemos) => {
       accumulatedMemos.push(...batchMemos);
-      accumulatedCommentMemos.push(...batchCommentMemos);
-      this.updateMemoStore(accumulatedMemos, accumulatedCommentMemos);
+      this.updateMemoStore(accumulatedMemos);
     });
     if (!this.initialized) {
       this.initialized = true;
@@ -10420,12 +10412,10 @@ class MemoService {
   }
   async fetchMemosFromFile(file) {
     const memos = [];
-    const commentMemos = [];
-    await getMemosFromDailyNote(file, memos, commentMemos);
+    await getMemosFromDailyNote(file, memos);
     const { memoState } = appStore.getState();
     const others = memoState.memos.filter((m2) => m2.path !== file.path);
-    const otherComments = memoState.commentMemos.filter((m2) => m2.path !== file.path);
-    this.updateMemoStore([...others, ...memos], [...otherComments, ...commentMemos]);
+    this.updateMemoStore([...others, ...memos]);
   }
   async fetchDeletedMemos() {
     const deletedMemos = await getDeletedMemos();
@@ -10441,7 +10431,7 @@ class MemoService {
   }
   pushCommentMemo(memo2) {
     appStore.dispatch({
-      type: "INSERT_COMMENT_MEMO",
+      type: "INSERT_MEMO",
       payload: { memo: { ...memo2 } }
     });
   }
@@ -10449,7 +10439,7 @@ class MemoService {
     return this.getState().memos.find((m2) => m2.id === id2) || null;
   }
   getCommentMemoById(id2) {
-    return this.getState().commentMemos.find((m2) => m2.id === id2) || null;
+    return this.getState().memos.find((m2) => m2.id === id2 && m2.linkId) || null;
   }
   async hideMemoById(id2) {
     await obHideMemo(id2);
@@ -10505,7 +10495,7 @@ class MemoService {
     return this.getState().memos.filter((m2) => m2.content.includes(memoId));
   }
   async getCommentMemos(memoId) {
-    return this.getState().memos.filter((m2) => m2.content.includes("comment: " + memoId));
+    return this.getState().memos.filter((m2) => m2.linkId === memoId);
   }
   async createMemo(text, isTask, date) {
     return await waitForInsert(text, isTask, date);
@@ -10543,14 +10533,10 @@ class MemoService {
     });
     return Array.from(tags);
   }
-  updateMemoStore(memos, commentMemos) {
+  updateMemoStore(memos) {
     appStore.dispatch({
       type: "SET_MEMOS",
       payload: { memos }
-    });
-    appStore.dispatch({
-      type: "SET_COMMENT_MEMOS",
-      payload: { commentMemos }
     });
   }
 }
@@ -16225,8 +16211,6 @@ const Memo = (props) => {
     }
   } = react.exports.useContext(appContext);
   const {
-    CommentOnMemos: CommentOnMemos2,
-    CommentsInOriginalNotes: CommentsInOriginalNotes2,
     DefaultEditorLocation,
     ShowCommentOnMemos,
     ShowTaskLabel,
@@ -16240,16 +16224,19 @@ const Memo = (props) => {
   const [isCommentShown, toggleComment] = useToggle(false);
   const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
   const [commentMemos, setCommentMemos, commentMemosRef] = dist([]);
+  const [replyTo, setReplyTo] = dist(null);
+  const replyToRef = react.exports.useRef(null);
+  const setReplyToBoth = react.exports.useCallback((m2) => {
+    replyToRef.current = m2;
+    setReplyTo(m2);
+  }, []);
   const [, setAddRandomIDflag, RandomIDRef] = dist(false);
   react.exports.useEffect(() => {
     if (!memoCommentRef.current) {
       return;
     }
-    if (!CommentOnMemos2) {
-      return;
-    }
     const fetchCommentMemos = async () => {
-      const allCommentMemos = memoService.getState().commentMemos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt));
+      const allCommentMemos = memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt));
       setCommentMemos(allCommentMemos);
     };
     fetchCommentMemos();
@@ -16331,26 +16318,21 @@ const Memo = (props) => {
     try {
       if (commentMemoId) {
         (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
-        const memo2 = CommentOnMemos2 && CommentsInOriginalNotes2 ? memoService.getCommentMemoById(commentMemoId) : memoService.getMemoById(commentMemoId);
+        const memo2 = memoService.getCommentMemoById(commentMemoId);
         if (!memo2) {
           throw new Error("Memo not found");
         }
         const prevMemo = memo2;
-        content = CommentOnMemos2 && CommentsInOriginalNotes2 ? require$$0.moment().format("YYYYMMDDHHmmss") + " " + content : prevMemo.content.replace(/^(.*) comment:/g, content + " comment:");
+        content = content.trim();
         if (prevMemo && prevMemo.content !== content) {
           const editedMemo = await memoService.updateMemo({
             memoId: prevMemo.id,
             originalText: prevMemo.content,
             text: content,
             type: prevMemo.memoType,
-            path: CommentOnMemos2 && CommentsInOriginalNotes2 ? prevMemo.path : void 0
+            path: prevMemo.path
           });
-          if (CommentOnMemos2 && CommentsInOriginalNotes2) {
-            memoService.editCommentMemo(editedMemo);
-          } else {
-            editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
-            memoService.editMemo(editedMemo);
-          }
+          memoService.editCommentMemo(editedMemo);
           setCommentMemos(commentMemosRef.current.map((m2) => {
             if (m2.id.slice(14) === commentMemoId.slice(14) && m2.path === prevMemo.path) {
               return editedMemo;
@@ -16361,35 +16343,30 @@ const Memo = (props) => {
         globalStateService.setCommentMemoId("");
         toggleComment(false);
       } else {
-        const dailyFormat = getDailyNoteFormat();
-        let randomId = propsMemo.hasId || "";
-        if (!randomId && !CommentsInOriginalNotes2) {
+        const parent = replyToRef.current || propsMemo;
+        let randomId = parent.hasId || "";
+        if (!randomId) {
           randomId = Math.random().toString(36).slice(-6);
           setAddRandomIDflag(true);
         }
-        const finalContent = !CommentsInOriginalNotes2 && randomId ? content + " comment: [[" + require$$0.moment(propsMemo.id.slice(0, 8)).format(dailyFormat) + "#^" + randomId + "]]" : content;
         (_b = memoCommentRef.current) == null ? void 0 : _b.setContent("");
-        let newMemo;
-        if (CommentsInOriginalNotes2) {
-          newMemo = await memoService.createCommentMemo({
-            text: finalContent,
-            isList: true,
-            path: propsMemo.path,
-            ID: propsMemo.id,
-            hasID: randomId || ""
-          });
-          memoService.pushCommentMemo(newMemo);
-        } else {
-          newMemo = await memoService.createMemo(content, true);
-          memoService.pushMemo(newMemo);
-        }
-        setCommentMemos([...commentMemosRef.current, newMemo].sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
+        const newMemo = await memoService.createCommentMemo({
+          text: content.trim(),
+          isList: true,
+          path: parent.path,
+          ID: parent.id,
+          hasID: randomId
+        });
+        memoService.pushCommentMemo(newMemo);
+        setCommentMemos(memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
+        setReplyToBoth(null);
+        toggleComment(false);
         if (RandomIDRef.current) {
           const editedMemo = await memoService.updateMemo({
-            memoId: propsMemo.id,
-            originalText: propsMemo.content,
-            text: propsMemo.content + " ^" + randomId,
-            type: propsMemo.memoType
+            memoId: parent.id,
+            originalText: parent.content,
+            text: parent.content + " ^" + randomId,
+            type: parent.memoType
           });
           editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
           memoService.editMemo(editedMemo);
@@ -16496,6 +16473,7 @@ const Memo = (props) => {
       ;
   };
   const handleCommentBlock = () => {
+    setReplyToBoth(null);
     if (!isCommentShown) {
       toggleComment(true);
     } else {
@@ -16509,17 +16487,28 @@ const Memo = (props) => {
   };
   const handleEditCommentClick = react.exports.useCallback((memo2) => {
     var _a2, _b;
-    if (!CommentOnMemos2) {
-      return;
-    }
     globalStateService.setCommentMemoId(memo2.id);
     if (!isCommentShown) {
       toggleComment(true);
     }
     (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-    (_b = memoCommentRef.current) == null ? void 0 : _b.setContent(memo2.content.replace(/ comment: (.*)$/g, "").replace(/^\d{14} /g, ""));
+    (_b = memoCommentRef.current) == null ? void 0 : _b.setContent(memo2.content.trim());
   }, []);
   const showEditStatus = Boolean(globalState.commentMemoId);
+  const handleReplyClick = react.exports.useCallback((comment) => {
+    const current = replyToRef.current;
+    if (current && current.id === comment.id) {
+      setReplyToBoth(null);
+      toggleComment(false);
+    } else {
+      setReplyToBoth(comment);
+      toggleComment(true);
+      setTimeout(() => {
+        var _a2;
+        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
+      }, 0);
+    }
+  }, []);
   const editorConfig = react.exports.useMemo(() => ({
     className: "memo-editor",
     inputerType: "commentMemo",
@@ -16556,7 +16545,7 @@ const Memo = (props) => {
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "memo-top-right-wrapper",
-        children: [CommentOnMemos2 ? /* @__PURE__ */ jsxs("div", {
+        children: [/* @__PURE__ */ jsxs("div", {
           className: "comment-button-wrapper",
           children: [/* @__PURE__ */ jsx(SvgComment, {
             className: "icon-img",
@@ -16565,7 +16554,7 @@ const Memo = (props) => {
             className: "comment-text-count",
             children: commentMemos.length
           }) : null]
-        }) : "", /* @__PURE__ */ jsxs("div", {
+        }), /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("span", {
             className: "btn more-action-btn",
@@ -16614,32 +16603,28 @@ const Memo = (props) => {
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       ...imageProps
-    }), CommentOnMemos2 ? /* @__PURE__ */ jsxs("div", {
+    }), /* @__PURE__ */ jsxs("div", {
       className: `memo-comment-wrapper`,
       children: [commentMemos.length > 0 && isCommentListShown ? /* @__PURE__ */ jsx("div", {
         className: `memo-comment-list`,
-        children: commentMemos.map((m2, idx) => /* @__PURE__ */ jsxs("div", {
-          className: "memo-comment",
-          children: [/* @__PURE__ */ jsx("div", {
-            className: "memo-comment-time",
-            children: utils$1.getDateTimeString(m2.createdAt)
-          }), /* @__PURE__ */ jsx("div", {
-            className: "memo-comment-text",
-            onClick: (e) => handleMemoContentClick(e, m2),
-            onDoubleClick: () => handleEditCommentClick(m2),
-            dangerouslySetInnerHTML: {
-              __html: formatMemoContent(m2.content.replace(/comment:(.*)]]/g, "").replace(/^\d{14} /g, "").trim(), m2.id)
-            }
-          })]
-        }, idx))
-      }) : null, /* @__PURE__ */ jsx("div", {
+        children: commentMemos.map((m2, idx) => /* @__PURE__ */ jsx(MemoComment, {
+          comment: m2,
+          allMemos: memoService.getState().memos,
+          onContentClick: handleMemoContentClick,
+          onEdit: handleEditCommentClick,
+          onReply: handleReplyClick
+        }, m2.id || idx))
+      }) : null, /* @__PURE__ */ jsxs("div", {
         className: `memo-comment-inputer ${isCommentShown ? "" : "hidden"}`,
-        children: /* @__PURE__ */ jsx(Editor, {
+        children: [replyTo && replyTo.id !== propsMemo.id ? /* @__PURE__ */ jsxs("div", {
+          className: "memo-comment-replying",
+          children: ["\u56DE\u590D: ", replyTo.content.slice(0, 30)]
+        }) : null, /* @__PURE__ */ jsx(Editor, {
           ref: memoCommentRef,
           ...editorConfig
-        })
+        })]
       })]
-    }) : ""]
+    })]
   });
 };
 function formatMemoContent(content, memoid) {
@@ -16688,6 +16673,54 @@ function formatMemoContent(content, memoid) {
   }
   return tempDivContainer.innerHTML;
 }
+const MemoComment = ({
+  comment,
+  allMemos,
+  onContentClick,
+  onEdit,
+  onReply
+}) => {
+  const children = allMemos.filter((m2) => m2.linkId === comment.hasId).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
+  const [hovered, setHovered] = dist(false);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "memo-comment-item",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "memo-comment",
+      onMouseEnter: () => setHovered(true),
+      onMouseLeave: () => setHovered(false),
+      children: [/* @__PURE__ */ jsx("div", {
+        className: "memo-comment-time",
+        children: utils$1.getDateTimeString(comment.createdAt)
+      }), /* @__PURE__ */ jsx("div", {
+        className: "memo-comment-text",
+        onClick: (e) => onContentClick(e, comment),
+        onDoubleClick: () => onEdit(comment),
+        dangerouslySetInnerHTML: {
+          __html: formatMemoContent(comment.content.trim(), comment.id)
+        }
+      }), /* @__PURE__ */ jsx("div", {
+        className: `memo-comment-actions ${hovered ? "" : "hidden"}`,
+        children: /* @__PURE__ */ jsx("button", {
+          className: "memo-comment-reply-btn",
+          onClick: () => onReply(comment),
+          title: t$1("Reply"),
+          children: /* @__PURE__ */ jsx(SvgComment, {
+            className: "icon-img"
+          })
+        })
+      })]
+    }), children.length > 0 ? /* @__PURE__ */ jsx("div", {
+      className: "memo-comment-children",
+      children: children.map((c) => /* @__PURE__ */ jsx(MemoComment, {
+        comment: c,
+        allMemos,
+        onContentClick,
+        onEdit,
+        onReply
+      }, c.id))
+    }) : null]
+  });
+};
 var Memo$1 = react.exports.memo(Memo);
 var dailyMemo = "";
 const DailyMemo = (props) => {
@@ -20917,6 +20950,9 @@ const MemoList = () => {
         shouldShow = false;
       }
     }
+    if (memo2.linkId) {
+      shouldShow = false;
+    }
     if (memo2.content.contains("comment:")) {
       shouldShow = false;
     }
@@ -20981,7 +21017,7 @@ const MemoList = () => {
     }
     return shouldShow;
   }) : memos.filter((memo2) => {
-    return !memo2.content.contains("comment:");
+    return !memo2.linkId;
   });
   copyShownMemos = shownMemos;
   const totalPages = Math.ceil(shownMemos.length / ITEMS_PER_PAGE);
@@ -21083,7 +21119,7 @@ const getMemosByDate = (memos) => {
   return dataArr;
 };
 const getCommentMemos = (memos) => {
-  return memoService.getState().commentMemos.filter((m2) => m2.linkId === memos.hasId).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt)).map((m2) => ({
+  return memoService.getState().memos.filter((m2) => m2.linkId === memos.hasId).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt)).map((m2) => ({
     ...m2,
     createdAtStr: utils$1.getDateTimeString(m2.createdAt),
     dateStr: utils$1.getDateString(m2.createdAt)
@@ -21814,7 +21850,7 @@ class Memos extends require$$0.ItemView {
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
     this.plugin.settings.ShowTaskLabel;
     CommentOnMemos = this.plugin.settings.CommentOnMemos;
-    CommentsInOriginalNotes = this.plugin.settings.CommentsInOriginalNotes;
+    this.plugin.settings.CommentsInOriginalNotes;
     FetchMemosMark = this.plugin.settings.FetchMemosMark;
     FetchMemosFromNote = this.plugin.settings.FetchMemosFromNote;
     this.plugin.settings.ShowCommentOnMemos;
@@ -21840,7 +21876,6 @@ let DeleteFileName;
 let UseVaultTags;
 let DefaultMemoComposition;
 let CommentOnMemos;
-let CommentsInOriginalNotes;
 let FetchMemosMark;
 let FetchMemosFromNote;
 let UseDailyOrPeriodic;

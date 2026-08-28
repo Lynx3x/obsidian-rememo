@@ -31,11 +31,9 @@ class MemoService {
     public async fetchAllMemos(): Promise<Model.Memo[]> {
         // 分批加载：按日期降序读文件，每批更新 store，让最新 memo 优先显示
         const accumulatedMemos: Model.Memo[] = [];
-        const accumulatedCommentMemos: Model.Memo[] = [];
-        await getMemos(async (batchMemos, batchCommentMemos) => {
+        await getMemos(async (batchMemos) => {
             accumulatedMemos.push(...batchMemos);
-            accumulatedCommentMemos.push(...batchCommentMemos);
-            this.updateMemoStore(accumulatedMemos, accumulatedCommentMemos);
+            this.updateMemoStore(accumulatedMemos);
         });
 
         if (!this.initialized) {
@@ -51,13 +49,11 @@ class MemoService {
      */
     public async fetchMemosFromFile(file: TFile): Promise<void> {
         const memos: Model.Memo[] = [];
-        const commentMemos: Model.Memo[] = [];
-        await getMemosFromDailyNote(file, memos, commentMemos);
+        await getMemosFromDailyNote(file, memos, []);
         const { memoState } = appStore.getState();
         // 移除该文件旧的 memos，加上新读的（reducer 会去重+按时间排序）
         const others = memoState.memos.filter((m) => m.path !== file.path);
-        const otherComments = memoState.commentMemos.filter((m) => m.path !== file.path);
-        this.updateMemoStore([...others, ...memos], [...otherComments, ...commentMemos]);
+        this.updateMemoStore([...others, ...memos]);
     }
 
     /**
@@ -85,7 +81,7 @@ class MemoService {
      */
     public pushCommentMemo(memo: Model.Memo): void {
         appStore.dispatch({
-            type: 'INSERT_COMMENT_MEMO',
+            type: 'INSERT_MEMO',
             payload: { memo: { ...memo } }
         });
     }
@@ -98,10 +94,10 @@ class MemoService {
     }
 
     /**
-     * 根据ID查找评论备忘录
+     * 根据ID查找评论备忘录（评论已统一在 memos 中）
      */
     public getCommentMemoById(id: string): Model.Memo | null {
-        return this.getState().commentMemos.find((m: Model.Memo) => m.id === id) || null;
+        return this.getState().memos.find((m: Model.Memo) => m.id === id && m.linkId) || null;
     }
 
     /**
@@ -195,10 +191,10 @@ class MemoService {
     }
 
     /**
-     * 获取指定备忘录的所有评论
+     * 获取指定备忘录的所有评论（评论的 linkId = 父 memo 的 hasId）
      */
     public async getCommentMemos(memoId: string): Promise<Model.Memo[]> {
-        return this.getState().memos.filter((m: Model.Memo) => m.content.includes('comment: ' + memoId));
+        return this.getState().memos.filter((m: Model.Memo) => m.linkId === memoId);
     }
 
     /**
@@ -265,17 +261,12 @@ class MemoService {
     }
 
     /**
-     * 更新store中的备忘录数据
+     * 更新store中的备忘录数据（评论已统一在 memos 中，linkId 非空表示评论）
      */
-    private updateMemoStore(memos: Model.Memo[], commentMemos: Model.Memo[]): void {
+    private updateMemoStore(memos: Model.Memo[]): void {
         appStore.dispatch({
             type: 'SET_MEMOS',
             payload: { memos }
-        });
-
-        appStore.dispatch({
-            type: 'SET_COMMENT_MEMOS',
-            payload: { commentMemos }
         });
     }
 }

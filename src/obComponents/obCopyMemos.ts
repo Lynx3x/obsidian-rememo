@@ -29,7 +29,7 @@ export const getMemosByDate = (memos: Model.Memo[]) => {
 export const getCommentMemos = (memos: Model.Memo) => {
   return memoService
     .getState()
-    .commentMemos.filter((m) => m.linkId === memos.hasId)
+    .memos.filter((m) => m.linkId === memos.hasId)
     .sort((a, b) => utils.getTimeStampByDate(a.createdAt) - utils.getTimeStampByDate(b.createdAt))
     .map((m) => ({
       ...m,

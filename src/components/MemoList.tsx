@@ -46,6 +46,11 @@ const MemoList: React.FC<Props> = () => {
             }
           }
 
+          // 过滤评论（linkId 非空 = 评论，不显示在 memo 列表）
+          if (memo.linkId) {
+            shouldShow = false;
+          }
+
           if (memo.content.contains('comment:')) {
             shouldShow = false;
           }
@@ -122,7 +127,8 @@ const MemoList: React.FC<Props> = () => {
           return shouldShow;
         })
       : memos.filter((memo) => {
-          return !memo.content.contains('comment:');
+          // 过滤评论（linkId 非空 = 评论）
+          return !memo.linkId;
         });
 
   copyShownMemos = shownMemos;

@@ -1,4 +1,4 @@
-import { DefaultMemoComposition, CommentsInOriginalNotes } from '../memos';
+import { DefaultMemoComposition } from '../memos';
 
 /**
  * MemoLine — 单条 memo 行的语法解析/序列化模块。
@@ -42,7 +42,7 @@ const hasCustomComposition = (): boolean =>
  * 可选前缀 indent：CommentsInOriginalNotes 为真时行首无空白（评论是内嵌子项，无缩进前缀）。
  */
 const buildMemoLineRegexString = (): string => {
-    const indent = CommentsInOriginalNotes ? '' : '\\s*';
+    const indent = '\\s*';
     // 三个捕获组（用非捕获组避免编号混乱）：
     //   1. 任务标记（[ ] / [x] / 自定义）
     //   2. 时间部分（<time>?HH:mm(:ss)?</time>?）
@@ -198,4 +198,35 @@ export function getIndentLevel(indentWidth: number): number {
 export function isIndentedLine(line: string): boolean {
     return getIndentWidth(line) > 0;
 }
+
+/**
+ * 从 memo 行内容（已去列表标记）提取时间。
+ *
+ * 支持三种格式（兼容旧数据）：
+ *   - 新格式 `HH:mm` 或 `HH:mm:ss`（memo/评论统一）
+ *   - 旧格式 `YYYYMMDDHHmmss`（14 位时间戳，仅旧评论）
+ *
+ * @returns time: 标准化的 `HH:mm` 或 `HH:mm:ss`；isOld: 是否为需回写的旧格式；rest: 剩余内容
+ */
+export function extractMemoTime(rawContent: string): { time: string; isOld: boolean; rest: string } {
+    // 新格式 HH:mm 或 HH:mm:ss
+    const t = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(rawContent);
+    if (t) {
+        return {
+            time: t[3] ? `${t[1]}:${t[2]}:${t[3]}` : `${t[1]}:${t[2]}`,
+            isOld: !t[3],
+            rest: rawContent.slice(t[0].length).trim(),
+        };
+    }
+    // 旧格式 14 位时间戳（YYYYMMDDHHmmss）
+    const ts = /^(\d{14})\s?(.*)$/.exec(rawContent);
+    if (ts) {
+        const hh = ts[1].slice(8, 10);
+        const mm = ts[1].slice(10, 12);
+        const ss = ts[1].slice(12, 14);
+        return { time: `${hh}:${mm}:${ss}`, isOld: true, rest: ts[2].trim() };
+    }
+    return { time: '', isOld: false, rest: rawContent.trim() };
+}
+
 

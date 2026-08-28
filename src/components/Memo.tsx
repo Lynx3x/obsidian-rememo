@@ -44,13 +44,24 @@ const Memo: React.FC<Props> = (props: Props) => {
     settingsState: { settings },
   } = useContext(appContext);
   // 从响应式设置读取，替代全局变量
-  const { CommentOnMemos, CommentsInOriginalNotes, DefaultEditorLocation, ShowCommentOnMemos, ShowTaskLabel, UseButtonToShowEditor } = settings;
+  const { DefaultEditorLocation, ShowCommentOnMemos, ShowTaskLabel, UseButtonToShowEditor } = settings;
+  // 评论功能默认开启（统一写回原笔记缩进子项）
+  const CommentOnMemos = true;
+  const CommentsInOriginalNotes = false;
   const { memo: propsMemo } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
   const memoCommentRef = useRef<EditorRefActions>(null);
   const [isCommentShown, toggleComment] = useToggle(false);
   const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
   const [commentMemos, setCommentMemos, commentMemosRef] = useState<Model.Memo[]>([]);
+  // 当前回复的目标（null = 回复 memo 本身；非 null = 回复某条评论）
+  // 用 ref 避免 handleSaveBtnClick（空依赖 useCallback）闭包捕获旧值
+  const [replyTo, setReplyTo] = useState<Model.Memo | null>(null);
+  const replyToRef = useRef<Model.Memo | null>(null);
+  const setReplyToBoth = useCallback((m: Model.Memo | null) => {
+    replyToRef.current = m;
+    setReplyTo(m);
+  }, []);
   const [, setAddRandomIDflag, RandomIDRef] = useState(false);
   // const imageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
 
@@ -63,14 +74,12 @@ const Memo: React.FC<Props> = (props: Props) => {
     }
 
     const fetchCommentMemos = async () => {
-      // console.log(memoService.getState().commentMemos);
+      // 评论已统一在 memos 中（linkId = 父 memo 的 hasId）
       const allCommentMemos = memoService
         .getState()
-        .commentMemos.filter((m) => m.linkId === propsMemo.hasId)
+        .memos.filter((m) => m.linkId === propsMemo.hasId)
         .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt));
-      // if (allCommentMemos !== memoState.commentMemos) {
       setCommentMemos(allCommentMemos);
-      // }
     };
 
     fetchCommentMemos();
@@ -158,20 +167,14 @@ const Memo: React.FC<Props> = (props: Props) => {
     try {
       if (commentMemoId) {
         memoCommentRef.current?.setContent('');
-        const memo = CommentOnMemos && CommentsInOriginalNotes
-          ? memoService.getCommentMemoById(commentMemoId)
-          : memoService.getMemoById(commentMemoId);
-        
+        const memo = memoService.getCommentMemoById(commentMemoId);
+
         if (!memo) {
           throw new Error('Memo not found');
         }
 
         const prevMemo = memo;
-        content = CommentOnMemos && CommentsInOriginalNotes
-          ? moment().format('YYYYMMDDHHmmss') + ' ' + content
-          : prevMemo.content.replace(/^(.*) comment:/g, content + ' comment:');
-
-        // console.log(content);
+        content = content.trim();
 
         // console.log(m);
 
@@ -181,14 +184,9 @@ const Memo: React.FC<Props> = (props: Props) => {
             originalText: prevMemo.content,
             text: content,
             type: prevMemo.memoType,
-            path: CommentOnMemos && CommentsInOriginalNotes ? prevMemo.path : undefined
+            path: prevMemo.path
           });
-          if (CommentOnMemos && CommentsInOriginalNotes) {
-            memoService.editCommentMemo(editedMemo);
-          } else {
-            editedMemo.updatedAt = utils.getDateTimeString(Date.now());
-            memoService.editMemo(editedMemo);
-          }
+          memoService.editCommentMemo(editedMemo);
 
           setCommentMemos(
             commentMemosRef.current.map((m) => {
@@ -204,53 +202,42 @@ const Memo: React.FC<Props> = (props: Props) => {
         globalStateService.setCommentMemoId('');
         toggleComment(false);
       } else {
-        const dailyFormat = getDailyNoteFormat();
-        let randomId = propsMemo.hasId || '';
-        
-        if (!randomId && !CommentsInOriginalNotes) {
+        // 新增评论：父 = 当前回复目标（replyToRef）或 memo 本身
+        const parent = replyToRef.current || propsMemo;
+        let randomId = parent.hasId || '';
+
+        // 父无持久 ^id 时生成（读取时会补写，此处兜底）
+        if (!randomId) {
           randomId = Math.random().toString(36).slice(-6);
           setAddRandomIDflag(true);
         }
 
-        const finalContent = !CommentsInOriginalNotes && randomId
-          ? content + ' comment: [[' + moment(propsMemo.id.slice(0, 8)).format(dailyFormat) + '#^' + randomId + ']]'
-          : content;
-
         memoCommentRef.current?.setContent('');
 
-        let newMemo: Model.Memo;
-        if (CommentsInOriginalNotes) {
-          newMemo = await memoService.createCommentMemo({
-            text: finalContent,
-            isList: true,
-            path: propsMemo.path,
-            ID: propsMemo.id,
-            hasID: randomId || ''
-          });
-          memoService.pushCommentMemo(newMemo);
-        } else {
-          newMemo = await memoService.createMemo(content, true);
-          memoService.pushMemo(newMemo);
-        }
-        // const newCommentMemos = commentMemosRef.current;
-        // newCommentMemos.push(newMemo);
-        // console.log(newCommentMemos.current);
+        // 评论统一写回原笔记（缩进子项，linkId = 父 ^id）
+        const newMemo: Model.Memo = await memoService.createCommentMemo({
+          text: content.trim(),
+          isList: true,
+          path: parent.path,
+          ID: parent.id,
+          hasID: randomId
+        });
+        memoService.pushCommentMemo(newMemo);
+        // 刷新 memo 的直接子评论（子评论由树组件递归查）
         setCommentMemos(
-          [...commentMemosRef.current, newMemo].sort(
-            (a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt),
-          ),
+          memoService
+            .getState()
+            .memos.filter((m) => m.linkId === propsMemo.hasId)
+            .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt)),
         );
-        // setCommentMemos(
-        //   newCommentMemos.current.sort(
-        //     (a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt),
-        //   ),
-        // );
+        setReplyToBoth(null);
+        toggleComment(false);
         if (RandomIDRef.current) {
           const editedMemo = await memoService.updateMemo({
-            memoId: propsMemo.id,
-            originalText: propsMemo.content,
-            text: propsMemo.content + ' ^' + randomId,
-            type: propsMemo.memoType
+            memoId: parent.id,
+            originalText: parent.content,
+            text: parent.content + ' ^' + randomId,
+            type: parent.memoType
           });
           editedMemo.updatedAt = utils.getDateTimeString(Date.now());
           memoService.editMemo(editedMemo);
@@ -394,6 +381,8 @@ const Memo: React.FC<Props> = (props: Props) => {
   };
 
   const handleCommentBlock = () => {
+    // 点 memo 的评论图标 = 回复 memo 本身，清空回复目标
+    setReplyToBoth(null);
     if (!isCommentShown) {
       toggleComment(true);
     } else {
@@ -419,10 +408,30 @@ const Memo: React.FC<Props> = (props: Props) => {
       toggleComment(true);
     }
     memoCommentRef.current?.focus();
-    memoCommentRef.current?.setContent(memo.content.replace(/ comment: (.*)$/g, '').replace(/^\d{14} /g, ''));
+    memoCommentRef.current?.setContent(memo.content.trim());
   }, []);
 
   const showEditStatus = Boolean(globalState.commentMemoId);
+
+  // 回复某条评论：点不同评论切换目标，点同一评论关闭输入框
+  const handleReplyClick = useCallback(
+    (comment: Model.Memo) => {
+      const current = replyToRef.current;
+      if (current && current.id === comment.id) {
+        // 点同一条 → 关闭
+        setReplyToBoth(null);
+        toggleComment(false);
+      } else {
+        // 不同或没在回复 → 切换/打开
+        setReplyToBoth(comment);
+        toggleComment(true);
+        setTimeout(() => {
+          memoCommentRef.current?.focus();
+        }, 0);
+      }
+    },
+    [],
+  );
 
   const editorConfig = useMemo(
     () => ({
@@ -542,32 +551,24 @@ const Memo: React.FC<Props> = (props: Props) => {
         <div className={`memo-comment-wrapper`}>
           {commentMemos.length > 0 && isCommentListShown ? (
             <div className={`memo-comment-list`}>
-              {/*// TODO*/}
               {commentMemos.map((m, idx) => (
-                <div key={idx} className="memo-comment">
-                  <div className="memo-comment-time">{utils.getDateTimeString(m.createdAt)}</div>
-                  {/*<div className="memo-comment-text" onDoubleClick={() => handleEditCommentClick(m)}>*/}
-                  {/*  {m.content.replace(/comment:(.*)]]/g, '').replace(/^\d{14} /g, '')}*/}
-                  {/*</div>*/}
-                  <div
-                    className="memo-comment-text"
-                    onClick={(e) => handleMemoContentClick(e, m)}
-                    onDoubleClick={() => handleEditCommentClick(m)}
-                    dangerouslySetInnerHTML={{
-                      __html: formatMemoContent(
-                        m.content
-                          .replace(/comment:(.*)]]/g, '')
-                          .replace(/^\d{14} /g, '')
-                          .trim(),
-                        m.id,
-                      ),
-                    }}
-                  ></div>
-                </div>
+                <MemoComment
+                  key={m.id || idx}
+                  comment={m}
+                  allMemos={memoService.getState().memos}
+                  onContentClick={handleMemoContentClick}
+                  onEdit={handleEditCommentClick}
+                  onReply={handleReplyClick}
+                />
               ))}
             </div>
           ) : null}
           <div className={`memo-comment-inputer ${isCommentShown ? '' : 'hidden'}`}>
+            {replyTo && replyTo.id !== propsMemo.id ? (
+              <div className="memo-comment-replying">
+                回复: {replyTo.content.slice(0, 30)}
+              </div>
+            ) : null}
             <Editor ref={memoCommentRef} {...editorConfig} />
           </div>
         </div>
@@ -672,5 +673,62 @@ export function formatMemoContent(content: string, memoid?: string) {
 
   return tempDivContainer.innerHTML;
 }
+
+/**
+ * 递归渲染单条评论及其子评论（多级评论）。
+ * 子评论 = allMemos 中 linkId === 本条评论 hasId 的项。
+ */
+interface MemoCommentProps {
+  comment: Model.Memo;
+  allMemos: Model.Memo[];
+  onContentClick: (e: React.MouseEvent, m: Model.Memo) => void;
+  onEdit: (m: Model.Memo) => void;
+  onReply: (m: Model.Memo) => void;
+}
+
+const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentClick, onEdit, onReply }) => {
+  const children = allMemos
+    .filter((m) => m.linkId === comment.hasId)
+    .sort((a, b) => utils.getTimeStampByDate(a.createdAt) - utils.getTimeStampByDate(b.createdAt));
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div className="memo-comment-item">
+      <div
+        className="memo-comment"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <div className="memo-comment-time">{utils.getDateTimeString(comment.createdAt)}</div>
+        <div
+          className="memo-comment-text"
+          onClick={(e) => onContentClick(e, comment)}
+          onDoubleClick={() => onEdit(comment)}
+          dangerouslySetInnerHTML={{
+            __html: formatMemoContent(comment.content.trim(), comment.id),
+          }}
+        ></div>
+        <div className={`memo-comment-actions ${hovered ? '' : 'hidden'}`}>
+          <button className="memo-comment-reply-btn" onClick={() => onReply(comment)} title={t('Reply')}>
+            <Comment className="icon-img" />
+          </button>
+        </div>
+      </div>
+      {children.length > 0 ? (
+        <div className="memo-comment-children">
+          {children.map((c) => (
+            <MemoComment
+              key={c.id}
+              comment={c}
+              allMemos={allMemos}
+              onContentClick={onContentClick}
+              onEdit={onEdit}
+              onReply={onReply}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 export default memo(Memo);
