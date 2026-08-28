@@ -9511,170 +9511,6 @@ class LocationService {
   }
 }
 const locationService = new LocationService();
-const findQuery = async () => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const queryList2 = [];
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QueryFileName + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (queryFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$9(fileContents);
-    if (fileLines && fileLines.length != 0) {
-      for (let i = 0; i < fileLines.length; i++) {
-        if (fileLines[i] === "")
-          continue;
-        const createdDateString = getCreatedDateFromLine(fileLines[i]);
-        const createdDate = require$$0.moment(createdDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
-        const updatedDate = createdDate;
-        const id2 = createdDateString + getIDFromLine$1(fileLines[i]);
-        const querystring = getStringFromLine(fileLines[i]);
-        const title = getTitleFromLine(fileLines[i]);
-        let pinnedDate;
-        if (/^(.+)pinnedAt(.+)$/.test(fileLines[i])) {
-          pinnedDate = require$$0.moment(getPinnedDateFromLine$1(fileLines[i]), "YYYYMMDDHHmmss");
-          queryList2.push({
-            createdAt: createdDate,
-            id: id2,
-            pinnedAt: pinnedDate.format("YYYY/MM/DD HH:mm:ss"),
-            querystring,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          });
-        } else if (/^(.+)\[\](.+)?$/.test(fileLines[i])) {
-          queryList2.push({
-            createdAt: createdDate,
-            id: id2,
-            pinnedAt: "",
-            querystring: "",
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          });
-        } else {
-          queryList2.push({
-            createdAt: createdDate,
-            id: id2,
-            pinnedAt: "",
-            querystring,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          });
-        }
-      }
-    }
-  }
-  return queryList2;
-};
-const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
-const getCreatedDateFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})/.exec(line)) == null ? void 0 : _a[1];
-};
-const getIDFromLine$1 = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s/.exec(line)) == null ? void 0 : _a[2];
-};
-const getStringFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)) == null ? void 0 : _a[4];
-};
-const getTitleFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)) == null ? void 0 : _a[3];
-};
-const getPinnedDateFromLine$1 = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)) == null ? void 0 : _a[7];
-};
-const createObsidianQuery = async (title, querystring) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QueryFileName + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (queryFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$8(fileContents);
-    const date = require$$0.moment();
-    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
-    const updatedDate = createdDate;
-    let lineNum;
-    if (fileLines.length === 1 && fileLines[0] === "") {
-      lineNum = 1;
-    } else {
-      lineNum = fileLines.length + 1;
-    }
-    const id2 = date.format("YYYYMMDDHHmmss") + lineNum;
-    await createQueryInFile(queryFile, fileContents, id2, title, querystring);
-    return [
-      {
-        createdAt: createdDate,
-        id: id2,
-        pinnedAt: "",
-        querystring,
-        title,
-        updatedAt: updatedDate,
-        userId: ""
-      }
-    ];
-  } else {
-    const queryFilePath = require$$0.normalizePath(absolutePath);
-    const file = await createQueryFile(queryFilePath);
-    const fileContents = await vault.read(file);
-    const date = require$$0.moment();
-    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
-    const updatedDate = createdDate;
-    const id2 = date.format("YYYYMMDDHHmmss") + 1;
-    await createQueryInFile(file, fileContents, id2, title, querystring);
-    return [
-      {
-        createdAt: createdDate,
-        id: id2,
-        pinnedAt: "",
-        querystring,
-        title,
-        updatedAt: updatedDate,
-        userId: ""
-      }
-    ];
-  }
-};
-const createQueryInFile = async (file, fileContent, id2, title, queryString) => {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let newContent;
-  if (fileContent === "") {
-    newContent = id2 + " " + title + " " + queryString;
-  } else {
-    newContent = fileContent + "\n" + id2 + " " + title + " " + queryString;
-  }
-  await vault.modify(file, newContent);
-  return true;
-};
-const createQueryFile = async (path) => {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  try {
-    const createdFile = await vault.create(path, "");
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${path}'`, err);
-    new require$$0.Notice(t("Unable to create new file."));
-  }
-};
-const getAllLinesFromFile$8 = (cache) => cache.split(/\r?\n/);
-var lib = {};
-Object.defineProperty(lib, "__esModule", { value: true });
-const getAPI = (app2) => {
-  var _a;
-  if (app2)
-    return (_a = app2.plugins.plugins.dataview) === null || _a === void 0 ? void 0 : _a.api;
-  else
-    return window.DataviewAPI;
-};
-const isPluginEnabled = (app2) => app2.plugins.enabledPlugins.has("dataview");
-var getAPI_1 = lib.getAPI = getAPI;
-lib.isPluginEnabled = isPluginEnabled;
 const hasCustomComposition = () => DefaultMemoComposition !== "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition);
 const buildMemoLineRegexString = () => {
   const indent = CommentsInOriginalNotes ? "" : "\\s*";
@@ -9754,6 +9590,268 @@ const serializeMemoLine = (fields) => {
   }
   return line;
 };
+async function escapeRegExp(text) {
+  return await text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+function getLinesInString(input) {
+  const lines = [];
+  let tempString = input;
+  while (tempString.contains("\n")) {
+    const lineEndIndex = tempString.indexOf("\n");
+    lines.push(tempString.slice(0, lineEndIndex));
+    tempString = tempString.slice(lineEndIndex + 1);
+  }
+  lines.push(tempString);
+  return lines;
+}
+async function waitForInsert(MemoContent, isTASK, insertDate) {
+  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
+  const date = insertDate ? insertDate : require$$0.moment();
+  const timeText = date.format("HH:mm:ss");
+  const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter });
+  const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
+  const memo2 = {
+    id: "",
+    content: MemoContent,
+    deletedAt: "",
+    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    memoType,
+    path: "",
+    hasId: "",
+    linkId: ""
+  };
+  writeMemoToDailyNote(date, newEvent, memo2);
+  return memo2;
+}
+async function writeMemoToDailyNote(date, newEvent, memo2) {
+  const { vault } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
+  let lineNum;
+  const dailyNotes = await getAllDailyNotes_1();
+  const existingFile = getDailyNote_1(date, dailyNotes);
+  if (!existingFile) {
+    const file = await utils$1.createDailyNoteCheck(date);
+    const fileContents = await vault.read(file) || "";
+    const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
+    if (newFileContent.content) {
+      await vault.modify(file, newFileContent.content);
+      if (newFileContent.posNum === -1) {
+        const allLines = getAllLinesFromFile$9(newFileContent.content);
+        lineNum = allLines.length + 1;
+      } else {
+        lineNum = newFileContent.posNum + 1;
+      }
+    }
+    memo2.path = file.path;
+  } else {
+    const fileContents = await vault.read(existingFile) || "";
+    const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
+    await vault.modify(existingFile, newFileContent.content);
+    if (newFileContent.posNum === -1) {
+      const allLines = getAllLinesFromFile$9(newFileContent.content);
+      lineNum = allLines.length + 1;
+    } else {
+      lineNum = newFileContent.posNum + 1;
+    }
+    memo2.path = existingFile.path;
+  }
+  memo2.id = date.format("YYYYMMDDHHmmss") + lineNum;
+}
+async function insertAfterHandler(targetString, formatted, fileContent) {
+  const targetRegex = new RegExp(`s*${await escapeRegExp(targetString)}s*`);
+  const fileContentLines = getLinesInString(fileContent);
+  const targetPosition = fileContentLines.findIndex((line) => targetRegex.test(line));
+  const targetNotFound = targetPosition === -1;
+  if (targetNotFound) {
+    console.log("unable to find insert after line in file.");
+  }
+  const nextHeaderPositionAfterTargetPosition = fileContentLines.slice(targetPosition + 1).findIndex((line) => /^#+ |---/.test(line));
+  const foundNextHeader = nextHeaderPositionAfterTargetPosition !== -1;
+  if (foundNextHeader) {
+    let insertPosition = targetPosition;
+    for (let i = nextHeaderPositionAfterTargetPosition + targetPosition; i > targetPosition; i--) {
+      const lineIsNewline = /^[\s\n ]*$/.test(fileContentLines[i]);
+      if (!lineIsNewline) {
+        insertPosition = i;
+        break;
+      }
+    }
+    return await insertTextAfterPositionInBody$1(formatted, fileContent, insertPosition, foundNextHeader);
+  } else {
+    return await insertTextAfterPositionInBody$1(formatted, fileContent, fileContentLines.length - 1, foundNextHeader);
+  }
+}
+async function insertTextAfterPositionInBody$1(text, body, pos, found) {
+  if (pos === -1) {
+    return {
+      content: `${body}
+${text}`,
+      posNum: -1
+    };
+  }
+  const splitContent = body.split("\n");
+  if (found) {
+    const pre = splitContent.slice(0, pos + 1).join("\n");
+    const post = splitContent.slice(pos + 1).join("\n");
+    return {
+      content: `${pre}
+${text}
+${post}`,
+      posNum: pos
+    };
+  } else {
+    const pre = splitContent.slice(0, pos + 1).join("\n");
+    const post = splitContent.slice(pos + 1).join("\n");
+    if (/[\s\S]*?/g.test(post)) {
+      return {
+        content: `${pre}
+${text}`,
+        posNum: pos
+      };
+    } else {
+      return {
+        content: `${pre}${text}
+${post}`,
+        posNum: pos
+      };
+    }
+  }
+}
+const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
+function convertDailyNotes(notes) {
+  return notes;
+}
+async function changeMemo(memoid, originalContent, content, memoType, path) {
+  const { dailyNotes } = dailyNotesService.getState();
+  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
+  const timeString = memoid.slice(0, 14);
+  const idString = parseInt(memoid.slice(14));
+  let changeDate;
+  if (/^\d{14}/g.test(content)) {
+    changeDate = require$$0.moment(content.slice(0, 14), "YYYYMMDDHHmmss");
+  } else {
+    changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmss");
+  }
+  let file;
+  if (path !== void 0) {
+    file = metadataCache.getFirstLinkpathDest("", path);
+  } else {
+    const notes = convertDailyNotes(dailyNotes);
+    const dailyNote = getDailyNote_1(changeDate, notes);
+    file = dailyNote;
+  }
+  if (!file) {
+    throw new Error("File not found");
+  }
+  const fileContent = await vault.read(file);
+  const fileLines = getAllLinesFromFile$8(fileContent);
+  const removeEnter = content.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
+  const originalLine = fileLines[idString];
+  const newLine = fileLines[idString].replace(originalContent, removeEnter);
+  const newFileContent = fileContent.replace(originalLine, newLine);
+  await vault.modify(file, newFileContent);
+  return {
+    id: memoid,
+    content: removeEnter,
+    user_id: 1,
+    deletedAt: "",
+    createdAt: changeDate.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: changeDate.format("YYYY/MM/DD HH:mm:ss"),
+    memoType: memoType || "JOURNAL",
+    hasId: memoid.slice(-6),
+    linkId: "",
+    path: file.path
+  };
+}
+const getAllLinesFromFile$8 = (cache) => cache.split(/\r?\n/);
+var lib = {};
+Object.defineProperty(lib, "__esModule", { value: true });
+const getAPI = (app2) => {
+  var _a;
+  if (app2)
+    return (_a = app2.plugins.plugins.dataview) === null || _a === void 0 ? void 0 : _a.api;
+  else
+    return window.DataviewAPI;
+};
+const isPluginEnabled = (app2) => app2.plugins.enabledPlugins.has("dataview");
+var getAPI_1 = lib.getAPI = getAPI;
+lib.isPluginEnabled = isPluginEnabled;
+async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
+  var _a, _b;
+  const { vault, metadataCache } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
+  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
+  if (path === void 0) {
+    return;
+  }
+  const file = metadataCache.getFirstLinkpathDest("", path);
+  const time = require$$0.moment();
+  const formatTime = time.format("YYYYMMDDHHmmss");
+  const ID = oriID.slice(14);
+  const indent = "    ";
+  const newContent = formatTime + " " + removeEnter.trim();
+  const newLineContent = indent + "- " + formatTime + " " + removeEnter.trim();
+  if (file) {
+    let underComments;
+    if (CommentOnMemos && CommentsInOriginalNotes) {
+      const dataviewAPI = getAPI_1();
+      if (dataviewAPI !== void 0) {
+        try {
+          underComments = (_b = (_a = dataviewAPI.page(file.path)) == null ? void 0 : _a.file.lists.values) == null ? void 0 : _b.filter((item) => item.line === parseInt(ID));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    const fileContents = await vault.read(file);
+    let endLine = 0;
+    if (underComments[0].children.values.length > 0) {
+      endLine = underComments[0].children.values[underComments[0].children.values.length - 1].line;
+    } else {
+      endLine = underComments[0].line;
+    }
+    const newFileContent = await insertTextAfterPositionInBody(newLineContent, fileContents, endLine);
+    await vault.modify(file, newFileContent.content);
+    if (isList2) {
+      return {
+        id: formatTime + (endLine + 1),
+        content: newContent,
+        deletedAt: "",
+        createdAt: time.format("YYYY/MM/DD HH:mm:ss"),
+        updatedAt: time.format("YYYY/MM/DD HH:mm:ss"),
+        memoType: "JOURNAL",
+        path: file.path,
+        hasId: "",
+        linkId: hasID
+      };
+    }
+  }
+}
+async function insertTextAfterPositionInBody(text, body, pos) {
+  if (pos === -1) {
+    return {
+      content: `${body}
+${text}`,
+      posNum: -1
+    };
+  }
+  const splitContent = body.split("\n");
+  const pre = splitContent.slice(0, pos + 1).join("\n");
+  const post = splitContent.slice(pos + 1).join("\n");
+  if (/^\s*$/g.test(splitContent[pos + 1])) {
+    return {
+      content: `${pre}
+${text}
+${post}`,
+      posNum: pos
+    };
+  }
+  return {
+    content: `${pre}
+${text}
+${post}`,
+    posNum: pos
+  };
+}
 class DailyNotesFolderMissingError extends Error {
 }
 async function getRemainingMemos(note) {
@@ -10088,206 +10186,6 @@ const extractCommentFromLine = (line) => {
   const match = regexMatchRe.exec(line);
   return match ? match[1] : "";
 };
-const updateObsidianQuery = async (queryId, title, queryString) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QueryFileName + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (queryFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$6(fileContents);
-    let lineID;
-    if (/^\d{1,3}$/.test(queryId)) {
-      lineID = queryId;
-    } else {
-      lineID = getIDFromLine(queryId);
-    }
-    const lineNum = parseInt(lineID) - 1;
-    if (fileLines && fileLines.length != 0) {
-      const oldContent = fileLines[lineNum];
-      const date = require$$0.moment();
-      const updatedDateString = date.format("YYYYMMDDHHmmss");
-      const updatedDate = date.format("YYYY/MM/DD HH:mm:ss");
-      const newLineNum = lineNum + 1;
-      const id2 = updatedDateString + newLineNum;
-      if (/^(.+)pinnedAt(.+)$/.test(oldContent)) {
-        const pinnedString = getPinnedStringFromLine(oldContent);
-        const pinnedDateString = getPinnedDateFromLine(oldContent);
-        const newContent = id2 + " " + title + " " + queryString + " " + pinnedString;
-        const pinnedAtDate = require$$0.moment(pinnedDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
-        const newFileContents = fileContents.replace(oldContent, newContent);
-        await vault.modify(queryFile, newFileContents);
-        return [
-          {
-            createdAt: updatedDate,
-            id: id2,
-            pinnedAt: pinnedAtDate,
-            querystring: queryString,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          }
-        ];
-      } else {
-        const newContent = id2 + " " + title + " " + queryString;
-        const newFileContents = fileContents.replace(oldContent, newContent);
-        await vault.modify(queryFile, newFileContents);
-        return [
-          {
-            createdAt: updatedDate,
-            id: id2,
-            pinnedAt: "",
-            querystring: queryString,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          }
-        ];
-      }
-    }
-  }
-};
-const getAllLinesFromFile$6 = (cache) => cache.split(/\r?\n/);
-const getIDFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})/.exec(line)) == null ? void 0 : _a[2];
-};
-const getPinnedStringFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a[6];
-};
-const getPinnedDateFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a[7];
-};
-async function escapeRegExp(text) {
-  return await text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-}
-function getLinesInString(input) {
-  const lines = [];
-  let tempString = input;
-  while (tempString.contains("\n")) {
-    const lineEndIndex = tempString.indexOf("\n");
-    lines.push(tempString.slice(0, lineEndIndex));
-    tempString = tempString.slice(lineEndIndex + 1);
-  }
-  lines.push(tempString);
-  return lines;
-}
-async function waitForInsert(MemoContent, isTASK, insertDate) {
-  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
-  const date = insertDate ? insertDate : require$$0.moment();
-  const timeText = date.format("HH:mm:ss");
-  const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter });
-  const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
-  const memo2 = {
-    id: "",
-    content: MemoContent,
-    deletedAt: "",
-    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    memoType,
-    path: "",
-    hasId: "",
-    linkId: ""
-  };
-  writeMemoToDailyNote(date, newEvent, memo2);
-  return memo2;
-}
-async function writeMemoToDailyNote(date, newEvent, memo2) {
-  const { vault } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
-  let lineNum;
-  const dailyNotes = await getAllDailyNotes_1();
-  const existingFile = getDailyNote_1(date, dailyNotes);
-  if (!existingFile) {
-    const file = await utils$1.createDailyNoteCheck(date);
-    const fileContents = await vault.read(file) || "";
-    const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
-    if (newFileContent.content) {
-      await vault.modify(file, newFileContent.content);
-      if (newFileContent.posNum === -1) {
-        const allLines = getAllLinesFromFile$5(newFileContent.content);
-        lineNum = allLines.length + 1;
-      } else {
-        lineNum = newFileContent.posNum + 1;
-      }
-    }
-    memo2.path = file.path;
-  } else {
-    const fileContents = await vault.read(existingFile) || "";
-    const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
-    await vault.modify(existingFile, newFileContent.content);
-    if (newFileContent.posNum === -1) {
-      const allLines = getAllLinesFromFile$5(newFileContent.content);
-      lineNum = allLines.length + 1;
-    } else {
-      lineNum = newFileContent.posNum + 1;
-    }
-    memo2.path = existingFile.path;
-  }
-  memo2.id = date.format("YYYYMMDDHHmmss") + lineNum;
-}
-async function insertAfterHandler(targetString, formatted, fileContent) {
-  const targetRegex = new RegExp(`s*${await escapeRegExp(targetString)}s*`);
-  const fileContentLines = getLinesInString(fileContent);
-  const targetPosition = fileContentLines.findIndex((line) => targetRegex.test(line));
-  const targetNotFound = targetPosition === -1;
-  if (targetNotFound) {
-    console.log("unable to find insert after line in file.");
-  }
-  const nextHeaderPositionAfterTargetPosition = fileContentLines.slice(targetPosition + 1).findIndex((line) => /^#+ |---/.test(line));
-  const foundNextHeader = nextHeaderPositionAfterTargetPosition !== -1;
-  if (foundNextHeader) {
-    let insertPosition = targetPosition;
-    for (let i = nextHeaderPositionAfterTargetPosition + targetPosition; i > targetPosition; i--) {
-      const lineIsNewline = /^[\s\n ]*$/.test(fileContentLines[i]);
-      if (!lineIsNewline) {
-        insertPosition = i;
-        break;
-      }
-    }
-    return await insertTextAfterPositionInBody$1(formatted, fileContent, insertPosition, foundNextHeader);
-  } else {
-    return await insertTextAfterPositionInBody$1(formatted, fileContent, fileContentLines.length - 1, foundNextHeader);
-  }
-}
-async function insertTextAfterPositionInBody$1(text, body, pos, found) {
-  if (pos === -1) {
-    return {
-      content: `${body}
-${text}`,
-      posNum: -1
-    };
-  }
-  const splitContent = body.split("\n");
-  if (found) {
-    const pre = splitContent.slice(0, pos + 1).join("\n");
-    const post = splitContent.slice(pos + 1).join("\n");
-    return {
-      content: `${pre}
-${text}
-${post}`,
-      posNum: pos
-    };
-  } else {
-    const pre = splitContent.slice(0, pos + 1).join("\n");
-    const post = splitContent.slice(pos + 1).join("\n");
-    if (/[\s\S]*?/g.test(post)) {
-      return {
-        content: `${pre}
-${text}`,
-        posNum: pos
-      };
-    } else {
-      return {
-        content: `${pre}${text}
-${post}`,
-        posNum: pos
-      };
-    }
-  }
-}
-const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
 async function restoreDeletedMemo(deletedMemoid) {
   const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
   if (/\d{14,}/.test(deletedMemoid)) {
@@ -10296,7 +10194,7 @@ async function restoreDeletedMemo(deletedMemoid) {
     const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
     if (deleteFile instanceof require$$0.TFile) {
       let fileContents = await vault.read(deleteFile);
-      let fileLines = getAllLinesFromFile$4(fileContents);
+      let fileLines = getAllLinesFromFile$6(fileContents);
       if (fileLines.length === 0) {
         return;
       } else {
@@ -10347,7 +10245,7 @@ async function deleteForever(deletedMemoid) {
     const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
     if (deleteFile instanceof require$$0.TFile) {
       let fileContents = await vault.read(deleteFile);
-      let fileLines = getAllLinesFromFile$4(fileContents);
+      let fileLines = getAllLinesFromFile$6(fileContents);
       if (fileLines.length === 0) {
         return;
       } else {
@@ -10371,7 +10269,7 @@ async function getDeletedMemos() {
   const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
   if (deleteFile instanceof require$$0.TFile) {
     let fileContents = await vault.read(deleteFile);
-    let fileLines = getAllLinesFromFile$4(fileContents);
+    let fileLines = getAllLinesFromFile$6(fileContents);
     if (fileLines.length === 0) {
       return deletedMemos;
     } else {
@@ -10409,7 +10307,7 @@ const sendMemoToDelete = async (memoContent) => {
   const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
   if (deleteFile instanceof require$$0.TFile) {
     const fileContents = await vault.read(deleteFile);
-    const fileLines = getAllLinesFromFile$4(fileContents);
+    const fileLines = getAllLinesFromFile$6(fileContents);
     const date = require$$0.moment();
     const deleteDate = date.format("YYYY/MM/DD HH:mm:ss");
     let lineNum;
@@ -10453,7 +10351,7 @@ const createdeleteFile = async (path) => {
     new require$$0.Notice("Unable to create new file.");
   }
 };
-const getAllLinesFromFile$4 = (cache) => cache.split(/\r?\n/);
+const getAllLinesFromFile$6 = (cache) => cache.split(/\r?\n/);
 const extractIDfromText = (line) => {
   var _a;
   return (_a = /^- (\d{14})(\d+)\s(.+)\s(deletedAt: )(.+)$/.exec(line)) == null ? void 0 : _a[1];
@@ -10475,7 +10373,7 @@ async function obHideMemo(memoid) {
     const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
     const dailyNote = getDailyNote_1(changeDate, dailyNotes);
     const fileContent = await vault.read(dailyNote);
-    const fileLines = getAllLinesFromFile$3(fileContent);
+    const fileLines = getAllLinesFromFile$5(fileContent);
     const content = extractTextFromTodoLine(fileLines[idString]);
     const originalLine = "- " + memoid + " " + content;
     const newLine = fileLines[idString];
@@ -10485,264 +10383,7 @@ async function obHideMemo(memoid) {
     return deleteDate;
   }
 }
-const getAllLinesFromFile$3 = (cache) => cache.split(/\r?\n/);
-async function deleteQueryForever(queryID) {
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  if (/\d{14,}/.test(queryID)) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + "/" + QueryFileName + ".md";
-    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-    if (queryFile instanceof require$$0.TFile) {
-      let fileContents = await vault.read(queryFile);
-      let fileLines = getAllLinesFromFile$2(fileContents);
-      if (fileLines.length === 0) {
-        return;
-      } else {
-        const lineNum = parseInt(queryID.slice(14));
-        const line = fileLines[lineNum - 1];
-        if (/^\d{14,}(.+)$/.test(line)) {
-          const newFileContent = fileContents.replace(line, "");
-          await vault.modify(queryFile, newFileContent);
-        }
-      }
-      fileLines = null;
-      fileContents = null;
-    }
-  }
-}
-const getAllLinesFromFile$2 = (cache) => cache.split(/\r?\n/);
-const pinQueryInFile = async (queryID) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  if (/\d{14,}/.test(queryID)) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + "/" + QueryFileName + ".md";
-    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-    if (!(queryFile instanceof require$$0.TFile)) {
-      return;
-    }
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$1(fileContents);
-    const date = require$$0.moment();
-    const originalLineNum = parseInt(queryID.slice(14));
-    const originalContent = fileLines[originalLineNum - 1];
-    const pinnedAtDate = date.format("YYYY/MM/DD HH:mm:ss");
-    let lineNum;
-    if (fileLines.length === 1 && fileLines[0] === "") {
-      lineNum = 1;
-    } else {
-      lineNum = fileLines.length + 1;
-    }
-    const pinnedAtDateID = date.format("YYYYMMDDHHmmss") + lineNum;
-    const newQuery = originalContent + " pinnedAt: " + pinnedAtDateID;
-    const newContent = fileContents.replace(originalContent, newQuery);
-    await vault.modify(queryFile, newContent);
-    return pinnedAtDate;
-  }
-};
-const unpinQueryInFile = async (queryID) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QueryFileName + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (!(queryFile instanceof require$$0.TFile)) {
-    return;
-  }
-  const fileContents = await vault.read(queryFile);
-  const fileLines = getAllLinesFromFile$1(fileContents);
-  const originalLineNum = parseInt(queryID.slice(14));
-  const originalContent = fileLines[originalLineNum - 1];
-  const pinnedAtString = extractPinnedAtfromText(originalContent);
-  const newFileContents = fileContents.replace(pinnedAtString, "");
-  await vault.modify(queryFile, newFileContents);
-  return;
-};
-const getAllLinesFromFile$1 = (cache) => cache.split(/\r?\n/);
-const extractPinnedAtfromText = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)) == null ? void 0 : _a[6];
-};
-var api;
-((api2) => {
-  function getUserInfo() {
-  }
-  api2.getUserInfo = getUserInfo;
-  function checkUsernameUsable(username) {
-  }
-  api2.checkUsernameUsable = checkUsernameUsable;
-  function checkPasswordValid(password) {
-  }
-  api2.checkPasswordValid = checkPasswordValid;
-  function updateUserinfo(userinfo) {
-  }
-  api2.updateUserinfo = updateUserinfo;
-  async function getMyMemos() {
-    return await getMemos();
-  }
-  api2.getMyMemos = getMyMemos;
-  function getMyDeletedMemos() {
-    return getDeletedMemos();
-  }
-  api2.getMyDeletedMemos = getMyDeletedMemos;
-  function hideMemo(memoId) {
-    return obHideMemo(memoId);
-  }
-  api2.hideMemo = hideMemo;
-  function restoreMemo(memoId) {
-    return restoreDeletedMemo(memoId);
-  }
-  api2.restoreMemo = restoreMemo;
-  function deleteMemo(memoId) {
-    return deleteForever(memoId);
-  }
-  api2.deleteMemo = deleteMemo;
-  function getMyQueries() {
-    return findQuery();
-  }
-  api2.getMyQueries = getMyQueries;
-  function createQuery(title, querystring) {
-    return createObsidianQuery(title, querystring);
-  }
-  api2.createQuery = createQuery;
-  function updateQuery(queryId, title, querystring) {
-    return updateObsidianQuery(queryId, title, querystring);
-  }
-  api2.updateQuery = updateQuery;
-  function deleteQueryById(queryId) {
-    return deleteQueryForever(queryId);
-  }
-  api2.deleteQueryById = deleteQueryById;
-  function pinQuery(queryId) {
-    return pinQueryInFile(queryId);
-  }
-  api2.pinQuery = pinQuery;
-  function unpinQuery(queryId) {
-    return unpinQueryInFile(queryId);
-  }
-  api2.unpinQuery = unpinQuery;
-})(api || (api = {}));
-var api$1 = api;
-function convertDailyNotes(notes) {
-  return notes;
-}
-async function changeMemo(memoid, originalContent, content, memoType, path) {
-  const { dailyNotes } = dailyNotesService.getState();
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  const timeString = memoid.slice(0, 14);
-  const idString = parseInt(memoid.slice(14));
-  let changeDate;
-  if (/^\d{14}/g.test(content)) {
-    changeDate = require$$0.moment(content.slice(0, 14), "YYYYMMDDHHmmss");
-  } else {
-    changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmss");
-  }
-  let file;
-  if (path !== void 0) {
-    file = metadataCache.getFirstLinkpathDest("", path);
-  } else {
-    const notes = convertDailyNotes(dailyNotes);
-    const dailyNote = getDailyNote_1(changeDate, notes);
-    file = dailyNote;
-  }
-  if (!file) {
-    throw new Error("File not found");
-  }
-  const fileContent = await vault.read(file);
-  const fileLines = getAllLinesFromFile(fileContent);
-  const removeEnter = content.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
-  const originalLine = fileLines[idString];
-  const newLine = fileLines[idString].replace(originalContent, removeEnter);
-  const newFileContent = fileContent.replace(originalLine, newLine);
-  await vault.modify(file, newFileContent);
-  return {
-    id: memoid,
-    content: removeEnter,
-    user_id: 1,
-    deletedAt: "",
-    createdAt: changeDate.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: changeDate.format("YYYY/MM/DD HH:mm:ss"),
-    memoType: memoType || "JOURNAL",
-    hasId: memoid.slice(-6),
-    linkId: "",
-    path: file.path
-  };
-}
-const getAllLinesFromFile = (cache) => cache.split(/\r?\n/);
-async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
-  var _a, _b;
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
-  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
-  if (path === void 0) {
-    return;
-  }
-  const file = metadataCache.getFirstLinkpathDest("", path);
-  const time = require$$0.moment();
-  const formatTime = time.format("YYYYMMDDHHmmss");
-  const ID = oriID.slice(14);
-  const indent = "    ";
-  const newContent = formatTime + " " + removeEnter.trim();
-  const newLineContent = indent + "- " + formatTime + " " + removeEnter.trim();
-  if (file) {
-    let underComments;
-    if (CommentOnMemos && CommentsInOriginalNotes) {
-      const dataviewAPI = getAPI_1();
-      if (dataviewAPI !== void 0) {
-        try {
-          underComments = (_b = (_a = dataviewAPI.page(file.path)) == null ? void 0 : _a.file.lists.values) == null ? void 0 : _b.filter((item) => item.line === parseInt(ID));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-    const fileContents = await vault.read(file);
-    let endLine = 0;
-    if (underComments[0].children.values.length > 0) {
-      endLine = underComments[0].children.values[underComments[0].children.values.length - 1].line;
-    } else {
-      endLine = underComments[0].line;
-    }
-    const newFileContent = await insertTextAfterPositionInBody(newLineContent, fileContents, endLine);
-    await vault.modify(file, newFileContent.content);
-    if (isList2) {
-      return {
-        id: formatTime + (endLine + 1),
-        content: newContent,
-        deletedAt: "",
-        createdAt: time.format("YYYY/MM/DD HH:mm:ss"),
-        updatedAt: time.format("YYYY/MM/DD HH:mm:ss"),
-        memoType: "JOURNAL",
-        path: file.path,
-        hasId: "",
-        linkId: hasID
-      };
-    }
-  }
-}
-async function insertTextAfterPositionInBody(text, body, pos) {
-  if (pos === -1) {
-    return {
-      content: `${body}
-${text}`,
-      posNum: -1
-    };
-  }
-  const splitContent = body.split("\n");
-  const pre = splitContent.slice(0, pos + 1).join("\n");
-  const post = splitContent.slice(pos + 1).join("\n");
-  if (/^\s*$/g.test(splitContent[pos + 1])) {
-    return {
-      content: `${pre}
-${text}
-${post}`,
-      posNum: pos
-    };
-  }
-  return {
-    content: `${pre}
-${text}
-${post}`,
-    posNum: pos
-  };
-}
+const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
 class MemoService {
   constructor() {
     this.initialized = false;
@@ -10751,7 +10392,7 @@ class MemoService {
     return appStore.getState().memoState;
   }
   async fetchAllMemos() {
-    const data = await api$1.getMyMemos();
+    const data = await getMemos();
     const memos = data.memos || [];
     const commentMemos = data.commentMemos || [];
     this.updateMemoStore(memos, commentMemos);
@@ -10761,7 +10402,7 @@ class MemoService {
     return memos;
   }
   async fetchDeletedMemos() {
-    const deletedMemos = await api$1.getMyDeletedMemos();
+    const deletedMemos = await getDeletedMemos();
     return deletedMemos.sort(
       (a, b) => new Date(b.deletedAt || "").getTime() - new Date(a.deletedAt || "").getTime()
     );
@@ -10785,17 +10426,17 @@ class MemoService {
     return this.getState().commentMemos.find((m2) => m2.id === id2) || null;
   }
   async hideMemoById(id2) {
-    await api$1.hideMemo(id2);
+    await obHideMemo(id2);
     appStore.dispatch({
       type: "DELETE_MEMO_BY_ID",
       payload: { id: id2 }
     });
   }
   async restoreMemoById(id2) {
-    await api$1.restoreMemo(id2);
+    await restoreDeletedMemo(id2);
   }
   async deleteMemoById(id2) {
-    await api$1.deleteMemo(id2);
+    await deleteForever(id2);
   }
   editMemo(memo2) {
     appStore.dispatch({
@@ -10888,12 +10529,311 @@ class MemoService {
   }
 }
 const memoService = new MemoService();
+const findQuery = async () => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const queryList2 = [];
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QueryFileName + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (queryFile instanceof require$$0.TFile) {
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile$4(fileContents);
+    if (fileLines && fileLines.length != 0) {
+      for (let i = 0; i < fileLines.length; i++) {
+        if (fileLines[i] === "")
+          continue;
+        const createdDateString = getCreatedDateFromLine(fileLines[i]);
+        const createdDate = require$$0.moment(createdDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
+        const updatedDate = createdDate;
+        const id2 = createdDateString + getIDFromLine$1(fileLines[i]);
+        const querystring = getStringFromLine(fileLines[i]);
+        const title = getTitleFromLine(fileLines[i]);
+        let pinnedDate;
+        if (/^(.+)pinnedAt(.+)$/.test(fileLines[i])) {
+          pinnedDate = require$$0.moment(getPinnedDateFromLine$1(fileLines[i]), "YYYYMMDDHHmmss");
+          queryList2.push({
+            createdAt: createdDate,
+            id: id2,
+            pinnedAt: pinnedDate.format("YYYY/MM/DD HH:mm:ss"),
+            querystring,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          });
+        } else if (/^(.+)\[\](.+)?$/.test(fileLines[i])) {
+          queryList2.push({
+            createdAt: createdDate,
+            id: id2,
+            pinnedAt: "",
+            querystring: "",
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          });
+        } else {
+          queryList2.push({
+            createdAt: createdDate,
+            id: id2,
+            pinnedAt: "",
+            querystring,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          });
+        }
+      }
+    }
+  }
+  return queryList2;
+};
+const getAllLinesFromFile$4 = (cache) => cache.split(/\r?\n/);
+const getCreatedDateFromLine = (line) => {
+  var _a;
+  return (_a = /^(\d{14})/.exec(line)) == null ? void 0 : _a[1];
+};
+const getIDFromLine$1 = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s/.exec(line)) == null ? void 0 : _a[2];
+};
+const getStringFromLine = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)) == null ? void 0 : _a[4];
+};
+const getTitleFromLine = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)) == null ? void 0 : _a[3];
+};
+const getPinnedDateFromLine$1 = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)) == null ? void 0 : _a[7];
+};
+async function deleteQueryForever(queryID) {
+  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
+  if (/\d{14,}/.test(queryID)) {
+    const filePath = getDailyNotePath();
+    const absolutePath = filePath + "/" + QueryFileName + ".md";
+    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+    if (queryFile instanceof require$$0.TFile) {
+      let fileContents = await vault.read(queryFile);
+      let fileLines = getAllLinesFromFile$3(fileContents);
+      if (fileLines.length === 0) {
+        return;
+      } else {
+        const lineNum = parseInt(queryID.slice(14));
+        const line = fileLines[lineNum - 1];
+        if (/^\d{14,}(.+)$/.test(line)) {
+          const newFileContent = fileContents.replace(line, "");
+          await vault.modify(queryFile, newFileContent);
+        }
+      }
+      fileLines = null;
+      fileContents = null;
+    }
+  }
+}
+const getAllLinesFromFile$3 = (cache) => cache.split(/\r?\n/);
+const createObsidianQuery = async (title, querystring) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QueryFileName + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (queryFile instanceof require$$0.TFile) {
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile$2(fileContents);
+    const date = require$$0.moment();
+    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
+    const updatedDate = createdDate;
+    let lineNum;
+    if (fileLines.length === 1 && fileLines[0] === "") {
+      lineNum = 1;
+    } else {
+      lineNum = fileLines.length + 1;
+    }
+    const id2 = date.format("YYYYMMDDHHmmss") + lineNum;
+    await createQueryInFile(queryFile, fileContents, id2, title, querystring);
+    return [
+      {
+        createdAt: createdDate,
+        id: id2,
+        pinnedAt: "",
+        querystring,
+        title,
+        updatedAt: updatedDate,
+        userId: ""
+      }
+    ];
+  } else {
+    const queryFilePath = require$$0.normalizePath(absolutePath);
+    const file = await createQueryFile(queryFilePath);
+    const fileContents = await vault.read(file);
+    const date = require$$0.moment();
+    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
+    const updatedDate = createdDate;
+    const id2 = date.format("YYYYMMDDHHmmss") + 1;
+    await createQueryInFile(file, fileContents, id2, title, querystring);
+    return [
+      {
+        createdAt: createdDate,
+        id: id2,
+        pinnedAt: "",
+        querystring,
+        title,
+        updatedAt: updatedDate,
+        userId: ""
+      }
+    ];
+  }
+};
+const createQueryInFile = async (file, fileContent, id2, title, queryString) => {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  let newContent;
+  if (fileContent === "") {
+    newContent = id2 + " " + title + " " + queryString;
+  } else {
+    newContent = fileContent + "\n" + id2 + " " + title + " " + queryString;
+  }
+  await vault.modify(file, newContent);
+  return true;
+};
+const createQueryFile = async (path) => {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  try {
+    const createdFile = await vault.create(path, "");
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${path}'`, err);
+    new require$$0.Notice(t("Unable to create new file."));
+  }
+};
+const getAllLinesFromFile$2 = (cache) => cache.split(/\r?\n/);
+const updateObsidianQuery = async (queryId, title, queryString) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QueryFileName + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (queryFile instanceof require$$0.TFile) {
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile$1(fileContents);
+    let lineID;
+    if (/^\d{1,3}$/.test(queryId)) {
+      lineID = queryId;
+    } else {
+      lineID = getIDFromLine(queryId);
+    }
+    const lineNum = parseInt(lineID) - 1;
+    if (fileLines && fileLines.length != 0) {
+      const oldContent = fileLines[lineNum];
+      const date = require$$0.moment();
+      const updatedDateString = date.format("YYYYMMDDHHmmss");
+      const updatedDate = date.format("YYYY/MM/DD HH:mm:ss");
+      const newLineNum = lineNum + 1;
+      const id2 = updatedDateString + newLineNum;
+      if (/^(.+)pinnedAt(.+)$/.test(oldContent)) {
+        const pinnedString = getPinnedStringFromLine(oldContent);
+        const pinnedDateString = getPinnedDateFromLine(oldContent);
+        const newContent = id2 + " " + title + " " + queryString + " " + pinnedString;
+        const pinnedAtDate = require$$0.moment(pinnedDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
+        const newFileContents = fileContents.replace(oldContent, newContent);
+        await vault.modify(queryFile, newFileContents);
+        return [
+          {
+            createdAt: updatedDate,
+            id: id2,
+            pinnedAt: pinnedAtDate,
+            querystring: queryString,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          }
+        ];
+      } else {
+        const newContent = id2 + " " + title + " " + queryString;
+        const newFileContents = fileContents.replace(oldContent, newContent);
+        await vault.modify(queryFile, newFileContents);
+        return [
+          {
+            createdAt: updatedDate,
+            id: id2,
+            pinnedAt: "",
+            querystring: queryString,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          }
+        ];
+      }
+    }
+  }
+};
+const getAllLinesFromFile$1 = (cache) => cache.split(/\r?\n/);
+const getIDFromLine = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})/.exec(line)) == null ? void 0 : _a[2];
+};
+const getPinnedStringFromLine = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a[6];
+};
+const getPinnedDateFromLine = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a[7];
+};
+const pinQueryInFile = async (queryID) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  if (/\d{14,}/.test(queryID)) {
+    const filePath = getDailyNotePath();
+    const absolutePath = filePath + "/" + QueryFileName + ".md";
+    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+    if (!(queryFile instanceof require$$0.TFile)) {
+      return;
+    }
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile(fileContents);
+    const date = require$$0.moment();
+    const originalLineNum = parseInt(queryID.slice(14));
+    const originalContent = fileLines[originalLineNum - 1];
+    const pinnedAtDate = date.format("YYYY/MM/DD HH:mm:ss");
+    let lineNum;
+    if (fileLines.length === 1 && fileLines[0] === "") {
+      lineNum = 1;
+    } else {
+      lineNum = fileLines.length + 1;
+    }
+    const pinnedAtDateID = date.format("YYYYMMDDHHmmss") + lineNum;
+    const newQuery = originalContent + " pinnedAt: " + pinnedAtDateID;
+    const newContent = fileContents.replace(originalContent, newQuery);
+    await vault.modify(queryFile, newContent);
+    return pinnedAtDate;
+  }
+};
+const unpinQueryInFile = async (queryID) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QueryFileName + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (!(queryFile instanceof require$$0.TFile)) {
+    return;
+  }
+  const fileContents = await vault.read(queryFile);
+  const fileLines = getAllLinesFromFile(fileContents);
+  const originalLineNum = parseInt(queryID.slice(14));
+  const originalContent = fileLines[originalLineNum - 1];
+  const pinnedAtString = extractPinnedAtfromText(originalContent);
+  const newFileContents = fileContents.replace(pinnedAtString, "");
+  await vault.modify(queryFile, newFileContents);
+  return;
+};
+const getAllLinesFromFile = (cache) => cache.split(/\r?\n/);
+const extractPinnedAtfromText = (line) => {
+  var _a;
+  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)) == null ? void 0 : _a[6];
+};
 class QueryService {
   getState() {
     return appStore.getState().queryState;
   }
   async getMyAllQueries() {
-    const data = await api$1.getMyQueries();
+    const data = await findQuery();
     appStore.dispatch({
       type: "SET_QUERIES",
       payload: {
@@ -10926,7 +10866,7 @@ class QueryService {
     });
   }
   async deleteQuery(queryId) {
-    await api$1.deleteQueryById(queryId);
+    await deleteQueryForever(queryId);
     appStore.dispatch({
       type: "DELETE_QUERY_BY_ID",
       payload: {
@@ -10935,18 +10875,18 @@ class QueryService {
     });
   }
   async createQuery(title, querystring) {
-    const data = await api$1.createQuery(title, querystring);
+    const data = await createObsidianQuery(title, querystring);
     return data;
   }
   async updateQuery(queryId, title, querystring) {
-    const data = await api$1.updateQuery(queryId, title, querystring);
+    const data = await updateObsidianQuery(queryId, title, querystring);
     return data;
   }
   async pinQuery(queryId) {
-    await api$1.pinQuery(queryId);
+    await pinQueryInFile(queryId);
   }
   async unpinQuery(queryId) {
-    await api$1.unpinQuery(queryId);
+    await unpinQueryInFile(queryId);
   }
 }
 const queryService = new QueryService();

@@ -1,8 +1,10 @@
-import api from '../helpers/api';
 import { FIRST_TAG_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
 import { waitForInsert } from '../obComponents/obCreateMemo';
 import { changeMemo } from '../obComponents/obUpdateMemo';
 import { commentMemo } from '../obComponents/obCommentMemo';
+import { getMemos } from '../obComponents/obGetMemos';
+import { deleteForever, getDeletedMemos, restoreDeletedMemo } from '../obComponents/obDeleteMemo';
+import { obHideMemo } from '../obComponents/obHideMemo';
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
 import type { CreateCommentMemoParams, UpdateMemoParams } from '../types/memo';
@@ -26,7 +28,7 @@ class MemoService {
      * 从API获取备忘录数据并更新到store
      */
     public async fetchAllMemos(): Promise<Model.Memo[]> {
-        const data = await api.getMyMemos();
+        const data = await getMemos();
 
         // 分离普通备忘录和评论备忘录
         const memos = data.memos || [];
@@ -46,7 +48,7 @@ class MemoService {
      * 获取已删除的备忘录列表
      */
     public async fetchDeletedMemos(): Promise<Model.Memo[]> {
-        const deletedMemos = await api.getMyDeletedMemos();
+        const deletedMemos = await getDeletedMemos();
         return deletedMemos.sort((a, b) =>
             new Date(b.deletedAt || '').getTime() - new Date(a.deletedAt || '').getTime()
         );
@@ -90,7 +92,7 @@ class MemoService {
      * 隐藏（软删除）指定备忘录
      */
     public async hideMemoById(id: string): Promise<void> {
-        await api.hideMemo(id);
+        await obHideMemo(id);
         appStore.dispatch({
             type: 'DELETE_MEMO_BY_ID',
             payload: { id }
@@ -101,14 +103,14 @@ class MemoService {
      * 恢复已删除的备忘录
      */
     public async restoreMemoById(id: string): Promise<void> {
-        await api.restoreMemo(id);
+        await restoreDeletedMemo(id);
     }
 
     /**
      * 永久删除备忘录
      */
     public async deleteMemoById(id: string): Promise<void> {
-        await api.deleteMemo(id);
+        await deleteForever(id);
     }
 
     /**

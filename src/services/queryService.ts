@@ -1,6 +1,10 @@
 // import userService from "./userService";
-import api from '../helpers/api';
 import appStore from '../stores/appStore';
+import { findQuery } from '../obComponents/obGetQueries';
+import { deleteQueryForever } from '../obComponents/obDeleteQuery';
+import { createObsidianQuery } from '../obComponents/obCreateQuery';
+import { updateObsidianQuery } from '../obComponents/obUpdateQuery';
+import { pinQueryInFile, unpinQueryInFile } from '../obComponents/obPinQuery';
 
 class QueryService {
   public getState() {
@@ -19,7 +23,7 @@ class QueryService {
     //     queries: data,
     //   },
     // });
-    const data = await api.getMyQueries();
+    const data = await findQuery();
     appStore.dispatch({
       type: 'SET_QUERIES',
       payload: {
@@ -56,7 +60,7 @@ class QueryService {
   }
 
   public async deleteQuery(queryId: string) {
-    await api.deleteQueryById(queryId);
+    await deleteQueryForever(queryId);
     appStore.dispatch({
       type: 'DELETE_QUERY_BY_ID',
       payload: {
@@ -66,21 +70,21 @@ class QueryService {
   }
 
   public async createQuery(title: string, querystring: string) {
-    const data = await api.createQuery(title, querystring);
+    const data = await createObsidianQuery(title, querystring);
     return data;
   }
 
   public async updateQuery(queryId: string, title: string, querystring: string) {
-    const data = await api.updateQuery(queryId, title, querystring);
+    const data = await updateObsidianQuery(queryId, title, querystring);
     return data;
   }
 
   public async pinQuery(queryId: string) {
-    await api.pinQuery(queryId);
+    await pinQueryInFile(queryId);
   }
 
   public async unpinQuery(queryId: string) {
-    await api.unpinQuery(queryId);
+    await unpinQueryInFile(queryId);
   }
 }
 
