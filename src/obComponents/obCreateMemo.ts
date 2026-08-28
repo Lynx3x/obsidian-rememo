@@ -53,7 +53,7 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
         hasId: generatedId,
         linkId: '',
     };
-    writeMemoToDailyNote(date, newEvent, memo);
+    await writeMemoToDailyNote(date, newEvent, memo);
     return memo;
 }
 

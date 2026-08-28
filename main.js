@@ -9576,7 +9576,7 @@ async function waitForInsert(MemoContent, isTASK, insertDate) {
     hasId: generatedId,
     linkId: ""
   };
-  writeMemoToDailyNote(date, newEvent, memo2);
+  await writeMemoToDailyNote(date, newEvent, memo2);
   return memo2;
 }
 async function writeMemoToDailyNote(date, newEvent, memo2) {
