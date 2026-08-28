@@ -8364,6 +8364,16 @@ div[data-type='memos_view'].mobile-view .memos-header-container > .title-text > 
 .theme-light div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text {
   font-size: 15px;
   line-height: 24px;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.theme-light div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > p {
+  display: inline-block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 4px;
+  margin-top: -2px;
 }
 .theme-light div[data-type='memos_view'].mobile-view .deleted-memos-container {
   padding: 0 12px;
@@ -8486,6 +8496,16 @@ div[data-type='memos_view'].mobile-view .memos-header-container > .title-text > 
 .theme-dark div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text {
   font-size: 15px;
   line-height: 24px;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.theme-dark div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > p {
+  display: inline-block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 4px;
+  margin-top: -2px;
 }
 .theme-dark div[data-type='memos_view'].mobile-view .deleted-memos-container {
   padding: 0 12px;

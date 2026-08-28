@@ -4,7 +4,7 @@ import { memoService } from '../services';
 import { formatMemoContent } from './Memo';
 import '../less/memo.less';
 import React from 'react';
-import { Notice } from 'obsidian';
+import { moment, Notice } from 'obsidian';
 import More from '../icons/more.svg?component';
 import { t } from '../translations/helper';
 import MemoImage from './MemoImage';
@@ -18,10 +18,14 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
   // const { app }  = appStore.getState().dailyNotesState;
 
   const { memo: propsMemo, handleDeletedMemoAction } = props;
+  // deletedAt 是 14 位时间戳（YYYYMMDDHHmmss），转成可显示格式
+  const deletedAtStr = propsMemo.deletedAt
+    ? moment(propsMemo.deletedAt, 'YYYYMMDDHHmmss').format('YYYY/MM/DD HH:mm:ss')
+    : utils.getDateTimeString(Date.now());
   const memo: FormattedMemo = {
     ...propsMemo,
     createdAtStr: utils.getDateTimeString(propsMemo.createdAt),
-    deletedAtStr: utils.getDateTimeString(propsMemo.deletedAt ?? Date.now()),
+    deletedAtStr,
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
   // const imageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);

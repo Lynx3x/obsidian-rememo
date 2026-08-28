@@ -9517,63 +9517,22 @@ class LocationService {
   }
 }
 const locationService = new LocationService();
-const hasCustomComposition = () => DefaultMemoComposition !== "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition);
-const buildMemoLineRegexString = () => {
-  const indent = "\\s*";
-  const taskGroup = "(\\[(?:.{1})\\]\\s?)?";
-  const timeGroup = "(<time>)?(\\d{1,2}:\\d{2}(?::\\d{2})?)?(</time>)?";
-  if (hasCustomComposition()) {
-    return "^" + indent + "[-*]\\s" + taskGroup + DefaultMemoComposition.replace(/{TIME}/g, timeGroup).replace(/{CONTENT}/g, "(.*)$");
+function extractDeletedAt(content) {
+  const m2 = /(\sdeletedAt:\s*\d{14})\s*$/.exec(content);
+  if (m2) {
+    const deletedAt = /(\d{14})$/.exec(m2[1])[1];
+    return {
+      isDeleted: true,
+      deletedAt,
+      rest: content.slice(0, m2.index).trimEnd()
+    };
   }
-  return "^" + indent + "[-*]\\s" + taskGroup + timeGroup + "\\s?(.*)$";
-};
-let cachedRegex = null;
-const getMemoLineRegex = () => {
-  if (cachedRegex === null) {
-    cachedRegex = new RegExp(buildMemoLineRegexString(), "");
-  }
-  return cachedRegex;
-};
-const parseMemoLine = (line) => {
-  const match = getMemoLineRegex().exec(line);
-  if (!match) {
-    return { time: "", content: "", taskMark: "", hasId: "" };
-  }
-  const rawContent = match[match.length - 1] !== void 0 ? match[match.length - 1] : "";
-  const hourText = extractHourFromBulletLine(line);
-  const minText = extractMinFromBulletLine(line);
-  const secText = extractSecondFromBulletLine(line);
-  const taskMark = extractMemoTaskTypeFromLine(line);
-  let time = "";
-  if (hourText !== "" && minText !== "") {
-    time = secText !== "" ? `${hourText}:${minText}:${secText}` : `${hourText}:${minText}`;
-  }
-  let content = rawContent;
-  let hasId = "";
-  const idMatch = /\^(\S{6})$/.exec(content);
-  if (idMatch) {
-    hasId = idMatch[1];
-    content = content.slice(0, -7).trimEnd();
-  }
-  return { time, content, taskMark, hasId };
-};
-function extractHourFromBulletLine(line) {
-  const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):\d{2}(:\d{2})?(<\/time>)?/.exec(line);
-  return match ? match[4] : "";
-}
-function extractMinFromBulletLine(line) {
-  const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):(\d{2})(:\d{2})?(<\/time>)?/.exec(line);
-  return match ? match[5] : "";
-}
-function extractSecondFromBulletLine(line) {
-  const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):(\d{2}):(\d{2})(<\/time>)?/.exec(line);
-  return match ? match[6] : "";
+  return { isDeleted: false, deletedAt: "", rest: content };
 }
 function extractMemoTaskTypeFromLine(line) {
   const match = /^[\s-*]*\[(.{1})\]/.exec(line);
   return match ? match[1] : "";
 }
-const extractTextFromTodoLine = (line) => parseMemoLine(line).content;
 const getTaskType = (memoTaskType) => {
   if (memoTaskType === " ")
     return "TASK-TODO";
@@ -9673,7 +9632,7 @@ async function writeMemoToDailyNote(date, newEvent, memo2) {
     if (newFileContent.content) {
       await vault.modify(file, newFileContent.content);
       if (newFileContent.posNum === -1) {
-        const allLines = getAllLinesFromFile$a(newFileContent.content);
+        const allLines = getAllLinesFromFile$9(newFileContent.content);
         lineNum = allLines.length + 1;
       } else {
         lineNum = newFileContent.posNum + 1;
@@ -9685,7 +9644,7 @@ async function writeMemoToDailyNote(date, newEvent, memo2) {
     const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
     await vault.modify(existingFile, newFileContent.content);
     if (newFileContent.posNum === -1) {
-      const allLines = getAllLinesFromFile$a(newFileContent.content);
+      const allLines = getAllLinesFromFile$9(newFileContent.content);
       lineNum = allLines.length + 1;
     } else {
       lineNum = newFileContent.posNum + 1;
@@ -9754,7 +9713,7 @@ ${post}`,
     }
   }
 }
-const getAllLinesFromFile$a = (cache) => cache.split(/\r?\n/);
+const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
 function convertDailyNotes(notes) {
   return notes;
 }
@@ -9781,7 +9740,7 @@ async function changeMemo(memoid, originalContent, content, memoType, path) {
     throw new Error("File not found");
   }
   const fileContent = await vault.read(file);
-  const fileLines = getAllLinesFromFile$9(fileContent);
+  const fileLines = getAllLinesFromFile$8(fileContent);
   const removeEnter = content.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
   const originalLine = fileLines[idString];
   const newLine = fileLines[idString].replace(originalContent, removeEnter);
@@ -9800,8 +9759,8 @@ async function changeMemo(memoid, originalContent, content, memoType, path) {
     path: file.path
   };
 }
-const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
 const getAllLinesFromFile$8 = (cache) => cache.split(/\r?\n/);
+const getAllLinesFromFile$7 = (cache) => cache.split(/\r?\n/);
 async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
   const { vault, metadataCache } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
   const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2").trim();
@@ -9813,7 +9772,7 @@ async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
     throw new Error("commentMemo: cannot find file " + path);
   }
   const fileContents = await vault.read(file);
-  const lines = getAllLinesFromFile$8(fileContents);
+  const lines = getAllLinesFromFile$7(fileContents);
   let parentLineIdx = -1;
   if (hasID) {
     for (let i = 0; i < lines.length; i++) {
@@ -9919,7 +9878,7 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
   if (Memos2 === 0)
     return;
   let fileContents = await vault.read(dailyNote);
-  let fileLines = getAllLinesFromFile$7(fileContents);
+  let fileLines = getAllLinesFromFile$6(fileContents);
   const baseDate = getDateFromFile_1(dailyNote, "day");
   let processHeaderFound = ProcessEntriesBelow === "";
   const indentStack = [];
@@ -9962,6 +9921,14 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
       hasId = Math.random().toString(36).slice(-6);
       toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
     }
+    let isDeleted = false;
+    let deletedAt = "";
+    const delMatch = extractDeletedAt(content);
+    if (delMatch.isDeleted) {
+      isDeleted = true;
+      deletedAt = delMatch.deletedAt;
+      content = delMatch.rest;
+    }
     let linkId = "";
     if (indent > 0) {
       while (indentStack.length > 0 && indentStack[indentStack.length - 1].level >= indent) {
@@ -9984,6 +9951,8 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
       memoType,
       hasId,
       linkId,
+      isDeleted,
+      deletedAt,
       path: dailyNote.path
     });
   }
@@ -10008,7 +9977,7 @@ async function backfillMemoIds(vault, toBackfill) {
     if (!file)
       continue;
     const content = await vault.read(file);
-    const lines = getAllLinesFromFile$7(content);
+    const lines = getAllLinesFromFile$6(content);
     let changed = false;
     for (const { lineIndex, generatedId } of items) {
       const line = lines[lineIndex];
@@ -10034,7 +10003,7 @@ async function backfillMemoTimes(vault, toFix) {
     if (!file)
       continue;
     const content = await vault.read(file);
-    const lines = getAllLinesFromFile$7(content);
+    const lines = getAllLinesFromFile$6(content);
     let changed = false;
     for (const lineIndex of indices) {
       const line = lines[lineIndex];
@@ -10186,191 +10155,13 @@ async function getMemos(onBatch) {
   }
   return { memos, commentMemos: [] };
 }
-const getAllLinesFromFile$7 = (cache) => cache.split(/\r?\n/);
+const getAllLinesFromFile$6 = (cache) => cache.split(/\r?\n/);
 const lineContainsParseBelowToken = (line) => {
   if (ProcessEntriesBelow === "") {
     return false;
   }
   const re2 = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"), "");
   return re2.test(line);
-};
-async function restoreDeletedMemo(deletedMemoid) {
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  if (/\d{14,}/.test(deletedMemoid)) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + "/" + DeleteFileName + ".md";
-    const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-    if (deleteFile instanceof require$$0.TFile) {
-      let fileContents = await vault.read(deleteFile);
-      let fileLines = getAllLinesFromFile$6(fileContents);
-      if (fileLines.length === 0) {
-        return;
-      } else {
-        const lineNum = parseInt(deletedMemoid.slice(14));
-        const line = fileLines[lineNum - 1];
-        const newDeletefileContents = fileContents.replace(line, "");
-        await vault.modify(deleteFile, newDeletefileContents);
-        if (/^- (.+)$/.test(line)) {
-          const id2 = extractIDfromText(line);
-          const date = require$$0.moment(id2, "YYYYMMDDHHmmss");
-          const timeHour = date.format("HH");
-          const timeMinute = date.format("mm");
-          const newEvent = `- ` + String(timeHour) + `:` + String(timeMinute) + ` ` + extractContentfromText(line);
-          const dailyNotes = await getAllDailyNotes_1();
-          const existingFile = getDailyNote_1(date, dailyNotes);
-          if (!existingFile) {
-            const file = await createDailyNote_1(date);
-            const fileContents2 = await vault.read(file);
-            const newFileContent = await insertAfterHandler(InsertAfter, newEvent, fileContents2);
-            await vault.modify(file, newFileContent.content);
-            return [
-              {
-                deletedAt: ""
-              }
-            ];
-          } else {
-            const fileContents2 = await vault.read(existingFile);
-            const newFileContent = await insertAfterHandler(InsertAfter, newEvent, fileContents2);
-            await vault.modify(existingFile, newFileContent.content);
-            return [
-              {
-                deletedAt: ""
-              }
-            ];
-          }
-        }
-        fileLines = null;
-        fileContents = null;
-      }
-    }
-  }
-}
-async function deleteForever(deletedMemoid) {
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  if (/\d{14,}/.test(deletedMemoid)) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + "/" + DeleteFileName + ".md";
-    const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-    if (deleteFile instanceof require$$0.TFile) {
-      let fileContents = await vault.read(deleteFile);
-      let fileLines = getAllLinesFromFile$6(fileContents);
-      if (fileLines.length === 0) {
-        return;
-      } else {
-        const lineNum = parseInt(deletedMemoid.slice(14));
-        const line = fileLines[lineNum - 1];
-        if (/^- (.+)$/.test(line)) {
-          const newFileContent = fileContents.replace(line, "");
-          await vault.modify(deleteFile, newFileContent);
-        }
-      }
-      fileLines = null;
-      fileContents = null;
-    }
-  }
-}
-async function getDeletedMemos() {
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + DeleteFileName + ".md";
-  const deletedMemos = [];
-  const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (deleteFile instanceof require$$0.TFile) {
-    let fileContents = await vault.read(deleteFile);
-    let fileLines = getAllLinesFromFile$6(fileContents);
-    if (fileLines.length === 0) {
-      return deletedMemos;
-    } else {
-      for (let i = 0; i < fileLines.length; i++) {
-        const line = fileLines[i];
-        if (!/- /.test(line)) {
-          continue;
-        } else {
-          const id2 = extractIDfromText(line);
-          const timeString = id2.slice(0, 13);
-          const createdDate = require$$0.moment(timeString, "YYYYMMDDHHmmss");
-          const deletedDateID = extractDeleteDatefromText(fileLines[i]);
-          const deletedDate = require$$0.moment(deletedDateID.slice(0, 13), "YYYYMMDDHHmmss");
-          const content = extractContentfromText(fileLines[i]);
-          deletedMemos.push({
-            id: deletedDateID,
-            content,
-            user_id: 1,
-            createdAt: createdDate.format("YYYY/MM/DD HH:mm:SS"),
-            updatedAt: createdDate.format("YYYY/MM/DD HH:mm:SS"),
-            deletedAt: deletedDate
-          });
-        }
-      }
-    }
-    fileLines = null;
-    fileContents = null;
-  }
-  return deletedMemos;
-}
-const sendMemoToDelete = async (memoContent) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + DeleteFileName + ".md";
-  const deleteFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (deleteFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(deleteFile);
-    const fileLines = getAllLinesFromFile$6(fileContents);
-    const date = require$$0.moment();
-    const deleteDate = date.format("YYYY/MM/DD HH:mm:ss");
-    let lineNum;
-    if (fileLines.length === 1 && fileLines[0] === "") {
-      lineNum = 1;
-    } else {
-      lineNum = fileLines.length + 1;
-    }
-    const deleteDateID = date.format("YYYYMMDDHHmmss") + lineNum;
-    await createDeleteMemoInFile(deleteFile, fileContents, memoContent, deleteDateID);
-    return deleteDate;
-  } else {
-    const deleteFilePath = require$$0.normalizePath(absolutePath);
-    const file = await createdeleteFile(deleteFilePath);
-    const date = require$$0.moment();
-    const deleteDate = date.format("YYYY/MM/DD HH:mm:ss");
-    const lineNum = 1;
-    const deleteDateID = date.format("YYYYMMDDHHmmss") + lineNum;
-    await createDeleteMemoInFile(file, "", memoContent, deleteDateID);
-    return deleteDate;
-  }
-};
-const createDeleteMemoInFile = async (file, fileContent, memoContent, deleteDate) => {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let newContent;
-  if (fileContent === "") {
-    newContent = memoContent + " deletedAt: " + deleteDate;
-  } else {
-    newContent = fileContent + "\n" + memoContent + " deletedAt: " + deleteDate;
-  }
-  await vault.modify(file, newContent);
-  return true;
-};
-const createdeleteFile = async (path) => {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  try {
-    const createdFile = await vault.create(path, "");
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${path}'`, err);
-    new require$$0.Notice("Unable to create new file.");
-  }
-};
-const getAllLinesFromFile$6 = (cache) => cache.split(/\r?\n/);
-const extractIDfromText = (line) => {
-  var _a;
-  return (_a = /^- (\d{14})(\d+)\s(.+)\s(deletedAt: )(.+)$/.exec(line)) == null ? void 0 : _a[1];
-};
-const extractContentfromText = (line) => {
-  var _a;
-  return (_a = /^- (\d+)\s(.+)\s(deletedAt: )(.+)$/.exec(line)) == null ? void 0 : _a[2];
-};
-const extractDeleteDatefromText = (line) => {
-  var _a;
-  return (_a = /^- (\d+)\s(.+)\s(deletedAt: )(.+)$/.exec(line)) == null ? void 0 : _a[4];
 };
 async function obHideMemo(memoid) {
   const { dailyNotes } = dailyNotesService.getState();
@@ -10380,18 +10171,86 @@ async function obHideMemo(memoid) {
     const idString = parseInt(memoid.slice(14));
     const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
     const dailyNote = getDailyNote_1(changeDate, dailyNotes);
+    if (!dailyNote)
+      return null;
     const fileContent = await vault.read(dailyNote);
     const fileLines = getAllLinesFromFile$5(fileContent);
-    const content = extractTextFromTodoLine(fileLines[idString]);
-    const originalLine = "- " + memoid + " " + content;
-    const newLine = fileLines[idString];
-    const newFileContent = fileContent.replace(newLine, "");
-    await vault.modify(dailyNote, newFileContent);
-    const deleteDate = await sendMemoToDelete(originalLine);
-    return deleteDate;
+    const targetIdx = idString < fileLines.length ? idString : -1;
+    if (targetIdx === -1)
+      return null;
+    const line = fileLines[targetIdx];
+    const now = require$$0.moment();
+    const now14 = now.format("YYYYMMDDHHmmss");
+    const deletedAtStr = " deletedAt: " + now14;
+    let newLine;
+    if (/\s*\^(\S{6})\s*$/.test(line)) {
+      newLine = line.replace(/\s*\^(\S{6})\s*$/, deletedAtStr + " ^$1");
+    } else {
+      newLine = line.trimEnd() + deletedAtStr;
+    }
+    if (newLine === line)
+      return null;
+    fileLines[targetIdx] = newLine;
+    await vault.modify(dailyNote, fileLines.join("\n"));
+    return dailyNote;
   }
+  return null;
 }
 const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
+async function restoreMemoFromLine(memoid) {
+  const { dailyNotes } = dailyNotesService.getState();
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  const timeString = memoid.slice(0, 13);
+  const idString = parseInt(memoid.slice(14));
+  const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
+  const dailyNote = getDailyNote_1(changeDate, dailyNotes);
+  if (!dailyNote)
+    return null;
+  const fileContent = await vault.read(dailyNote);
+  const fileLines = getAllLinesFromFile$5(fileContent);
+  const targetIdx = idString < fileLines.length ? idString : -1;
+  if (targetIdx === -1)
+    return null;
+  const line = fileLines[targetIdx];
+  const newLine = line.replace(/\s*deletedAt:\s*\d{14}/, "");
+  if (newLine === line)
+    return null;
+  fileLines[targetIdx] = newLine;
+  await vault.modify(dailyNote, fileLines.join("\n"));
+  return dailyNote;
+}
+async function deleteMemoFromLine(memoid) {
+  const { dailyNotes } = dailyNotesService.getState();
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  const timeString = memoid.slice(0, 13);
+  const idString = parseInt(memoid.slice(14));
+  const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
+  const dailyNote = getDailyNote_1(changeDate, dailyNotes);
+  if (!dailyNote)
+    return null;
+  const fileContent = await vault.read(dailyNote);
+  const fileLines = getAllLinesFromFile$5(fileContent);
+  const targetIdx = idString < fileLines.length ? idString : -1;
+  if (targetIdx === -1)
+    return null;
+  const parentIndent = getIndentWidth(fileLines[targetIdx]);
+  let endIdx = targetIdx;
+  for (let i = targetIdx + 1; i < fileLines.length; i++) {
+    const l2 = fileLines[i];
+    if (l2.trim() === "" || /^#{1,}/.test(l2))
+      break;
+    if (getIndentWidth(l2) <= parentIndent)
+      break;
+    endIdx = i;
+  }
+  const newLines = [...fileLines.slice(0, targetIdx), ...fileLines.slice(endIdx + 1)];
+  await vault.modify(dailyNote, newLines.join("\n"));
+  return dailyNote;
+}
 class MemoService {
   constructor() {
     this.initialized = false;
@@ -10418,7 +10277,7 @@ class MemoService {
     this.updateMemoStore([...others, ...memos]);
   }
   async fetchDeletedMemos() {
-    const deletedMemos = await getDeletedMemos();
+    const deletedMemos = this.getState().memos.filter((m2) => m2.isDeleted);
     return deletedMemos.sort(
       (a, b) => new Date(b.deletedAt || "").getTime() - new Date(a.deletedAt || "").getTime()
     );
@@ -10442,17 +10301,19 @@ class MemoService {
     return this.getState().memos.find((m2) => m2.id === id2 && m2.linkId) || null;
   }
   async hideMemoById(id2) {
-    await obHideMemo(id2);
-    appStore.dispatch({
-      type: "DELETE_MEMO_BY_ID",
-      payload: { id: id2 }
-    });
+    const file = await obHideMemo(id2);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
   }
   async restoreMemoById(id2) {
-    await restoreDeletedMemo(id2);
+    const file = await restoreMemoFromLine(id2);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
   }
   async deleteMemoById(id2) {
-    await deleteForever(id2);
+    await deleteMemoFromLine(id2);
   }
   editMemo(memo2) {
     appStore.dispatch({
@@ -16628,7 +16489,6 @@ const Memo = (props) => {
   });
 };
 function formatMemoContent(content, memoid) {
-  var _a;
   content = encodeHtml(content);
   content = parseRawTextToHtml(content).split("<br>").map((t2) => {
     return `<p>${t2 !== "" ? t2 : "<br>"}</p>`;
@@ -16665,7 +16525,7 @@ function formatMemoContent(content, memoid) {
   tempDivContainer.innerHTML = content;
   for (let i = 0; i < tempDivContainer.children.length; i++) {
     const c = tempDivContainer.children[i];
-    if (c.tagName === "P" && c.textContent === "" && ((_a = c.firstElementChild) == null ? void 0 : _a.tagName) !== "BR") {
+    if (c.tagName === "P" && c.textContent === "") {
       c.remove();
       i--;
       continue;
@@ -20945,6 +20805,9 @@ const MemoList = () => {
   const shownMemos = showMemoFilter || queryFilter || settings.HideDoneTasks ? memos.filter((memo2) => {
     var _a, _b, _c;
     let shouldShow = true;
+    if (memo2.isDeleted) {
+      shouldShow = false;
+    }
     if (memo2.memoType !== void 0) {
       if (settings.HideDoneTasks && memo2.memoType === "TASK-DONE") {
         shouldShow = false;
@@ -21017,7 +20880,7 @@ const MemoList = () => {
     }
     return shouldShow;
   }) : memos.filter((memo2) => {
-    return !memo2.linkId;
+    return !memo2.linkId && !memo2.isDeleted;
   });
   copyShownMemos = shownMemos;
   const totalPages = Math.ceil(shownMemos.length / ITEMS_PER_PAGE);
@@ -21321,15 +21184,15 @@ function Memos$1() {
   }
 }
 const DeletedMemo = (props) => {
-  var _a;
   const {
     memo: propsMemo,
     handleDeletedMemoAction
   } = props;
+  const deletedAtStr = propsMemo.deletedAt ? require$$0.moment(propsMemo.deletedAt, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss") : utils$1.getDateTimeString(Date.now());
   const memo2 = {
     ...propsMemo,
     createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt),
-    deletedAtStr: utils$1.getDateTimeString((_a = propsMemo.deletedAt) != null ? _a : Date.now())
+    deletedAtStr
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
   const handleDeleteMemoClick = async () => {

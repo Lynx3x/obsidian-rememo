@@ -51,6 +51,8 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **脱离 Dataview**: 评论读取/写入不再依赖 Dataview，改用缩进层级（memoLine 的 getIndentLevel）+ 持久 `^id` 关联。
 - **级联删除**: 删父 memo 时连评论子树一起删。
 - **发送按钮样式**: 待办——固定图标，清理 SaveMemoButtonLabel/Icon 设置。
+- **UI 整体风格优化（待办, 2026-08-28）**: 为上插件市场需要做出差异性。预期加交互动效（若对性能有要求则放弃）。与发送按钮/评论显示调整一起规划。
+- **评论显示可隐藏（待办）**: 评论功能默认开启（废弃 CommentOnMemos/CommentsInOriginalNotes 开关），但保留/改造 ShowCommentOnMemos 为"评论可隐藏"（折叠/展开）。
 
 ## Current-state facts (verified 2026-08-28)
 

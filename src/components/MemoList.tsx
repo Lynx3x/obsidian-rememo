@@ -40,6 +40,11 @@ const MemoList: React.FC<Props> = () => {
       ? memos.filter((memo) => {
           let shouldShow = true;
 
+          // 过滤已删除的 memo（isDeleted）
+          if (memo.isDeleted) {
+            shouldShow = false;
+          }
+
           if (memo.memoType !== undefined) {
             if (settings.HideDoneTasks && memo.memoType === 'TASK-DONE') {
               shouldShow = false;
@@ -127,8 +132,8 @@ const MemoList: React.FC<Props> = () => {
           return shouldShow;
         })
       : memos.filter((memo) => {
-          // 过滤评论（linkId 非空 = 评论）
-          return !memo.linkId;
+          // 过滤评论（linkId 非空 = 评论）和已删除的 memo（isDeleted）
+          return !memo.linkId && !memo.isDeleted;
         });
 
   copyShownMemos = shownMemos;

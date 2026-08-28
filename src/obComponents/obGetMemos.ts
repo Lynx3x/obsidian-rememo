@@ -12,7 +12,7 @@ import {
 import { getAPI } from 'obsidian-dataview';
 import { t } from '../translations/helper';
 import { getDailyNotePath } from '../helpers/utils';
-import { extractMemoTaskTypeFromLine, extractMemoTime, getIndentLevel, getIndentWidth, getTaskType } from '../helpers/memoLine';
+import { extractDeletedAt, extractMemoTaskTypeFromLine, extractMemoTime, getIndentLevel, getIndentWidth, getTaskType } from '../helpers/memoLine';
 
 export class DailyNotesFolderMissingError extends Error { }
 
@@ -124,6 +124,15 @@ export async function getMemosFromDailyNote(
             hasId = Math.random().toString(36).slice(-6);
             toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
         }
+        // 删除标记：检测 deletedAt（剥掉 id 后位于内容末尾）
+        let isDeleted = false;
+        let deletedAt = '';
+        const delMatch = extractDeletedAt(content);
+        if (delMatch.isDeleted) {
+            isDeleted = true;
+            deletedAt = delMatch.deletedAt;
+            content = delMatch.rest;
+        }
         // 父关联：缩进 > 0 时找最近的低层级父行
         let linkId = '';
         if (indent > 0) {
@@ -149,6 +158,8 @@ export async function getMemosFromDailyNote(
             memoType,
             hasId,
             linkId,
+            isDeleted,
+            deletedAt,
             path: dailyNote.path,
         });
     }

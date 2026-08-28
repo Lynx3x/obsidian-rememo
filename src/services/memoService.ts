@@ -3,8 +3,7 @@ import { waitForInsert } from '../obComponents/obCreateMemo';
 import { changeMemo } from '../obComponents/obUpdateMemo';
 import { commentMemo } from '../obComponents/obCommentMemo';
 import { getMemos, getMemosFromDailyNote } from '../obComponents/obGetMemos';
-import { deleteForever, getDeletedMemos, restoreDeletedMemo } from '../obComponents/obDeleteMemo';
-import { obHideMemo } from '../obComponents/obHideMemo';
+import { deleteMemoFromLine, obHideMemo, restoreMemoFromLine } from '../obComponents/obHideMemo';
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
 import type { CreateCommentMemoParams, UpdateMemoParams } from '../types/memo';
@@ -60,7 +59,8 @@ class MemoService {
      * 获取已删除的备忘录列表
      */
     public async fetchDeletedMemos(): Promise<Model.Memo[]> {
-        const deletedMemos = await getDeletedMemos();
+        // 回收站：从 store 过滤带 deletedAt 标记的 memo（读取时已识别）
+        const deletedMemos = this.getState().memos.filter((m) => m.isDeleted);
         return deletedMemos.sort((a, b) =>
             new Date(b.deletedAt || '').getTime() - new Date(a.deletedAt || '').getTime()
         );
@@ -101,28 +101,31 @@ class MemoService {
     }
 
     /**
-     * 隐藏（软删除）指定备忘录
+     * 隐藏（软删除）指定备忘录，连同其评论子树一起删除
      */
     public async hideMemoById(id: string): Promise<void> {
-        await obHideMemo(id);
-        appStore.dispatch({
-            type: 'DELETE_MEMO_BY_ID',
-            payload: { id }
-        });
+        // 文件加 deletedAt 标记，评论子树不标记（父隐藏即子树隐藏）
+        const file = await obHideMemo(id);
+        if (file) {
+            await this.fetchMemosFromFile(file);
+        }
     }
 
     /**
-     * 恢复已删除的备忘录
+     * 恢复已删除的备忘录（去掉 deletedAt 标记）
      */
     public async restoreMemoById(id: string): Promise<void> {
-        await restoreDeletedMemo(id);
+        const file = await restoreMemoFromLine(id);
+        if (file) {
+            await this.fetchMemosFromFile(file);
+        }
     }
 
     /**
-     * 永久删除备忘录
+     * 永久删除备忘录（从日记删除父行及其评论子树）
      */
     public async deleteMemoById(id: string): Promise<void> {
-        await deleteForever(id);
+        await deleteMemoFromLine(id);
     }
 
     /**

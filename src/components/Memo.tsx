@@ -664,7 +664,8 @@ export function formatMemoContent(content: string, memoid?: string) {
   for (let i = 0; i < tempDivContainer.children.length; i++) {
     const c = tempDivContainer.children[i];
 
-    if (c.tagName === 'P' && c.textContent === '' && c.firstElementChild?.tagName !== 'BR') {
+    // 删除所有空段（含 <p><br></p>），避免多余空行导致行距过大
+    if (c.tagName === 'P' && c.textContent === '') {
       c.remove();
       i--;
       continue;

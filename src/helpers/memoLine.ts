@@ -23,6 +23,29 @@ export interface MemoLineFields {
     taskMark: string;
     /** 块 id（^xxxxxx），无则为空字符串 */
     hasId: string;
+    /** 是否已删除（行内含 deletedAt: 标记） */
+    isDeleted: boolean;
+    /** 删除时间戳（14位），未删除则为空字符串 */
+    deletedAt: string;
+}
+
+/**
+ * 从 memo 行内容中检测并提取删除标记 `deletedAt: <14位时间戳>`。
+ * 返回剥掉标记后的内容 + 是否删除 + 删除时间。
+ * 标记位于块 id 之前：`- 16:31 内容 deletedAt: 20260828150000 ^id`
+ * 调用前应先剥掉行尾的块 id，使 deletedAt 位于内容末尾。
+ */
+export function extractDeletedAt(content: string): { isDeleted: boolean; deletedAt: string; rest: string } {
+    const m = /(\sdeletedAt:\s*\d{14})\s*$/.exec(content);
+    if (m) {
+        const deletedAt = /(\d{14})$/.exec(m[1])![1];
+        return {
+            isDeleted: true,
+            deletedAt,
+            rest: content.slice(0, m.index).trimEnd(),
+        };
+    }
+    return { isDeleted: false, deletedAt: '', rest: content };
 }
 
 /** 是否配置了 {TIME}/{CONTENT} 自定义组合 */
@@ -84,7 +107,7 @@ export const resetMemoLineRegex = (): void => {
 export const parseMemoLine = (line: string): MemoLineFields => {
     const match = getMemoLineRegex().exec(line);
     if (!match) {
-        return { time: '', content: '', taskMark: '', hasId: '' };
+        return { time: '', content: '', taskMark: '', hasId: '', isDeleted: false, deletedAt: '' };
     }
     // 内容永远是最后一个捕获组（原 extractTextFromTodoLine 的做法，不依赖中间组编号）
     const rawContent = match[match.length - 1] !== undefined ? match[match.length - 1] : '';
@@ -99,13 +122,16 @@ export const parseMemoLine = (line: string): MemoLineFields => {
     }
     let content = rawContent;
     let hasId = '';
-    // 块 id 在内容末尾（^xxxxxx）
+    // 先剥块 id（行尾 ^xxxxxx）
     const idMatch = /\^(\S{6})$/.exec(content);
     if (idMatch) {
         hasId = idMatch[1];
         content = content.slice(0, -7).trimEnd();
     }
-    return { time, content, taskMark, hasId };
+    // 再检测删除标记（剥掉 id 后 deletedAt 位于内容末尾）
+    const { isDeleted, deletedAt, rest } = extractDeletedAt(content);
+    content = rest;
+    return { time, content, taskMark, hasId, isDeleted, deletedAt };
 };
 
 /** 判断一行是否是含时间的 memo 行（原 lineContainsTime） */
