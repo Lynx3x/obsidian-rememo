@@ -43,6 +43,15 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **Memo reference display** and **xiaohongshu export**: accepted as new features (xiaohongshu lower priority).
 - **Execution order (confirmed 2026-08-28):** user prioritises **refactor/cleanup over new features** (features not urgent). Clean old problems (REFACTOR-2026 dead code + data bugs) AND architecture-deepening candidates (per architecture-review HTML) first; features after. Also: confirm and delete obsolete old docs with user before removing.
 
+## 阶段 D 评论改造决策 (2026-08-28)
+
+- **数据模型统一**: 单一 `memos` 数组（废弃平行 `commentMemos`）。`linkId` 有值 = 评论（指向父 memo 的 `^id`），`linkId` 空 = 顶层 memo。UI 按 linkId 建树渲染多级。
+- **时间格式统一**: 所有 memo/评论统一 `HH:mm:ss`（带秒）。评论不再用 14 位时间戳，日期来自所在日记文件。
+- **迁移策略**: 只回写格式不一致的旧数据。旧 `HH:mm` 补 `:00` → `HH:mm:ss`；旧 14 位时间戳评论 → 转 `HH:mm:ss`。渲染层兼容：只有时分时秒显示 `00`。新数据一律 `HH:mm:ss`。
+- **脱离 Dataview**: 评论读取/写入不再依赖 Dataview，改用缩进层级（memoLine 的 getIndentLevel）+ 持久 `^id` 关联。
+- **级联删除**: 删父 memo 时连评论子树一起删。
+- **发送按钮样式**: 待办——固定图标，清理 SaveMemoButtonLabel/Icon 设置。
+
 ## Current-state facts (verified 2026-08-28)
 
 - **Date pick: partially built.** `waitForInsert` / `memoService.createMemo` already accept an `insertDate` param, but the editor's date picker only inserts a `[[date]]` text into content — it does **not** write the memo to that date. The seam exists; the UI wiring doesn't.

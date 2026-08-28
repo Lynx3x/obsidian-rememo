@@ -170,3 +170,32 @@ export const serializeMemoLine = (fields: {
     }
     return line;
 };
+
+// ===== 缩进层级工具（评论多级依赖） =====
+// 评论以缩进嵌套表达层级：顶层 memo 缩进 0，一级评论缩进 1 级（通常 4 空格），
+// 二级评论缩进 2 级（8 空格）…… 层级 = 缩进宽度 / 单级缩进宽度。
+
+/** 单级缩进宽度（空格数）。Obsidian 默认列表缩进，也兼容 tab（按 4 计）。 */
+const INDENT_UNIT = 4;
+
+/** 计算一行的缩进宽度（行首空格数；tab 按 INDENT_UNIT 折算） */
+export function getIndentWidth(line: string): number {
+    let width = 0;
+    for (const ch of line) {
+        if (ch === ' ') width += 1;
+        else if (ch === '\t') width += INDENT_UNIT;
+        else break;
+    }
+    return width;
+}
+
+/** 由缩进宽度换算层级（0 = 顶层 memo，1 = 一级评论，2 = 二级评论……） */
+export function getIndentLevel(indentWidth: number): number {
+    return Math.round(indentWidth / INDENT_UNIT);
+}
+
+/** 判断一行是否是缩进子项（评论行，非顶层 memo） */
+export function isIndentedLine(line: string): boolean {
+    return getIndentWidth(line) > 0;
+}
+
