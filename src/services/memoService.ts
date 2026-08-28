@@ -2,12 +2,13 @@ import { FIRST_TAG_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
 import { waitForInsert } from '../obComponents/obCreateMemo';
 import { changeMemo } from '../obComponents/obUpdateMemo';
 import { commentMemo } from '../obComponents/obCommentMemo';
-import { getMemos } from '../obComponents/obGetMemos';
+import { getMemos, getMemosFromDailyNote } from '../obComponents/obGetMemos';
 import { deleteForever, getDeletedMemos, restoreDeletedMemo } from '../obComponents/obDeleteMemo';
 import { obHideMemo } from '../obComponents/obHideMemo';
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
 import type { CreateCommentMemoParams, UpdateMemoParams } from '../types/memo';
+import type { TFile } from 'obsidian';
 
 /**
  * 备忘录服务类 - 处理所有与备忘录相关的操作
@@ -28,20 +29,35 @@ class MemoService {
      * 从API获取备忘录数据并更新到store
      */
     public async fetchAllMemos(): Promise<Model.Memo[]> {
-        const data = await getMemos();
-
-        // 分离普通备忘录和评论备忘录
-        const memos = data.memos || [];
-        const commentMemos = data.commentMemos || [];
-
-        // 更新store中的备忘录数据
-        this.updateMemoStore(memos, commentMemos);
+        // 分批加载：按日期降序读文件，每批更新 store，让最新 memo 优先显示
+        const accumulatedMemos: Model.Memo[] = [];
+        const accumulatedCommentMemos: Model.Memo[] = [];
+        await getMemos(async (batchMemos, batchCommentMemos) => {
+            accumulatedMemos.push(...batchMemos);
+            accumulatedCommentMemos.push(...batchCommentMemos);
+            this.updateMemoStore(accumulatedMemos, accumulatedCommentMemos);
+        });
 
         if (!this.initialized) {
             this.initialized = true;
         }
 
-        return memos;
+        return accumulatedMemos;
+    }
+
+    /**
+     * 增量加载：只重读变化的日记文件，替换 store 里该文件的旧 memos。
+     * 用于 vault on('modify') 事件，避免每次改动全量重读。
+     */
+    public async fetchMemosFromFile(file: TFile): Promise<void> {
+        const memos: Model.Memo[] = [];
+        const commentMemos: Model.Memo[] = [];
+        await getMemosFromDailyNote(file, memos, commentMemos);
+        const { memoState } = appStore.getState();
+        // 移除该文件旧的 memos，加上新读的（reducer 会去重+按时间排序）
+        const others = memoState.memos.filter((m) => m.path !== file.path);
+        const otherComments = memoState.commentMemos.filter((m) => m.path !== file.path);
+        this.updateMemoStore([...others, ...memos], [...otherComments, ...commentMemos]);
     }
 
     /**

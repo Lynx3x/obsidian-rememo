@@ -8729,12 +8729,14 @@ var utils;
     return Array.from(new Set(data));
   }
   utils2.dedupe = dedupe;
-  function dedupeObjectWithId(data) {
+  function dedupeObjectWithId(data, getKey) {
     const idSet = /* @__PURE__ */ new Set();
     const result = [];
+    const keyOf = getKey || ((d) => d.id);
     for (const d of data) {
-      if (!idSet.has(d.id)) {
-        idSet.add(d.id);
+      const key = keyOf(d);
+      if (!idSet.has(key)) {
+        idSet.add(key);
         result.push(d);
       }
     }
@@ -8957,7 +8959,8 @@ function reducer$6(state, action) {
       const memos = utils$1.dedupeObjectWithId(
         action.payload.memos.sort(
           (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        )
+        ),
+        (m2) => m2.hasId || m2.id
       );
       return {
         ...state,
@@ -8968,7 +8971,8 @@ function reducer$6(state, action) {
       const memos = utils$1.dedupeObjectWithId(
         action.payload.commentMemos.sort(
           (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        )
+        ),
+        (m2) => m2.hasId || m2.id
       );
       return {
         ...state,
@@ -8986,7 +8990,8 @@ function reducer$6(state, action) {
       const memos = utils$1.dedupeObjectWithId(
         [action.payload.memo, ...state.memos].sort(
           (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        )
+        ),
+        (m2) => m2.hasId || m2.id
       );
       return {
         ...state,
@@ -8997,7 +9002,8 @@ function reducer$6(state, action) {
       const memos = utils$1.dedupeObjectWithId(
         [action.payload.memo, ...state.commentMemos].sort(
           (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        )
+        ),
+        (m2) => m2.hasId || m2.id
       );
       return {
         ...state,
@@ -9608,7 +9614,8 @@ async function waitForInsert(MemoContent, isTASK, insertDate) {
   const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
   const date = insertDate ? insertDate : require$$0.moment();
   const timeText = date.format("HH:mm:ss");
-  const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter });
+  const generatedId = Math.random().toString(36).slice(-6);
+  const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter }) + " ^" + generatedId;
   const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
   const memo2 = {
     id: "",
@@ -9618,7 +9625,7 @@ async function waitForInsert(MemoContent, isTASK, insertDate) {
     updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
     memoType,
     path: "",
-    hasId: "",
+    hasId: generatedId,
     linkId: ""
   };
   writeMemoToDailyNote(date, newEvent, memo2);
@@ -9957,8 +9964,9 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
         if (CommentOnMemos && /comment:(.*)#\^\S{6}]]/g.test(rawText)) {
           linkId = extractCommentFromLine(rawText);
         }
-        if (/\^\S{6}$/g.test(rawText)) {
-          hasId = rawText.slice(-6);
+        const lineIdMatch = /\^(\S{6})\s*$/.exec(line);
+        if (lineIdMatch) {
+          hasId = lineIdMatch[1];
           originId = hasId;
         } else {
           toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
@@ -10148,7 +10156,7 @@ async function getMemosFromNote(allMemos, commentMemos) {
   }
   return;
 }
-async function getMemos() {
+async function getMemos(onBatch) {
   const memos = [];
   const commentMemos = [];
   const { vault } = appStore.getState().dailyNotesState.app;
@@ -10162,10 +10170,16 @@ async function getMemos() {
     throw new DailyNotesFolderMissingError("Failed to find daily notes folder");
   }
   const dailyNotes = getAllDailyNotes_1();
-  for (const string in dailyNotes) {
-    if (dailyNotes[string] instanceof require$$0.TFile && dailyNotes[string].extension === "md") {
-      await getMemosFromDailyNote(dailyNotes[string], memos, commentMemos);
+  const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").sort((a, b) => b[0].localeCompare(a[0]));
+  const BATCH_SIZE = 5;
+  for (let i = 0; i < files.length; i++) {
+    await getMemosFromDailyNote(files[i][1], memos, commentMemos);
+    if (onBatch && (i + 1) % BATCH_SIZE === 0) {
+      await onBatch([...memos], [...commentMemos]);
     }
+  }
+  if (onBatch && files.length > 0) {
+    await onBatch([...memos], [...commentMemos]);
   }
   if (FetchMemosFromNote) {
     await getMemosFromNote(memos, commentMemos);
@@ -10392,14 +10406,26 @@ class MemoService {
     return appStore.getState().memoState;
   }
   async fetchAllMemos() {
-    const data = await getMemos();
-    const memos = data.memos || [];
-    const commentMemos = data.commentMemos || [];
-    this.updateMemoStore(memos, commentMemos);
+    const accumulatedMemos = [];
+    const accumulatedCommentMemos = [];
+    await getMemos(async (batchMemos, batchCommentMemos) => {
+      accumulatedMemos.push(...batchMemos);
+      accumulatedCommentMemos.push(...batchCommentMemos);
+      this.updateMemoStore(accumulatedMemos, accumulatedCommentMemos);
+    });
     if (!this.initialized) {
       this.initialized = true;
     }
-    return memos;
+    return accumulatedMemos;
+  }
+  async fetchMemosFromFile(file) {
+    const memos = [];
+    const commentMemos = [];
+    await getMemosFromDailyNote(file, memos, commentMemos);
+    const { memoState } = appStore.getState();
+    const others = memoState.memos.filter((m2) => m2.path !== file.path);
+    const otherComments = memoState.commentMemos.filter((m2) => m2.path !== file.path);
+    this.updateMemoStore([...others, ...memos], [...otherComments, ...commentMemos]);
   }
   async fetchDeletedMemos() {
     const deletedMemos = await getDeletedMemos();
@@ -21710,7 +21736,7 @@ class Memos extends require$$0.ItemView {
       return;
     }
     if (date && this.memosComponent) {
-      memoService.fetchAllMemos();
+      memoService.fetchMemosFromFile(file);
     }
   }
   onFileCreated(file) {

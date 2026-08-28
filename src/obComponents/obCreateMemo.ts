@@ -38,8 +38,9 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
     const removeEnter = MemoContent.replace(/\n/g, '<br>').replace(/(<br>)(<br>)/g, '$1 $2');
     const date = insertDate ? insertDate : moment();
     const timeText = date.format('HH:mm:ss');
-
-    const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter });
+    // 创建时生成持久 ^id，写入文件，避免新建与重读产生重复
+    const generatedId = Math.random().toString(36).slice(-6);
+    const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter }) + ' ^' + generatedId;
     const memoType = isTASK ? 'TASK-TODO' : 'JOURNAL';
     const memo: Model.Memo = {
         id: '',
@@ -49,7 +50,7 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
         updatedAt: date.format('YYYY/MM/DD HH:mm:ss'),
         memoType: memoType,
         path: '',
-        hasId: '',
+        hasId: generatedId,
         linkId: '',
     };
     writeMemoToDailyNote(date, newEvent, memo);

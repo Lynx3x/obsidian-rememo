@@ -77,6 +77,7 @@ export function reducer(state: State, action: Actions): State {
         action.payload.memos.sort(
           (a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt),
         ),
+        (m) => m.hasId || m.id,
       );
 
       return {
@@ -89,6 +90,7 @@ export function reducer(state: State, action: Actions): State {
         action.payload.commentMemos.sort(
           (a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt),
         ),
+        (m) => m.hasId || m.id,
       );
 
       return {
@@ -108,6 +110,7 @@ export function reducer(state: State, action: Actions): State {
         [action.payload.memo, ...state.memos].sort(
           (a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt),
         ),
+        (m) => m.hasId || m.id,
       );
 
       return {
@@ -120,6 +123,7 @@ export function reducer(state: State, action: Actions): State {
         [action.payload.memo, ...state.commentMemos].sort(
           (a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt),
         ),
+        (m) => m.hasId || m.id,
       );
 
       return {

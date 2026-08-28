@@ -163,8 +163,10 @@ export async function getMemosFromDailyNote(
                 if (CommentOnMemos && /comment:(.*)#\^\S{6}]]/g.test(rawText)) {
                     linkId = extractCommentFromLine(rawText);
                 }
-                if (/\^\S{6}$/g.test(rawText)) {
-                    hasId = rawText.slice(-6);
+                // 从原始行检测块 id（rawText 已被 parseMemoLine 剥离块 id）
+                const lineIdMatch = /\^(\S{6})\s*$/.exec(line);
+                if (lineIdMatch) {
+                    hasId = lineIdMatch[1];
                     originId = hasId;
                 } else {
                     // 持久 ^id：行尾无块 id，生成并收集待回写
@@ -397,7 +399,9 @@ export async function getMemosFromNote(allMemos: any[], commentMemos: any[]): Pr
     return;
 }
 
-export async function getMemos(): Promise<allKindsofMemos> {
+export async function getMemos(
+    onBatch?: (memos: Model.Memo[], commentMemos: Model.Memo[]) => void | Promise<void>,
+): Promise<allKindsofMemos> {
     const memos: any[] | PromiseLike<any[]> = [];
     const commentMemos: any[] | PromiseLike<any[]> = [];
     const { vault } = appStore.getState().dailyNotesState.app;
@@ -415,10 +419,20 @@ export async function getMemos(): Promise<allKindsofMemos> {
 
     const dailyNotes = getAllDailyNotes();
 
-    for (const string in dailyNotes) {
-        if (dailyNotes[string] instanceof TFile && dailyNotes[string].extension === 'md') {
-            await getMemosFromDailyNote(dailyNotes[string] as any, memos, commentMemos);
+    // 按日期降序（最新在前），支持分批回调让 UI 优先显示最新
+    const files = Object.entries(dailyNotes)
+        .filter(([, f]) => f instanceof TFile && f.extension === 'md')
+        .sort((a, b) => b[0].localeCompare(a[0]));
+
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < files.length; i++) {
+        await getMemosFromDailyNote(files[i][1] as any, memos, commentMemos);
+        if (onBatch && (i + 1) % BATCH_SIZE === 0) {
+            await onBatch([...memos], [...commentMemos]);
         }
+    }
+    if (onBatch && files.length > 0) {
+        await onBatch([...memos], [...commentMemos]);
     }
 
     if (FetchMemosFromNote) {

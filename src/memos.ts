@@ -52,9 +52,8 @@ export class Memos extends ItemView {
       return;
     }
     if (date && this.memosComponent) {
-      // memoService.clearMemos();
-
-      memoService.fetchAllMemos();
+      // 增量：只重读变化的文件，避免全量重读所有日记
+      memoService.fetchMemosFromFile(file);
     }
   }
 
