@@ -9662,21 +9662,87 @@ const getAPI = (app2) => {
 const isPluginEnabled = (app2) => app2.plugins.enabledPlugins.has("dataview");
 var getAPI_1 = lib.getAPI = getAPI;
 lib.isPluginEnabled = isPluginEnabled;
+const hasCustomComposition = () => DefaultMemoComposition !== "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition);
+const buildMemoLineRegexString = () => {
+  const indent = CommentsInOriginalNotes ? "" : "\\s*";
+  const taskGroup = "(\\[(?:.{1})\\]\\s?)?";
+  const timeGroup = "(<time>)?(\\d{1,2}:\\d{2}(?::\\d{2})?)?(</time>)?";
+  if (hasCustomComposition()) {
+    return "^" + indent + "[-*]\\s" + taskGroup + DefaultMemoComposition.replace(/{TIME}/g, timeGroup).replace(/{CONTENT}/g, "(.*)$");
+  }
+  return "^" + indent + "[-*]\\s" + taskGroup + timeGroup + "\\s?(.*)$";
+};
+let cachedRegex = null;
+const getMemoLineRegex = () => {
+  if (cachedRegex === null) {
+    cachedRegex = new RegExp(buildMemoLineRegexString(), "");
+  }
+  return cachedRegex;
+};
+const parseMemoLine = (line) => {
+  const match = getMemoLineRegex().exec(line);
+  if (!match) {
+    return { time: "", content: "", taskMark: "", hasId: "" };
+  }
+  const rawContent = match[match.length - 1] !== void 0 ? match[match.length - 1] : "";
+  const hourText = extractHourFromBulletLine(line);
+  const minText = extractMinFromBulletLine(line);
+  const secText = extractSecondFromBulletLine(line);
+  const taskMark = extractMemoTaskTypeFromLine(line);
+  let time = "";
+  if (hourText !== "" && minText !== "") {
+    time = secText !== "" ? `${hourText}:${minText}:${secText}` : `${hourText}:${minText}`;
+  }
+  let content = rawContent;
+  let hasId = "";
+  const idMatch = /\^(\S{6})$/.exec(content);
+  if (idMatch) {
+    hasId = idMatch[1];
+    content = content.slice(0, -7).trimEnd();
+  }
+  return { time, content, taskMark, hasId };
+};
+const lineContainsTime = (line) => getMemoLineRegex().test(line);
+function lineContainsSeconds(line) {
+  return /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?\d{1,2}:\d{2}:\d{2}(<\/time>)?/.test(line);
+}
+function extractHourFromBulletLine(line) {
+  const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):\d{2}(:\d{2})?(<\/time>)?/.exec(line);
+  return match ? match[4] : "";
+}
+function extractMinFromBulletLine(line) {
+  const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):(\d{2})(:\d{2})?(<\/time>)?/.exec(line);
+  return match ? match[5] : "";
+}
+function extractSecondFromBulletLine(line) {
+  const match = /^[\s-*]*(\[(.{1})\]\s?)?(<time>)?(\d{1,2}):(\d{2}):(\d{2})(<\/time>)?/.exec(line);
+  return match ? match[6] : "";
+}
+function extractMemoTaskTypeFromLine(line) {
+  const match = /^[\s-*]*\[(.{1})\]/.exec(line);
+  return match ? match[1] : "";
+}
+const extractTextFromTodoLine = (line) => parseMemoLine(line).content;
+const getTaskType = (memoTaskType) => {
+  if (memoTaskType === " ")
+    return "TASK-TODO";
+  if (memoTaskType === "x" || memoTaskType === "X")
+    return "TASK-DONE";
+  return "TASK-" + memoTaskType;
+};
+const serializeMemoLine = (fields) => {
+  const { isTask, content } = fields;
+  const time = fields.time !== void 0 ? fields.time : "";
+  let line = isTask ? "- [ ] " : "- ";
+  if (DefaultMemoComposition === "") {
+    line += time !== "" ? `${time} ${content}` : content;
+  } else {
+    line += DefaultMemoComposition.replace(/{TIME}/g, time).replace(/{CONTENT}/g, content);
+  }
+  return line;
+};
 class DailyNotesFolderMissingError extends Error {
 }
-const getTaskType = (memoTaskType) => {
-  let memoType;
-  if (memoTaskType === " ") {
-    memoType = "TASK-TODO";
-    return memoType;
-  } else if (memoTaskType === "x" || memoTaskType === "X") {
-    memoType = "TASK-DONE";
-    return memoType;
-  } else {
-    memoType = "TASK-" + memoTaskType;
-    return memoType;
-  }
-};
 async function getRemainingMemos(note) {
   if (!note) {
     return 0;
@@ -9964,23 +10030,6 @@ async function getMemos() {
   return { memos, commentMemos };
 }
 const getAllLinesFromFile$7 = (cache) => cache.split(/\r?\n/);
-const lineContainsTime = (line) => {
-  let regexMatch;
-  let indent = "\\s*";
-  if (CommentsInOriginalNotes) {
-    indent = "";
-  }
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexMatch = "^" + indent + "(-|\\*)\\s(\\[(.{1})\\]\\s)?" + DefaultMemoComposition.replace(/{TIME}/g, "(\\<time\\>)?\\d{1,2}:\\d{2}(:\\d{2})?(\\<\\/time\\>)?").replace(
-      /{CONTENT}/g,
-      "(.*)$"
-    );
-  } else {
-    regexMatch = "^" + indent + "(-|\\*)\\s(\\[(.{1})\\]\\s)?(\\<time\\>)?\\d{1,2}\\:\\d{2}(\\:\\d{2})?(.*)$";
-  }
-  const regexMatchRe = new RegExp(regexMatch, "");
-  return regexMatchRe.test(line);
-};
 const lineContainsParseBelowToken = (line) => {
   if (ProcessEntriesBelow === "") {
     return true;
@@ -9988,73 +10037,11 @@ const lineContainsParseBelowToken = (line) => {
   const re2 = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"), "");
   return re2.test(line);
 };
-const extractTextFromTodoLine = (line) => {
-  let regexMatch;
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?" + DefaultMemoComposition.replace(/{TIME}/g, "(\\<time\\>)?\\d{1,2}\\:\\d{2}(\\:\\d{2})?(\\<\\/time\\>)?").replace(
-      /{CONTENT}/g,
-      "(.*)$"
-    );
-  } else {
-    regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?(\\<time\\>)?\\d{1,2}\\:\\d{2}(\\:\\d{2})?(\\<\\/time\\>)?\\s?(.*)$";
-  }
-  const regexMatchRe = new RegExp(regexMatch, "");
-  const match = regexMatchRe.exec(line);
-  return match == null ? void 0 : match[match.length - 1];
-};
-const extractHourFromBulletLine = (line) => {
-  var _a;
-  let regexHourMatch;
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexHourMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?" + DefaultMemoComposition.replace(/{TIME}/g, "(\\<time\\>)?(\\d{1,2})\\:(\\d{2})(\\:\\d{2})?(\\<\\/time\\>)?").replace(
-      /{CONTENT}/g,
-      "[^\\n]*"
-    );
-  } else {
-    regexHourMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?(\\<time\\>)?(\\d{1,2})\\:(\\d{2})(\\:\\d{2})?(.*)$";
-  }
-  const regexMatchRe = new RegExp(regexHourMatch, "");
-  return (_a = regexMatchRe.exec(line)) == null ? void 0 : _a[4];
-};
-const extractMinFromBulletLine = (line) => {
-  var _a;
-  let regexHourMatch;
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexHourMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?" + DefaultMemoComposition.replace(/{TIME}/g, "(\\<time\\>)?(\\d{1,2})\\:(\\d{2})(\\:\\d{2})?(\\<\\/time\\>)?").replace(
-      /{CONTENT}/g,
-      "[^\\n]*"
-    );
-  } else {
-    regexHourMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?(\\<time\\>)?(\\d{1,2})\\:(\\d{2})(\\:\\d{2})?(.*)$";
-  }
-  const regexMatchRe = new RegExp(regexHourMatch, "");
-  return (_a = regexMatchRe.exec(line)) == null ? void 0 : _a[5];
-};
-const extractMemoTaskTypeFromLine = (line) => {
-  var _a;
-  return (_a = /^\s*[\-\*]\s(\[(.{1})\])\s(.*)$/.exec(line)) == null ? void 0 : _a[2];
-};
 const extractCommentFromLine = (line) => {
   const regex = "#\\^(\\S{6})";
   const regexMatchRe = new RegExp(regex, "");
   const match = regexMatchRe.exec(line);
   return match ? match[1] : "";
-};
-const lineContainsSeconds = (line) => {
-  const regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?(\\<time\\>)?\\d{1,2}\\:\\d{2}\\:\\d{2}(\\<\\/time\\>)?";
-  const regexMatchRe = new RegExp(regexMatch, "");
-  return regexMatchRe.test(line);
-};
-const extractSecondFromBulletLine = (line) => {
-  var _a, _b;
-  let regexMatch;
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?" + DefaultMemoComposition.replace(/{TIME}/g, "(\\<time\\>)?(\\d{1,2})\\:(\\d{2})(\\:\\d{2})?(\\<\\/time\\>)?").replace(/{CONTENT}/g, "[^\\n]*");
-  } else {
-    regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?(\\<time\\>)?(\\d{1,2})\\:(\\d{2})(\\:\\d{2})?[^\\n]*";
-  }
-  const regexMatchRe = new RegExp(regexMatch, "");
-  return (_b = (_a = regexMatchRe.exec(line)) == null ? void 0 : _a[6]) == null ? void 0 : _b.replace(":", "");
 };
 const updateObsidianQuery = async (queryId, title, queryString) => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
@@ -10145,21 +10132,8 @@ function getLinesInString(input) {
 async function waitForInsert(MemoContent, isTASK, insertDate) {
   const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
   const date = insertDate ? insertDate : require$$0.moment();
-  const timeHour = date.format("HH");
-  const timeMinute = date.format("mm");
-  const timeSecond = date.format("ss");
-  let newEvent = "";
-  if (isTASK) {
-    newEvent += `- [ ] `;
-  } else {
-    newEvent += `- `;
-  }
-  const timeText = `${timeHour}:${timeMinute}:${timeSecond}`;
-  if (DefaultMemoComposition === "") {
-    newEvent += `${timeText} ${removeEnter}`;
-  } else {
-    newEvent += DefaultMemoComposition.replace(/{TIME}/g, timeText).replace(/{CONTENT}/g, removeEnter);
-  }
+  const timeText = date.format("HH:mm:ss");
+  const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter });
   const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
   const memo2 = {
     id: "",
@@ -10290,7 +10264,7 @@ async function restoreDeletedMemo(deletedMemoid) {
           const date = require$$0.moment(id2, "YYYYMMDDHHmmss");
           const timeHour = date.format("HH");
           const timeMinute = date.format("mm");
-          const newEvent = `- ` + String(timeHour) + `:` + String(timeMinute) + ` ` + extractContentfromText$1(line);
+          const newEvent = `- ` + String(timeHour) + `:` + String(timeMinute) + ` ` + extractContentfromText(line);
           const dailyNotes = await getAllDailyNotes_1();
           const existingFile = getDailyNote_1(date, dailyNotes);
           if (!existingFile) {
@@ -10366,7 +10340,7 @@ async function getDeletedMemos() {
           const createdDate = require$$0.moment(timeString, "YYYYMMDDHHmmss");
           const deletedDateID = extractDeleteDatefromText(fileLines[i]);
           const deletedDate = require$$0.moment(deletedDateID.slice(0, 13), "YYYYMMDDHHmmss");
-          const content = extractContentfromText$1(fileLines[i]);
+          const content = extractContentfromText(fileLines[i]);
           deletedMemos.push({
             id: deletedDateID,
             content,
@@ -10439,7 +10413,7 @@ const extractIDfromText = (line) => {
   var _a;
   return (_a = /^- (\d{14})(\d+)\s(.+)\s(deletedAt: )(.+)$/.exec(line)) == null ? void 0 : _a[1];
 };
-const extractContentfromText$1 = (line) => {
+const extractContentfromText = (line) => {
   var _a;
   return (_a = /^- (\d+)\s(.+)\s(deletedAt: )(.+)$/.exec(line)) == null ? void 0 : _a[2];
 };
@@ -10457,7 +10431,7 @@ async function obHideMemo(memoid) {
     const dailyNote = getDailyNote_1(changeDate, dailyNotes);
     const fileContent = await vault.read(dailyNote);
     const fileLines = getAllLinesFromFile$3(fileContent);
-    const content = extractContentfromText(fileLines[idString]);
+    const content = extractTextFromTodoLine(fileLines[idString]);
     const originalLine = "- " + memoid + " " + content;
     const newLine = fileLines[idString];
     const newFileContent = fileContent.replace(newLine, "");
@@ -10467,20 +10441,6 @@ async function obHideMemo(memoid) {
   }
 }
 const getAllLinesFromFile$3 = (cache) => cache.split(/\r?\n/);
-const extractContentfromText = (line) => {
-  var _a;
-  let regexMatch;
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?" + DefaultMemoComposition.replace(/{TIME}/g, "(\\<time\\>)?((\\d{1,2})\\:(\\d{2}))?(\\<\\/time\\>)?").replace(
-      /{CONTENT}/g,
-      "(.*)$"
-    );
-  } else {
-    regexMatch = "^\\s*[\\-\\*]\\s(\\[(.{1})\\]\\s?)?(\\<time\\>)?((\\d{1,2})\\:(\\d{2}))?(\\<\\/time\\>)?\\s?(.*)$";
-  }
-  const regexMatchRe = new RegExp(regexMatch, "");
-  return (_a = regexMatchRe.exec(line)) == null ? void 0 : _a[8];
-};
 async function deleteQueryForever(queryID) {
   const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
   if (/\d{14,}/.test(queryID)) {

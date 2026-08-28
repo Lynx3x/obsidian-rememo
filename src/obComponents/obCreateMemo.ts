@@ -2,8 +2,9 @@ import { moment } from 'obsidian';
 import type { TFile } from 'obsidian';
 import { getAllDailyNotes, getDailyNote } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
-import { DefaultMemoComposition, InsertAfter } from '../memos';
+import { InsertAfter } from '../memos';
 import utils from '../helpers/utils';
+import { serializeMemoLine } from '../helpers/memoLine';
 
 interface MContent {
     content: string;
@@ -36,22 +37,9 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
 
     const removeEnter = MemoContent.replace(/\n/g, '<br>').replace(/(<br>)(<br>)/g, '$1 $2');
     const date = insertDate ? insertDate : moment();
-    const timeHour = date.format('HH');
-    const timeMinute = date.format('mm');
-    const timeSecond = date.format('ss');
+    const timeText = date.format('HH:mm:ss');
 
-    let newEvent = '';
-    if (isTASK) {
-        newEvent += `- [ ] `;
-    } else {
-        newEvent += `- `;
-    }
-    const timeText = `${timeHour}:${timeMinute}:${timeSecond}`;
-    if (DefaultMemoComposition === '') {
-        newEvent += `${timeText} ${removeEnter}`;
-    } else {
-        newEvent += DefaultMemoComposition.replace(/{TIME}/g, timeText).replace(/{CONTENT}/g, removeEnter);
-    }
+    const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter });
     const memoType = isTASK ? 'TASK-TODO' : 'JOURNAL';
     const memo: Model.Memo = {
         id: '',
