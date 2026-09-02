@@ -9166,10 +9166,10 @@ const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/
 const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
 const LINK_REG = /(\s|：|>|^)((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/g;
 const MD_LINK_REG = /\[([\s\S]*?)\]\(([\s\S]*?)\)/gu;
-const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg))(\]\])?(\))?/g;
+const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg|webp|bmp))(\]\])?(\))?/g;
 const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\s*\))/g;
-const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?)(jpeg|jpg|gif|png|svg|bmp|wepg)(?!\))/g;
-const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|wepg))?(\|)?(.*?)\]\]/g;
+const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
+const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
 const MEMO_LINK_REG = /\[@(.+?)\]\((.+?)\)/g;
 class DailyNotesService {
   getState() {
@@ -9790,18 +9790,6 @@ async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
     linkId: hasID || ""
   };
 }
-var lib = {};
-Object.defineProperty(lib, "__esModule", { value: true });
-const getAPI = (app2) => {
-  var _a;
-  if (app2)
-    return (_a = app2.plugins.plugins.dataview) === null || _a === void 0 ? void 0 : _a.api;
-  else
-    return window.DataviewAPI;
-};
-const isPluginEnabled = (app2) => app2.plugins.enabledPlugins.has("dataview");
-var getAPI_1 = lib.getAPI = getAPI;
-lib.isPluginEnabled = isPluginEnabled;
 class DailyNotesFolderMissingError extends Error {
 }
 async function getRemainingMemos(note) {
@@ -9816,7 +9804,7 @@ async function getRemainingMemos(note) {
   } else {
     regexMatch = "(-|\\*) (\\[(.{1})\\]\\s)?((\\<time\\>)?\\d{1,2}\\:\\d{2}(\\:\\d{2})?)?";
   }
-  const regexMatchRe = new RegExp(regexMatch, "g");
+  const regexMatchRe = new RegExp(regexMatch, "gm");
   const matchLength = (fileContents.match(regexMatchRe) || []).length;
   const re2 = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"), "g");
   const processEntriesHeader = (fileContents.match(re2) || []).length;
@@ -9971,7 +9959,7 @@ async function backfillMemoTimes(vault, toFix) {
       const m2 = /^(\s*[-*]\s(\[(?:.{1})\]\s?)?)(.*)$/.exec(line);
       if (!m2)
         continue;
-      const prefix = m2[1] + (m2[2] || "");
+      const prefix = m2[1];
       const rest = m2[3];
       const ts = /^(\d{14})\s?(.*)$/.exec(rest);
       if (ts) {
@@ -9990,100 +9978,6 @@ async function backfillMemoTimes(vault, toFix) {
       await vault.modify(file, lines.join("\n"));
     }
   }
-}
-async function getMemosFromNote(allMemos, commentMemos) {
-  var _a, _b;
-  const notes = getAPI_1().pages(FetchMemosMark);
-  const dailyNotesPath = getDailyNotePath();
-  let files = notes == null ? void 0 : notes.values;
-  if (files.length === 0)
-    return;
-  files = files.filter(
-    (item) => item.file.name !== QueryFileName && item.file.name !== DeleteFileName && item["excalidraw-plugin"] === void 0 && item["kanban-plugin"] === void 0 && item.file.folder !== dailyNotesPath
-  );
-  for (let i = 0; i < files.length; i++) {
-    const createDate = files[i]["created"];
-    const list = (_a = files[i].file.lists) == null ? void 0 : _a.filter((item) => item.parent === void 0);
-    if (list.length === 0)
-      continue;
-    for (let j = 0; j < list.length; j++) {
-      const content = list.values[j].text;
-      const header = list.values[j].header.subpath;
-      const path = list.values[j].path;
-      const line = list.values[j].line;
-      let memoType = "JOURNAL";
-      let hasId;
-      let realCreateDate = createDate.toFormat("yyyy-MM-dd HH:mm:ss");
-      if (/\^\S{6}$/g.test(content)) {
-        hasId = content.slice(-6);
-      } else {
-        hasId = Math.random().toString(36).slice(-6);
-      }
-      if (list.values[j].task === true) {
-        memoType = getTaskType(list.values[j].status);
-      }
-      if (header !== void 0) {
-        if (require$$0.moment(header).isValid()) {
-          realCreateDate = require$$0.moment(header);
-        }
-      }
-      if (/^\d{2}:\d{2}(:\d{2})?/g.test(content)) {
-        const time = content.match(/^\d{2}:\d{2}(:\d{2})?/)[0];
-        const timeArr = time.split(":");
-        const hour = parseInt(timeArr[0], 10);
-        const minute = parseInt(timeArr[1], 10);
-        const second = timeArr[2] ? parseInt(timeArr[2], 10) : 0;
-        realCreateDate = require$$0.moment(realCreateDate).hours(hour).minutes(minute).seconds(second);
-      }
-      allMemos.push({
-        id: realCreateDate.format("YYYYMMDDHHmmss") + line,
-        content,
-        user_id: 1,
-        createdAt: realCreateDate.format("YYYY/MM/DD HH:mm:ss"),
-        updatedAt: realCreateDate.format("YYYY/MM/DD HH:mm:ss"),
-        memoType,
-        hasId,
-        linkId: "",
-        path
-      });
-      if (((_b = list.values[j].children) == null ? void 0 : _b.values.length) > 0) {
-        for (let k = 0; k < list[j].children.length; k++) {
-          const childContent = list[j].children[k].text;
-          const childLine = list[j].children[k].line;
-          let childMemoType = "JOURNAL";
-          let childRealCreateDate = realCreateDate;
-          let commentTime;
-          if (list[j].children[k].task === true) {
-            childMemoType = getTaskType(list[j].children[k].status);
-          }
-          if (/^\d{12}/.test(childContent)) {
-            commentTime = childContent == null ? void 0 : childContent.match(/^\d{14}/)[0];
-            childRealCreateDate = require$$0.moment(commentTime, "YYYYMMDDHHmmss");
-          }
-          if (/^\d{2}:\d{2}(:\d{2})?/g.test(childContent)) {
-            const time = childContent.match(/^\d{2}:\d{2}(:\d{2})?/)[0];
-            const timeArr = time.split(":");
-            const hour = parseInt(timeArr[0], 10);
-            const minute = parseInt(timeArr[1], 10);
-            const second = timeArr[2] ? parseInt(timeArr[2], 10) : 0;
-            childRealCreateDate = childRealCreateDate.hours(hour).minutes(minute).seconds(second);
-          }
-          commentMemos.push({
-            id: childRealCreateDate.format("YYYYMMDDHHmmss") + childLine,
-            content: childContent,
-            user_id: 1,
-            createdAt: childRealCreateDate.format("YYYY/MM/DD HH:mm:ss"),
-            updatedAt: childRealCreateDate.format("YYYY/MM/DD HH:mm:ss"),
-            memoType: childMemoType,
-            hasId: "",
-            linkId: hasId,
-            path
-          });
-        }
-      }
-    }
-  }
-  return;
 }
 async function getMemos(onBatch) {
   const memos = [];
@@ -10108,9 +10002,6 @@ async function getMemos(onBatch) {
   }
   if (onBatch && files.length > 0) {
     await onBatch([...memos]);
-  }
-  if (FetchMemosFromNote) {
-    await getMemosFromNote(memos, []);
   }
   return { memos, commentMemos: [] };
 }
@@ -13249,35 +13140,26 @@ const Zoom = ({ augment, addModule }) => {
   addModule(createModule(PLUGIN_ZOOM, ZoomContextProvider));
 };
 var styles = "";
-var previewImageDialog = "";
-const PreviewImageDialog = ({
-  destroy,
-  imgUrl,
-  allImages,
-  startIndex = 0
+var previewLightbox = "";
+const LightboxHost = ({
+  slides,
+  startIndex,
+  onClose
 }) => {
-  const slides = allImages || [{
-    src: imgUrl
-  }];
+  const [open, setOpen] = React.useState(true);
   const hasMultipleImages = slides.length > 1;
   return /* @__PURE__ */ jsx(Lightbox, {
-    open: true,
-    close: destroy,
-    slides,
-    index: startIndex,
+    open,
+    close: () => {
+      setOpen(false);
+      onClose();
+    },
+    slides: slides.map((s) => ({
+      src: s.src,
+      filepath: s.filepath
+    })),
+    index: Math.min(startIndex, Math.max(0, slides.length - 1)),
     plugins: [Zoom],
-    carousel: {
-      finite: !hasMultipleImages,
-      preload: slides.length
-    },
-    animation: {
-      fade: 150
-    },
-    styles: {
-      container: {
-        backgroundColor: "rgba(0, 0, 0, 0.9)"
-      }
-    },
     zoom: {
       maxZoomPixelRatio: 5,
       zoomInMultiplier: 1.5,
@@ -13288,9 +13170,12 @@ const PreviewImageDialog = ({
       doubleClickDelay: 300,
       keyboardMoveDistance: 50
     },
-    controller: {
-      closeOnBackdropClick: true,
-      closeOnPullDown: true
+    carousel: {
+      finite: !hasMultipleImages,
+      preload: slides.length
+    },
+    toolbar: {
+      buttons: ["zoom", "close"]
     },
     render: {
       iconLoading: () => /* @__PURE__ */ jsx("div", {
@@ -13302,21 +13187,111 @@ const PreviewImageDialog = ({
       buttonPrev: hasMultipleImages ? void 0 : () => null,
       buttonNext: hasMultipleImages ? void 0 : () => null
     },
-    toolbar: {
-      buttons: hasMultipleImages ? ["prev", "zoom", "next", "close"] : ["zoom", "close"]
+    controller: {
+      closeOnBackdropClick: true,
+      closeOnPullDown: true
     }
   });
 };
-function showPreviewImageDialog(imgUrl, filepath, allImages, startIndex) {
-  showDialog({
-    className: "preview-image-dialog",
-    clickSpaceDestroy: false
-  }, PreviewImageDialog, {
-    imgUrl,
-    filepath,
-    allImages,
-    startIndex
-  });
+let lightboxHost = null;
+function showPreviewImageDialog(imgUrl, filepath, allImages, startIndex = 0) {
+  if (lightboxHost) {
+    ReactDOM.unmountComponentAtNode(lightboxHost);
+    lightboxHost.remove();
+    lightboxHost = null;
+  }
+  const host = document.createElement("div");
+  document.body.appendChild(host);
+  lightboxHost = host;
+  const slides = allImages && allImages.length > 0 ? allImages : [{
+    src: imgUrl,
+    filepath
+  }];
+  const cleanup2 = () => {
+    if (lightboxHost) {
+      ReactDOM.unmountComponentAtNode(lightboxHost);
+      lightboxHost.remove();
+      lightboxHost = null;
+    }
+  };
+  ReactDOM.render(/* @__PURE__ */ jsx(LightboxHost, {
+    slides,
+    startIndex,
+    onClose: cleanup2
+  }), host);
+}
+const getPathOfImage = (vault, image2) => vault.getResourcePath(image2);
+const urlOnly = (raw) => {
+  const at = raw.search(/https?:\/\//);
+  return at >= 0 ? raw.slice(at) : raw.trim();
+};
+const resolveFilePath = (app2, rawName, altText) => {
+  const file = app2.metadataCache.getFirstLinkpathDest(decodeURIComponent(rawName), "");
+  if (file === null) {
+    return null;
+  }
+  const asFile = file;
+  return {
+    linkText: rawName,
+    altText: altText || "",
+    path: getPathOfImage(app2.vault, asFile),
+    filepath: asFile.path
+  };
+};
+const resolveWikiInternalLink = (app2, linkText) => {
+  const m2 = new RegExp(WIKI_IMAGE_URL_REG.source).exec(linkText);
+  if (!m2) {
+    return null;
+  }
+  return resolveFilePath(app2, m2[1] || "", m2[5] || "");
+};
+const resolveMDInternalLink = (app2, linkText) => {
+  const m2 = new RegExp(MARKDOWN_URL_REG.source).exec(linkText);
+  if (!m2) {
+    return null;
+  }
+  return resolveFilePath(app2, m2[5] || "", m2[2] || "");
+};
+function parseMemoImages(content, app2) {
+  const external = [];
+  const internal = [];
+  const webReg = new RegExp(MARKDOWN_WEB_URL_REG.source, "g");
+  let webMatch;
+  while ((webMatch = webReg.exec(content)) !== null) {
+    const url = urlOnly(webMatch[0]);
+    if (url && !external.includes(url)) {
+      external.push(url);
+    }
+  }
+  const mdReg = new RegExp(MARKDOWN_URL_REG.source, "g");
+  let mdMatch;
+  while ((mdMatch = mdReg.exec(content)) !== null) {
+    const link = mdMatch[0];
+    const target = mdMatch[5] || "";
+    if (/^https?:\/\//.test(target.trim())) {
+      if (!external.includes(target.trim())) {
+        external.push(target.trim());
+      }
+    } else {
+      const resolved = resolveMDInternalLink(app2, link);
+      if (resolved) {
+        internal.push(resolved);
+      }
+    }
+  }
+  const wikiReg = new RegExp(WIKI_IMAGE_URL_REG.source, "g");
+  let wikiMatch;
+  while ((wikiMatch = wikiReg.exec(content)) !== null) {
+    const resolved = resolveWikiInternalLink(app2, wikiMatch[0]);
+    if (resolved) {
+      internal.push(resolved);
+    }
+  }
+  const all = [
+    ...external.map((src) => ({ src })),
+    ...internal.map((l2) => ({ src: l2.path, filepath: l2.filepath }))
+  ];
+  return { external, internal, all };
 }
 var react_1 = react.exports;
 var isFunction = function(setStateAction) {
@@ -13348,7 +13323,7 @@ const parseMarkedToHtml = (markedStr, memoid) => {
     if (INTERNAL_MD_REG.test(htmlText)) {
       const internalMD = htmlText.match(INTERNAL_MD_REG);
       for (let i = 0; i < internalMD.length; i++) {
-        if (!/(jpeg|jpg|gif|png|svg|bmp|wepg)/g.test(internalMD[i])) {
+        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(internalMD[i])) {
           const internalContent = getContentFromInternalLink(internalMD[i]);
           if (/\|/g.test(internalContent)) {
             const [link, label2] = internalContent.split("|");
@@ -13366,7 +13341,7 @@ const parseMarkedToHtml = (markedStr, memoid) => {
     if (EXRERNAL_MD_REG.test(htmlText)) {
       const externalMD = htmlText.match(EXRERNAL_MD_REG);
       for (let i = 0; i < externalMD.length; i++) {
-        if (!/(jpeg|jpg|gif|png|svg|bmp|wepg)/g.test(externalMD[i])) {
+        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(externalMD[i])) {
           const link = getContentFromExternalLink(externalMD[i]);
           const label2 = getLabelFromExternalLink(externalMD[i]);
           const replaceMent = replaceMd(link, label2);
@@ -13472,129 +13447,47 @@ const Image$1 = (props) => {
     })
   });
 };
-const imageGridStyles = {
-  display: "grid",
-  gridTemplateColumns: `repeat(3, 150px)`,
-  gap: "1px",
-  marginTop: "4px",
-  maxWidth: "452px"
-};
-const imageItemStyles = {
-  width: "150px",
-  height: "150px"
-};
-const imageStyle = {
-  width: "100%",
-  height: "100%"
-};
+const MAX_COLS = 3;
+const GAP = 2;
+const CELL_WIDTH = 110;
+const SINGLE_CELL_WIDTH = 160;
 const MemoImage = (props) => {
-  var _a;
   const {
     memo: memo2
   } = props;
-  const getPathOfImage2 = (vault, image2) => {
-    return vault.getResourcePath(image2);
-  };
-  const detectWikiInternalLink2 = (lineText) => {
-    var _a2, _b;
-    const {
-      metadataCache,
-      vault
-    } = appStore.getState().dailyNotesState.app;
-    const internalFileName = (_a2 = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _a2[1];
-    const internalAltName = (_b = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _b[5];
-    const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: "",
-        filepath: ""
-      };
-    } else {
-      const imagePath = getPathOfImage2(vault, file);
-      const filePath = file.path;
-      return {
-        linkText: internalFileName,
-        altText: internalAltName || "",
-        path: imagePath,
-        filepath: filePath
-      };
-    }
-  };
-  const detectMDInternalLink2 = (lineText) => {
-    var _a2, _b;
-    const {
-      metadataCache,
-      vault
-    } = appStore.getState().dailyNotesState.app;
-    const internalFileName = (_a2 = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _a2[5];
-    const internalAltName = (_b = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _b[2];
-    const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: "",
-        filepath: ""
-      };
-    } else {
-      const imagePath = getPathOfImage2(vault, file);
-      const filePath = file.path;
-      return {
-        linkText: internalFileName,
-        altText: internalAltName || "",
-        path: imagePath,
-        filepath: filePath
-      };
-    }
-  };
-  const allImages = [];
-  if (MARKDOWN_WEB_URL_REG.test(memo2)) {
-    const externalUrls = Array.from(memo2.match(MARKDOWN_WEB_URL_REG) || []);
-    allImages.push(...externalUrls.map((url) => ({
-      src: url
-    })));
-  }
-  if (MARKDOWN_URL_REG.test(memo2)) {
-    const markdownLinks = Array.from(memo2.match(MARKDOWN_URL_REG) || []);
-    for (const link of markdownLinks) {
-      if (/(.*)http[s]?(.*)/.test(link)) {
-        const url = (_a = [...link.matchAll(MARKDOWN_URL_REG)][0]) == null ? void 0 : _a[5];
-        if (url)
-          allImages.push({
-            src: url
-          });
-      } else {
-        const result = detectMDInternalLink2(link);
-        if (result == null ? void 0 : result.path) {
-          allImages.push({
-            src: result.path,
-            filepath: result.filepath
-          });
-        }
-      }
-    }
-  }
-  if (WIKI_IMAGE_URL_REG.test(memo2)) {
-    const wikiLinks = Array.from(memo2.match(WIKI_IMAGE_URL_REG) || []);
-    for (const link of wikiLinks) {
-      const result = detectWikiInternalLink2(link);
-      if (result == null ? void 0 : result.path) {
-        allImages.push({
-          src: result.path,
-          filepath: result.filepath
-        });
-      }
-    }
-  }
-  if (allImages.length === 0) {
+  const {
+    app: app2
+  } = appStore.getState().dailyNotesState;
+  const {
+    all
+  } = parseMemoImages(memo2, app2);
+  if (all.length === 0) {
     return null;
   }
+  const count = all.length;
+  const cols = count >= MAX_COLS ? MAX_COLS : count;
+  const cell = count === 1 ? SINGLE_CELL_WIDTH : CELL_WIDTH;
+  const gridWidth = cols * cell + (cols - 1) * GAP;
+  const imageGridStyles = {
+    display: "grid",
+    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+    gap: `${GAP}px`,
+    marginTop: "4px",
+    width: `${gridWidth}px`,
+    maxWidth: "100%"
+  };
+  const imageItemStyles = {
+    aspectRatio: "1 / 1",
+    overflow: "hidden"
+  };
+  const imageStyle = {
+    width: "100%",
+    height: "100%"
+  };
   return /* @__PURE__ */ jsx("div", {
     className: "images-wrapper",
     style: imageGridStyles,
-    children: allImages.map((image2, idx) => /* @__PURE__ */ jsx("div", {
+    children: all.map((image2, idx) => /* @__PURE__ */ jsx("div", {
       style: imageItemStyles,
       children: /* @__PURE__ */ jsx(Image$1, {
         className: "memo-img",
@@ -13603,7 +13496,7 @@ const MemoImage = (props) => {
         filepath: image2.filepath,
         style: imageStyle,
         referrerPolicy: !image2.filepath ? "no-referrer" : void 0,
-        allImages,
+        allImages: all,
         index: idx
       })
     }, idx))
@@ -13799,81 +13692,7 @@ function SvgShare(props) {
     d: "M16,5l-1.42,1.42l-1.59-1.59V16h-1.98V4.83L9.42,6.42L8,5l4-4L16,5z M20,10v11c0,1.1-0.9,2-2,2H6c-1.11,0-2-0.9-2-2V10 c0-1.11,0.89-2,2-2h3v2H6v11h12V10h-3V8h3C19.1,8,20,8.89,20,10z"
   })));
 }
-const getPathOfImage = (vault, image2) => {
-  return vault.getResourcePath(image2);
-};
-const detectWikiInternalLink = (lineText) => {
-  var _a, _b;
-  const {
-    metadataCache,
-    vault
-  } = appStore.getState().dailyNotesState.app;
-  const internalFileName = (_a = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _a[1];
-  const internalAltName = (_b = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _b[5];
-  const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-  if (file === null) {
-    return {
-      linkText: internalFileName,
-      altText: internalAltName,
-      path: "",
-      filePath: ""
-    };
-  } else {
-    const imagePath = getPathOfImage(vault, file);
-    if (internalAltName) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: imagePath,
-        filePath: file.path
-      };
-    } else {
-      return {
-        linkText: internalFileName,
-        altText: "",
-        path: imagePath,
-        filePath: file.path
-      };
-    }
-  }
-};
-const detectMDInternalLink = (lineText) => {
-  var _a, _b;
-  const {
-    metadataCache,
-    vault
-  } = appStore.getState().dailyNotesState.app;
-  const internalFileName = (_a = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _a[5];
-  const internalAltName = (_b = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _b[2];
-  const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-  if (file === null) {
-    return {
-      linkText: internalFileName,
-      altText: internalAltName,
-      path: "",
-      filePath: ""
-    };
-  } else {
-    const imagePath = getPathOfImage(vault, file);
-    if (internalAltName) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: imagePath,
-        filePath: file.path
-      };
-    } else {
-      return {
-        linkText: internalFileName,
-        altText: "",
-        path: imagePath,
-        filePath: file.path
-      };
-    }
-  }
-};
 const ShareMemoImageDialog = (props) => {
-  var _a;
   const {
     memo: propsMemo,
     destroy
@@ -13904,40 +13723,13 @@ const ShareMemoImageDialog = (props) => {
   };
   const footerEnd = ShareFooterEnd.replace("{UserName}", UserName);
   const footerStart = ShareFooterStart.replace("{MemosNum}", memos.length.toString()).replace("{UsedDay}", createdDays.toString());
-  let externalImageUrls = [];
-  const internalImageUrls = [];
-  let allMarkdownLink = [];
-  let allInternalLink = [];
-  if (new RegExp(IMAGE_URL_REG).test(memo2.content)) {
-    let allExternalImageUrls = [];
-    const anotherExternalImageUrls = [];
-    if (new RegExp(MARKDOWN_URL_REG).test(memo2.content)) {
-      allMarkdownLink = Array.from(memo2.content.match(MARKDOWN_URL_REG));
-    }
-    if (new RegExp(WIKI_IMAGE_URL_REG).test(memo2.content)) {
-      allInternalLink = Array.from(memo2.content.match(WIKI_IMAGE_URL_REG));
-    }
-    if (new RegExp(MARKDOWN_WEB_URL_REG).test(memo2.content)) {
-      allExternalImageUrls = Array.from(memo2.content.match(MARKDOWN_WEB_URL_REG));
-    }
-    if (allInternalLink.length) {
-      for (let i = 0; i < allInternalLink.length; i++) {
-        const allInternalLinkElement = allInternalLink[i];
-        internalImageUrls.push(detectWikiInternalLink(allInternalLinkElement));
-      }
-    }
-    if (allMarkdownLink.length) {
-      for (let i = 0; i < allMarkdownLink.length; i++) {
-        const allMarkdownLinkElement = allMarkdownLink[i];
-        if (/(.*)http[s]?(.*)/.test(allMarkdownLinkElement)) {
-          anotherExternalImageUrls.push((_a = MARKDOWN_URL_REG.exec(allMarkdownLinkElement)) == null ? void 0 : _a[5]);
-        } else {
-          internalImageUrls.push(detectMDInternalLink(allMarkdownLinkElement));
-        }
-      }
-    }
-    externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
-  }
+  const {
+    app: app2
+  } = appStore.getState().dailyNotesState;
+  const {
+    external: externalImageUrls,
+    internal: internalImageUrls
+  } = parseMemoImages(memo2.content, app2);
   const [shortcutImgUrl, setShortcutImgUrl] = react.exports.useState("");
   const [imgAmount, setImgAmount] = react.exports.useState(externalImageUrls.length);
   const memoElRef = react.exports.useRef(null);
@@ -13999,21 +13791,21 @@ const ShareMemoImageDialog = (props) => {
   };
   const changeBackgroundImage = async () => {
     const {
-      app: app2
+      app: app22
     } = dailyNotesService.getState();
     let imageUrl;
     let imagePath;
     const lightBackgroundImage = encodeURI(lightBackground);
     const darkBackgroundImage = encodeURI(darkBackground);
     if (document.body.className.contains("theme-light")) {
-      if (await app2.vault.adapter.exists(DefaultLightBackgroundImage) && /\.(png|svg|jpg|jpeg)/g.test(DefaultLightBackgroundImage)) {
+      if (await app22.vault.adapter.exists(DefaultLightBackgroundImage) && /\.(png|svg|jpg|jpeg)/g.test(DefaultLightBackgroundImage)) {
         imagePath = DefaultLightBackgroundImage;
         imageUrl = await convertBackgroundToBase64(imagePath);
       } else {
         imageUrl = lightBackgroundImage;
       }
     } else if (document.body.className.contains("theme-dark")) {
-      if (await app2.vault.adapter.exists(DefaultDarkBackgroundImage) && /\.(png|svg|jpg|jpeg)/g.test(DefaultDarkBackgroundImage)) {
+      if (await app22.vault.adapter.exists(DefaultDarkBackgroundImage) && /\.(png|svg|jpg|jpeg)/g.test(DefaultDarkBackgroundImage)) {
         imagePath = DefaultDarkBackgroundImage;
         imageUrl = await convertBackgroundToBase64(imagePath);
       } else {
@@ -14063,7 +13855,7 @@ const ShareMemoImageDialog = (props) => {
       new require$$0.Notice(t$1("Image load failed"));
       ev.target.remove();
     }
-    setImgAmount(imgAmount - 1);
+    setImgAmount((n2) => n2 - 1);
   };
   return /* @__PURE__ */ jsxs(Fragment, {
     children: [/* @__PURE__ */ jsxs("div", {
@@ -14142,7 +13934,7 @@ const ShareMemoImageDialog = (props) => {
                 className: "memo-img",
                 src: imgUrl.path,
                 alt: imgUrl.altText,
-                path: imgUrl.filePath
+                path: imgUrl.filepath
               }, idx))
             })
           }), /* @__PURE__ */ jsxs("div", {
@@ -14216,11 +14008,11 @@ function SvgComment(props) {
     "p-id": 2597,
     width: 20,
     height: 20,
-    fill: "#37352f",
+    fill: "currentColor",
     ...props
   }, /* @__PURE__ */ react.exports.createElement("path", {
     d: "M853.333333 768c35.413333 0 64-20.650667 64-55.978667V170.581333A63.978667 63.978667 0 0 0 853.333333 106.666667H170.666667C135.253333 106.666667 106.666667 135.253333 106.666667 170.581333v541.44C106.666667 747.285333 135.338667 768 170.666667 768h201.173333l110.016 117.44a42.752 42.752 0 0 0 60.586667 0.042667L651.904 768H853.333333z m-219.029333-42.666667h-6.250667l-115.797333 129.962667c-0.106667 0.106667-116.010667-129.962667-116.010667-129.962667H170.666667c-11.776 0-21.333333-1.621333-21.333334-13.312V170.581333A21.205333 21.205333 0 0 1 170.666667 149.333333h682.666666c11.776 0 21.333333 9.536 21.333334 21.248v541.44c0 11.754667-9.472 13.312-21.333334 13.312H634.304zM341.333333 490.666667a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z",
-    fill: "#3D3D3D",
+    fill: "currentColor",
     "p-id": 2598
   }));
 }
@@ -14886,7 +14678,6 @@ const MemoComment = ({
 var Memo$1 = react.exports.memo(Memo);
 var dailyMemo = "";
 const DailyMemo = (props) => {
-  var _a;
   const {
     app: app2
   } = appStore.getState().dailyNotesState;
@@ -14898,110 +14689,15 @@ const DailyMemo = (props) => {
     createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt),
     timeStr: utils$1.getTimeString(propsMemo.createdAt)
   };
-  const getPathOfImage2 = (vault, image2) => {
-    return vault.getResourcePath(image2);
-  };
-  const detectWikiInternalLink2 = (lineText, app22) => {
-    var _a2, _b;
-    const internalFileName = (_a2 = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _a2[1];
-    const internalAltName = (_b = WIKI_IMAGE_URL_REG.exec(lineText)) == null ? void 0 : _b[5];
-    const file = app22.metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: "",
-        filePath: ""
-      };
-    } else {
-      const imagePath = getPathOfImage2(app22.vault, file);
-      if (internalAltName) {
-        return {
-          linkText: internalFileName,
-          altText: internalAltName,
-          path: imagePath,
-          filePath: file.path
-        };
-      } else {
-        return {
-          linkText: internalFileName,
-          altText: "",
-          path: imagePath,
-          filePath: file.path
-        };
-      }
-    }
-  };
-  const detectMDInternalLink2 = (lineText, app22) => {
-    var _a2, _b;
-    const internalFileName = (_a2 = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _a2[5];
-    const internalAltName = (_b = MARKDOWN_URL_REG.exec(lineText)) == null ? void 0 : _b[2];
-    const file = app22.metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), "");
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: "",
-        filePath: ""
-      };
-    } else {
-      const imagePath = getPathOfImage2(app22.vault, file);
-      if (internalAltName) {
-        return {
-          linkText: internalFileName,
-          altText: internalAltName,
-          path: imagePath,
-          filePath: file.path
-        };
-      } else {
-        return {
-          linkText: internalFileName,
-          altText: "",
-          path: imagePath,
-          filePath: file.path
-        };
-      }
-    }
-  };
-  let externalImageUrls = [];
-  const internalImageUrls = [];
-  let allMarkdownLink = [];
-  let allInternalLink = [];
-  if (IMAGE_URL_REG.test(memo2.content)) {
-    let allExternalImageUrls = [];
-    const anotherExternalImageUrls = [];
-    if (MARKDOWN_URL_REG.test(memo2.content)) {
-      allMarkdownLink = Array.from(memo2.content.match(MARKDOWN_URL_REG));
-    }
-    if (WIKI_IMAGE_URL_REG.test(memo2.content)) {
-      allInternalLink = Array.from(memo2.content.match(WIKI_IMAGE_URL_REG));
-    }
-    if (MARKDOWN_WEB_URL_REG.test(memo2.content)) {
-      allExternalImageUrls = Array.from(memo2.content.match(MARKDOWN_WEB_URL_REG));
-    }
-    if (allInternalLink.length) {
-      for (let i = 0; i < allInternalLink.length; i++) {
-        const allInternalLinkElement = allInternalLink[i];
-        internalImageUrls.push(detectWikiInternalLink2(allInternalLinkElement, app2));
-      }
-    }
-    if (allMarkdownLink.length) {
-      for (let i = 0; i < allMarkdownLink.length; i++) {
-        const allMarkdownLinkElement = allMarkdownLink[i];
-        if (/(.*)http[s]?(.*)/.test(allMarkdownLinkElement)) {
-          anotherExternalImageUrls.push((_a = MARKDOWN_URL_REG.exec(allMarkdownLinkElement)) == null ? void 0 : _a[5]);
-        } else {
-          internalImageUrls.push(detectMDInternalLink2(allMarkdownLinkElement, app2));
-        }
-      }
-    }
-    externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
-  }
-  const allImages = [...externalImageUrls.map((u2) => ({
+  const {
+    external,
+    internal
+  } = parseMemoImages(memo2.content, app2);
+  const allImages = [...external.map((u2) => ({
     src: u2
-  })), ...internalImageUrls.map((imgUrl) => ({
-    src: imgUrl.path,
-    filepath: imgUrl.filePath
+  })), ...internal.map((img) => ({
+    src: img.path,
+    filepath: img.filepath
   }))];
   return /* @__PURE__ */ jsxs("div", {
     className: "daily-memo-wrapper",
@@ -15019,10 +14715,10 @@ const DailyMemo = (props) => {
           __html: formatMemoContent(memo2.content)
         }
       }), /* @__PURE__ */ jsx(Only, {
-        when: externalImageUrls.length > 0,
+        when: external.length > 0,
         children: /* @__PURE__ */ jsx("div", {
           className: "images-container",
-          children: externalImageUrls.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
+          children: external.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
             className: "memo-img",
             imgUrl,
             alt: "",
@@ -15032,16 +14728,16 @@ const DailyMemo = (props) => {
           }, idx))
         })
       }), /* @__PURE__ */ jsx(Only, {
-        when: internalImageUrls.length > 0,
+        when: internal.length > 0,
         children: /* @__PURE__ */ jsx("div", {
           className: "images-container internal-embed image-embed is-loaded",
-          children: internalImageUrls.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
+          children: internal.map((imgUrl, idx) => /* @__PURE__ */ jsx(Image$1, {
             className: "memo-img",
             imgUrl: imgUrl.path,
             alt: imgUrl.altText,
-            filepath: imgUrl.filePath,
+            filepath: imgUrl.filepath,
             allImages,
-            index: externalImageUrls.length + idx
+            index: external.length + idx
           }, idx))
         })
       })]
@@ -15257,7 +14953,7 @@ const DailyMemoDiaryDialog = (props) => {
             }
           });
         }
-        PreviewImageDialog(url);
+        showPreviewImageDialog(url);
       }).catch(() => {
       });
     }, 0);
@@ -21782,18 +21478,11 @@ class Memos extends require$$0.ItemView {
         this.handleResize();
       })
     );
-    this.registerEvent(
-      this.app.metadataCache.on("dataview:api-ready", () => {
-        console.log("Dataview API ready");
-      })
-    );
     dailyNotesService.getApp(this.app);
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.plugin.settings } });
     InsertAfter = this.plugin.settings.InsertAfter;
     this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
-    this.plugin.settings.SaveMemoButtonLabel;
-    this.plugin.settings.SaveMemoButtonIcon;
     this.plugin.settings.DefaultPrefix;
     this.plugin.settings.InsertDateFormat;
     this.plugin.settings.DefaultEditorLocation;
@@ -21809,14 +21498,12 @@ class Memos extends require$$0.ItemView {
     AddBlankLineWhenDate = this.plugin.settings.AddBlankLineWhenDate;
     this.plugin.settings.AutoSaveWhenOnMobile;
     QueryFileName = this.plugin.settings.QueryFileName;
-    DeleteFileName = this.plugin.settings.DeleteFileName;
+    this.plugin.settings.DeleteFileName;
     UseVaultTags = this.plugin.settings.UseVaultTags;
     this.plugin.settings.DefaultDarkBackgroundImage;
     this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
     this.plugin.settings.ShowTaskLabel;
-    FetchMemosMark = this.plugin.settings.FetchMemosMark;
-    FetchMemosFromNote = this.plugin.settings.FetchMemosFromNote;
     this.plugin.settings.ShowCommentOnMemos;
     UseDailyOrPeriodic = this.plugin.settings.UseDailyOrPeriodic;
     ShowLeftSideBar = this.plugin.settings.ShowLeftSideBar;
@@ -21834,11 +21521,8 @@ let ShowTime;
 let ShowDate;
 let AddBlankLineWhenDate;
 let QueryFileName;
-let DeleteFileName;
 let UseVaultTags;
 let DefaultMemoComposition;
-let FetchMemosMark;
-let FetchMemosFromNote;
 let UseDailyOrPeriodic;
 let ShowLeftSideBar;
 const icons = {
@@ -21855,8 +21539,6 @@ const DEFAULT_SETTINGS = {
   UserName: "MEMO \u{1F609}",
   ProcessEntriesBelow: "",
   Language: "en",
-  SaveMemoButtonLabel: "NOTEIT",
-  SaveMemoButtonIcon: "\u270D\uFE0F",
   ShareFooterStart: "{MemosNum} Memos {UsedDay} Day",
   ShareFooterEnd: "\u270D\uFE0F by {UserName}",
   DefaultPrefix: "List",
@@ -21879,8 +21561,6 @@ const DEFAULT_SETTINGS = {
   DefaultLightBackgroundImage: "",
   DefaultDarkBackgroundImage: "",
   DefaultMemoComposition: "{TIME} {CONTENT}",
-  FetchMemosMark: "#memo",
-  FetchMemosFromNote: false,
   ShowCommentOnMemos: false,
   ShowLeftSideBar: false
 };
@@ -21933,18 +21613,6 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     ).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.ProcessEntriesBelow).setValue(this.plugin.settings.ProcessEntriesBelow).onChange(async (value) => {
         this.plugin.settings.ProcessEntriesBelow = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Save Memo button label")).setDesc(t$1("The text shown on the save Memo button in the UI. 'NOTEIT' by default.")).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.SaveMemoButtonLabel).setValue(this.plugin.settings.SaveMemoButtonLabel).onChange(async (value) => {
-        this.plugin.settings.SaveMemoButtonLabel = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Save Memo button icon")).setDesc(t$1("The icon shown on the save Memo button in the UI.")).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.SaveMemoButtonIcon).setValue(this.plugin.settings.SaveMemoButtonIcon).onChange(async (value) => {
-        this.plugin.settings.SaveMemoButtonIcon = value;
         this.applySettingsUpdate();
       })
     );
@@ -22116,25 +21784,6 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     new require$$0.Setting(containerEl).setName(t$1("Always Show Memo Comments")).setDesc(t$1("Always show memo comments on memos. False by default")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.ShowCommentOnMemos).onChange(async (value) => {
         this.plugin.settings.ShowCommentOnMemos = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Allow Memos to Fetch Memo from Notes")).setDesc(t$1("Use Memos to manage all memos in your notes, not only in daily notes. False by default")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.FetchMemosFromNote).onChange(async (value) => {
-        this.plugin.settings.FetchMemosFromNote = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Fetch Memos From Particular Notes")).setDesc(
-      t$1(
-        'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default'
-      )
-    ).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.FetchMemosMark).setValue(this.plugin.settings.FetchMemosMark).onChange(async (value) => {
-        this.plugin.settings.FetchMemosMark = value;
-        if (value === "") {
-          this.plugin.settings.FetchMemosMark = DEFAULT_SETTINGS.FetchMemosMark;
-        }
         this.applySettingsUpdate();
       })
     );

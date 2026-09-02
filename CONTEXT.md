@@ -1,6 +1,6 @@
 # Memos Plus — Domain Context
 
-> Domain glossary + handover doc for the Obsidian plugin **Memos Plus** (`obsidian-memos-plus`, fork of Quorafind's Obsidian-Memos). Kept in sync as work proceeds. **Last updated: 2026-09-01.**
+> Domain glossary + handover doc for the Obsidian plugin **Memos Plus** (`obsidian-memos-plus`, fork of Quorafind's Obsidian-Memos). Kept in sync as work proceeds. **Last updated: 2026-09-02.**
 
 ## Project location
 
@@ -53,14 +53,23 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - 轻量评论输入框 `CommentInput`
   - 删除改为隐藏标记（deletedAt），弃用 delete.md；回收站改读 isDeleted
 - **Bug fixes**: 新建 memo 双击编辑/跳转失败（`waitForInsert` 未 await → id/path 空）。
+- **阶段 D 收尾（2026-09-02）**:
+  - 修 `backfillMemoTimes` 前缀重复 bug（group1 已含任务标记，原拼两遍）
+  - 移除 SaveMemoButton 死设置（Editor 已用 send.svg）
+  - **彻底移除 Dataview**：删 `getMemosFromNote`、`obsidian-dataview` 依赖、`FetchMemos*` 设置
+  - **修 `getRemainingMemos` 漏 `m` flag**（2026-09-03）：带尾换行的文件 `matchLength=0` → `Memos===0` → 整文件跳过（解析+回写都不跑）。改 `'gm'` 后实测 `daily/2024-06-15.md` 三行旧格式成功自动回写 HH:mm:ss，测试文件已删
+- **阶段 E 图片（2026-09-02）**:
+  - 修图正则（`wepg`→`webp`、带参 URL、IMAGE_URL_REG 补 webp/bmp）
+  - `MemoImage` 网格微博式定宽（1 图 160px / 多图 110px，列上限 3，不撑满整行）
+  - 新深模块 `memoImages.ts`，三组件消重复解析
+  - 修 ShareMemoImageDialog `setImgAmount` stale 闭包
+- **预览重写（2026-09-03）**: `PreviewImageDialog` 弃用 showDialog 双层弹窗，改为独立挂载 yet-another-react-lightbox 全屏灯箱（官方样式 + 主题适配 `preview-lightbox.less`）。修 toolbar `prev/next` 文本 bug（库 toolbar 只认 zoom/close），多图导航走库原生箭头。DailyMemoDiaryDialog import bug（default 组件当函数用）一并修
+- **深色评论样式补齐（2026-09-03）**: memo.less 深色镜像缺 `.memo-comment-actions`（回复/删除按钮）与 CommentInput 的 input/send/cancel 样式（旧版残留 `.common-editor-wrapper`）→ 深色下按钮回文档流变"下一行"、输入框无样式。已镜像补齐
 
 ## Pending work (按顺序)
 
-1. **阶段 D 收尾**:
-   - 时间格式迁移验证（旧 `HH:mm`/14位时间戳 → `HH:mm:ss` 自动回写；`extractMemoTime`/`backfillMemoTimes` 已实现，未实测）
-   - 发送按钮设置清理（`SaveMemoButtonLabel`/`SaveMemoButtonIcon` 从 setting.ts 移除；Editor 已用 send.svg）
-   - `getMemosFromNote` 分支仍依赖 Dataview（`FetchMemosFromNote` 未启用，低优先）
-2. **阶段 E 图片**: 网络图识别 bug（`wepg` 拼写错误、带参 URL）、自适应宽度、`MemoImage` 深模块化（消除 DailyMemo/ShareMemoImageDialog 重复解析 ~250 行）。
+1. **阶段 D 收尾** — ✅ 全部完成（时间迁移实测通过）
+2. **阶段 E 图片** — ✅ 代码完成，图片宽高/预览待 Obsidian 目视确认
 3. **阶段 F 新功能**: 指定日期添加（编辑器日期选择 + 填时分，`waitForInsert` 已支持 insertDate）、小红书导出（低优先）。
 4. **UI 整体风格优化**: 上插件市场需要差异性，预期加动效（性能敏感则放弃）。发送按钮/评论显示调整一并规划。
 5. **阶段 G**: `parseMemo` 拆分（formatMemoContent 的 HTML 与图片/标签结构化）。
@@ -73,11 +82,16 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **`^id` 在行尾**，`deletedAt` 在 `^id` 前（不影响 id 解析）。
 - **子评论不单独标记**：父 deleted → 子树隐藏（读取时父 `isDeleted` 跳过子树）。
 
-## Current-state facts (verified 2026-09-01)
+## Current-state facts (verified 2026-09-03)
 
-- 开发库 `daily/` 有 9 个日记文件、35 条 memo（含测试评论/删除数据）。全有 `^id`。
-- 图片解析正则：`consts.ts` 的 `IMAGE_URL_REG`/`MARKDOWN_WEB_URL_REG` 等，有 `wepg` 拼写错误。
-- `MemoImage` 接收 `memo: string` 内部解析+九宫格，是深模块雏形。
-- `getMemosFromNote`（FetchMemosFromNote 分支）仍用 Dataview，未启用。
+- 开发库 `daily/` 有 11 个日记文件、35 条 memo（含测试评论/删除数据）。全有 `^id`。时间迁移测试文件 `daily/2024-06-15.md` **已删**（验证完成）。
+- 图片解析收敛到 `src/helpers/memoImages.ts`（`parseMemoImages(content, app)`），MemoImage/DailyMemo/ShareMemoImageDialog 共用。
+- `memos.ts` 不再有 `FetchMemos*`/`SaveMemoButton*` 全局变量；`obGetMemos.ts` 不再导入 obsidian-dataview。
+- 图片正则已修：consts.ts 里 `wepg`→`webp`，`IMAGE_URL_REG` 补 webp/bmp，`MARKDOWN_WEB_URL_REG` 支持带参 URL。
+- `MemoImage` 网格：**微博式定宽**（单图 160px / 多图 110px，列上限 3，不撑满整行）。`src/less/preview-image-dialog.less` 已删，改由 `src/less/preview-lightbox.less` 定制灯箱。
+- 时间迁移两 bug 已修并实测：`backfillMemoTimes` 前缀重复 + `getRemainingMemos` 漏 `m` flag（后者导致带尾换行文件整文件跳过）。
+- 图片预览：`PreviewImageDialog` 独立挂载 yet-another-react-lightbox（弃 showDialog 双层），单图隐藏左右箭头、多图循环、Zoom 插件可用。
+- 深色评论样式补齐（memo.less）：actions 按钮、CommentInput 全套；`comment.svg` 硬编码 fill 改 `currentColor`；深色 send-btn 用 `@text-dark-red` 与主编辑器 confirm 一致。
+- 注意：`main.js`/`styles.css` 需重新 build 后由 hot-reload 加载（已 build）。
 
 _See also: [REFACTOR-2026.md](REFACTOR-2026.md) (2026 重构方案，部分已实施)。_
