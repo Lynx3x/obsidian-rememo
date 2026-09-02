@@ -10,8 +10,6 @@ export interface MemosSettings {
   UserName: string;
   ProcessEntriesBelow: string;
   Language: string;
-  SaveMemoButtonLabel: string;
-  SaveMemoButtonIcon: string;
   ShareFooterStart: string;
   ShareFooterEnd: string;
   UseDailyOrPeriodic: string;
@@ -35,8 +33,6 @@ export interface MemosSettings {
   DefaultDarkBackgroundImage: string;
   DefaultMemoComposition: string;
   ShowTaskLabel: boolean;
-  FetchMemosMark: string;
-  FetchMemosFromNote: boolean;
   ShowCommentOnMemos: boolean;
   ShowLeftSideBar: boolean;
 }
@@ -47,8 +43,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   UserName: 'MEMO 😉',
   ProcessEntriesBelow: '',
   Language: 'en',
-  SaveMemoButtonLabel: 'NOTEIT',
-  SaveMemoButtonIcon: '✍️',
   ShareFooterStart: '{MemosNum} Memos {UsedDay} Day',
   ShareFooterEnd: '✍️ by {UserName}',
   DefaultPrefix: 'List',
@@ -72,8 +66,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   DefaultLightBackgroundImage: '',
   DefaultDarkBackgroundImage: '',
   DefaultMemoComposition: '{TIME} {CONTENT}',
-  FetchMemosMark: '#memo',
-  FetchMemosFromNote: false,
   ShowCommentOnMemos: false,
   ShowLeftSideBar: false,
 };
@@ -161,32 +153,6 @@ export class MemosSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.ProcessEntriesBelow)
           .onChange(async (value) => {
             this.plugin.settings.ProcessEntriesBelow = value;
-            this.applySettingsUpdate();
-          }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Save Memo button label'))
-      .setDesc(t("The text shown on the save Memo button in the UI. 'NOTEIT' by default."))
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.SaveMemoButtonLabel)
-          .setValue(this.plugin.settings.SaveMemoButtonLabel)
-          .onChange(async (value) => {
-            this.plugin.settings.SaveMemoButtonLabel = value;
-            this.applySettingsUpdate();
-          }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Save Memo button icon'))
-      .setDesc(t('The icon shown on the save Memo button in the UI.'))
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.SaveMemoButtonIcon)
-          .setValue(this.plugin.settings.SaveMemoButtonIcon)
-          .onChange(async (value) => {
-            this.plugin.settings.SaveMemoButtonIcon = value;
             this.applySettingsUpdate();
           }),
       );
@@ -510,36 +476,6 @@ export class MemosSettingTab extends PluginSettingTab {
           this.plugin.settings.ShowCommentOnMemos = value;
           this.applySettingsUpdate();
         }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Allow Memos to Fetch Memo from Notes'))
-      .setDesc(t('Use Memos to manage all memos in your notes, not only in daily notes. False by default'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.FetchMemosFromNote).onChange(async (value) => {
-          this.plugin.settings.FetchMemosFromNote = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Fetch Memos From Particular Notes'))
-      .setDesc(
-        t(
-          'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default',
-        ),
-      )
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.FetchMemosMark)
-          .setValue(this.plugin.settings.FetchMemosMark)
-          .onChange(async (value) => {
-            this.plugin.settings.FetchMemosMark = value;
-            if (value === '') {
-              this.plugin.settings.FetchMemosMark = DEFAULT_SETTINGS.FetchMemosMark;
-            }
-            this.applySettingsUpdate();
-          }),
       );
 
     this.containerEl.createEl('h1', { text: t('Say Thank You') });

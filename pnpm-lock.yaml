@@ -10,10 +10,10 @@ importers:
     dependencies:
       obsidian:
         specifier: 0.16.3
-        version: 0.16.3(@codemirror/state@6.2.1)(@codemirror/view@6.13.0)
+        version: 0.16.3(@codemirror/state@6.7.0)(@codemirror/view@6.43.5)
       obsidian-daily-notes-interface:
         specifier: ^0.9.4
-        version: 0.9.4(@codemirror/state@6.2.1)(@codemirror/view@6.13.0)
+        version: 0.9.4(@codemirror/state@6.7.0)(@codemirror/view@6.43.5)
       react:
         specifier: ^17.0.2
         version: 17.0.2
@@ -84,9 +84,6 @@ importers:
       less:
         specifier: ^4.1.2
         version: 4.1.2
-      obsidian-dataview:
-        specifier: 0.5.47
-        version: 0.5.47
       prettier:
         specifier: 2.7.1
         version: 2.7.1
@@ -243,21 +240,11 @@ packages:
     resolution: {integrity: sha512-zo3MIHGOkPOfoRXitsgHLjEXmlDaD/5KU1Uzuc9GNiZPhSqVxVRtxuPaSBZDsYZ9qV88AjtMtWW7ww98loJ9KA==}
     engines: {node: '>=6.9.0'}
 
-  '@codemirror/language@git+ssh://git@github.com/lishid/cm-language.git#6c1c5f5b677f6f6503d1ca2ec47f62f6406cda67':
-    resolution: {commit: 6c1c5f5b677f6f6503d1ca2ec47f62f6406cda67, repo: git+ssh://git@github.com/lishid/cm-language.git, type: git}
-    version: 6.10.8
+  '@codemirror/state@6.7.0':
+    resolution: {integrity: sha512-Zbl9NyscLMZkfXPQnNAIIAFftidrA1UbcJEIMp24C0Bukc2I5T8wJS0wsXYsnDOqCFJUeJ1BITGNs5CqPDSmSg==}
 
-  '@codemirror/state@6.2.1':
-    resolution: {integrity: sha512-RupHSZ8+OjNT38zU9fKH2sv+Dnlr8Eb8sl4NOnnqz95mCFTZUaiRP8Xv5MeeaG0px2b8Bnfe7YGwCV3nsBhbuw==}
-
-  '@codemirror/state@6.4.1':
-    resolution: {integrity: sha512-QkEyUiLhsJoZkbumGZlswmAhA7CBU02Wrz7zvH4SrcifbsqwlXShVXg65f3v/ts57W3dqyamEriMhij1Z3Zz4A==}
-
-  '@codemirror/view@6.13.0':
-    resolution: {integrity: sha512-oXTfJzHJ5Tl7f6T8ZO0HKf981zubxgKohjddLobbntbNZHlOZGMRL+pPZGtclDWFaFJWtGBYRGyNdjQ6Xsx5yA==}
-
-  '@codemirror/view@6.35.0':
-    resolution: {integrity: sha512-I0tYy63q5XkaWsJ8QRv5h6ves7kvtrBWjBcnf/bzohFJQc5c14a1AQRdE8QpPF9eMp5Mq2FMm59TCj1gDfE7kw==}
+  '@codemirror/view@6.43.5':
+    resolution: {integrity: sha512-7uT/vUgH6dfXWn3WqOe23KneILMvGy5wQjNMEcRXLKzziJ9NOktpW6tGoyQpwVkBgE5Gj6hKkCcsddbnkaWrOQ==}
 
   '@esbuild/linux-loong64@0.14.54':
     resolution: {integrity: sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw==}
@@ -305,14 +292,8 @@ packages:
   '@jukben/emoji-search@2.0.1':
     resolution: {integrity: sha512-jXVcJGTBl+uOsGld+6J+hcHlRt3Vhm9ffvkrb1IeSVXuFCuyklY2XPI2wvSHG1uMGXfgmKbuUe1MCh1ZV3CXNg==}
 
-  '@lezer/common@1.2.3':
-    resolution: {integrity: sha512-w7ojc8ejBqr2REPsWxJjrMFsA/ysDCFICn8zEOR9mrqzOu2amhITYuLD8ag6XZf0CFXDrhKqw7+tW8cX66NaDA==}
-
-  '@lezer/highlight@1.1.6':
-    resolution: {integrity: sha512-cmSJYa2us+r3SePpRCjN5ymCqCPv+zyXmDl0ciWtVaNiORT/MxM7ZgOMQZADD0o51qOaOg24qc/zBViOIwAjJg==}
-
-  '@lezer/lr@1.3.9':
-    resolution: {integrity: sha512-XPz6dzuTHlnsbA5M2DZgjflNQ+9Hi5Swhic0RULdp3oOs3rh6bqGZolosVqN/fQIT8uNiepzINJDnS39oweTHQ==}
+  '@marijn/find-cluster-break@1.0.4':
+    resolution: {integrity: sha512-Wy0V7+SGUjnF9/TkiM1hKVDPj7jKXduPNboMVtHTA8dySMURWqfg/JZ9E2Sq8JgSJmkl7k7Qe9FLeMSrSraWmQ==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -625,6 +606,9 @@ packages:
     resolution: {integrity: sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==}
     engines: {node: '>=10'}
 
+  crelt@1.0.7:
+    resolution: {integrity: sha512-aK6BbWfhf4U/wCcLHKPJl/xa6VkVstRaPywWtMKGwuOLc/wZTyQYuoxgvZnNsBvv7Kg3YTBQYYBCggcviQczuA==}
+
   cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -711,9 +695,6 @@ packages:
 
   electron-to-chromium@1.4.427:
     resolution: {integrity: sha512-HK3r9l+Jm8dYAm1ctXEWIC+hV60zfcjS9UA5BDlYvnI5S7PU/yytjpvSrTNrSSRRkuu3tDyZhdkwIczh+0DWaw==}
-
-  emoji-regex@10.2.1:
-    resolution: {integrity: sha512-97g6QgOk8zlDRdgq1WxwgTMgEWGVAQvB5Fdpgc1MkNy56la5SKP9GsMXKDOdqwn90/41a8yPwIGk1Y6WVbeMQA==}
 
   emojilib@2.4.0:
     resolution: {integrity: sha512-5U0rVMU5Y2n2+ykNLQqMoqklN9ICBT/KsvC1Gz6vqHbz2AXXGkG+Pm5rMWk/8Vjrr/mY9985Hi8DYzn1F09Nyw==}
@@ -1129,9 +1110,6 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  immediate@3.0.6:
-    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
-
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
     engines: {node: '>=6'}
@@ -1268,14 +1246,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  lie@3.1.1:
-    resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
-
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
-
-  localforage@1.10.0:
-    resolution: {integrity: sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==}
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -1290,10 +1262,6 @@ packages:
   lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
-
-  luxon@2.5.2:
-    resolution: {integrity: sha512-Yg7/RDp4nedqmLgyH0LwgGRvMEKVzKbUdkBYyCosbHgJ+kaOUx0qzSiSatVc3DFygnirTPYnMM2P5dg2uH1WvA==}
-    engines: {node: '>=12'}
 
   make-dir@2.1.0:
     resolution: {integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==}
@@ -1333,6 +1301,9 @@ packages:
 
   moment@2.29.4:
     resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
+
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
@@ -1393,19 +1364,9 @@ packages:
     resolution: {integrity: sha512-FVVTkD1vENCsAcwNs9k6jea2uHC/X0+JcjG8YA60FN5CMaJmG95wT9jek/xX9nornqGRrBkKtzuAu2wuHpKqvw==}
     engines: {node: '>= 0.4'}
 
-  obsidian-calendar-ui@0.3.12:
-    resolution: {integrity: sha512-hdoRqCPnukfRgCARgArXaqMQZ+Iai0eY7f0ZsFHHfywpv4gKg3Tx5p47UsLvRO5DD+4knlbrL7Gel57MkfcLTw==}
-
-  obsidian-daily-notes-interface@0.8.4:
-    resolution: {integrity: sha512-REKQtAuIOKDbvNH/th1C1gWmJWCP5tRn9T/mfZGZt4Zncgko7McXK0aSKFtEInipvgbZJ2nScivvyLdiWluSMw==}
-    hasBin: true
-
   obsidian-daily-notes-interface@0.9.4:
     resolution: {integrity: sha512-PILoRtZUB5wEeGnDQAPMlkVlXwDYoxkLR8Wl4STU2zLNwhcq9kKvQexiXi7sfjGlpTnL+LeAOfEVWyeVndneKg==}
     hasBin: true
-
-  obsidian-dataview@0.5.47:
-    resolution: {integrity: sha512-r1//MYBNsOmZpnYA1GsilDdRFaznHqqUbr1z3ayzz0a4fpyP3iFr0CiAFMMgTf45QjjFEE0knFxdmrFGA2mZwg==}
 
   obsidian@0.16.3:
     resolution: {integrity: sha512-hal9qk1A0GMhHSeLr2/+o3OpLmImiP+Y+sx2ewP13ds76KXsziG96n+IPFT0mSkup1zSwhEu+DeRhmbcyCCXWw==}
@@ -1413,12 +1374,12 @@ packages:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
 
-  obsidian@git+ssh://git@github.com/obsidianmd/obsidian-api.git#23947b58d372ea02225324308e31d36b4aa95869:
-    resolution: {commit: 23947b58d372ea02225324308e31d36b4aa95869, repo: git+ssh://git@github.com/obsidianmd/obsidian-api.git, type: git}
-    version: 1.7.2
+  obsidian@https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc:
+    resolution: {tarball: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc}
+    version: 1.13.2
     peerDependencies:
-      '@codemirror/state': ^6.0.0
-      '@codemirror/view': ^6.0.0
+      '@codemirror/state': 6.7.0
+      '@codemirror/view': 6.43.5
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
@@ -1426,9 +1387,6 @@ packages:
   optionator@0.9.1:
     resolution: {integrity: sha512-74RlY5FCnhq4jRxVUPKDaRwrVNXMqsGsiW6AJw4XK8hmtm10wC0ypZBLw5IIp85NZMr91+qd1RvvENwg7jjRFw==}
     engines: {node: '>= 0.8.0'}
-
-  papaparse@5.4.1:
-    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -1441,9 +1399,6 @@ packages:
   parse-node-version@1.0.1:
     resolution: {integrity: sha512-3YHlOa/JgH6Mnpr05jP9eDG254US9ek25LyIxZlDItp2iJtwyaXQb57lBYLdT3MowkUFYEV2XXNAYIPlESvJlA==}
     engines: {node: '>= 0.10'}
-
-  parsimmon@1.18.1:
-    resolution: {integrity: sha512-u7p959wLfGAhJpSDJVYXoyMCXWYwHia78HhRBWqk7AIbxdmlrfdp5wX0l3xv/iTSH5HvhN9K7o26hwwpgS5Nmw==}
 
   path-is-absolute@1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
@@ -1474,9 +1429,6 @@ packages:
   postcss@8.4.24:
     resolution: {integrity: sha512-M0RzbcI0sO/XJNucsGjvWU9ERWxb/ytp1w6dKtxTKgixdtQDq4rmx/g8W1hnaheq9jgwL/oyEdH5Bc4WwJKMqg==}
     engines: {node: ^10 || ^12 || >=14}
-
-  preact@10.15.1:
-    resolution: {integrity: sha512-qs2ansoQEwzNiV5eAcRT1p1EC/dmEzaATVDJNiB3g2sRDWdA7b7MurXdJjB2+/WQktGWZwxvDrnuRFbWuIr64g==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -1679,9 +1631,6 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  style-mod@4.0.3:
-    resolution: {integrity: sha512-78Jv8kYJdjbvRwwijtCevYADfsI0lGzYJe4mMFdceO8l75DFFDoqBhR1jVDicDRRaX4//g1u9wKeo+ztc2h1Rw==}
-
   style-mod@4.1.2:
     resolution: {integrity: sha512-wnD1HyVqpJUI2+eKZ+eo1UwghftP6yuFheBqqe+bWCotBjC2K1YnteJILRMs3SM4V/0dLEW1SC27MWP5y+mwmw==}
 
@@ -1696,10 +1645,6 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-
-  svelte@3.35.0:
-    resolution: {integrity: sha512-gknlZkR2sXheu/X+B7dDImwANVvK1R0QGQLd8CNIfxxGPeXBmePnxfzb6fWwTQRsYQG7lYkZXvpXJvxvpsoB7g==}
-    engines: {node: '>= 8'}
 
   svg-parser@2.0.4:
     resolution: {integrity: sha512-e4hG1hRwoOdRb37cIMSgzNsxyzKfayW6VOflrwvR+/bzrkyxY/31WkbgnQpgtrNp1SdpJvpUAGTa/ZoiPNDuRQ==}
@@ -2023,28 +1968,14 @@ snapshots:
       '@babel/helper-validator-identifier': 7.22.5
       to-fast-properties: 2.0.0
 
-  '@codemirror/language@git+ssh://git@github.com/lishid/cm-language.git#6c1c5f5b677f6f6503d1ca2ec47f62f6406cda67':
+  '@codemirror/state@6.7.0':
     dependencies:
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.35.0
-      '@lezer/common': 1.2.3
-      '@lezer/highlight': 1.1.6
-      '@lezer/lr': 1.3.9
-      style-mod: 4.1.2
+      '@marijn/find-cluster-break': 1.0.4
 
-  '@codemirror/state@6.2.1': {}
-
-  '@codemirror/state@6.4.1': {}
-
-  '@codemirror/view@6.13.0':
+  '@codemirror/view@6.43.5':
     dependencies:
-      '@codemirror/state': 6.2.1
-      style-mod: 4.0.3
-      w3c-keyname: 2.2.8
-
-  '@codemirror/view@6.35.0':
-    dependencies:
-      '@codemirror/state': 6.4.1
+      '@codemirror/state': 6.7.0
+      crelt: 1.0.7
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
 
@@ -2107,15 +2038,7 @@ snapshots:
       emojilib: 2.4.0
       match-sorter: 4.0.0
 
-  '@lezer/common@1.2.3': {}
-
-  '@lezer/highlight@1.1.6':
-    dependencies:
-      '@lezer/common': 1.2.3
-
-  '@lezer/lr@1.3.9':
-    dependencies:
-      '@lezer/common': 1.2.3
+  '@marijn/find-cluster-break@1.0.4': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -2474,6 +2397,8 @@ snapshots:
       path-type: 4.0.0
       yaml: 1.10.2
 
+  crelt@1.0.7: {}
+
   cross-spawn@7.0.3:
     dependencies:
       path-key: 3.1.1
@@ -2554,8 +2479,6 @@ snapshots:
       domelementtype: 1.3.1
 
   electron-to-chromium@1.4.427: {}
-
-  emoji-regex@10.2.1: {}
 
   emojilib@2.4.0: {}
 
@@ -2992,8 +2915,6 @@ snapshots:
   image-size@0.5.5:
     optional: true
 
-  immediate@3.0.6: {}
-
   import-fresh@3.3.0:
     dependencies:
       parent-module: 1.0.1
@@ -3137,15 +3058,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  lie@3.1.1:
-    dependencies:
-      immediate: 3.0.6
-
   lines-and-columns@1.2.4: {}
-
-  localforage@1.10.0:
-    dependencies:
-      lie: 3.1.1
 
   lodash.merge@4.6.2: {}
 
@@ -3160,8 +3073,6 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
-
-  luxon@2.5.2: {}
 
   make-dir@2.1.0:
     dependencies:
@@ -3198,6 +3109,8 @@ snapshots:
       minimist: 1.2.8
 
   moment@2.29.4: {}
+
+  moment@2.30.1: {}
 
   ms@2.1.2: {}
 
@@ -3267,57 +3180,27 @@ snapshots:
       define-properties: 1.2.0
       es-abstract: 1.21.2
 
-  obsidian-calendar-ui@0.3.12(@codemirror/state@6.2.1)(@codemirror/view@6.13.0):
+  obsidian-daily-notes-interface@0.9.4(@codemirror/state@6.7.0)(@codemirror/view@6.43.5):
     dependencies:
-      obsidian-daily-notes-interface: 0.8.4(@codemirror/state@6.2.1)(@codemirror/view@6.13.0)
-      svelte: 3.35.0
+      obsidian: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc(@codemirror/state@6.7.0)(@codemirror/view@6.43.5)
       tslib: 2.1.0
     transitivePeerDependencies:
       - '@codemirror/state'
       - '@codemirror/view'
 
-  obsidian-daily-notes-interface@0.8.4(@codemirror/state@6.2.1)(@codemirror/view@6.13.0):
+  obsidian@0.16.3(@codemirror/state@6.7.0)(@codemirror/view@6.43.5):
     dependencies:
-      obsidian: git+ssh://git@github.com/obsidianmd/obsidian-api.git#23947b58d372ea02225324308e31d36b4aa95869(@codemirror/state@6.2.1)(@codemirror/view@6.13.0)
-      tslib: 2.1.0
-    transitivePeerDependencies:
-      - '@codemirror/state'
-      - '@codemirror/view'
-
-  obsidian-daily-notes-interface@0.9.4(@codemirror/state@6.2.1)(@codemirror/view@6.13.0):
-    dependencies:
-      obsidian: git+ssh://git@github.com/obsidianmd/obsidian-api.git#23947b58d372ea02225324308e31d36b4aa95869(@codemirror/state@6.2.1)(@codemirror/view@6.13.0)
-      tslib: 2.1.0
-    transitivePeerDependencies:
-      - '@codemirror/state'
-      - '@codemirror/view'
-
-  obsidian-dataview@0.5.47:
-    dependencies:
-      '@codemirror/language': git+ssh://git@github.com/lishid/cm-language.git#6c1c5f5b677f6f6503d1ca2ec47f62f6406cda67
-      '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.13.0
-      emoji-regex: 10.2.1
-      localforage: 1.10.0
-      luxon: 2.5.2
-      obsidian-calendar-ui: 0.3.12(@codemirror/state@6.2.1)(@codemirror/view@6.13.0)
-      papaparse: 5.4.1
-      parsimmon: 1.18.1
-      preact: 10.15.1
-
-  obsidian@0.16.3(@codemirror/state@6.2.1)(@codemirror/view@6.13.0):
-    dependencies:
-      '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.13.0
+      '@codemirror/state': 6.7.0
+      '@codemirror/view': 6.43.5
       '@types/codemirror': 0.0.108
       moment: 2.29.4
 
-  obsidian@git+ssh://git@github.com/obsidianmd/obsidian-api.git#23947b58d372ea02225324308e31d36b4aa95869(@codemirror/state@6.2.1)(@codemirror/view@6.13.0):
+  obsidian@https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc(@codemirror/state@6.7.0)(@codemirror/view@6.43.5):
     dependencies:
-      '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.13.0
+      '@codemirror/state': 6.7.0
+      '@codemirror/view': 6.43.5
       '@types/codemirror': 5.60.8
-      moment: 2.29.4
+      moment: 2.30.1
 
   once@1.4.0:
     dependencies:
@@ -3332,8 +3215,6 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.3
 
-  papaparse@5.4.1: {}
-
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -3346,8 +3227,6 @@ snapshots:
       lines-and-columns: 1.2.4
 
   parse-node-version@1.0.1: {}
-
-  parsimmon@1.18.1: {}
 
   path-is-absolute@1.0.1: {}
 
@@ -3369,8 +3248,6 @@ snapshots:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
-
-  preact@10.15.1: {}
 
   prelude-ls@1.2.1: {}
 
@@ -3575,8 +3452,6 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-mod@4.0.3: {}
-
   style-mod@4.1.2: {}
 
   supports-color@5.5.0:
@@ -3588,8 +3463,6 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
-
-  svelte@3.35.0: {}
 
   svg-parser@2.0.4: {}
 

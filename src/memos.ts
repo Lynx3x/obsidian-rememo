@@ -109,24 +109,6 @@ export class Memos extends ItemView {
         this.handleResize();
       }),
     );
-    this.registerEvent(
-      this.app.metadataCache.on('dataview:api-ready', () => {
-        console.log('Dataview API ready');
-      }),
-    );
-    // this.registerEvent(
-    //   this.app.metadataCache.on('dataview:metadata-change', (_, file) => {
-    //     if (!(file instanceof TFile)) {
-    //       return;
-    //     }
-    //     const dataviewAPI = getAPI();
-    //     if (getDateFromFile(file, 'day') === undefined || dataviewAPI.page(file.path) === undefined) {
-    //       return;
-    //     }
-    //     getAPI().index.reload(file);
-    //     memoService.fetchAllMemos();
-    //   }),
-    // );
 
     dailyNotesService.getApp(this.app);
 
@@ -136,8 +118,6 @@ export class Memos extends ItemView {
     InsertAfter = this.plugin.settings.InsertAfter;
     UserName = this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
-    SaveMemoButtonLabel = this.plugin.settings.SaveMemoButtonLabel;
-    SaveMemoButtonIcon = this.plugin.settings.SaveMemoButtonIcon;
     DefaultPrefix = this.plugin.settings.DefaultPrefix;
     InsertDateFormat = this.plugin.settings.InsertDateFormat;
     DefaultEditorLocation = this.plugin.settings.DefaultEditorLocation;
@@ -160,8 +140,6 @@ export class Memos extends ItemView {
     DefaultLightBackgroundImage = this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
     ShowTaskLabel = this.plugin.settings.ShowTaskLabel;
-    FetchMemosMark = this.plugin.settings.FetchMemosMark;
-    FetchMemosFromNote = this.plugin.settings.FetchMemosFromNote;
     ShowCommentOnMemos = this.plugin.settings.ShowCommentOnMemos;
     UseDailyOrPeriodic = this.plugin.settings.UseDailyOrPeriodic;
     ShowLeftSideBar = this.plugin.settings.ShowLeftSideBar;
@@ -180,8 +158,6 @@ export class Memos extends ItemView {
 export let InsertAfter: string;
 export let UserName: string;
 export let ProcessEntriesBelow: string;
-export let SaveMemoButtonLabel: string;
-export let SaveMemoButtonIcon: string;
 export let DefaultPrefix: string;
 export let InsertDateFormat: string;
 export let DefaultEditorLocation: string;
@@ -204,8 +180,6 @@ export let DefaultDarkBackgroundImage: string;
 export let DefaultLightBackgroundImage: string;
 export let DefaultMemoComposition: string;
 export let ShowTaskLabel: boolean;
-export let FetchMemosMark: string;
-export let FetchMemosFromNote: boolean;
 export let ShowCommentOnMemos: boolean;
 export let UseDailyOrPeriodic: string;
 export let ShowLeftSideBar: boolean;

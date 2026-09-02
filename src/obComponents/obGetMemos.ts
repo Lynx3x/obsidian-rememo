@@ -3,13 +3,8 @@ import { getAllDailyNotes, getDateFromFile } from 'obsidian-daily-notes-interfac
 import appStore from '../stores/appStore';
 import {
     DefaultMemoComposition,
-    DeleteFileName,
-    FetchMemosFromNote,
-    FetchMemosMark,
     ProcessEntriesBelow,
-    QueryFileName,
 } from '../memos';
-import { getAPI } from 'obsidian-dataview';
 import { t } from '../translations/helper';
 import { getDailyNotePath } from '../helpers/utils';
 import { extractDeletedAt, extractMemoTaskTypeFromLine, extractMemoTime, getIndentLevel, getIndentWidth, getTaskType } from '../helpers/memoLine';
@@ -41,7 +36,7 @@ export async function getRemainingMemos(note: TFile): Promise<number> {
         //eslint-disable-next-line
         regexMatch = '(-|\\*) (\\[(.{1})\\]\\s)?((\\<time\\>)?\\d{1,2}\\:\\d{2}(\\:\\d{2})?)?';
     }
-    const regexMatchRe = new RegExp(regexMatch, 'g');
+    const regexMatchRe = new RegExp(regexMatch, 'gm'); // m: 逐行匹配，否则带尾换行的文件一行都数不到（Memos===0 → 跳过整个文件）
     //eslint-disable-next-line
     const matchLength = (fileContents.match(regexMatchRe) || []).length;
     // const matchLength = (fileContents.match(/(-|\*) (\[ \]\s)?((\<time\>)?\d{1,2}\:\d{2})?/g) || []).length;
@@ -233,9 +228,10 @@ async function backfillMemoTimes(vault: any, toFix: { path: string; lineIndex: n
             const line = lines[lineIndex];
             if (line === undefined) continue;
             // 去缩进 + 列表标记后处理
+            // group1 已含任务标记（group2 嵌套在内），只取 group1，避免 `[ ] [ ]` 重复
             const m = /^(\s*[-*]\s(\[(?:.{1})\]\s?)?)(.*)$/.exec(line);
             if (!m) continue;
-            const prefix = m[1] + (m[2] || '');
+            const prefix = m[1];
             const rest = m[3];
             // 旧 14 位时间戳
             const ts = /^(\d{14})\s?(.*)$/.exec(rest);
@@ -256,117 +252,6 @@ async function backfillMemoTimes(vault: any, toFix: { path: string; lineIndex: n
             await vault.modify(file, lines.join('\n'));
         }
     }
-}
-
-export async function getMemosFromNote(allMemos: any[], commentMemos: any[]): Promise<void> {
-    const notes = getAPI().pages(FetchMemosMark);
-    const dailyNotesPath = getDailyNotePath();
-    let files = notes?.values;
-    if (files.length === 0) return;
-
-    files = files.filter(
-        (item) =>
-            item.file.name !== QueryFileName &&
-            item.file.name !== DeleteFileName &&
-            item['excalidraw-plugin'] === undefined &&
-            item['kanban-plugin'] === undefined &&
-            item.file.folder !== dailyNotesPath,
-        // item.file.
-    );
-    // Get Memos from Note
-    for (let i = 0; i < files.length; i++) {
-        const createDate = files[i]['created'];
-        // console.log(files[i]);
-        const list = files[i].file.lists?.filter((item) => item.parent === undefined);
-        if (list.length === 0) continue;
-        for (let j = 0; j < list.length; j++) {
-            const content = list.values[j].text;
-            const header = list.values[j].header.subpath;
-            const path = list.values[j].path;
-            const line = list.values[j].line;
-            let memoType = 'JOURNAL';
-            let hasId;
-            // let realCreateDate = moment(createDate, 'YYYY-MM-DD HH:mm');
-            let realCreateDate = createDate.toFormat('yyyy-MM-dd HH:mm:ss');
-            if (/\^\S{6}$/g.test(content)) {
-                hasId = content.slice(-6);
-                // originId = hasId;
-            } else {
-                hasId = Math.random().toString(36).slice(-6);
-            }
-            if (list.values[j].task === true) {
-                memoType = getTaskType(list.values[j].status);
-            }
-            if (header !== undefined) {
-                if (moment(header).isValid()) {
-                    realCreateDate = moment(header);
-                    // realCreateDate = momentDate.format('YYYYMMDDHHmmss');
-                }
-            }
-
-            if (/^\d{2}:\d{2}(:\d{2})?/g.test(content)) {
-                const time = content.match(/^\d{2}:\d{2}(:\d{2})?/)[0];
-                const timeArr = time.split(':');
-                const hour = parseInt(timeArr[0], 10);
-                const minute = parseInt(timeArr[1], 10);
-                const second = timeArr[2] ? parseInt(timeArr[2], 10) : 0;
-                realCreateDate = moment(realCreateDate).hours(hour).minutes(minute).seconds(second);
-
-                // createDate = date.format('YYYYMMDDHHmmss');
-            }
-            allMemos.push({
-                id: realCreateDate.format('YYYYMMDDHHmmss') + line,
-                content: content,
-                user_id: 1,
-                createdAt: realCreateDate.format('YYYY/MM/DD HH:mm:ss'),
-                updatedAt: realCreateDate.format('YYYY/MM/DD HH:mm:ss'),
-                memoType: memoType,
-                hasId: hasId,
-                linkId: '',
-                path: path,
-            });
-            // Get Comment Memos From Note
-            if (list.values[j].children?.values.length > 0) {
-                for (let k = 0; k < list[j].children.length; k++) {
-                    const childContent = list[j].children[k].text;
-                    const childLine = list[j].children[k].line;
-                    let childMemoType = 'JOURNAL';
-                    let childRealCreateDate = realCreateDate;
-                    let commentTime;
-                    if (list[j].children[k].task === true) {
-                        childMemoType = getTaskType(list[j].children[k].status);
-                    }
-                    if (/^\d{12}/.test(childContent)) {
-                        commentTime = childContent?.match(/^\d{14}/)[0];
-                        childRealCreateDate = moment(commentTime, 'YYYYMMDDHHmmss');
-                    }
-
-                    if (/^\d{2}:\d{2}(:\d{2})?/g.test(childContent)) {
-                        const time = childContent.match(/^\d{2}:\d{2}(:\d{2})?/)[0];
-                        const timeArr = time.split(':');
-                        const hour = parseInt(timeArr[0], 10);
-                        const minute = parseInt(timeArr[1], 10);
-                        const second = timeArr[2] ? parseInt(timeArr[2], 10) : 0;
-                        childRealCreateDate = childRealCreateDate.hours(hour).minutes(minute).seconds(second);
-                        // createDate = date.format('YYYYMMDDHHmmss');
-                    }
-                    commentMemos.push({
-                        id: childRealCreateDate.format('YYYYMMDDHHmmss') + childLine,
-                        content: childContent,
-                        user_id: 1,
-                        createdAt: childRealCreateDate.format('YYYY/MM/DD HH:mm:ss'),
-                        updatedAt: childRealCreateDate.format('YYYY/MM/DD HH:mm:ss'),
-                        memoType: childMemoType,
-                        hasId: '',
-                        linkId: hasId,
-                        path: path,
-                    });
-                    // if()
-                }
-            }
-        }
-    }
-    return;
 }
 
 export async function getMemos(
@@ -402,10 +287,6 @@ export async function getMemos(
     }
     if (onBatch && files.length > 0) {
         await onBatch([...memos]);
-    }
-
-    if (FetchMemosFromNote) {
-        await getMemosFromNote(memos, []);
     }
 
     // 评论已统一在 memos 中（linkId 非空表示评论），不再单独返回 commentMemos
