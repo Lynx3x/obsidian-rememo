@@ -40,7 +40,7 @@ const parseMarkedToHtml = (markedStr: string, memoid?: string): string => {
       const internalMD = htmlText.match(INTERNAL_MD_REG);
       // const path = getFile(memoid).path;
       for (let i = 0; i < internalMD.length; i++) {
-        if (!/(jpeg|jpg|gif|png|svg|bmp|wepg)/g.test(internalMD[i])) {
+        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(internalMD[i])) {
           const internalContent = getContentFromInternalLink(internalMD[i]);
           if (/\|/g.test(internalContent)) {
             const [link, label] = internalContent.split('|');
@@ -59,7 +59,7 @@ const parseMarkedToHtml = (markedStr: string, memoid?: string): string => {
       const externalMD = htmlText.match(EXRERNAL_MD_REG);
       // const path = getFile(memoid).path;
       for (let i = 0; i < externalMD.length; i++) {
-        if (!/(jpeg|jpg|gif|png|svg|bmp|wepg)/g.test(externalMD[i])) {
+        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(externalMD[i])) {
           const link = getContentFromExternalLink(externalMD[i]);
           const label = getLabelFromExternalLink(externalMD[i]);
           const replaceMent = replaceMd(link, label);

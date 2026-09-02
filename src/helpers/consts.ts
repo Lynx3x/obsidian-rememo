@@ -35,7 +35,8 @@ export const LINK_REG =
 export const MD_LINK_REG = /\[([\s\S]*?)\]\(([\s\S]*?)\)/gu;
 
 // 图片 正则
-export const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg))(\]\])?(\))?/g;
+// 带参数扩展名（webp/bmp）也识别；用于"内容里是否含图"的门控判断
+export const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg|webp|bmp))(\]\])?(\))?/g;
 
 // Markdown 内部图片正则
 // Group 1 为图片
@@ -43,13 +44,14 @@ export const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg))(\]\])?(\))?
 export const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\s*\))/g;
 
 // 检测是否为外部图片
+// 扩展名后允许查询串/锚点（?size=1024&x=1），避免 URL 被截断
 //eslint-disable-next-line
-export const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?)(jpeg|jpg|gif|png|svg|bmp|wepg)(?!\))/g;
+export const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
 
 // Wiki 图片正则
 // Group 1 为图片
 // Group 5 为缩放比例
-export const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|wepg))?(\|)?(.*?)\]\]/g;
+export const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
 
 // memo 关联正则
 export const MEMO_LINK_REG = /\[@(.+?)\]\((.+?)\)/g;

@@ -1,143 +1,57 @@
-import { TFile, Vault } from 'obsidian';
 import React from 'react';
-import { IMAGE_URL_REG, MARKDOWN_URL_REG, MARKDOWN_WEB_URL_REG, WIKI_IMAGE_URL_REG } from '../helpers/consts';
+import { parseMemoImages } from '../helpers/memoImages';
 import appStore from '../stores/appStore';
 import Image from './Image';
 
-const imageGridStyles = {
-  display: 'grid',
-  gridTemplateColumns: `repeat(3, 150px)`,
-  gap: '1px',
-  marginTop: '4px',
-  maxWidth: '452px'
-} as const;
-
-const imageItemStyles = {
-  width: '150px',
-  height: '150px',
-} as const;
-
-const imageStyle = {
-  width: '100%',
-  height: '100%'
-} as const;
+// 微博式九宫格：列数上限 3，格子定宽不随容器拉伸；单图只占一格（不撑满整行）
+// cell: 多图格宽小（紧凑），单图格宽稍大但仍远小于整行
+const MAX_COLS = 3;
+const GAP = 2;
+const CELL_WIDTH = 110;
+const SINGLE_CELL_WIDTH = 160;
 
 interface Props {
   memo: string;
 }
 
-interface LinkMatch {
-  linkText: string;
-  altText: string;
-  path: string;
-  filepath?: string;
-}
-
 const MemoImage: React.FC<Props> = (props: Props) => {
   const { memo } = props;
+  const { app } = appStore.getState().dailyNotesState;
+  // 图片解析收敛到 memoImages 深模块（external+internal 合并成 all，供九宫格与灯箱）
+  const { all } = parseMemoImages(memo, app);
 
-  const getPathOfImage = (vault: Vault, image: TFile) => {
-    return vault.getResourcePath(image);
-  };
-
-  const detectWikiInternalLink = (lineText: string): LinkMatch | null => {
-    const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-    const internalFileName = WIKI_IMAGE_URL_REG.exec(lineText)?.[1];
-    const internalAltName = WIKI_IMAGE_URL_REG.exec(lineText)?.[5];
-    const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), '');
-
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: '',
-        filepath: '',
-      };
-    } else {
-      const imagePath = getPathOfImage(vault, file);
-      const filePath = file.path;
-      return {
-        linkText: internalFileName,
-        altText: internalAltName || '',
-        path: imagePath,
-        filepath: filePath,
-      };
-    }
-  };
-
-  const detectMDInternalLink = (lineText: string): LinkMatch | null => {
-    const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-    const internalFileName = MARKDOWN_URL_REG.exec(lineText)?.[5];
-    const internalAltName = MARKDOWN_URL_REG.exec(lineText)?.[2];
-    const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), '');
-    
-    if (file === null) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: '',
-        filepath: '',
-      };
-    } else {
-      const imagePath = getPathOfImage(vault, file);
-      const filePath = file.path;
-      return {
-        linkText: internalFileName,
-        altText: internalAltName || '',
-        path: imagePath,
-        filepath: filePath,
-      };
-    }
-  };
-
-  const allImages: Array<{ src: string; filepath?: string }> = [];
-
-  // 处理外部图片
-  if (MARKDOWN_WEB_URL_REG.test(memo)) {
-    const externalUrls = Array.from(memo.match(MARKDOWN_WEB_URL_REG) || []);
-    allImages.push(...externalUrls.map(url => ({ src: url })));
-  }
-
-  // 处理 Markdown 格式的链接
-  if (MARKDOWN_URL_REG.test(memo)) {
-    const markdownLinks = Array.from(memo.match(MARKDOWN_URL_REG) || []);
-    for (const link of markdownLinks) {
-      if (/(.*)http[s]?(.*)/.test(link)) {
-        const url = [...(link as string).matchAll(MARKDOWN_URL_REG)][0]?.[5];
-        if (url) allImages.push({ src: url });
-      } else {
-        const result = detectMDInternalLink(link);
-        if (result?.path) {
-          allImages.push({
-            src: result.path,
-            filepath: result.filepath
-          });
-        }
-      }
-    }
-  }
-
-  // 处理 Wiki 格式的链接
-  if (WIKI_IMAGE_URL_REG.test(memo)) {
-    const wikiLinks = Array.from(memo.match(WIKI_IMAGE_URL_REG) || []);
-    for (const link of wikiLinks) {
-      const result = detectWikiInternalLink(link);
-      if (result?.path) {
-        allImages.push({
-          src: result.path,
-          filepath: result.filepath
-        });
-      }
-    }
-  }
-
-  if (allImages.length === 0) {
+  if (all.length === 0) {
     return null;
   }
 
+  const count = all.length;
+  const cols = count >= MAX_COLS ? MAX_COLS : count;
+  const cell = count === 1 ? SINGLE_CELL_WIDTH : CELL_WIDTH;
+  const gridWidth = cols * cell + (cols - 1) * GAP;
+
+  const imageGridStyles = {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+    gap: `${GAP}px`,
+    marginTop: '4px',
+    // 定宽包裹，窄卡片时收缩（minmax 0 均分）
+    width: `${gridWidth}px`,
+    maxWidth: '100%',
+  } as const;
+
+  const imageItemStyles = {
+    aspectRatio: '1 / 1',
+    overflow: 'hidden',
+  } as const;
+
+  const imageStyle = {
+    width: '100%',
+    height: '100%',
+  } as const;
+
   return (
     <div className="images-wrapper" style={imageGridStyles}>
-      {allImages.map((image, idx) => (
+      {all.map((image, idx) => (
         <div key={idx} style={imageItemStyles}>
           <Image
             className="memo-img"
@@ -146,7 +60,7 @@ const MemoImage: React.FC<Props> = (props: Props) => {
             filepath={image.filepath}
             style={imageStyle}
             referrerPolicy={!image.filepath ? 'no-referrer' : undefined}
-            allImages={allImages}
+            allImages={all}
             index={idx}
           />
         </div>

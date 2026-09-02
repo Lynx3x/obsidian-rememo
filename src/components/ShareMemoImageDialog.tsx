@@ -1,19 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 // import { userService } from "../services";
 import toImage from '../labs/html2image';
-import {
-  ANIMATION_DURATION,
-  IMAGE_URL_REG,
-  MARKDOWN_URL_REG,
-  MARKDOWN_WEB_URL_REG,
-  WIKI_IMAGE_URL_REG,
-} from '../helpers/consts';
+import { ANIMATION_DURATION } from '../helpers/consts';
 import utils from '../helpers/utils';
 import { showDialog } from './Dialog';
 import { formatMemoContent } from './Memo';
+import { parseMemoImages } from '../helpers/memoImages';
 import Only from './common/OnlyWhen';
 import '../less/share-memo-image-dialog.less';
-import { moment, Notice, Platform, TFile, Vault } from 'obsidian';
+import { moment, Notice, Platform, TFile } from 'obsidian';
 import appStore from '../stores/appStore';
 import lightBackground from '../icons/lightBackground.svg';
 import darkBackground from '../icons/darkBackground.svg';
@@ -27,83 +22,6 @@ import Close from '../icons/close.svg?component';
 interface Props extends DialogProps {
   memo: Model.Memo;
 }
-
-interface LinkMatch {
-  linkText: string;
-  altText: string;
-  path: string;
-  filePath?: string;
-}
-
-export const getPathOfImage = (vault: Vault, image: TFile) => {
-  return vault.getResourcePath(image);
-};
-
-const detectWikiInternalLink = (lineText: string): LinkMatch | null => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const internalFileName = WIKI_IMAGE_URL_REG.exec(lineText)?.[1];
-  const internalAltName = WIKI_IMAGE_URL_REG.exec(lineText)?.[5];
-  const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), '');
-
-  if (file === null) {
-    return {
-      linkText: internalFileName,
-      altText: internalAltName,
-      path: '',
-      filePath: '',
-    };
-  } else {
-    const imagePath = getPathOfImage(vault, file);
-    if (internalAltName) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: imagePath,
-        filePath: file.path,
-      };
-    } else {
-      return {
-        linkText: internalFileName,
-        altText: '',
-        path: imagePath,
-        filePath: file.path,
-      };
-    }
-  }
-};
-
-const detectMDInternalLink = (lineText: string): LinkMatch | null => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const internalFileName = MARKDOWN_URL_REG.exec(lineText)?.[5];
-  const internalAltName = MARKDOWN_URL_REG.exec(lineText)?.[2];
-  const file = metadataCache.getFirstLinkpathDest(decodeURIComponent(internalFileName), '');
-
-  if (file === null) {
-    return {
-      linkText: internalFileName,
-      altText: internalAltName,
-      path: '',
-      filePath: '',
-    };
-  } else {
-    const imagePath = getPathOfImage(vault, file);
-    if (internalAltName) {
-      return {
-        linkText: internalFileName,
-        altText: internalAltName,
-        path: imagePath,
-        filePath: file.path,
-      };
-    } else {
-      return {
-        linkText: internalFileName,
-        altText: '',
-        path: imagePath,
-        filePath: file.path,
-      };
-    }
-  }
-};
 
 const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
   const { memo: propsMemo, destroy } = props;
@@ -132,42 +50,9 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
     createdDays.toString(),
   );
 
-  let externalImageUrls = [] as string[];
-  const internalImageUrls = [];
-  let allMarkdownLink: string | any[] = [];
-  let allInternalLink = [] as any[];
-  if (new RegExp(IMAGE_URL_REG).test(memo.content)) {
-    let allExternalImageUrls = [] as string[];
-    const anotherExternalImageUrls = [] as string[];
-    if (new RegExp(MARKDOWN_URL_REG).test(memo.content)) {
-      allMarkdownLink = Array.from(memo.content.match(MARKDOWN_URL_REG));
-    }
-    if (new RegExp(WIKI_IMAGE_URL_REG).test(memo.content)) {
-      allInternalLink = Array.from(memo.content.match(WIKI_IMAGE_URL_REG));
-    }
-    // const allInternalLink = Array.from(memo.content.match(WIKI_IMAGE_URL_REG));
-    if (new RegExp(MARKDOWN_WEB_URL_REG).test(memo.content)) {
-      allExternalImageUrls = Array.from(memo.content.match(MARKDOWN_WEB_URL_REG));
-    }
-    if (allInternalLink.length) {
-      for (let i = 0; i < allInternalLink.length; i++) {
-        const allInternalLinkElement = allInternalLink[i];
-        internalImageUrls.push(detectWikiInternalLink(allInternalLinkElement));
-      }
-    }
-    if (allMarkdownLink.length) {
-      for (let i = 0; i < allMarkdownLink.length; i++) {
-        const allMarkdownLinkElement = allMarkdownLink[i];
-        if (/(.*)http[s]?(.*)/.test(allMarkdownLinkElement)) {
-          anotherExternalImageUrls.push(MARKDOWN_URL_REG.exec(allMarkdownLinkElement)?.[5]);
-        } else {
-          internalImageUrls.push(detectMDInternalLink(allMarkdownLinkElement));
-        }
-      }
-    }
-    externalImageUrls = allExternalImageUrls.concat(anotherExternalImageUrls);
-    // externalImageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
-  }
+  // 图片解析收敛到 memoImages 深模块（external/internal 分离供分享图渲染）
+  const { app } = appStore.getState().dailyNotesState;
+  const { external: externalImageUrls, internal: internalImageUrls } = parseMemoImages(memo.content, app);
 
   const [shortcutImgUrl, setShortcutImgUrl] = useState('');
   const [imgAmount, setImgAmount] = useState(externalImageUrls.length);
@@ -308,7 +193,8 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
       new Notice(t('Image load failed'));
       (ev.target as HTMLImageElement).remove();
     }
-    setImgAmount(imgAmount - 1);
+    // 函数式更新，避免多图并发 onLoad 读到同一个 stale imgAmount 只减一次
+    setImgAmount((n) => n - 1);
   };
 
   return (
@@ -368,7 +254,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
             <Only when={internalImageUrls.length > 0}>
               <div className="images-container internal-embed image-embed is-loaded">
                 {internalImageUrls.map((imgUrl, idx) => (
-                  <img key={idx} className="memo-img" src={imgUrl.path} alt={imgUrl.altText} path={imgUrl.filePath} />
+                  <img key={idx} className="memo-img" src={imgUrl.path} alt={imgUrl.altText} path={imgUrl.filepath} />
                 ))}
               </div>
             </Only>
