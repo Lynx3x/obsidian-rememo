@@ -1,0 +1,54 @@
+// 预览灯箱（yet-another-react-lightbox）的主题适配
+// 只做观感定制，不做结构改动（全屏遮罩/导航由库自身负责）
+
+.yarl__root {
+  --yarl__color_button: #fff;
+  --yarl__color_button_active: #fff;
+  --yarl__color_button_hover: rgba(255, 255, 255, 0.8);
+
+  .yarl__button {
+    padding: 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .yarl__toolbar {
+    gap: 12px;
+    padding: 20px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+  }
+}
+
+.theme-light .yarl__root {
+  --yarl__color_button: #333;
+  --yarl__color_button_active: #333;
+  --yarl__color_button_hover: rgba(0, 0, 0, 0.6);
+
+  .yarl__button {
+    background: rgba(255, 255, 255, 0.6);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.85);
+    }
+  }
+}
+
+.theme-dark .yarl__root {
+  --yarl__color_button: #cdcdcd;
+  --yarl__color_button_active: #cdcdcd;
+  --yarl__color_button_hover: rgba(255, 255, 255, 0.8);
+
+  .yarl__button {
+    background: rgba(44, 44, 44, 0.8);
+
+    &:hover {
+      background: rgba(68, 68, 68, 0.8);
+    }
+  }
+}

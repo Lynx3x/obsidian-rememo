@@ -6,7 +6,7 @@ import useLoading from '../hooks/useLoading';
 import { DAILY_TIMESTAMP } from '../helpers/consts';
 import utils from '../helpers/utils';
 import { showDialog } from './Dialog';
-import showPreviewImageDialog from './PreviewImageDialog';
+import { showPreviewImageDialog } from './PreviewImageDialog';
 import DailyMemo from './DailyMemo';
 import DatePicker from './common/DatePicker';
 import '../less/daily-memo-diary-dialog.less';
