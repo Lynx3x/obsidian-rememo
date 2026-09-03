@@ -1,4 +1,4 @@
-# Obsidian Memos Plus
+# Rememo
 
 [中文文档](./document/chinese.md)
 
@@ -88,11 +88,11 @@
 
 ### 使用 BRAT 安装
 
-��: 将 `[您的GitHub用户名]/obsidian-memos-plus` 添加到 BRAT。
+��: 将 `[您的GitHub用户名]/rememo` 添加到 BRAT。
 
 ### 手动下载安装
 
-🚚: 下载最新版本。解压并将三个文件(main.js, manifest.json, styles.css)放入 `{{obsidian_vault}}/.obsidian/plugins/obsidian-memos-plus` 文件夹。
+🚚: 下载最新版本。解压并将三个文件(main.js, manifest.json, styles.css)放入 `{{obsidian_vault}}/.obsidian/plugins/rememo` 文件夹。
 
 ## 关于作者
 

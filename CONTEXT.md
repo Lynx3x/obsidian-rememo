@@ -1,11 +1,11 @@
-# Memos Plus — Domain Context
+# Rememo — Domain Context
 
-> Domain glossary + handover doc for the Obsidian plugin **Memos Plus** (`obsidian-memos-plus`, fork of Quorafind's Obsidian-Memos). Kept in sync as work proceeds. **Last updated: 2026-09-03.**
+> Domain glossary + handover doc for the Obsidian plugin **Rememo** (`rememo`, fork of Quorafind's Obsidian-Memos). Kept in sync as work proceeds. **Last updated: 2026-09-03.**
 
 ## Project location
 
 - Vault: `L:\Files\ObsidianDevVault` (开发库，plugin 在这里被 Obsidian 加载)
-- Plugin repo: `L:\Files\ObsidianDevVault\.obsidian\plugins\Obsidian-Memos`
+- Plugin repo: `L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`（开发库文件夹名 obsidian-rememo；插件 id/name = rememo / Rememo，Obsidian 按 id 认插件）
 - Branch: `dev`. Node 环境: pnpm + vite build. `npm run build` 产出 main.js/styles.css。
 - 另一个库 `L:\Files\md-note-repo` 是**正式库**（317 个日记文件），开发时勿碰。
 

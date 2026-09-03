@@ -14,7 +14,7 @@ const AboutSiteDialog: React.FC<Props> = ({ destroy }: Props) => {
     <>
       <div className="dialog-header-container">
         <p className="title-text">
-          <span className="icon-text">🤠</span>About <b>Obsidian-Memos</b>
+          <span className="icon-text">🤠</span>About <b>Rememo</b>
         </p>
         <button className="btn close-btn" onClick={handleCloseBtnClick}>
           {/*<img className="icon-img" src={close} />*/}

@@ -4,7 +4,7 @@
 export default {
   // setting.ts
   welcome: 'Bem-vindo ao Memos!',
-  ribbonIconTitle: 'Memos',
+  ribbonIconTitle: 'Rememo',
   months: [
     'Janeiro',
     'Fevereiro',

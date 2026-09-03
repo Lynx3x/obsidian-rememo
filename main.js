@@ -7758,7 +7758,7 @@ var da = {};
 var de = {};
 var en = {
   welcome: "Welcome to the Memos",
-  ribbonIconTitle: "Memos",
+  ribbonIconTitle: "Rememo",
   to: "to",
   months: [
     "January",
@@ -8100,7 +8100,7 @@ var no = {};
 var pl = {};
 var pt = {
   welcome: "Bem-vindo ao Memos!",
-  ribbonIconTitle: "Memos",
+  ribbonIconTitle: "Rememo",
   months: [
     "Janeiro",
     "Fevereiro",
@@ -8281,7 +8281,7 @@ var pt = {
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
-  ribbonIconTitle: "Memos",
+  ribbonIconTitle: "Rememo",
   months: [
     "Janeiro",
     "Fevereiro",
@@ -8465,7 +8465,7 @@ var ru = {};
 var tr = {};
 var zhCN = {
   welcome: "\u6B22\u8FCE\u4F7F\u7528 Memos ",
-  ribbonIconTitle: "Memos",
+  ribbonIconTitle: "Rememo",
   months: ["\u4E00\u6708", "\u4E8C\u6708", "\u4E09\u6708", "\u56DB\u6708", "\u4E94\u6708", "\u516D\u6708", "\u4E03\u6708", "\u516B\u6708", "\u4E5D\u6708", "\u5341\u6708", "\u5341\u4E00\u6708", "\u5341\u4E8C\u6708"],
   monthsShort: [null, null, null, null, null, null, null, null, null, null, null, null],
   weekDays: ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"],
@@ -10774,7 +10774,7 @@ const AboutSiteDialog = ({
           className: "icon-text",
           children: "\u{1F920}"
         }), "About ", /* @__PURE__ */ jsx("b", {
-          children: "Obsidian-Memos"
+          children: "Rememo"
         })]
       }), /* @__PURE__ */ jsx("button", {
         className: "btn close-btn",
@@ -20491,13 +20491,13 @@ const MemosHeader = () => {
       queries
     }
   } = react.exports.useContext(appContext);
-  const [titleText, setTitleText] = react.exports.useState("MEMOS");
+  const [titleText, setTitleText] = react.exports.useState("Rememo");
   react.exports.useEffect(() => {
     const query = queryService.getQueryById(filter);
     if (query) {
       setTitleText(query.title);
     } else {
-      setTitleText("MEMOS");
+      setTitleText("Rememo");
     }
   }, [filter, queries]);
   const handleMemoTextClick = react.exports.useCallback(() => {
@@ -21638,7 +21638,7 @@ class Memos extends require$$0.ItemView {
     this.plugin = plugin;
   }
   getDisplayText() {
-    return "Memos";
+    return "Rememo";
   }
   getIcon() {
     return "Memos";

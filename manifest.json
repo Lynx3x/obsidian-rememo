@@ -1,7 +1,7 @@
 {
-    "id": "obsidian-memos-plus",
-    "name": "Memos Plus",
-    "description": "An enhanced version of Memos for capturing ideas in Obsidian",
+    "id": "rememo",
+    "name": "Rememo",
+    "description": "Capture fleeting thoughts into your daily notes with a lively memo feed.",
     "version": "1.0.0",
     "author": "Larynx",
     "authorUrl": "https://github.com/Lynx3x",

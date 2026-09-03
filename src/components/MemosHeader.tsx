@@ -17,14 +17,14 @@ const MemosHeader: React.FC<Props> = () => {
     queryState: { queries },
   } = useContext(appContext);
 
-  const [titleText, setTitleText] = useState('MEMOS');
+  const [titleText, setTitleText] = useState('Rememo');
 
   useEffect(() => {
     const query = queryService.getQueryById(filter);
     if (query) {
       setTitleText(query.title);
     } else {
-      setTitleText('MEMOS');
+      setTitleText('Rememo');
     }
   }, [filter, queries]);
 
