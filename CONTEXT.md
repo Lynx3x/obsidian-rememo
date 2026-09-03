@@ -114,4 +114,4 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **指定日期写入（2026-09-03）**：MemoEditor 工具栏新增 `calendar.svg` 按钮 → `WriteDatePopover`（DatePicker+HH:mm）。目标 moment 存 `targetDate`（react-usestateref 的 ref 供空依赖回调读），**保留到手动 ✕**；编辑态不显示。`memoService.createMemo(content, isList, targetDate ?? undefined)`，缺省仍写"现在/今天"。旧 @/📆 日期插入 + `InsertDateFormat` 设置 + `select-date-picker.less` 已移除。
 - 注意：`main.js`/`styles.css` 需重新 build 后由 hot-reload 加载（阶段 F1 + UI 主屏轮已 build；F1 已目视通过，UI 主屏轮待 Obsidian 目视）。
 
-_See also: [REFACTOR-2026.md](REFACTOR-2026.md) (2026 重构方案，部分已实施)。_
+_See also: [REFACTOR-2026.md](REFACTOR-2026.md) (2026 重构方案，部分已实施) · [UI-STYLE.md](UI-STYLE.md) (样式/动效接续文档：token、已收口清单、待办、坑)。_
