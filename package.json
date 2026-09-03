@@ -52,5 +52,10 @@
         "vite": "^2.9.16",
         "vite-plugin-react-svg": "^0.2.0"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "esbuild"
+        ]
+    }
 }

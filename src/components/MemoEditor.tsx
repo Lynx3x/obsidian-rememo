@@ -44,6 +44,7 @@ const MemoEditor: React.FC<Props> = () => {
   const editorRef = useRef<EditorRefActions>(null);
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const sendingRef = useRef(false);
+  const skipNextFocusRef = useRef(false);
   const prevGlobalStateRef = useRef(globalState);
 
   // 指定日期写入：targetDate = 发送时的写入目标（moment）；null = 写"现在/今天"
@@ -406,8 +407,11 @@ const MemoEditor: React.FC<Props> = () => {
 
   const handleCancelBtnClick = useCallback(() => {
     globalStateService.setEditMemoId('');
+    // 取消编辑不要自动聚焦回输入框（setContent 里的 handleContentChange 会排一个 focus）
+    skipNextFocusRef.current = true;
     editorRef.current?.setContent('');
     setEditorContentCache('');
+    editorRef.current?.element?.blur();
   }, []);
 
   const handleContentChange = useCallback((content: string) => {
@@ -423,6 +427,11 @@ const MemoEditor: React.FC<Props> = () => {
     }
 
     setTimeout(() => {
+      // 取消编辑等场景要跳过这次自动聚焦（否则刚 blur 又被 focus 回来）
+      if (skipNextFocusRef.current) {
+        skipNextFocusRef.current = false;
+        return;
+      }
       editorRef.current?.focus();
     });
   }, []);

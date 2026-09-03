@@ -19851,6 +19851,7 @@ const MemoEditor = () => {
   const editorRef = react.exports.useRef(null);
   const editorWrapperRef = react.exports.useRef(null);
   const sendingRef = react.exports.useRef(false);
+  const skipNextFocusRef = react.exports.useRef(false);
   const prevGlobalStateRef = react.exports.useRef(globalState);
   const [targetDate, setTargetDate, targetDateRef] = dist(null);
   const [isWriteDateOpen, setIsWriteDateOpen] = dist(false);
@@ -20172,10 +20173,12 @@ const MemoEditor = () => {
     }
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
-    var _a;
+    var _a, _b, _c;
     globalStateService.setEditMemoId("");
+    skipNextFocusRef.current = true;
     (_a = editorRef.current) == null ? void 0 : _a.setContent("");
     setEditorContentCache("");
+    (_c = (_b = editorRef.current) == null ? void 0 : _b.element) == null ? void 0 : _c.blur();
   }, []);
   const handleContentChange = react.exports.useCallback((content) => {
     const tempDiv = document.createElement("div");
@@ -20189,6 +20192,10 @@ const MemoEditor = () => {
     }
     setTimeout(() => {
       var _a;
+      if (skipNextFocusRef.current) {
+        skipNextFocusRef.current = false;
+        return;
+      }
       (_a = editorRef.current) == null ? void 0 : _a.focus();
     });
   }, []);
