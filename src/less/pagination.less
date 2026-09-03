@@ -10,21 +10,22 @@
 
   .nav-button {
     padding: 4px 12px;
-    border: 1px solid var(--interactive-accent);
-    border-radius: 4px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s, 4px);
     background-color: transparent;
-    color: var(--text-normal);
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.2s ease;
-    
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
     &:hover:not(:disabled) {
       background-color: var(--interactive-accent);
-      color: var(--text-on-accent);
+      border-color: var(--interactive-accent);
+      color: var(--text-on-accent, #ffffff);
     }
-    
+
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
       border-color: var(--background-modifier-border);
     }
@@ -40,21 +41,22 @@
       height: 32px;
       padding: 4px 8px;
       border: 1px solid var(--background-modifier-border);
-      border-radius: 4px;
+      border-radius: var(--radius-s, 4px);
       background-color: transparent;
       color: var(--text-normal);
       cursor: pointer;
       font-size: 14px;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
       &:hover:not(.active) {
         border-color: var(--interactive-accent);
         color: var(--interactive-accent);
+        background-color: var(--background-modifier-hover);
       }
 
       &.active {
         background-color: var(--interactive-accent);
-        color: var(--text-on-accent);
+        color: var(--text-on-accent, #ffffff);
         border-color: var(--interactive-accent);
       }
     }

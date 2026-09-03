@@ -7887,6 +7887,11 @@ var en = {
   "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} Cannot load image, image link maybe broken",
   "Daily Memos": "Daily Memos",
   "CANCEL EDIT": "CANCEL EDIT",
+  "Write to date": "Write to date",
+  "Write on": "Write on",
+  "Back to now": "Back to now",
+  Today: "Today",
+  Time: "Time",
   "LINK TO THE": "LINK TO THE",
   "Mobile Options": "Mobile Options",
   "Experimental Options": "Experimental Options",
@@ -8575,6 +8580,11 @@ var zhCN = {
   "Loading...": "\u52AA\u529B\u52A0\u8F7D\u4E2D...",
   "Daily Memos": "\u6BCF\u65E5 Memos",
   "CANCEL EDIT": "\u53D6\u6D88\u7F16\u8F91",
+  "Write to date": "\u8BBE\u7F6E\u5199\u5165\u65E5\u671F",
+  "Write on": "\u5199\u5165",
+  "Back to now": "\u6062\u590D\u73B0\u5728",
+  Today: "\u4ECA\u5929",
+  Time: "\u65F6\u95F4",
   "LINK TO THE": "\u94FE\u63A5\u5230",
   "Mobile Options": "\u79FB\u52A8\u7AEF\u9009\u9879",
   "Experimental Options": "\u5B9E\u9A8C\u6027\u9009\u9879",
@@ -9532,7 +9542,7 @@ function extractMemoTime(rawContent) {
     return {
       time: t2[3] ? `${t2[1]}:${t2[2]}:${t2[3]}` : `${t2[1]}:${t2[2]}`,
       isOld: !t2[3],
-      rest: rawContent.slice(t2[0].length).trim()
+      rest: rawContent.slice(t2[0].length).replace(/^ /, "")
     };
   }
   const ts = /^(\d{14})\s?(.*)$/.exec(rawContent);
@@ -9567,7 +9577,7 @@ async function waitForInsert(MemoContent, isTASK, insertDate) {
   const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
   const memo2 = {
     id: "",
-    content: MemoContent,
+    content: removeEnter,
     deletedAt: "",
     createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
     updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
@@ -9863,7 +9873,7 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
     const idMatch = /\^(\S{6})\s*$/.exec(content);
     if (idMatch) {
       hasId = idMatch[1];
-      content = content.slice(0, -8).trim();
+      content = content.slice(0, -8).trimEnd();
     } else {
       hasId = Math.random().toString(36).slice(-6);
       toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
@@ -14181,6 +14191,41 @@ const Memo = (props) => {
     setReplyTo(m2);
   }, []);
   const [, setAddRandomIDflag, RandomIDRef] = dist(false);
+  const [menuOpen, setMenuOpen] = dist(false);
+  const memoCardRef = react.exports.useRef(null);
+  react.exports.useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+    const handleMouseDown = (e) => {
+      const target = e.target;
+      if (memoCardRef.current && !memoCardRef.current.contains(target)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
+  const handleMoreMenuClick = react.exports.useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuOpen((v2) => !v2);
+  }, []);
+  const handleMoreActionClick = react.exports.useCallback((e) => {
+    const el = e.target;
+    if (!el.closest(".delete-btn")) {
+      setMenuOpen(false);
+    }
+  }, []);
   react.exports.useEffect(() => {
     if (!memoCommentRef.current) {
       return;
@@ -14366,18 +14411,82 @@ const Memo = (props) => {
   const handleSourceMemoClick = (m2) => {
     showMemoInDailyNotes(m2.id, m2.path || "");
   };
+  const animateShred = () => {
+    var _a2;
+    const el = memoCardRef.current;
+    if (!el) {
+      return Promise.resolve();
+    }
+    const w2 = el.offsetWidth;
+    const h2 = el.offsetHeight;
+    if (w2 < 8 || h2 < 8) {
+      return Promise.resolve();
+    }
+    const host = (_a2 = el.offsetParent) != null ? _a2 : el.parentElement;
+    if (!host) {
+      return Promise.resolve();
+    }
+    const x2 = el.offsetLeft;
+    const y2 = el.offsetTop;
+    const N2 = 8;
+    const band = w2 / N2;
+    const cloneTemplate = el.cloneNode(true);
+    cloneTemplate.querySelectorAll(".more-action-btns-wrapper").forEach((n2) => {
+      n2.style.display = "none";
+    });
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `position:absolute;left:${x2}px;top:${y2}px;width:${w2}px;height:${h2}px;pointer-events:none;z-index:50;`;
+    for (let i = 0; i < N2; i++) {
+      const outer = document.createElement("div");
+      outer.style.cssText = `position:absolute;top:0;left:${i * band}px;width:${band}px;height:100%;overflow:hidden;`;
+      const inner = document.createElement("div");
+      inner.style.cssText = `position:absolute;top:0;left:${-i * band}px;width:${w2}px;height:auto;`;
+      inner.appendChild(cloneTemplate.cloneNode(true));
+      outer.appendChild(inner);
+      overlay.appendChild(outer);
+    }
+    host.appendChild(overlay);
+    el.style.visibility = "hidden";
+    const rnd = (min2, max2) => min2 + Math.random() * (max2 - min2);
+    Array.from(overlay.children).forEach((outer) => {
+      outer.animate([{
+        transform: "translate(0,0) rotate(0deg)",
+        opacity: 1
+      }, {
+        transform: `translate(${rnd(-3, 3)}px, ${rnd(40, 130)}px) rotate(${rnd(-14, 14)}deg)`,
+        opacity: 0
+      }], {
+        duration: rnd(240, 430),
+        delay: rnd(0, 30),
+        easing: "cubic-bezier(0.2, 0.6, 0.4, 1)",
+        fill: "both"
+      });
+    });
+    return new Promise((resolve) => {
+      window.setTimeout(() => {
+        overlay.remove();
+        if (document.contains(el)) {
+          el.style.visibility = "";
+        }
+        resolve();
+      }, 460);
+    });
+  };
   const handleDeleteMemoClick = async () => {
-    if (showConfirmDeleteBtn) {
-      try {
-        await memoService.hideMemoById(propsMemo.id);
-      } catch (error) {
-        new require$$0.Notice(error.message);
-      }
-      if (globalStateService.getState().editMemoId === propsMemo.id) {
-        globalStateService.setEditMemoId("");
-      }
-    } else {
+    if (!showConfirmDeleteBtn) {
       toggleConfirmDeleteBtn();
+      return;
+    }
+    setMenuOpen(false);
+    const shredDone = animateShred();
+    try {
+      await memoService.hideMemoById(propsMemo.id);
+    } catch (error) {
+      new require$$0.Notice(error.message);
+    }
+    await shredDone;
+    if (globalStateService.getState().editMemoId === propsMemo.id) {
+      globalStateService.setEditMemoId("");
     }
   };
   const handleMouseLeaveMemoWrapper = () => {
@@ -14467,12 +14576,9 @@ const Memo = (props) => {
     memo: propsMemo.content
   };
   return /* @__PURE__ */ jsxs("div", {
-    className: `memo-wrapper ${"memos-" + propsMemo.id} ${propsMemo.memoType}`,
+    ref: memoCardRef,
+    className: `memo-wrapper ${"memos-" + propsMemo.id} ${propsMemo.memoType}${menuOpen ? " menu-open" : ""}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
-    draggable: "true",
-    onDragStart: (e) => {
-      e.dataTransfer.setData("text/plain", propsMemo.content.replace(/<br>/g, "\n"));
-    },
     children: [/* @__PURE__ */ jsxs("div", {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("div", {
@@ -14500,11 +14606,13 @@ const Memo = (props) => {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("span", {
             className: "btn more-action-btn",
+            onClick: handleMoreMenuClick,
             children: /* @__PURE__ */ jsx(SvgMore, {
               className: "icon-img"
             })
           }), /* @__PURE__ */ jsx("div", {
             className: "more-action-btns-wrapper",
+            onClick: handleMoreActionClick,
             children: /* @__PURE__ */ jsxs("div", {
               className: "more-action-btns-container",
               children: [/* @__PURE__ */ jsx("span", {
@@ -17825,6 +17933,21 @@ const Editor = react.exports.forwardRef((props, ref) => {
     getContent: () => {
       var _a2, _b2;
       return (_b2 = (_a2 = editorRef.current) == null ? void 0 : _a2.value) != null ? _b2 : "";
+    },
+    clear: () => {
+      var _a2;
+      if (!editorRef.current) {
+        return;
+      }
+      editorRef.current.value = "";
+      handleContentChangeCallback("");
+      refresh();
+      (_a2 = tinyUndoRef.current) == null ? void 0 : _a2.resetState();
+    },
+    setEditable: (editable) => {
+      if (editorRef.current) {
+        editorRef.current.readOnly = !editable;
+      }
     }
   }), []);
   const handleInsertTrigger = (event) => {
@@ -17892,7 +18015,6 @@ const Editor = react.exports.forwardRef((props, ref) => {
     refresh();
   }, []);
   const handleCommonConfirmBtnClick = react.exports.useCallback(() => {
-    var _a2;
     if (!editorRef.current) {
       return;
     }
@@ -17900,9 +18022,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
       editorRef.current.value = getEditorContentCache2();
     }
     handleConfirmBtnClickCallback(editorRef.current.value);
-    editorRef.current.value = "";
     refresh();
-    (_a2 = tinyUndoRef.current) == null ? void 0 : _a2.resetState();
   }, []);
   const handleCommonCancelBtnClick = react.exports.useCallback(() => {
     handleCancelBtnClickCallback();
@@ -18021,7 +18141,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
   });
 });
 var memoEditor = "";
-var selectDatePicker = "";
+var memoWriteDate = "";
 function SvgTag(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -18086,6 +18206,18 @@ function SvgCheckboxActive(props) {
     fill: "none"
   }), /* @__PURE__ */ react.exports.createElement("path", {
     d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z"
+  }));
+}
+function SvgCalendar(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: 24,
+    height: 24,
+    viewBox: "0 0 24 24",
+    fill: "#000000",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7v-5z"
   }));
 }
 var showEditorSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgY2xhc3M9Imljb24iIHAtaWQ9IjYxOTQiIHQ9IjE2NDI1NjQ0NTIyMDgiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCI+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTUxMiAzMkMyNDggMzIgMzIgMjQ4IDMyIDUxMnMyMTYgNDgwIDQ4MCA0ODAgNDgwLTIxNiA0ODAtNDgwUzc3NiAzMiA1MTIgMzJ6IiBwLWlkPSI2MTk1Ii8+PHBhdGggZD0iTTUxMiAwQzIyOC44IDAgMCAyMjguOCAwIDUxMnMyMjguOCA1MTIgNTEyIDUxMiA1MTItMjI4LjggNTEyLTUxMlM3OTUuMiAwIDUxMiAweiBtMCA5OTJDMjQ4IDk5MiAzMiA3NzYgMzIgNTEyUzI0OCAzMiA1MTIgMzJzNDgwIDIxNiA0ODAgNDgwLTIxNiA0ODAtNDgwIDQ4MHoiIHAtaWQ9IjYxOTYiLz48cGF0aCBmaWxsPSIjOURFOEY3IiBkPSJNNTEyIDUxMm0tMzkyIDBhMzkyIDM5MiAwIDEgMCA3ODQgMCAzOTIgMzkyIDAgMSAwLTc4NCAwWiIgcC1pZD0iNjE5NyIvPjxwYXRoIGZpbGw9IiMxQTE3MTgiIGQ9Ik03ODQgNDk2SDUyOFYyNDBoLTMydjI1NkgyNDB2MzJoMjU2djI1NmgzMlY1MjhoMjU2eiIgcC1pZD0iNjE5OCIvPjwvc3ZnPg==";
@@ -19577,50 +19709,125 @@ var usePopper = function usePopper2(referenceElement, popperElement, options) {
     forceUpdate: popperInstanceRef.current ? popperInstanceRef.current.forceUpdate : null
   };
 };
-const getCursorPostion = (input) => {
+const WriteDatePopover = (props) => {
   const {
-    offsetLeft: inputX,
-    offsetTop: inputY,
-    offsetHeight: inputH,
-    offsetWidth: inputW,
-    selectionEnd: selectionPoint
-  } = input;
-  const div = document.createElement("div");
-  const copyStyle = window.getComputedStyle(input);
-  for (const item of copyStyle) {
-    div.style.setProperty(item, copyStyle.getPropertyValue(item));
-  }
-  div.style.position = "fixed";
-  div.style.visibility = "hidden";
-  div.style.whiteSpace = "pre-wrap";
-  const swap = ".";
-  const inputValue = input.tagName === "INPUT" ? input.value.replace(/ /g, swap) : input.value;
-  div.textContent = inputValue.substring(0, selectionPoint || 0);
-  if (input.tagName === "TEXTAREA") {
-    div.style.height = "auto";
-  }
-  const span = document.createElement("span");
-  span.textContent = inputValue.substring(selectionPoint || 0) || ".";
-  div.appendChild(span);
-  document.body.appendChild(div);
+    anchorEl,
+    value,
+    onSet,
+    onClear,
+    onClose
+  } = props;
+  const [draftDateMs, setDraftDateMs] = react.exports.useState(() => require$$0.moment(value != null ? value : require$$0.moment()).startOf("day").valueOf());
+  const [draftTime, setDraftTime] = react.exports.useState(() => require$$0.moment(value != null ? value : require$$0.moment()).format("HH:mm"));
+  const [popperEl, setPopperEl] = react.exports.useState(null);
   const {
-    offsetLeft: spanX,
-    offsetTop: spanY,
-    offsetHeight: spanH,
-    offsetWidth: spanW
-  } = span;
-  document.body.removeChild(div);
-  return {
-    x: inputX + spanX,
-    y: inputY + spanY,
-    h: inputH + spanH,
-    w: inputW + spanW
+    styles: styles2,
+    attributes
+  } = usePopper(anchorEl, popperEl, {
+    placement: "bottom-start",
+    modifiers: [{
+      name: "flip",
+      options: {
+        fallbackPlacements: ["top-start"]
+      }
+    }, {
+      name: "preventOverflow",
+      options: {
+        padding: 8
+      }
+    }]
+  });
+  react.exports.useEffect(() => {
+    if (!anchorEl) {
+      return;
+    }
+    const handleMouseDown = (e) => {
+      const target = e.target;
+      if (popperEl && popperEl.contains(target)) {
+        return;
+      }
+      if (anchorEl.contains(target)) {
+        return;
+      }
+      onClose();
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [anchorEl, popperEl, onClose]);
+  if (!anchorEl) {
+    return null;
+  }
+  const handleConfirm = () => {
+    const [h2 = 0, m2 = 0] = draftTime.split(":").map((n2) => parseInt(n2));
+    const target = require$$0.moment(draftDateMs).hours(h2).minutes(m2).seconds(0).milliseconds(0);
+    onSet(target);
+    onClose();
   };
+  const handleToday = () => {
+    setDraftDateMs(require$$0.moment().startOf("day").valueOf());
+  };
+  const handleClear = () => {
+    onClear();
+    onClose();
+  };
+  const draftLabel = require$$0.moment(draftDateMs).format("YYYY-MM-DD");
+  return /* @__PURE__ */ jsxs("div", {
+    ref: setPopperEl,
+    className: "memo-write-date-popover",
+    style: styles2.popper,
+    ...attributes.popper,
+    role: "dialog",
+    children: [/* @__PURE__ */ jsx(DatePicker, {
+      className: "editor-date-picker",
+      datestamp: draftDateMs,
+      handleDateStampChange: (ms) => setDraftDateMs(ms)
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "write-date-row",
+      children: [/* @__PURE__ */ jsx("span", {
+        className: "write-date-label",
+        children: t$1("Time")
+      }), /* @__PURE__ */ jsx("input", {
+        className: "write-date-time",
+        type: "time",
+        value: draftTime,
+        step: "60",
+        onChange: (e) => setDraftTime(e.target.value)
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "write-date-actions",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "write-date-ghost-actions",
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "ghost-btn",
+          onClick: handleToday,
+          children: t$1("Today")
+        }), value && /* @__PURE__ */ jsx("span", {
+          className: "ghost-btn danger",
+          onClick: handleClear,
+          children: t$1("Back to now")
+        })]
+      }), /* @__PURE__ */ jsxs("button", {
+        className: "write-date-confirm",
+        onClick: handleConfirm,
+        children: [t$1("Write on"), " ", draftLabel, " ", draftTime]
+      })]
+    })]
+  });
 };
 let isList;
 let isEditor = false;
 let isEditorGo = false;
-let positionX;
+const SQUASH_TOTAL_MS = 130;
+const SQUASH_LAUNCH_MS = 90;
 const MemoEditor = () => {
   const {
     globalState
@@ -19634,7 +19841,6 @@ const MemoEditor = () => {
     DefaultEditorLocation,
     DefaultPrefix,
     FocusOnEditor: FocusOnEditor2,
-    InsertDateFormat,
     UseButtonToShowEditor
   } = settings;
   const {
@@ -19643,11 +19849,12 @@ const MemoEditor = () => {
   const [isListShown, toggleList] = useToggle(false);
   const [isEditorShown, toggleEditor] = dist(false);
   const editorRef = react.exports.useRef(null);
+  const editorWrapperRef = react.exports.useRef(null);
+  const sendingRef = react.exports.useRef(false);
   const prevGlobalStateRef = react.exports.useRef(globalState);
-  const [isDatePickerOpen, setIsDatePickerOpen] = dist(false);
-  const popperRef = react.exports.useRef(null);
-  const [popperElement, setPopperElement] = dist(null);
-  const [currentDateStamp] = dist(parseInt(require$$0.moment().format("x")));
+  const [targetDate, setTargetDate, targetDateRef] = dist(null);
+  const [isWriteDateOpen, setIsWriteDateOpen] = dist(false);
+  const [calAnchor, setCalAnchor] = dist(null);
   react.exports.useEffect(() => {
     if (!editorRef.current) {
       return;
@@ -19792,128 +19999,6 @@ const MemoEditor = () => {
       }
     }
   }, []);
-  const setPopper = () => {
-    let popperTemp;
-    if (!require$$0.Platform.isMobile) {
-      popperTemp = usePopper(popperRef.current, popperElement, {
-        placement: "right-end",
-        modifiers: [{
-          name: "flip",
-          options: {
-            allowedAutoPlacements: ["bottom"],
-            rootBoundary: "document"
-          }
-        }]
-      });
-    } else if (require$$0.Platform.isMobile && DefaultEditorLocation !== "Bottom") {
-      const seletorPopupWidth = 280;
-      if (window.innerWidth - positionX > seletorPopupWidth * 1.2) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: "right-end",
-          modifiers: [{
-            name: "flip",
-            options: {
-              allowedAutoPlacements: ["left-end"],
-              rootBoundary: "document"
-            }
-          }, {
-            name: "preventOverflow",
-            options: {
-              rootBoundary: "document"
-            }
-          }]
-        });
-      } else if (window.innerWidth - positionX < seletorPopupWidth && window.innerWidth > seletorPopupWidth * 1.5) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: "left-end",
-          modifiers: [{
-            name: "flip",
-            options: {
-              allowedAutoPlacements: ["right-end"],
-              rootBoundary: "document"
-            }
-          }, {
-            name: "preventOverflow",
-            options: {
-              rootBoundary: "document"
-            }
-          }]
-        });
-      } else {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: "bottom",
-          modifiers: [{
-            name: "flip",
-            options: {
-              allowedAutoPlacements: ["bottom"],
-              rootBoundary: "document"
-            }
-          }, {
-            name: "preventOverflow",
-            options: {
-              rootBoundary: "document"
-            }
-          }]
-        });
-      }
-    } else if (require$$0.Platform.isMobile && DefaultEditorLocation === "Bottom") {
-      const seletorPopupWidth = 280;
-      if (window.innerWidth - positionX > seletorPopupWidth * 1.2) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: "top-end",
-          modifiers: [{
-            name: "flip",
-            options: {
-              allowedAutoPlacements: ["top-start"],
-              rootBoundary: "document"
-            }
-          }, {
-            name: "preventOverflow",
-            options: {
-              rootBoundary: "document"
-            }
-          }]
-        });
-      } else if (window.innerWidth - positionX < seletorPopupWidth && positionX > seletorPopupWidth) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: "top-start",
-          modifiers: [{
-            name: "flip",
-            options: {
-              allowedAutoPlacements: ["top-end"],
-              rootBoundary: "document"
-            }
-          }, {
-            name: "preventOverflow",
-            options: {
-              rootBoundary: "document"
-            }
-          }]
-        });
-      } else {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: "top",
-          modifiers: [{
-            name: "flip",
-            options: {
-              allowedAutoPlacements: ["top"],
-              rootBoundary: "document"
-            }
-          }, {
-            name: "preventOverflow",
-            options: {
-              rootBoundary: "document"
-            }
-          }]
-        });
-      }
-    }
-    return popperTemp;
-  };
-  const popper2 = setPopper();
-  const closePopper = () => {
-    setIsDatePickerOpen(false);
-  };
   react.exports.useEffect(() => {
     var _a, _b, _c, _d, _e;
     if (globalState.markMemoId) {
@@ -19991,18 +20076,65 @@ const MemoEditor = () => {
       new require$$0.Notice(error);
     }
   }, []);
+  const squashEditor = () => {
+    const el = editorWrapperRef.current;
+    if (!el) {
+      return;
+    }
+    el.style.transformOrigin = "50% 0%";
+    const anim = el.animate([
+      {
+        transform: "scale(1, 1)",
+        offset: 0,
+        easing: "cubic-bezier(0.33, 1, 0.68, 1)"
+      },
+      {
+        transform: "scale(1, 0.94)",
+        offset: 0.28
+      },
+      {
+        transform: "scale(1, 0.94)",
+        offset: 0.7
+      },
+      {
+        transform: "scale(1, 1)",
+        offset: 0.76
+      },
+      {
+        transform: "scale(1, 1)",
+        offset: 1
+      }
+    ], {
+      duration: SQUASH_TOTAL_MS
+    });
+    anim.onfinish = () => {
+      anim.cancel();
+      el.style.transformOrigin = "";
+    };
+  };
   const handleSaveBtnClick = react.exports.useCallback(async (content) => {
+    var _a, _b;
     if (content === "") {
       new require$$0.Notice(t$1("Content cannot be empty"));
+      return;
+    }
+    if (sendingRef.current) {
       return;
     }
     const {
       editMemoId
     } = globalStateService.getState();
     content = content.replaceAll("&nbsp;", " ");
-    setEditorContentCache("");
+    const finishSend = () => {
+      var _a2, _b2;
+      (_a2 = editorRef.current) == null ? void 0 : _a2.clear();
+      (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
+      setEditorContentCache("");
+      sendingRef.current = false;
+    };
     try {
       if (editMemoId) {
+        setEditorContentCache("");
         const prevMemo = memoService.getMemoById(editMemoId);
         content = content + (prevMemo.hasId === "" ? "" : " ^" + prevMemo.hasId);
         if (prevMemo && prevMemo.content !== content) {
@@ -20017,15 +20149,27 @@ const MemoEditor = () => {
           memoService.editMemo(editedMemo);
         }
         globalStateService.setEditMemoId("");
+        finishSend();
       } else {
-        const newMemo = await memoService.createMemo(content, isList);
-        memoService.pushMemo(newMemo);
-        locationService.clearQuery();
+        sendingRef.current = true;
+        (_a = editorRef.current) == null ? void 0 : _a.setEditable(false);
+        const target = targetDateRef.current;
+        const sendContent = content.trimStart();
+        const squashStart = Date.now();
+        squashEditor();
+        const newMemo = await memoService.createMemo(sendContent, isList, target != null ? target : void 0);
+        const remaining = Math.max(0, SQUASH_LAUNCH_MS - (Date.now() - squashStart));
+        window.setTimeout(() => {
+          finishSend();
+          memoService.pushMemo(newMemo);
+          locationService.clearQuery();
+        }, remaining);
       }
     } catch (error) {
+      sendingRef.current = false;
+      (_b = editorRef.current) == null ? void 0 : _b.setEditable(true);
       new require$$0.Notice(error.message);
     }
-    setEditorContentCache("");
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
     var _a;
@@ -20043,60 +20187,11 @@ const MemoEditor = () => {
     if (!editorRef.current) {
       return;
     }
-    const currentValue = editorRef.current.getContent();
-    const selectionStart = editorRef.current.element.selectionStart;
-    const prevString = currentValue.slice(0, selectionStart);
-    const nextString = currentValue.slice(selectionStart);
-    if ((prevString.endsWith("@") || prevString.endsWith("\u{1F4C6}")) && nextString.startsWith(" ")) {
-      updateDateSelectorPopupPosition();
-      setIsDatePickerOpen(true);
-    } else if ((prevString.endsWith("@") || prevString.endsWith("\u{1F4C6}")) && nextString === "") {
-      updateDateSelectorPopupPosition();
-      setIsDatePickerOpen(true);
-    } else {
-      setIsDatePickerOpen(false);
-    }
     setTimeout(() => {
       var _a;
       (_a = editorRef.current) == null ? void 0 : _a.focus();
     });
   }, []);
-  const handleDateInsertTrigger = (date) => {
-    if (!editorRef.current) {
-      return;
-    }
-    if (date) {
-      closePopper();
-      isList = true;
-      toggleList(true);
-    }
-    const currentValue = editorRef.current.getContent();
-    const selectionStart = editorRef.current.element.selectionStart;
-    const prevString = currentValue.slice(0, selectionStart);
-    const nextString = currentValue.slice(selectionStart);
-    const todayMoment = require$$0.moment(date);
-    if (!prevString.endsWith("@")) {
-      editorRef.current.element.value = prevString + todayMoment.format("YYYY-MM-DD") + nextString;
-      editorRef.current.element.setSelectionRange(selectionStart + 10, selectionStart + 10);
-      editorRef.current.focus();
-      handleContentChange(editorRef.current.element.value);
-      return;
-    } else {
-      switch (InsertDateFormat) {
-        case "Dataview":
-          editorRef.current.element.value = currentValue.slice(0, editorRef.current.element.selectionStart - 1) + "[due::" + todayMoment.format("YYYY-MM-DD") + "]" + nextString;
-          editorRef.current.element.setSelectionRange(selectionStart + 17, selectionStart + 17);
-          editorRef.current.focus();
-          handleContentChange(editorRef.current.element.value);
-          break;
-        case "Tasks":
-          editorRef.current.element.value = currentValue.slice(0, editorRef.current.element.selectionStart - 1) + "\u{1F4C6}" + todayMoment.format("YYYY-MM-DD") + nextString;
-          editorRef.current.element.setSelectionRange(selectionStart + 11, selectionStart + 11);
-          editorRef.current.focus();
-          handleContentChange(editorRef.current.element.value);
-      }
-    }
-  };
   const handleChangeStatus = () => {
     if (!editorRef.current) {
       return;
@@ -20141,44 +20236,6 @@ const MemoEditor = () => {
     editorRef.current.focus();
     handleContentChange(editorRef.current.element.value);
   }, []);
-  const updateDateSelectorPopupPosition = react.exports.useCallback(() => {
-    if (!editorRef.current || !popperRef.current) {
-      return;
-    }
-    const leaves = app2.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-    const leaf = leaves[0];
-    const leafView = leaf.view.containerEl;
-    const seletorPopupWidth = 280;
-    const editorWidth = leafView.clientWidth;
-    const {
-      x: x2,
-      y: y2
-    } = getCursorPostion(editorRef.current.element);
-    let left2;
-    let top2;
-    if (!require$$0.Platform.isMobile) {
-      left2 = x2 + seletorPopupWidth + 16 > editorWidth ? x2 + 18 : x2 + 18;
-      top2 = y2 + 34;
-    } else {
-      if (window.innerWidth - x2 > seletorPopupWidth) {
-        left2 = x2 + seletorPopupWidth + 16 > editorWidth ? x2 + 18 : x2 + 18;
-      } else if (window.innerWidth - x2 < seletorPopupWidth) {
-        left2 = x2 + seletorPopupWidth + 16 > editorWidth ? x2 + 34 : x2 + 34;
-      } else {
-        left2 = editorRef.current.element.clientWidth / 2;
-      }
-      if (DefaultEditorLocation === "Bottom" && window.innerWidth > 875) {
-        top2 = y2 + 4;
-      } else if (DefaultEditorLocation === "Bottom" && window.innerWidth <= 875) {
-        top2 = y2 + 19;
-      } else if (DefaultEditorLocation === "Top" && window.innerWidth <= 875) {
-        top2 = y2 + 36;
-      }
-    }
-    positionX = x2;
-    popperRef.current.style.left = `${left2}px`;
-    popperRef.current.style.top = `${top2}px`;
-  }, []);
   const handleUploadFileBtnClick = react.exports.useCallback(() => {
     const inputEl = document.createElement("input");
     document.body.appendChild(inputEl);
@@ -20200,6 +20257,11 @@ const MemoEditor = () => {
     inputEl.click();
   }, []);
   const showEditStatus = Boolean(globalState.editMemoId);
+  const toggleWriteDateOpen = () => setIsWriteDateOpen((v2) => !v2);
+  const handleClearTargetDate = () => {
+    setTargetDate(null);
+    setIsWriteDateOpen(false);
+  };
   const editorConfig = react.exports.useMemo(() => ({
     className: "memo-editor",
     inputerType: "memo",
@@ -20213,6 +20275,7 @@ const MemoEditor = () => {
     onContentChange: handleContentChange
   }), [showEditStatus]);
   return /* @__PURE__ */ jsxs("div", {
+    ref: editorWrapperRef,
     className: `memo-editor-wrapper ${showEditStatus ? "edit-ing" : ""} ${isEditorShown ? "hidden" : ""}`,
     children: [/* @__PURE__ */ jsx("p", {
       className: `tip-text ${showEditStatus ? "" : "hidden"}`,
@@ -20221,7 +20284,18 @@ const MemoEditor = () => {
       ref: editorRef,
       ...editorConfig,
       tools: /* @__PURE__ */ jsxs(Fragment, {
-        children: [/* @__PURE__ */ jsx(SvgTag, {
+        children: [!showEditStatus && /* @__PURE__ */ jsx("span", {
+          ref: setCalAnchor,
+          className: `memo-write-date-anchor ${isWriteDateOpen ? "active" : ""}`,
+          title: t$1("Write to date"),
+          onClick: (e) => {
+            e.stopPropagation();
+            toggleWriteDateOpen();
+          },
+          children: /* @__PURE__ */ jsx(SvgCalendar, {
+            className: "action-btn write-date"
+          })
+        }), /* @__PURE__ */ jsx(SvgTag, {
           className: "action-btn add-tag",
           onClick: handleTagTextBtnClick
         }), /* @__PURE__ */ jsx(SvgImage, {
@@ -20235,21 +20309,29 @@ const MemoEditor = () => {
           onClick: handleChangeStatus
         })]
       })
-    }), /* @__PURE__ */ jsx("div", {
-      ref: popperRef,
-      className: "date-picker",
-      children: isDatePickerOpen && /* @__PURE__ */ jsx("div", {
-        tabIndex: -1,
-        style: popper2.styles.popper,
-        ...popper2.attributes.popper,
-        ref: setPopperElement,
-        role: "dialog",
-        children: /* @__PURE__ */ jsx(DatePicker, {
-          className: `editor-date-picker ${isDatePickerOpen ? "" : "hidden"}`,
-          datestamp: currentDateStamp,
-          handleDateStampChange: handleDateInsertTrigger
-        })
-      })
+    }), !showEditStatus && targetDate && /* @__PURE__ */ jsxs("div", {
+      className: "memo-write-date-target",
+      onClick: toggleWriteDateOpen,
+      children: [/* @__PURE__ */ jsx(SvgCalendar, {
+        className: "icon-img"
+      }), /* @__PURE__ */ jsxs("span", {
+        className: "target-text",
+        children: [t$1("Write on"), " ", targetDate.format("YYYY-MM-DD HH:mm")]
+      }), /* @__PURE__ */ jsx("span", {
+        className: "target-clear",
+        title: t$1("Back to now"),
+        onClick: (e) => {
+          e.stopPropagation();
+          handleClearTargetDate();
+        },
+        children: "\u2715"
+      })]
+    }), isWriteDateOpen && /* @__PURE__ */ jsx(WriteDatePopover, {
+      anchorEl: calAnchor,
+      value: targetDate,
+      onSet: setTargetDate,
+      onClear: handleClearTargetDate,
+      onClose: () => setIsWriteDateOpen(false)
     })]
   });
 };
@@ -20557,6 +20639,11 @@ const MemoList = () => {
   const [currentPage, setCurrentPage] = react.exports.useState(1);
   const [isFetching, setFetchStatus] = react.exports.useState(true);
   const wrapperElement = react.exports.useRef(null);
+  const layoutSnapRef = react.exports.useRef({
+    keys: [],
+    tops: []
+  });
+  const lastInsertAnimRef = react.exports.useRef(0);
   const {
     tag: tagQuery,
     duration,
@@ -20680,6 +20767,111 @@ const MemoList = () => {
       top: 0
     });
   }, [query]);
+  react.exports.useLayoutEffect(() => {
+    const container = wrapperElement.current;
+    if (!container) {
+      return;
+    }
+    const cards = Array.from(container.querySelectorAll(".memo-wrapper"));
+    const getMemoId = (el) => {
+      var _a, _b;
+      return (_b = (_a = /(?:^|\s)memos-([^\s]+)/.exec(el.className)) == null ? void 0 : _a[1]) != null ? _b : "";
+    };
+    const keys = cards.map(getMemoId);
+    const prev = layoutSnapRef.current;
+    const containerTop = container.getBoundingClientRect().top;
+    const tops = cards.map((c) => c.getBoundingClientRect().top - containerTop);
+    const firstIsNew = prev.keys.length > 0 && keys[0] !== prev.keys[0] && !prev.keys.includes(keys[0]);
+    const lengthOk = keys.length === prev.keys.length + 1 || keys.length === prev.keys.length;
+    const tailIsPrevHead = lengthOk && keys.slice(1).join("|") === prev.keys.slice(0, keys.length - 1).join("|");
+    const isTopInsert = firstIsNew && lengthOk && tailIsPrevHead && Date.now() - lastInsertAnimRef.current > 2500;
+    if (isTopInsert) {
+      lastInsertAnimRef.current = Date.now();
+      cards.forEach((card, idx) => {
+        var _a;
+        if (idx === 0) {
+          return;
+        }
+        const delta = ((_a = prev.tops[idx - 1]) != null ? _a : 0) - tops[idx];
+        if (Math.abs(delta) > 1) {
+          const anim = card.animate([{
+            transform: `translateY(${delta}px)`
+          }, {
+            transform: "none"
+          }], {
+            duration: 120,
+            easing: "cubic-bezier(0.2, 0.8, 0.2, 1)"
+          });
+          anim.onfinish = () => anim.cancel();
+        }
+      });
+      const first = cards[0];
+      if (first) {
+        const anim = first.animate([{
+          transform: "translateY(-150px)",
+          opacity: 0,
+          offset: 0
+        }, {
+          transform: "translateY(12px)",
+          opacity: 1,
+          offset: 0.55
+        }, {
+          transform: "translateY(-2px)",
+          opacity: 1,
+          offset: 0.82
+        }, {
+          transform: "none",
+          opacity: 1,
+          offset: 1
+        }], {
+          duration: 160,
+          easing: "cubic-bezier(0.12, 0.8, 0.2, 1)"
+        });
+        anim.onfinish = () => anim.cancel();
+      }
+    }
+    let removalAt = -1;
+    if (prev.keys.length > 0 && keys.length === prev.keys.length - 1) {
+      let j = 0;
+      let missing = -1;
+      let okSeq = true;
+      for (let i = 0; i < prev.keys.length; i++) {
+        if (j < keys.length && prev.keys[i] === keys[j]) {
+          j++;
+        } else if (missing === -1) {
+          missing = i;
+        } else {
+          okSeq = false;
+          break;
+        }
+      }
+      if (okSeq && j === keys.length) {
+        removalAt = missing;
+      }
+    }
+    if (removalAt >= 0) {
+      cards.forEach((card, idx) => {
+        var _a;
+        const prevIdx = idx < removalAt ? idx : idx + 1;
+        const delta = ((_a = prev.tops[prevIdx]) != null ? _a : 0) - tops[idx];
+        if (Math.abs(delta) > 1) {
+          const anim = card.animate([{
+            transform: `translateY(${delta}px)`
+          }, {
+            transform: "none"
+          }], {
+            duration: 160,
+            easing: "cubic-bezier(0.2, 0.8, 0.2, 1)"
+          });
+          anim.onfinish = () => anim.cancel();
+        }
+      });
+    }
+    layoutSnapRef.current = {
+      keys,
+      tops
+    };
+  });
   const handleMemoListClick = react.exports.useCallback((event) => {
     const {
       workspace
@@ -20957,9 +21149,46 @@ const DeletedMemo = (props) => {
     deletedAtStr
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
+  const rootRef = react.exports.useRef(null);
+  const animateOut = (up) => {
+    const el = rootRef.current;
+    if (!el) {
+      return Promise.resolve();
+    }
+    const anim = el.animate(up ? [{
+      transform: "none",
+      opacity: 1,
+      offset: 0
+    }, {
+      transform: "translateY(-4px) scale(0.98)",
+      opacity: 1,
+      offset: 0.4
+    }, {
+      transform: "translateY(-14px) scale(0.96)",
+      opacity: 0,
+      offset: 1
+    }] : [{
+      transform: "none",
+      opacity: 1,
+      offset: 0
+    }, {
+      transform: "translateY(2px) scale(0.98)",
+      opacity: 1,
+      offset: 0.3
+    }, {
+      transform: "translateY(14px) scale(0.95)",
+      opacity: 0,
+      offset: 1
+    }], {
+      duration: 200,
+      easing: "ease-in"
+    });
+    return anim.finished.catch(() => void 0);
+  };
   const handleDeleteMemoClick = async () => {
     if (showConfirmDeleteBtn) {
       try {
+        await animateOut(false);
         await memoService.deleteMemoById(memo2.id);
         handleDeletedMemoAction(memo2.id);
       } catch (error) {
@@ -20971,6 +21200,7 @@ const DeletedMemo = (props) => {
   };
   const handleRestoreMemoClick = async () => {
     try {
+      await animateOut(true);
       await memoService.restoreMemoById(memo2.id);
       handleDeletedMemoAction(memo2.id);
       new require$$0.Notice(t$1("RESTORE SUCCEED"));
@@ -21004,6 +21234,7 @@ const DeletedMemo = (props) => {
   };
   const childComments = propsMemo.hasId ? collectChildren(propsMemo.hasId) : [];
   return /* @__PURE__ */ jsxs("div", {
+    ref: rootRef,
     className: `memo-wrapper ${"memos-" + memo2.id}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
     children: [/* @__PURE__ */ jsxs("div", {
@@ -21484,7 +21715,6 @@ class Memos extends require$$0.ItemView {
     this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
     this.plugin.settings.DefaultPrefix;
-    this.plugin.settings.InsertDateFormat;
     this.plugin.settings.DefaultEditorLocation;
     this.plugin.settings.UseButtonToShowEditor;
     FocusOnEditor = this.plugin.settings.FocusOnEditor;
@@ -21543,7 +21773,6 @@ const DEFAULT_SETTINGS = {
   ShareFooterEnd: "\u270D\uFE0F by {UserName}",
   DefaultPrefix: "List",
   UseDailyOrPeriodic: "Daily",
-  InsertDateFormat: "Tasks",
   DefaultEditorLocation: "Top",
   UseButtonToShowEditor: false,
   FocusOnEditor: true,
@@ -21666,15 +21895,6 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       dropdown.addOption("Task", t$1("Task"));
       dropdown.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
         this.plugin.settings.DefaultPrefix = value;
-        this.applySettingsUpdate();
-      });
-    });
-    new require$$0.Setting(containerEl).setName(t$1("Default insert date format")).setDesc(t$1("Set the default date format when insert date by @, 'Tasks' by default.")).addDropdown(async (d) => {
-      dropdown = d;
-      dropdown.addOption("Tasks", "Tasks");
-      dropdown.addOption("Dataview", "Dataview");
-      dropdown.setValue(this.plugin.settings.InsertDateFormat).onChange(async (value) => {
-        this.plugin.settings.InsertDateFormat = value;
         this.applySettingsUpdate();
       });
     });

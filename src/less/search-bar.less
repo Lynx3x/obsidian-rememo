@@ -1,29 +1,57 @@
 @import './mixin.less';
+@import './theme.less';
 
-.theme-light div[data-type='memos_view'] .search-bar-container {
-  width: 160px;
+// 搜索框 + 快速过滤弹层（头部右侧）
+div[data-type='memos_view'] .search-bar-container {
+  position: relative;
+  width: 148px;
 
   > .search-bar-inputer {
-    .flex(row, flex-start, center);
-    background-color: @bg-Searchbar-lightgray;
+    .flex(row, center, center);
+    background-color: var(--memo-surface-hover);
     width: 100%;
-    height: 40px;
-    padding: 4px 16px;
-    border-radius: 8px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: border-color var(--memo-transition-fast), background-color var(--memo-transition-fast);
 
-    > .icon-img {
-      margin-right: 8px;
-      width: 14px;
-      height: auto;
-      opacity: 0.6;
+    &:hover {
+      border-color: var(--memo-border);
     }
 
-    > .text-input {
-      width: 100%;
-      font-size: 15px;
+    &:focus-within {
+      border-color: var(--memo-accent);
+    }
 
-      &:hover {
-        box-shadow: 0 0 0 1px var(--background-modifier-border-hover);
+    > .icon-img {
+      flex-shrink: 0;
+      margin-right: 7px;
+      width: 13px;
+      height: 13px;
+      fill: var(--memo-text-muted);
+    }
+
+    // 覆盖 Obsidian 内建 .text-input（白底/高矮/自带 box-shadow），只留胶囊外壳色
+    > .text-input {
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
+      height: 20px;
+      line-height: 20px;
+      padding: 0;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: var(--memo-text);
+      font-size: 13px;
+
+      &::placeholder {
+        color: var(--memo-text-faint);
+      }
+
+      &:focus {
+        outline: none;
       }
     }
 
@@ -37,22 +65,26 @@
   > .quickly-action-wrapper {
     display: none;
     position: absolute;
-    top: 52px;
-    right: -7px;
+    top: 40px;
+    right: 0;
     z-index: 12;
-    padding: 8px;
+    padding: 6px;
     width: 320px;
 
     > .quickly-action-container {
       .flex(column, flex-start, flex-start);
       width: 100%;
-      background-color: white;
+      background-color: var(--memo-bg);
+      border: 1px solid var(--memo-border);
+      border-radius: var(--memo-radius-m);
+      box-shadow: var(--memo-shadow-l);
       padding: 8px 16px;
-      border-radius: 8px;
-      box-shadow: 0 0 8px 0 rgb(0 0 0 / 20%);
+      // Q 弹：从输入框右上角 pop 出来
+      transform-origin: top right;
+      animation: memo-pop-in 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
       > .title-text {
-        color: gray;
+        color: var(--memo-text-faint);
         font-size: 12px;
       }
 
@@ -63,7 +95,7 @@
         margin-top: 8px;
 
         > .section-text {
-          color: gray;
+          color: var(--memo-text-muted);
           margin-right: 4px;
           flex-shrink: 0;
           line-height: 26px;
@@ -80,21 +112,23 @@
 
             .type-item {
               cursor: pointer;
-              padding: 0 4px;
-              border-radius: 6px;
+              padding: 0 6px;
+              border-radius: var(--memo-radius-s);
+              color: var(--memo-text);
+              transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast);
 
               &:hover {
-                background-color: @bg-whitegray;
+                background-color: var(--memo-surface-hover);
               }
 
               &.selected {
-                background-color: @text-green;
-                color: white;
+                background-color: var(--memo-accent);
+                color: var(--memo-on-accent);
               }
             }
 
             .split-text {
-              color: lightgray;
+              color: var(--memo-text-faint);
               margin: 0 2px;
             }
           }
@@ -108,408 +142,18 @@
   }
 }
 
-//@media only screen and (max-width: 875px) {
-//  .theme-light {
-//    div[data-type='memos_view'] .search-bar-container {
-//      width: 120px;
-//
-//      > .search-bar-inputer {
-//        .flex(row, flex-start, center);
-//        background-color: @bg-Searchbar-lightgray;
-//        // width: 100%;
-//        height: 40px;
-//        padding: 4px 16px;
-//        border-radius: 8px;
-//        width: 120%;
-//        margin-left: -35px;
-//      }
-//
-//      > .quickly-action-wrapper {
-//        display: none;
-//        position: absolute;
-//        top: 42px;
-//        right: -2px;
-//        z-index: 12;
-//        padding-right: 20px;
-//        padding-left: 8px;
-//        padding-top: 8px;
-//        padding-bottom: 8px;
-//        width: 320px;
-//      }
-//    }
-//  }
-//}
-
-.theme-light {
-  div[data-type='memos_view'].mobile-view .search-bar-container {
-    width: 120px;
-
-    > .search-bar-inputer {
-      .flex(row, flex-start, center);
-      background-color: @bg-Searchbar-lightgray;
-      // width: 100%;
-      height: 40px;
-      padding: 4px 16px;
-      border-radius: 8px;
-      width: 120%;
-      margin-left: -35px;
-
-      > .icon-img {
-        margin-right: 8px;
-        width: 14px;
-        height: auto;
-        opacity: 0.6;
-      }
-
-      > .text-input {
-        width: 100%;
-        font-size: 15px;
-
-        &:hover {
-          box-shadow: 0 0 0 1px var(--background-modifier-border-hover);
-        }
-      }
-
-      &:hover {
-        + .quickly-action-wrapper {
-          display: flex;
-        }
-      }
-    }
-
-    > .quickly-action-wrapper {
-      display: none;
-      position: absolute;
-      top: 42px;
-      //right: -2px;
-      z-index: 12;
-      padding-right: 20px;
-      padding-left: 8px;
-      padding-top: 8px;
-      padding-bottom: 8px;
-      width: 320px;
-
-      > .quickly-action-container {
-        .flex(column, flex-start, flex-start);
-        width: 100%;
-        background-color: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        box-shadow: 0 0 8px 0 rgb(0 0 0 / 20%);
-
-        > .title-text {
-          color: gray;
-          font-size: 12px;
-        }
-
-        > .types-container {
-          .flex(row, flex-start, flex-start);
-          width: 100%;
-          font-size: 13px;
-          margin-top: 8px;
-
-          > .section-text {
-            color: gray;
-            margin-right: 4px;
-            flex-shrink: 0;
-            line-height: 26px;
-          }
-
-          > .values-container {
-            .flex(row, flex-start, flex-start);
-            flex-wrap: wrap;
-            user-select: none;
-
-            > div {
-              .flex(row, flex-start, center);
-              line-height: 26px;
-
-              .type-item {
-                cursor: pointer;
-                padding: 0 4px;
-                border-radius: 6px;
-
-                &:hover {
-                  background-color: @bg-whitegray;
-                }
-
-                &.selected {
-                  background-color: @text-green;
-                  color: white;
-                }
-              }
-
-              .split-text {
-                color: lightgray;
-                margin: 0 2px;
-              }
-            }
-          }
-        }
-      }
-
-      &:hover {
-        display: flex;
-      }
-    }
-  }
-}
-
-.theme-dark div[data-type='memos_view'] .search-bar-container {
-  width: 160px;
+// 移动端：加宽输入区
+div[data-type='memos_view'].mobile-view .search-bar-container {
+  width: 120px;
 
   > .search-bar-inputer {
-    .flex(row, flex-start, center);
-    background-color: @bg-dark-Search-lightgray;
-    width: 100%;
-    height: 40px;
-    padding: 8px 16px;
-    border-radius: 8px;
-
-    > .icon-img {
-      margin-right: 8px;
-      width: 14px;
-      height: auto;
-      opacity: 0.8;
-      fill: #cdcdcd;
-    }
-
-    > .text-input {
-      width: 100%;
-      font-size: 15px;
-      color: @text-dark-black;
-    }
-
-    &:hover {
-      + .quickly-action-wrapper {
-        display: flex;
-      }
-    }
+    height: 30px;
+    width: 120%;
+    margin-left: -35px;
   }
 
   > .quickly-action-wrapper {
-    display: none;
-    position: absolute;
-    top: 52px;
-    right: -7px;
-    z-index: 12;
-    padding: 8px;
+    top: 36px;
     width: 320px;
-
-    > .quickly-action-container {
-      .flex(column, flex-start, flex-start);
-      width: 100%;
-      background-color: rgb(0, 0, 0);
-      padding: 8px 16px;
-      border-radius: 8px;
-      margin-top: -8px;
-      // box-shadow: 0 0 8px 0 rgba(255, 255, 255, 0.2);
-
-      > .title-text {
-        color: rgb(204, 204, 204);
-        font-size: 12px;
-      }
-
-      > .types-container {
-        .flex(row, flex-start, flex-start);
-        width: 100%;
-        font-size: 13px;
-        margin-top: 8px;
-
-        > .section-text {
-          color: rgb(223, 223, 223);
-          margin-right: 4px;
-          flex-shrink: 0;
-          line-height: 26px;
-        }
-
-        > .values-container {
-          .flex(row, flex-start, flex-start);
-          flex-wrap: wrap;
-          user-select: none;
-
-          > div {
-            .flex(row, flex-start, center);
-            line-height: 26px;
-
-            .type-item {
-              cursor: pointer;
-              padding: 0 4px;
-              border-radius: 6px;
-              color: @text-dark-black;
-
-              &:hover {
-                background-color: @bg-dark-whitegray;
-              }
-
-              &.selected {
-                background-color: @text-dark-green;
-                color: rgb(0, 0, 0);
-              }
-            }
-
-            .split-text {
-              color: rgb(104, 104, 104);
-              margin: 0 2px;
-            }
-          }
-        }
-      }
-    }
-
-    &:hover {
-      display: flex;
-    }
-  }
-}
-
-//@media only screen and (max-width: 875px) {
-//  .theme-dark {
-//    div[data-type='memos_view'] .search-bar-container {
-//      width: 120px;
-//
-//      > .search-bar-inputer {
-//        .flex(row, flex-start, center);
-//        background-color: @bg-dark-Search-lightgray;
-//        // width: 100%;
-//        height: 40px;
-//        padding: 8px 16px;
-//        border-radius: 8px;
-//        width: 120%;
-//        margin-left: -35px;
-//
-//        > .icon-img {
-//          margin-right: 8px;
-//          width: 14px;
-//          height: auto;
-//          opacity: 0.8;
-//          filter: invert(1);
-//        }
-//      }
-//
-//      > .quickly-action-wrapper {
-//        display: none;
-//        position: absolute;
-//        top: 42px;
-//        right: -2px;
-//        z-index: 2;
-//        padding: 8px;
-//        width: 320px;
-//      }
-//    }
-//  }
-//}
-
-.theme-dark {
-  div[data-type='memos_view'].mobile-view .search-bar-container {
-    width: 120px;
-
-    > .search-bar-inputer {
-      .flex(row, flex-start, center);
-      background-color: @bg-dark-Search-lightgray;
-      // width: 100%;
-      height: 40px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      width: 120%;
-      margin-left: -35px;
-
-      > .icon-img {
-        margin-right: 8px;
-        width: 14px;
-        height: auto;
-        opacity: 0.8;
-        fill: #cdcdcd;
-
-      }
-
-      > .text-input {
-        width: 100%;
-        font-size: 15px;
-        color: @text-dark-black;
-      }
-
-      &:hover {
-        + .quickly-action-wrapper {
-          display: flex;
-        }
-      }
-    }
-
-    > .quickly-action-wrapper {
-      display: none;
-      position: absolute;
-      top: 42px;
-      //right: -2px;
-      z-index: 2;
-      padding: 8px;
-      width: 320px;
-
-
-      > .quickly-action-container {
-        .flex(column, flex-start, flex-start);
-        width: 100%;
-        background-color: rgb(0, 0, 0);
-        padding: 8px 16px;
-        border-radius: 8px;
-        margin-top: -8px;
-        // box-shadow: 0 0 8px 0 rgba(255, 255, 255, 0.2);
-
-        > .title-text {
-          color: rgb(204, 204, 204);
-          font-size: 12px;
-        }
-
-        > .types-container {
-          .flex(row, flex-start, flex-start);
-          width: 100%;
-          font-size: 13px;
-          margin-top: 8px;
-
-          > .section-text {
-            color: rgb(223, 223, 223);
-            margin-right: 4px;
-            flex-shrink: 0;
-            line-height: 26px;
-          }
-
-          > .values-container {
-            .flex(row, flex-start, flex-start);
-            flex-wrap: wrap;
-            user-select: none;
-
-            > div {
-              .flex(row, flex-start, center);
-              line-height: 26px;
-
-              .type-item {
-                cursor: pointer;
-                padding: 0 4px;
-                border-radius: 6px;
-                color: @text-dark-black;
-
-                &:hover {
-                  background-color: @bg-dark-whitegray;
-                }
-
-                &.selected {
-                  background-color: @text-dark-green;
-                  color: rgb(0, 0, 0);
-                }
-              }
-
-              .split-text {
-                color: rgb(104, 104, 104);
-                margin: 0 2px;
-              }
-            }
-          }
-        }
-      }
-
-      &:hover {
-        display: flex;
-      }
-    }
   }
 }

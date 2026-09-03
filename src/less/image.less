@@ -3,10 +3,9 @@
 div[data-type='memos_view'] .image-container {
   width: 200px;
   height: auto;
-  overflow-y: scroll;
+  overflow: hidden; // 不允许滚动：悬停滚轮不再“微微滚动”，点击才是打开预览
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  .pretty-scroll-bar(2px, 0);
 
   > img {
     margin: auto;

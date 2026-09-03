@@ -3,7 +3,7 @@ import useToggle from '../hooks/useToggle';
 import { memoService } from '../services';
 import { formatMemoContent } from './Memo';
 import '../less/memo.less';
-import React from 'react';
+import React, { useRef } from 'react';
 import { moment, Notice } from 'obsidian';
 import More from '../icons/more.svg?component';
 import { t } from '../translations/helper';
@@ -28,11 +28,36 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
     deletedAtStr,
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   // const imageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
+
+  // 恢复/删除前的出行动效（用完再真正操作）
+  const animateOut = (up: boolean) => {
+    const el = rootRef.current;
+    if (!el) {
+      return Promise.resolve();
+    }
+    const anim = el.animate(
+      up
+        ? [
+            { transform: 'none', opacity: 1, offset: 0 },
+            { transform: 'translateY(-4px) scale(0.98)', opacity: 1, offset: 0.4 },
+            { transform: 'translateY(-14px) scale(0.96)', opacity: 0, offset: 1 },
+          ]
+        : [
+            { transform: 'none', opacity: 1, offset: 0 },
+            { transform: 'translateY(2px) scale(0.98)', opacity: 1, offset: 0.3 },
+            { transform: 'translateY(14px) scale(0.95)', opacity: 0, offset: 1 },
+          ],
+      { duration: 200, easing: 'ease-in' },
+    );
+    return anim.finished.catch(() => undefined);
+  };
 
   const handleDeleteMemoClick = async () => {
     if (showConfirmDeleteBtn) {
       try {
+        await animateOut(false);
         await memoService.deleteMemoById(memo.id);
         handleDeletedMemoAction(memo.id);
       } catch (error: any) {
@@ -45,6 +70,7 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
 
   const handleRestoreMemoClick = async () => {
     try {
+      await animateOut(true);
       await memoService.restoreMemoById(memo.id);
       handleDeletedMemoAction(memo.id);
       new Notice(t('RESTORE SUCCEED'));
@@ -83,7 +109,7 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
   const childComments = propsMemo.hasId ? collectChildren(propsMemo.hasId) : [];
 
   return (
-    <div className={`memo-wrapper ${'memos-' + memo.id}`} onMouseLeave={handleMouseLeaveMemoWrapper}>
+    <div ref={rootRef} className={`memo-wrapper ${'memos-' + memo.id}`} onMouseLeave={handleMouseLeaveMemoWrapper}>
       <div className="memo-top-wrapper">
         <span className="time-text">
           {t('DELETE AT')} {memo.deletedAtStr}

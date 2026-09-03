@@ -1,6 +1,7 @@
 @import './mixin.less';
+@import './theme.less';
 
-// 确保容器有足够的高度来显示滚动条
+// 列表滚动容器（卡片画布：保持透明，靠卡片自身 border+shadow 区隔）
 div[data-type='memos_view'] {
   display: flex;
   flex-direction: column;
@@ -13,10 +14,10 @@ div[data-type='memos_view'] {
     height: 100%;
     max-height: 100vh;
     overflow-y: scroll;
-    gap: 8px;
-    padding-right: 4px; // 为滚动条预留空间
-    
-    // 基础滚动条样式
+    gap: 10px;
+    padding: 8px 4px 32px 2px; // 预留滚动条空间 + 底部呼吸
+
+    // 基础滚动条样式（跟随主题）
     &::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -27,17 +28,17 @@ div[data-type='memos_view'] {
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: var(--memo-border);
       border-radius: 3px;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.3);
+        background-color: var(--memo-text-faint);
       }
     }
 
-    // Firefox滚动条
+    // Firefox
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    scrollbar-color: var(--memo-border) transparent;
 
     > .status-text-container {
       .flex(column, flex-start, center);
@@ -55,40 +56,16 @@ div[data-type='memos_view'] {
 
       > .status-text {
         font-size: 13px;
-        color: gray;
+        color: var(--memo-text-faint);
       }
     }
 
     &.completed {
-      padding-bottom: 80px;
+      padding-bottom: 48px;
     }
   }
 
   &.mobile-view .memolist-wrapper {
-    padding: 0 12px;
-  }
-}
-
-// 深色主题样式
-.theme-dark {
-  div[data-type='memos_view'] {
-    .memolist-wrapper {
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.2);
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.3);
-        }
-      }
-
-      // Firefox深色主题滚动条
-      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-
-      > .status-text-container {
-        > .status-text {
-          color: rgb(255, 255, 255);
-        }
-      }
-    }
+    padding: 0 12px 24px;
   }
 }

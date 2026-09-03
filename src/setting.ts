@@ -14,7 +14,6 @@ export interface MemosSettings {
   ShareFooterEnd: string;
   UseDailyOrPeriodic: string;
   DefaultPrefix: string;
-  InsertDateFormat: string;
   DefaultEditorLocation: string;
   UseButtonToShowEditor: boolean;
   FocusOnEditor: boolean;
@@ -47,7 +46,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   ShareFooterEnd: '✍️ by {UserName}',
   DefaultPrefix: 'List',
   UseDailyOrPeriodic: 'Daily',
-  InsertDateFormat: 'Tasks',
   DefaultEditorLocation: 'Top',
   UseButtonToShowEditor: false,
   FocusOnEditor: true,
@@ -266,19 +264,6 @@ export class MemosSettingTab extends PluginSettingTab {
         dropdown.addOption('Task', t('Task'));
         dropdown.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
           this.plugin.settings.DefaultPrefix = value;
-          this.applySettingsUpdate();
-        });
-      });
-
-    new Setting(containerEl)
-      .setName(t('Default insert date format'))
-      .setDesc(t("Set the default date format when insert date by @, 'Tasks' by default."))
-      .addDropdown(async (d: DropdownComponent) => {
-        dropdown = d;
-        dropdown.addOption('Tasks', 'Tasks');
-        dropdown.addOption('Dataview', 'Dataview');
-        dropdown.setValue(this.plugin.settings.InsertDateFormat).onChange(async (value) => {
-          this.plugin.settings.InsertDateFormat = value;
           this.applySettingsUpdate();
         });
       });

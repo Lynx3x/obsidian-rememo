@@ -35,6 +35,10 @@ export interface EditorRefActions {
   insertText: (text: string) => void;
   setContent: (text: string) => void;
   getContent: () => string;
+  /** 清空输入框（value + 内容缓存 + 撤销历史），刷新视图 */
+  clear: () => void;
+  /** 锁定/解锁输入（readOnly），用于"发送后发射前"不让用户继续改内容 */
+  setEditable: (editable: boolean) => void;
 }
 
 interface EditorProps {
@@ -184,6 +188,20 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       getContent: (): string => {
         return editorRef.current?.value ?? '';
       },
+      clear: () => {
+        if (!editorRef.current) {
+          return;
+        }
+        editorRef.current.value = '';
+        handleContentChangeCallback('');
+        refresh();
+        tinyUndoRef.current?.resetState();
+      },
+      setEditable: (editable: boolean) => {
+        if (editorRef.current) {
+          editorRef.current.readOnly = !editable;
+        }
+      },
     }),
     [],
   );
@@ -276,11 +294,9 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     }
 
     handleConfirmBtnClickCallback(editorRef.current.value);
-    editorRef.current.value = '';
-
+    // 清空/撤销时机由父组件（MemoEditor）在"发射"那一刻调 clear() 决定，
+    // 这样"发送→压缩"期间文字仍保留，且可用 setEditable 锁定输入。
     refresh();
-    // After confirm btn clicked, tiny-undo should reset state(clear actions and index)
-    tinyUndoRef.current?.resetState();
   }, []);
 
   const handleCommonCancelBtnClick = useCallback(() => {

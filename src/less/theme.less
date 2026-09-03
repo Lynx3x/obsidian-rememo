@@ -1,0 +1,186 @@
+@import './mixin.less';
+
+// ============================================================================
+// theme.less — UI 语义 token 层（融入 Obsidian 主题）
+//
+// 策略：调色板交给 Obsidian 主题变量（随用户主题 / accent 自动变），
+// 这里只定义"语义别名 + 骨架(圆角/阴影/动效)"，一次定义全局生效。
+// 所有主屏组件直接消费 var(--memo-*)；若 Obsidian 变量缺失给 fallback。
+// ============================================================================
+
+div[data-type='memos_view'] {
+  // ---- 颜色（Obsidian 主题变量）----
+  --memo-bg: var(--background-primary); // 卡片/编辑器底
+  --memo-canvas: var(--background-secondary); // 列表画布（衬托卡片，视效果启用）
+  --memo-surface-hover: var(--background-modifier-hover);
+  --memo-border: var(--background-modifier-border);
+  --memo-border-strong: var(--background-modifier-border-hover, var(--background-modifier-border));
+  --memo-text: var(--text-normal);
+  --memo-text-muted: var(--text-muted);
+  --memo-text-faint: var(--text-faint);
+  --memo-accent: var(--interactive-accent);
+  --memo-accent-hover: var(--interactive-accent-hover, var(--interactive-accent));
+  --memo-on-accent: var(--text-on-accent, #ffffff);
+  --memo-danger: var(--text-error, #d05d5d);
+  --memo-link: var(--text-accent, var(--interactive-accent));
+
+  // ---- 骨架 ----
+  --memo-radius-s: var(--radius-s, 6px);
+  --memo-radius-m: var(--radius-m, 10px);
+  --memo-radius-l: var(--radius-l, 16px);
+  // 卡片阴影（克制一点，不抢内容）+ 浮层阴影（弹层用，可稍大）
+  --memo-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --memo-shadow-card-hover: 0 3px 10px rgba(0, 0, 0, 0.07);
+  --memo-shadow-s: var(--shadow-s, 0 1px 3px rgba(0, 0, 0, 0.12));
+  --memo-shadow-l: var(--shadow-l, 0 8px 24px rgba(0, 0, 0, 0.12));
+
+  // ---- 动效节奏 ----
+  --memo-transition-fast: 120ms ease;
+  --memo-transition: 200ms cubic-bezier(0.2, 0, 0, 1);
+
+  color: var(--memo-text);
+
+  // 正文/输入区跟随 Obsidian 正文字体；其余 UI 沿用界面字体
+  .memo-content-text,
+  .memo-comment-text,
+  .common-editor-inputer,
+  .memo-comment-input-textarea,
+  .search-bar-inputer > .text-input {
+    font-family: var(--font-text, var(--font-interface));
+  }
+
+  // 行内 code / 代码块（跟随主题 mono 字体，修复 pink 背景）
+  code {
+    font-family: var(--font-monospace, 'ubuntu-mono', monospace);
+    padding: 1px 5px;
+    border-radius: var(--memo-radius-s);
+    background-color: var(--memo-surface-hover);
+  }
+
+  pre {
+    font-family: var(--font-monospace, 'ubuntu-mono', monospace);
+
+    * {
+      font-family: var(--font-monospace, 'ubuntu-mono', monospace);
+    }
+  }
+
+  // 输入/控件默认透明无边框（沿用旧意图，去掉浅深双写）
+  label,
+  input,
+  button:not(.rdp),
+  textarea,
+  img {
+    background-color: transparent;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    outline: none;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
+  }
+
+  li:not(.rta__item) {
+    list-style-type: none;
+
+    &::before {
+      content: '•';
+      font-weight: bold;
+      margin-right: 4px;
+    }
+  }
+
+  // 无障碍：可聚焦控件统一 accent focus ring
+  :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--memo-accent);
+    outline-offset: 1px;
+  }
+}
+
+// 图标基色：未特化的 svg 统一 muted（浅深一致，:where 特异性为 0，任何组件规则都能覆盖）
+:where(div[data-type='memos_view'] svg) {
+  fill: var(--memo-text-muted);
+}
+
+// 带 icon 类名者取父级 color（供组件以 color/fill 着色强调）
+div[data-type='memos_view'] svg.icon-img,
+div[data-type='memos_view'] svg.action-btn {
+  fill: currentColor;
+}
+
+// 进场动效：新 memo / 翻页条目
+@keyframes memo-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// 面板/弹层淡入
+@keyframes memo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Q 弹弹层（菜单/搜索过滤面板）：从锚点角落 pop 出来
+@keyframes memo-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// 评论/小条目入场：轻上浮 + 放大（文字少，缩放安全）
+@keyframes memo-comment-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// 编辑态脉冲：accent 光环扩散一次
+@keyframes memo-edit-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--memo-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+  }
+}
+
+// 尊重系统"减弱动态效果"
+@media (prefers-reduced-motion: reduce) {
+  div[data-type='memos_view'] *,
+  div[data-type='memos_view'] *::before,
+  div[data-type='memos_view'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

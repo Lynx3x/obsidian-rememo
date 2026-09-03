@@ -1,7 +1,9 @@
 @import './mixin.less';
+@import './theme.less';
 
 div[data-type='memos_view'] #root {
-  background-color: #f6f5f4;
+  // 主视图画布：secondary 底 + primary 卡片浮层（融入主题）
+  background-color: var(--background-secondary);
 }
 
 div[data-type='memos_view'] .view-content {

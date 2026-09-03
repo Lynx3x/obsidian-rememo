@@ -114,7 +114,8 @@ export async function getMemosFromDailyNote(
         const idMatch = /\^(\S{6})\s*$/.exec(content);
         if (idMatch) {
             hasId = idMatch[1];
-            content = content.slice(0, -8).trim();
+            // 只去掉 id 前的尾部空白（trimEnd），保留行首空格——否则"写入→重读"往返丢行首空格，发送后文字抖一下
+            content = content.slice(0, -8).trimEnd();
         } else {
             hasId = Math.random().toString(36).slice(-6);
             toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });

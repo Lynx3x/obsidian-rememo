@@ -1,6 +1,6 @@
 # Memos Plus — Domain Context
 
-> Domain glossary + handover doc for the Obsidian plugin **Memos Plus** (`obsidian-memos-plus`, fork of Quorafind's Obsidian-Memos). Kept in sync as work proceeds. **Last updated: 2026-09-02.**
+> Domain glossary + handover doc for the Obsidian plugin **Memos Plus** (`obsidian-memos-plus`, fork of Quorafind's Obsidian-Memos). Kept in sync as work proceeds. **Last updated: 2026-09-03.**
 
 ## Project location
 
@@ -65,14 +65,31 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - 修 ShareMemoImageDialog `setImgAmount` stale 闭包
 - **预览重写（2026-09-03）**: `PreviewImageDialog` 弃用 showDialog 双层弹窗，改为独立挂载 yet-another-react-lightbox 全屏灯箱（官方样式 + 主题适配 `preview-lightbox.less`）。修 toolbar `prev/next` 文本 bug（库 toolbar 只认 zoom/close），多图导航走库原生箭头。DailyMemoDiaryDialog import bug（default 组件当函数用）一并修
 - **深色评论样式补齐（2026-09-03）**: memo.less 深色镜像缺 `.memo-comment-actions`（回复/删除按钮）与 CommentInput 的 input/send/cancel 样式（旧版残留 `.common-editor-wrapper`）→ 深色下按钮回文档流变"下一行"、输入框无样式。已镜像补齐
+- **UI 风格优化（第一轮·主屏，方案 A 接 Obsidian 主题，2026-09-03）**:
+  - 新增 `less/theme.less` 语义 token（`--memo-*` 映射 Obsidian 主题变量，含 radius/shadow/transition + `memo-fade-up`/`memo-fade-in` 关键帧 + `prefers-reduced-motion` 兜底）
+  - **收口浅深双写**：global / memo-editor / editor / common-date-picker / memo(含评论区) / memo-content / memolist / pagination / memos-header / search-bar / memo-filter 全部单份书写、吃 token；发送键/选中/删除/链接改用 `--memo-accent`/`--memo-danger` → **随用户 Obsidian 主题 accent 自动变**
+  - 动效：memo 卡片入场 `memo-fade-up`、卡片 hover 抬升+shadow、按钮/图标/面板 hover·focus 过渡、日期面板淡入
+  - 清理多文件整段注释死块；styles.css 本轮净减 ~19KB（283.6→264.3）
+  - **同轮微调（2026-09-03）**：卡片阴影改小并拆两档（`--memo-shadow-card/-hover`）；回收站卡片间距补 gap 10（memo-trash.less）；字体跟随——正文/输入区用 `--font-text`、代码块用 `--font-monospace`；新 memo 入场改为 **MemoList 内 FLIP 位移动效**（WAAPI 驱动，新卡从上方 `-140px`“发射式”弹入+回弹、下方卡片平滑下挤；分页满 10 条的顶部插入判定已兼容；2.5s 节流防 vault 重读二次触发）。三点菜单修复：`.more-action-btns-wrapper` 提到 `z-index:50` 并去掉 `.memo-wrapper:hover` 的 `translateY`（transform 制造层叠上下文导致下一条卡片图标穿透菜单）；改为**点击钉住 + 外点/Esc 关闭**（CSS hover 仍作快捷打开），滚动时不再消失。发送动效定稿：编辑器**蓄力压缩** = 快速压到 scaleY 0.94 并停住，`SQUASH_LAUNCH_MS 90` 时瞬间回弹同时 pushMemo 发射（总 `SQUASH_TOTAL_MS 130`）；入场为**纯位移+淡入**（160ms，去 scale 防文字缩放抖动），下推 120ms。发送后输入框**不立即清空**：Editor 暴露 `clear()/setEditable()`，新建先 readOnly 锁定、文字保留到发射瞬间才清空。**空格归一在发射时完成**：新建用 `content.trimStart()` 落盘/入 store；且修 `obGetMemos` 剥 `^id` 后的 `.trim()`→`.trimEnd()`（否则重读丢行首空格、发送后二次抖动）——双保险保证"发射第一帧"与"之后重读"一致
+  - **Q 弹动效批量（2026-09-03，A1–A4）**：①三点菜单 & 搜索快速过滤面板出现时 `memo-pop-in`（scale 0.92→1 过冲，transform-origin 锚点侧 top-right）；②评论/子条目挂载 `memo-comment-in`（轻上浮+放大）；③删除改为**碎纸机效果**（卡片竖向切成 8 条各自旋转下落淡出，WAAPI + overlay 克隆，overlay 挂在 `.memo-wrapper` 内以保留作用域样式；随后删除补位 FLIP）；恢复/回收站永久删除仍用"蹲→淡出/上移淡出"；④进入编辑 `memo-edit-pulse` accent 光环扩散一次；发送/取消/工具图标/评论发送统一**按压 scale 反馈**。搜索框样式修复：覆盖 Obsidian `.text-input` 白底/内建 box-shadow，胶囊 30px 高、细输入。碎纸 overlay 定位改 **absolute 贴在卡片自身**（`position:relative` 临时基准；fixed 会被 `#page-wrapper` transform 带偏）；主输入 textarea 禁缩放（`resize:none!important`）。**图标统一回 Material 实心风格**（恢复原 tag/image/journal/checkbox-active，calendar.svg 改写为 Material fill；丢弃临时描边 memo-*.svg）。碎纸机再调：overlay 挂到卡片 **offsetParent**，删除/下方 FLIP 上移与碎纸条**并行**（无空槽停顿）、下落提速
+  - **待 Obsidian 目视**：浅/深主题 + 换 accent + 换社区主题验证协调性；弹窗/日期/回收站/设置/热力图/标签等次级界面**下轮**再做
+- **阶段 F1 指定日期添加（2026-09-03）**:
+  - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
+  - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建
+  - `memoService.createMemo` 第三参类型收正为 `moment.Moment`（原伪 `Date`，运行时本就要 moment）；保存时 `targetDate` 非空则传给 `waitForInsert`（`insertDate` 参数早已支持）
+  - 编辑态隐藏日历按钮/chip（编辑不挪日期）
+  - 新文件：`components/common/WriteDatePopover.tsx`、`icons/calendar.svg`、`less/memo-write-date.less`（初版浅/深两套，UI 轮已收口为 token 单份）
 
 ## Pending work (按顺序)
 
 1. **阶段 D 收尾** — ✅ 全部完成（时间迁移实测通过）
 2. **阶段 E 图片** — ✅ 代码完成，图片宽高/预览待 Obsidian 目视确认
-3. **阶段 F 新功能**: 指定日期添加（编辑器日期选择 + 填时分，`waitForInsert` 已支持 insertDate）、小红书导出（低优先）。
-4. **UI 整体风格优化**: 上插件市场需要差异性，预期加动效（性能敏感则放弃）。发送按钮/评论显示调整一并规划。
+3. **阶段 F1 指定日期添加** — ✅ 全部完成（2026-09-03，Obsidian 目视确认通过）
+4. **UI 风格优化（方案 A 接 Obsidian 主题）** — 主屏第一轮 ✅ 代码完成（2026-09-03），**Obsidian 目视待确认**。剩余：
+   - 次级界面 token 化：弹窗 / DatePicker 全量 / 回收站 / 设置页 / 热力图 / 标签 / 查询 / 侧栏
+   - 主屏目视后若有细节（间距/动效强弱/对比度）再微调
 5. **阶段 G**: `parseMemo` 拆分（formatMemoContent 的 HTML 与图片/标签结构化）。
+6. **阶段 F2 小红书导出**（最低优先，**可弃**）: 需先调研导出格式（9 图/文案排版），暂不做。
 
 ## Key technical decisions
 
@@ -81,6 +98,8 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **评论默认开启**，废弃 `CommentOnMemos`/`CommentsInOriginalNotes` 设置开关。保留 `ShowCommentOnMemos`（评论列表显隐）。
 - **`^id` 在行尾**，`deletedAt` 在 `^id` 前（不影响 id 解析）。
 - **子评论不单独标记**：父 deleted → 子树隐藏（读取时父 `isDeleted` 跳过子树）。
+- **指定日期写入**：复用 `waitForInsert` 的 `insertDate`（moment）。UI 独立于内容里的日期文本——原"输入 @/📆 插日期"功能已整体删除，无残留。写入目标秒统一 `HH:mm:ss`（面板只填 HH:mm → 秒 00）。
+- **Feed 排序 = createdAt 降序**（非文件行序）→ 补录旧日期 memo 追加在文件 memo 区末尾即可，显示位置靠排序正确。
 
 ## Current-state facts (verified 2026-09-03)
 
@@ -92,6 +111,7 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - 时间迁移两 bug 已修并实测：`backfillMemoTimes` 前缀重复 + `getRemainingMemos` 漏 `m` flag（后者导致带尾换行文件整文件跳过）。
 - 图片预览：`PreviewImageDialog` 独立挂载 yet-another-react-lightbox（弃 showDialog 双层），单图隐藏左右箭头、多图循环、Zoom 插件可用。
 - 深色评论样式补齐（memo.less）：actions 按钮、CommentInput 全套；`comment.svg` 硬编码 fill 改 `currentColor`；深色 send-btn 用 `@text-dark-red` 与主编辑器 confirm 一致。
-- 注意：`main.js`/`styles.css` 需重新 build 后由 hot-reload 加载（已 build）。
+- **指定日期写入（2026-09-03）**：MemoEditor 工具栏新增 `calendar.svg` 按钮 → `WriteDatePopover`（DatePicker+HH:mm）。目标 moment 存 `targetDate`（react-usestateref 的 ref 供空依赖回调读），**保留到手动 ✕**；编辑态不显示。`memoService.createMemo(content, isList, targetDate ?? undefined)`，缺省仍写"现在/今天"。旧 @/📆 日期插入 + `InsertDateFormat` 设置 + `select-date-picker.less` 已移除。
+- 注意：`main.js`/`styles.css` 需重新 build 后由 hot-reload 加载（阶段 F1 + UI 主屏轮已 build；F1 已目视通过，UI 主屏轮待 Obsidian 目视）。
 
 _See also: [REFACTOR-2026.md](REFACTOR-2026.md) (2026 重构方案，部分已实施)。_

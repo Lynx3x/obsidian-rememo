@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import appContext from '../stores/appContext';
 import { locationService, memoService, queryService } from '../services';
 import { FIRST_TAG_REG, IMAGE_URL_REG, LINK_REG, MEMO_LINK_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
@@ -28,6 +28,10 @@ const MemoList: React.FC<Props> = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFetching, setFetchStatus] = useState(true);
   const wrapperElement = useRef<HTMLDivElement>(null);
+  // 上一次布局快照（新 memo 入场时对下方卡片做 FLIP 位移）
+  const layoutSnapRef = useRef<{ keys: string[]; tops: number[] }>({ keys: [], tops: [] });
+  // 入场节流：覆盖 vault 重读 store（~2s 后）可能导致的“二次入场”误触发
+  const lastInsertAnimRef = useRef(0);
 
   const { tag: tagQuery, duration, type: memoContentType, text: textQuery, filter: queryId } = query;
   const queryFilter = queryService.getQueryById(queryId);
@@ -174,6 +178,109 @@ const MemoList: React.FC<Props> = () => {
   useEffect(() => {
     wrapperElement.current?.scrollTo({ top: 0 });
   }, [query]);
+
+  // 新 memo 入场动效：从编辑器方向“弹下”，并把下方卡片往下挤（FLIP）。
+  // 仅当列表顶部恰好新增一条（旧卡片顺序原样后移一位）时触发；初载/翻页/过滤都跳过。
+  // 无依赖数组 → 每次提交后比对布局快照，成本 ≈ 读 ~10 个元素的矩形。
+  useLayoutEffect(() => {
+    const container = wrapperElement.current;
+    if (!container) {
+      return;
+    }
+
+    const cards = Array.from(container.querySelectorAll<HTMLElement>('.memo-wrapper'));
+    const getMemoId = (el: HTMLElement) => /(?:^|\s)memos-([^\s]+)/.exec(el.className)?.[1] ?? '';
+    const keys = cards.map(getMemoId);
+
+    const prev = layoutSnapRef.current;
+    const containerTop = container.getBoundingClientRect().top;
+    const tops = cards.map((c) => c.getBoundingClientRect().top - containerTop);
+
+    // 顶部插入判定：
+    // 分页每页 10 条 → 顶部插入新卡时，可能同时把页尾最后一条挤出，列表总数不变。
+    // 所以允许「当前长度 = 上一屏长度 或 +1」，且满足：首卡是上一屏没有的新卡、
+    // 剩余卡片恰好是上一屏去掉末尾后的前缀（避免过滤/翻页误触发）。
+    const firstIsNew = prev.keys.length > 0 && keys[0] !== prev.keys[0] && !prev.keys.includes(keys[0]);
+    const lengthOk = keys.length === prev.keys.length + 1 || keys.length === prev.keys.length;
+    const tailIsPrevHead =
+      lengthOk && keys.slice(1).join('|') === prev.keys.slice(0, keys.length - 1).join('|');
+    const isTopInsert =
+      firstIsNew && lengthOk && tailIsPrevHead && Date.now() - lastInsertAnimRef.current > 2500;
+
+    // 入场动效由 JS(WAAPI) 驱动；CSS 层级的 reduced-motion 关闭不影响它。
+    if (isTopInsert) {
+      lastInsertAnimRef.current = Date.now();
+
+      // 用 WAAPI 直接驱动（不依赖 CSS transition/动画时间线，可稳定触发）
+
+      // 1) 旧卡片被新卡片顶下去：从旧位置平滑过渡到新位置
+      cards.forEach((card, idx) => {
+        if (idx === 0) {
+          return;
+        }
+        const delta = (prev.tops[idx - 1] ?? 0) - tops[idx];
+        if (Math.abs(delta) > 1) {
+          const anim = card.animate(
+            [{ transform: `translateY(${delta}px)` }, { transform: 'none' }],
+            { duration: 120, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+          );
+          anim.onfinish = () => anim.cancel();
+        }
+      });
+
+      // 2) 新卡片：像从输入框底下“发射”出来——纯位移+淡入（不加 scale，避免文字缩放抖动）
+      const first = cards[0];
+      if (first) {
+        const anim = first.animate(
+          [
+            { transform: 'translateY(-150px)', opacity: 0, offset: 0 },
+            { transform: 'translateY(12px)', opacity: 1, offset: 0.55 },
+            { transform: 'translateY(-2px)', opacity: 1, offset: 0.82 },
+            { transform: 'none', opacity: 1, offset: 1 },
+          ],
+          { duration: 160, easing: 'cubic-bezier(0.12, 0.8, 0.2, 1)' },
+        );
+        anim.onfinish = () => anim.cancel();
+      }
+    }
+
+    // 删除后（回收站化 / 永久删）：下方卡片平滑上移补位（与入场对称的 FLIP）
+    let removalAt = -1;
+    if (prev.keys.length > 0 && keys.length === prev.keys.length - 1) {
+      // 当前列表 = 上一屏去掉恰好一条（其余顺序不变）→ 找出被删的索引
+      let j = 0;
+      let missing = -1;
+      let okSeq = true;
+      for (let i = 0; i < prev.keys.length; i++) {
+        if (j < keys.length && prev.keys[i] === keys[j]) {
+          j++;
+        } else if (missing === -1) {
+          missing = i;
+        } else {
+          okSeq = false;
+          break;
+        }
+      }
+      if (okSeq && j === keys.length) {
+        removalAt = missing;
+      }
+    }
+    if (removalAt >= 0) {
+      cards.forEach((card, idx) => {
+        const prevIdx = idx < removalAt ? idx : idx + 1;
+        const delta = (prev.tops[prevIdx] ?? 0) - tops[idx];
+        if (Math.abs(delta) > 1) {
+          const anim = card.animate(
+            [{ transform: `translateY(${delta}px)` }, { transform: 'none' }],
+            { duration: 160, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+          );
+          anim.onfinish = () => anim.cancel();
+        }
+      });
+    }
+
+    layoutSnapRef.current = { keys, tops };
+  });
 
   const handleMemoListClick = useCallback((event: React.MouseEvent) => {
     const { workspace } = appStore.getState().dailyNotesState.app;

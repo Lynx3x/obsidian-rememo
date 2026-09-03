@@ -1,11 +1,17 @@
 @import './mixin.less';
+@import './theme.less';
 
-.theme-light div[data-type='memos_view'] .common-editor-wrapper {
+div[data-type='memos_view'] .common-editor-wrapper {
   .flex(column, flex-start, flex-start);
   position: relative;
   width: 100%;
   height: auto;
-  background-color: white;
+  background-color: transparent;
+
+  // 输入区不可拖动缩放（Obsidian 可能给 textarea 默认 resize）
+  textarea {
+    resize: none !important;
+  }
 
   > .common-editor-inputer {
     display: inline-block;
@@ -16,21 +22,17 @@
     line-height: 24px;
     resize: none;
     overflow-x: hidden;
-    // overflow-y: scroll;
     background-color: transparent;
     z-index: 1;
     margin-bottom: 4px;
     white-space: pre-wrap;
+    color: var(--memo-text);
+    caret-color: var(--memo-accent);
     .hide-scroll-bar();
 
     &::placeholder {
       padding-left: 2px;
-    }
-
-    &:focus {
-      &::placeholder {
-        color: lightgray;
-      }
+      color: var(--memo-text-faint);
     }
   }
 
@@ -40,6 +42,29 @@
 
     > .common-tools-container {
       .flex(row, flex-start, center);
+
+      // 工具图标（#/图/任务…）：统一 18px、hover 变 accent + 淡底、按下轻缩
+      > svg.action-btn {
+        width: 18px;
+        height: 18px;
+        margin: 0 2px;
+        padding: 3px;
+        box-sizing: content-box;
+        border-radius: var(--memo-radius-s);
+        cursor: pointer;
+        color: var(--memo-text-muted);
+        transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast),
+          transform var(--memo-transition-fast);
+
+        &:hover {
+          color: var(--memo-accent);
+          background-color: var(--memo-surface-hover);
+        }
+
+        &:active {
+          transform: scale(0.85);
+        }
+      }
     }
 
     > .btns-container {
@@ -52,27 +77,45 @@
         user-select: none;
         cursor: pointer;
         padding: 6px 12px;
-        border-radius: 6px;
+        border-radius: var(--memo-radius-s);
         font-size: 13px;
         line-height: 32px;
+        transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast),
+          transform var(--memo-transition-fast);
 
-        &:hover {
-          opacity: 0.8;
+        &:active:not(:disabled) {
+          transform: scale(0.94);
         }
       }
 
       > .cancel-btn {
-        color: gray;
+        color: var(--memo-text-muted);
         background-color: transparent;
         margin-right: 8px;
         line-height: 18px;
+
+        &:hover {
+          background-color: var(--memo-surface-hover);
+          color: var(--memo-text);
+        }
       }
 
       > .confirm-btn {
         cursor: pointer;
         padding: 0 12px;
-        background-color: @text-green;
-        color: white;
+        background-color: var(--memo-accent);
+        color: var(--memo-on-accent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover:not(:disabled) {
+          background-color: var(--memo-accent-hover);
+        }
+
+        &:active:not(:disabled) {
+          transform: scale(0.96);
+        }
 
         &:disabled {
           cursor: not-allowed;
@@ -95,107 +138,7 @@
   }
 }
 
-.theme-light div[data-type='memos_view'] .scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.theme-dark div[data-type='memos_view'] .common-editor-wrapper {
-  .flex(column, flex-start, flex-start);
-  position: relative;
-  width: 100%;
-  height: auto;
-  background-color: rgb(59, 59, 59);
-
-  > .common-editor-inputer {
-    display: inline-block;
-    width: 100%;
-    min-height: 24px;
-    max-height: 300px;
-    font-size: 15px;
-    line-height: 24px;
-    resize: none;
-    overflow-x: hidden;
-    // overflow-y: scroll;
-    background-color: transparent;
-    z-index: 1;
-    margin-bottom: 4px;
-    white-space: pre-wrap;
-    .hide-scroll-bar();
-
-    &::placeholder {
-      padding-left: 2px;
-    }
-
-    &:focus {
-      &::placeholder {
-        color: rgb(54, 54, 54);
-      }
-    }
-  }
-
-  > .common-tools-wrapper {
-    .flex(row, space-between, center);
-    width: 100%;
-
-    > .common-tools-container {
-      .flex(row, flex-start, center);
-
-      > img {
-        filter: invert(0.8);
-        color: yellowgreen;
-      }
-    }
-
-    > .btns-container {
-      .flex(row, flex-end, center);
-      flex-grow: 0;
-      flex-shrink: 0;
-
-      > .action-btn {
-        border: none;
-        user-select: none;
-        cursor: pointer;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 13px;
-        line-height: 32px;
-
-        > img {
-          filter: invert(0.8);
-        }
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-
-      > .cancel-btn {
-        color: gray;
-        background-color: transparent;
-        margin-right: 8px;
-        line-height: 18px;
-      }
-
-      > .confirm-btn {
-        cursor: pointer;
-        padding: 0 12px;
-        background-color: @text-dark-red;
-        color: white;
-
-        &:disabled {
-          cursor: not-allowed;
-          opacity: 0.6;
-        }
-
-        > .icon-text {
-          margin-left: 4px;
-        }
-      }
-    }
-  }
-}
-
-.theme-dark div[data-type='memos_view'] .scroll::-webkit-scrollbar {
+div[data-type='memos_view'] .scroll::-webkit-scrollbar {
   display: none;
 }
 
@@ -204,21 +147,3 @@ div[data-type='memos_view'] .memo-editor-wrapper {
     margin-right: unset;
   }
 }
-
-// @media only screen and (max-width: 875px) {
-//   .is-mobile div[data-type="memos_view"] .cancel-btn {
-//     background-color: white;
-
-//     > .tags-container {
-//       height: auto;
-
-//       &:last-child {
-//         flex-grow: 1;
-//       }
-//     }
-//   }
-
-//   .rename-tag-dialog {
-//     padding-top: 64px;
-//   }
-// }

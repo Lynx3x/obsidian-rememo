@@ -7,6 +7,7 @@ import { deleteMemoFromLine, obHideMemo, restoreMemoFromLine } from '../obCompon
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
 import type { CreateCommentMemoParams, UpdateMemoParams } from '../types/memo';
+import { moment } from 'obsidian';
 import type { TFile } from 'obsidian';
 
 /**
@@ -202,9 +203,10 @@ class MemoService {
 
     /**
      * 创建新的备忘录
-     * 为了保持向后兼容性，保留了原有的参数形式
+     * date 可选：指定写入目标日期（moment，含时分；缺省写"现在/今天"）。
+     * 为兼容 waitForInsert 需传 moment（含 .format），非 Date。
      */
-    public async createMemo(text: string, isTask: boolean, date?: Date): Promise<Model.Memo> {
+    public async createMemo(text: string, isTask: boolean, date?: moment.Moment): Promise<Model.Memo> {
         return await waitForInsert(text, isTask, date);
     }
 
@@ -218,7 +220,7 @@ class MemoService {
     /**
      * 导入备忘录
      */
-    public async importMemos(text: string, isList: boolean, date: Date): Promise<Model.Memo> {
+    public async importMemos(text: string, isList: boolean, date: moment.Moment): Promise<Model.Memo> {
         return await waitForInsert(text, isList, date);
     }
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import {
   FIRST_TAG_REG,
   IMAGE_URL_REG,
@@ -11,13 +11,13 @@ import {
 } from '../helpers/consts';
 import useState from 'react-usestateref';
 import { encodeHtml, parseMarkedToHtml, parseRawTextToHtml } from '../helpers/marked';
-import utils, { getDailyNoteFormat } from '../helpers/utils';
+import utils from '../helpers/utils';
 import useToggle from '../hooks/useToggle';
 import { globalStateService, memoService, resourceService } from '../services';
 import showMemoCardDialog from './MemoCardDialog';
 import showShareMemoImageDialog from './ShareMemoImageDialog';
 import '../less/memo.less';
-import { moment, Notice, Platform } from 'obsidian';
+import { Notice, Platform } from 'obsidian';
 import { showMemoInDailyNotes } from '../obComponents/obShowMemo';
 import More from '../icons/more.svg?component';
 import Comment from '../icons/comment.svg?component';
@@ -25,7 +25,6 @@ import DeleteIcon from '../icons/delete.svg?component';
 import TaskBlank from '../icons/task-blank.svg?component';
 import Task from '../icons/task.svg?component';
 import { t } from '../translations/helper';
-import Editor from './Editor/Editor';
 import CommentInput, { CommentInputRef } from './CommentInput';
 import MemoImage from './MemoImage';
 import appContext from '../stores/appContext';
@@ -49,7 +48,6 @@ const Memo: React.FC<Props> = (props: Props) => {
   const { DefaultEditorLocation, ShowCommentOnMemos, ShowTaskLabel, UseButtonToShowEditor } = settings;
   // 评论功能默认开启（统一写回原笔记缩进子项）
   const CommentOnMemos = true;
-  const CommentsInOriginalNotes = false;
   const { memo: propsMemo } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
   const memoCommentRef = useRef<CommentInputRef>(null);
@@ -65,7 +63,47 @@ const Memo: React.FC<Props> = (props: Props) => {
     setReplyTo(m);
   }, []);
   const [, setAddRandomIDflag, RandomIDRef] = useState(false);
+  // 三点菜单：点击可“钉住”，外点/Esc 关闭（CSS hover 在列表滚动时指针易离开而消失）
+  const [menuOpen, setMenuOpen] = useState(false);
+  const memoCardRef = useRef<HTMLDivElement>(null);
   // const imageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (memoCardRef.current && !memoCardRef.current.contains(target)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [menuOpen]);
+
+  const handleMoreMenuClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuOpen((v: boolean) => !v);
+  }, []);
+
+  const handleMoreActionClick = useCallback((e: React.MouseEvent) => {
+    // 删除有两段确认（DELETE → CONFIRM），不自动关闭；其余动作点完即收
+    const el = e.target as HTMLElement;
+    if (!el.closest('.delete-btn')) {
+      setMenuOpen(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!memoCommentRef.current) {
@@ -309,19 +347,91 @@ const Memo: React.FC<Props> = (props: Props) => {
   //   turnIntoNote(memo.id);
   // };
 
-  const handleDeleteMemoClick = async () => {
-    if (showConfirmDeleteBtn) {
-      try {
-        await memoService.hideMemoById(propsMemo.id);
-      } catch (error: any) {
-        new Notice(error.message);
-      }
+  // 碎纸机效果：卡片切成 N 条下落。overlay 挂到卡片外层的定位祖先（offsetParent）上，
+  // 这样真正的删除/下移填充可以立刻并行发生，不会先留一个“空卡槽”再跳。
+  const animateShred = () => {
+    const el = memoCardRef.current;
+    if (!el) {
+      return Promise.resolve();
+    }
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    if (w < 8 || h < 8) {
+      return Promise.resolve();
+    }
+    const host = (el.offsetParent as HTMLElement | null) ?? el.parentElement;
+    if (!host) {
+      return Promise.resolve();
+    }
+    const x = el.offsetLeft;
+    const y = el.offsetTop;
 
-      if (globalStateService.getState().editMemoId === propsMemo.id) {
-        globalStateService.setEditMemoId('');
-      }
-    } else {
+    const N = 8;
+    const band = w / N;
+
+    // 先克隆（放入 overlay 前），仍处在 memos_view 作用域内 → 克隆样式正常
+    const cloneTemplate = el.cloneNode(true) as HTMLElement;
+    cloneTemplate.querySelectorAll('.more-action-btns-wrapper').forEach((n) => {
+      (n as HTMLElement).style.display = 'none';
+    });
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;pointer-events:none;z-index:50;`;
+    for (let i = 0; i < N; i++) {
+      const outer = document.createElement('div');
+      outer.style.cssText = `position:absolute;top:0;left:${i * band}px;width:${band}px;height:100%;overflow:hidden;`;
+      const inner = document.createElement('div');
+      inner.style.cssText = `position:absolute;top:0;left:${-i * band}px;width:${w}px;height:auto;`;
+      inner.appendChild(cloneTemplate.cloneNode(true) as HTMLElement);
+      outer.appendChild(inner);
+      overlay.appendChild(outer);
+    }
+    host.appendChild(overlay);
+    el.style.visibility = 'hidden';
+
+    const rnd = (min: number, max: number) => min + Math.random() * (max - min);
+    Array.from(overlay.children).forEach((outer) => {
+      outer.animate(
+        [
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+          {
+            transform: `translate(${rnd(-3, 3)}px, ${rnd(40, 130)}px) rotate(${rnd(-14, 14)}deg)`,
+            opacity: 0,
+          },
+        ],
+        { duration: rnd(240, 430), delay: rnd(0, 30), easing: 'cubic-bezier(0.2, 0.6, 0.4, 1)', fill: 'both' },
+      );
+    });
+
+    return new Promise<void>((resolve) => {
+      window.setTimeout(() => {
+        overlay.remove();
+        // 若仍挂载（删除失败等），恢复可见
+        if (document.contains(el)) {
+          el.style.visibility = '';
+        }
+        resolve();
+      }, 460);
+    });
+  };
+
+  const handleDeleteMemoClick = async () => {
+    if (!showConfirmDeleteBtn) {
       toggleConfirmDeleteBtn();
+      return;
+    }
+    setMenuOpen(false);
+    // 碎纸开始后立即真正删除 → 下方卡片 FLIP 上移填充与碎纸条并行，无“空槽停顿”
+    const shredDone = animateShred();
+    try {
+      await memoService.hideMemoById(propsMemo.id);
+    } catch (error: any) {
+      new Notice(error.message);
+    }
+    await shredDone;
+
+    if (globalStateService.getState().editMemoId === propsMemo.id) {
+      globalStateService.setEditMemoId('');
     }
   };
 
@@ -455,12 +565,9 @@ const Memo: React.FC<Props> = (props: Props) => {
   };
   return (
     <div
-      className={`memo-wrapper ${'memos-' + propsMemo.id} ${propsMemo.memoType}`}
+      ref={memoCardRef}
+      className={`memo-wrapper ${'memos-' + propsMemo.id} ${propsMemo.memoType}${menuOpen ? ' menu-open' : ''}`}
       onMouseLeave={handleMouseLeaveMemoWrapper}
-      draggable="true"
-      onDragStart={(e) => {
-        e.dataTransfer.setData('text/plain', propsMemo.content.replace(/<br>/g, '\n'));
-      }}
     >
       <div className="memo-top-wrapper">
         <div className="memo-top-left-wrapper">
@@ -488,11 +595,11 @@ const Memo: React.FC<Props> = (props: Props) => {
             ''
           )}
           <div className="btns-container">
-            <span className="btn more-action-btn">
+            <span className="btn more-action-btn" onClick={handleMoreMenuClick}>
               {/*<img className="icon-img" src={more} />*/}
               <More className="icon-img" />
             </span>
-            <div className="more-action-btns-wrapper">
+            <div className="more-action-btns-wrapper" onClick={handleMoreActionClick}>
               <div className="more-action-btns-container">
                 <span className="btn" onClick={handleShowMemoStoryDialog}>
                   {t('READ')}

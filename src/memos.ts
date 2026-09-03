@@ -119,7 +119,6 @@ export class Memos extends ItemView {
     UserName = this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
     DefaultPrefix = this.plugin.settings.DefaultPrefix;
-    InsertDateFormat = this.plugin.settings.InsertDateFormat;
     DefaultEditorLocation = this.plugin.settings.DefaultEditorLocation;
     UseButtonToShowEditor = this.plugin.settings.UseButtonToShowEditor;
     FocusOnEditor = this.plugin.settings.FocusOnEditor;
@@ -159,7 +158,6 @@ export let InsertAfter: string;
 export let UserName: string;
 export let ProcessEntriesBelow: string;
 export let DefaultPrefix: string;
-export let InsertDateFormat: string;
 export let DefaultEditorLocation: string;
 export let UseButtonToShowEditor: boolean;
 export let FocusOnEditor: boolean;

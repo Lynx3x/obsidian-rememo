@@ -44,7 +44,9 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
     const memoType = isTASK ? 'TASK-TODO' : 'JOURNAL';
     const memo: Model.Memo = {
         id: '',
-        content: MemoContent,
+        // 存与文件一致的 <br> 版（removeEnter），保证"发送首帧"= 文件 = 之后 vault 重读
+        // （若存原始 \n，重读后会换成 <br> 版 → 渲染路径改变，发送完成约 1-3s 后文字变一次）
+        content: removeEnter,
         deletedAt: '',
         createdAt: date.format('YYYY/MM/DD HH:mm:ss'),
         updatedAt: date.format('YYYY/MM/DD HH:mm:ss'),

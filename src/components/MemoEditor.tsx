@@ -5,89 +5,52 @@ import utils from '../helpers/utils';
 import { storage } from '../helpers/storage';
 import Editor, { EditorRefActions } from './Editor/Editor';
 import '../less/memo-editor.less';
-import '../less/select-date-picker.less';
+import '../less/memo-write-date.less';
 import Tag from '../icons/tag.svg?component';
 import ImageSvg from '../icons/image.svg?component';
 import JournalSvg from '../icons/journal.svg?component';
 import TaskSvg from '../icons/checkbox-active.svg?component';
+import CalendarSvg from '../icons/calendar.svg?component';
 import showEditorSvg from '../icons/show-editor.svg';
-import { usePopper } from 'react-popper';
 import useState from 'react-usestateref';
-import DatePicker from './common/DatePicker';
+import WriteDatePopover from './common/WriteDatePopover';
 import { moment, Notice, Platform } from 'obsidian';
 import useToggle from '../hooks/useToggle';
 import { MEMOS_VIEW_TYPE } from '../constants';
 import { t } from '../translations/helper';
-
-const getCursorPostion = (input: HTMLTextAreaElement) => {
-  const {
-    offsetLeft: inputX,
-    offsetTop: inputY,
-    offsetHeight: inputH,
-    offsetWidth: inputW,
-    selectionEnd: selectionPoint,
-  } = input;
-  const div = document.createElement('div');
-
-  const copyStyle = window.getComputedStyle(input);
-  for (const item of copyStyle) {
-    div.style.setProperty(item, copyStyle.getPropertyValue(item));
-  }
-  div.style.position = 'fixed';
-  div.style.visibility = 'hidden';
-  div.style.whiteSpace = 'pre-wrap';
-
-  // we need a character that will replace whitespace when filling our dummy element if it's a single line <input/>
-  const swap = '.';
-  const inputValue = input.tagName === 'INPUT' ? input.value.replace(/ /g, swap) : input.value;
-  div.textContent = inputValue.substring(0, selectionPoint || 0);
-  if (input.tagName === 'TEXTAREA') {
-    div.style.height = 'auto';
-  }
-
-  const span = document.createElement('span');
-  span.textContent = inputValue.substring(selectionPoint || 0) || '.';
-  div.appendChild(span);
-  document.body.appendChild(div);
-  const { offsetLeft: spanX, offsetTop: spanY, offsetHeight: spanH, offsetWidth: spanW } = span;
-  document.body.removeChild(div);
-  return {
-    x: inputX + spanX,
-    y: inputY + spanY,
-    h: inputH + spanH,
-    w: inputW + spanW,
-  };
-};
 
 interface Props {}
 
 let isList: boolean;
 let isEditor = false as boolean;
 let isEditorGo = false as boolean;
-let positionX: number;
+
+// 发送前"蓄力压缩"时序（毫秒）：
+// 压缩到低点并保持到 SQUASH_LAUNCH_MS，随后瞬间回弹；此刻 pushMemo 触发卡片发射。
+const SQUASH_TOTAL_MS = 130;
+const SQUASH_LAUNCH_MS = 90;
 
 const MemoEditor: React.FC<Props> = () => {
   const { globalState } = useContext(appContext);
   const {
     settingsState: { settings },
   } = useContext(appContext);
-  const { DefaultEditorLocation, DefaultPrefix, FocusOnEditor, InsertDateFormat, UseButtonToShowEditor } = settings;
+  const { DefaultEditorLocation, DefaultPrefix, FocusOnEditor, UseButtonToShowEditor } = settings;
   const { app } = dailyNotesService.getState();
 
   const [isListShown, toggleList] = useToggle(false);
   const [isEditorShown, toggleEditor] = useState(false);
 
   const editorRef = useRef<EditorRefActions>(null);
+  const editorWrapperRef = useRef<HTMLDivElement>(null);
+  const sendingRef = useRef(false);
   const prevGlobalStateRef = useRef(globalState);
 
-  // const [selected, setSelected] = useState<Date>();
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-
-  const popperRef = useRef<HTMLDivElement>(null);
-  const [popperElement, setPopperElement] = useState(null);
-  const [currentDateStamp] = useState(parseInt(moment().format('x')));
-
-  // const [showDatePicker, toggleShowDatePicker] = useToggle(false);
+  // 指定日期写入：targetDate = 发送时的写入目标（moment）；null = 写"现在/今天"
+  // 用 usestateref 的 ref 保持空依赖回调（handleSaveBtnClick）能读到最新值
+  const [targetDate, setTargetDate, targetDateRef] = useState<moment.Moment | null>(null);
+  const [isWriteDateOpen, setIsWriteDateOpen] = useState(false);
+  const [calAnchor, setCalAnchor] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!editorRef.current) {
@@ -267,154 +230,6 @@ const MemoEditor: React.FC<Props> = () => {
     }
   }, []);
 
-  // Change Date Picker Popper Position
-  const setPopper = () => {
-    let popperTemp;
-
-    if (!Platform.isMobile) {
-      popperTemp = usePopper(popperRef.current, popperElement, {
-        placement: 'right-end',
-        modifiers: [
-          {
-            name: 'flip',
-            options: {
-              allowedAutoPlacements: ['bottom'],
-              rootBoundary: 'document', // by default, all the placements are allowed
-            },
-          },
-        ],
-      });
-    } else if (Platform.isMobile && DefaultEditorLocation !== 'Bottom') {
-      const seletorPopupWidth = 280;
-      if (window.innerWidth - positionX > seletorPopupWidth * 1.2) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: 'right-end',
-          modifiers: [
-            {
-              name: 'flip',
-              options: {
-                allowedAutoPlacements: ['left-end'],
-                rootBoundary: 'document', // by default, all the placements are allowed
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                rootBoundary: 'document',
-              },
-            },
-          ],
-        });
-      } else if (window.innerWidth - positionX < seletorPopupWidth && window.innerWidth > seletorPopupWidth * 1.5) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: 'left-end',
-          modifiers: [
-            {
-              name: 'flip',
-              options: {
-                allowedAutoPlacements: ['right-end'],
-                rootBoundary: 'document', // by default, all the placements are allowed
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                rootBoundary: 'document',
-              },
-            },
-          ],
-        });
-      } else {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: 'bottom',
-          modifiers: [
-            {
-              name: 'flip',
-              options: {
-                allowedAutoPlacements: ['bottom'],
-                rootBoundary: 'document', // by default, all the placements are allowed
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                rootBoundary: 'document',
-              },
-            },
-          ],
-        });
-      }
-    } else if (Platform.isMobile && DefaultEditorLocation === 'Bottom') {
-      const seletorPopupWidth = 280;
-      if (window.innerWidth - positionX > seletorPopupWidth * 1.2) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: 'top-end',
-          modifiers: [
-            {
-              name: 'flip',
-              options: {
-                allowedAutoPlacements: ['top-start'],
-                rootBoundary: 'document', // by default, all the placements are allowed
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                rootBoundary: 'document',
-              },
-            },
-          ],
-        });
-      } else if (window.innerWidth - positionX < seletorPopupWidth && positionX > seletorPopupWidth) {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: 'top-start',
-          modifiers: [
-            {
-              name: 'flip',
-              options: {
-                allowedAutoPlacements: ['top-end'],
-                rootBoundary: 'document', // by default, all the placements are allowed
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                rootBoundary: 'document',
-              },
-            },
-          ],
-        });
-      } else {
-        popperTemp = usePopper(popperRef.current, popperElement, {
-          placement: 'top',
-          modifiers: [
-            {
-              name: 'flip',
-              options: {
-                allowedAutoPlacements: ['top'],
-                rootBoundary: 'document', // by default, all the placements are allowed
-              },
-            },
-            {
-              name: 'preventOverflow',
-              options: {
-                rootBoundary: 'document',
-              },
-            },
-          ],
-        });
-      }
-    }
-
-    return popperTemp;
-  };
-  const popper = setPopper();
-
-  const closePopper = () => {
-    setIsDatePickerOpen(false);
-    // buttonRef?.current?.focus();
-  };
-
   useEffect(() => {
     if (globalState.markMemoId) {
       const editorCurrentValue = editorRef.current?.getContent();
@@ -499,18 +314,55 @@ const MemoEditor: React.FC<Props> = () => {
     }
   }, []);
 
+  // 发送前“蓄力”：整体往上缩（origin 顶部，底缘上收）→ 停住 → 发射点瞬间回弹（向下弹出卡片）
+  const squashEditor = () => {
+    const el = editorWrapperRef.current;
+    if (!el) {
+      return;
+    }
+    el.style.transformOrigin = '50% 0%';
+    const anim = el.animate(
+      [
+        // 0%：原状；~28%：压到低点；28%→70%：保持压缩（蓄力）
+        // 70%→76%：瞬间回弹；之后静止。SQUASH_LAUNCH_MS(≈70%) 时刻 pushMemo → 发射
+        { transform: 'scale(1, 1)', offset: 0, easing: 'cubic-bezier(0.33, 1, 0.68, 1)' },
+        { transform: 'scale(1, 0.94)', offset: 0.28 },
+        { transform: 'scale(1, 0.94)', offset: 0.7 },
+        { transform: 'scale(1, 1)', offset: 0.76 },
+        { transform: 'scale(1, 1)', offset: 1 },
+      ],
+      { duration: SQUASH_TOTAL_MS },
+    );
+    anim.onfinish = () => {
+      anim.cancel();
+      el.style.transformOrigin = '';
+    };
+  };
+
   const handleSaveBtnClick = useCallback(async (content: string) => {
     if (content === '') {
       new Notice(t('Content cannot be empty'));
+      return;
+    }
+    if (sendingRef.current) {
       return;
     }
 
     const { editMemoId } = globalStateService.getState();
     content = content.replaceAll('&nbsp;', ' ');
 
-    setEditorContentCache('');
+    // 清空输入框并解锁：编辑态立即；新建态由"发射"那一刻调用，让文字随卡片一起"起飞"
+    const finishSend = () => {
+      editorRef.current?.clear();
+      editorRef.current?.setEditable(true);
+      setEditorContentCache('');
+      sendingRef.current = false;
+    };
+
     try {
       if (editMemoId) {
+        // 编辑态：立即清空（无需蓄力动画）
+        setEditorContentCache('');
         const prevMemo = memoService.getMemoById(editMemoId);
         content = content + (prevMemo.hasId === '' ? '' : ' ^' + prevMemo.hasId);
         if (prevMemo && prevMemo.content !== content) {
@@ -525,17 +377,31 @@ const MemoEditor: React.FC<Props> = () => {
           memoService.editMemo(editedMemo);
         }
         globalStateService.setEditMemoId('');
+        finishSend();
       } else {
-        const newMemo = await memoService.createMemo(content, isList);
-        memoService.pushMemo(newMemo);
-        // memoService.fetchAllMemos();
-        locationService.clearQuery();
+        // 新建态：先锁定输入 + 蓄力压缩（文字保留），memo 落盘后到点再清空并发射
+        sendingRef.current = true;
+        editorRef.current?.setEditable(false);
+        const target = targetDateRef.current;
+        // 发射即归一：去掉整段行首空白，保证"此刻显示的卡片"与"之后 vault 重读"完全一致，
+        // 避免 memo 已存在一会儿后再被 trim 造成二次变化（抖动）。
+        const sendContent = content.trimStart();
+        const squashStart = Date.now();
+        squashEditor();
+        const newMemo = await memoService.createMemo(sendContent, isList, target ?? undefined);
+        const remaining = Math.max(0, SQUASH_LAUNCH_MS - (Date.now() - squashStart));
+        window.setTimeout(() => {
+          finishSend();
+          memoService.pushMemo(newMemo);
+          // memoService.fetchAllMemos();
+          locationService.clearQuery();
+        }, remaining);
       }
     } catch (error: any) {
+      sendingRef.current = false;
+      editorRef.current?.setEditable(true);
       new Notice(error.message);
     }
-
-    setEditorContentCache('');
   }, []);
 
   const handleCancelBtnClick = useCallback(() => {
@@ -556,82 +422,10 @@ const MemoEditor: React.FC<Props> = () => {
       return;
     }
 
-    const currentValue = editorRef.current.getContent();
-    const selectionStart = editorRef.current.element.selectionStart;
-    const prevString = currentValue.slice(0, selectionStart);
-    const nextString = currentValue.slice(selectionStart);
-
-    if ((prevString.endsWith('@') || prevString.endsWith('📆')) && nextString.startsWith(' ')) {
-      updateDateSelectorPopupPosition();
-      setIsDatePickerOpen(true);
-    } else if ((prevString.endsWith('@') || prevString.endsWith('📆')) && nextString === '') {
-      updateDateSelectorPopupPosition();
-      setIsDatePickerOpen(true);
-    } else {
-      setIsDatePickerOpen(false);
-    }
-
     setTimeout(() => {
       editorRef.current?.focus();
     });
   }, []);
-
-  // const handleKeyPress = () => {
-  //   console.log(handleKeyPress);
-  // };
-
-  const handleDateInsertTrigger = (date: number) => {
-    if (!editorRef.current) {
-      return;
-    }
-
-    if (date) {
-      closePopper();
-      isList = true;
-      toggleList(true);
-    }
-
-    const currentValue = editorRef.current.getContent();
-    const selectionStart = editorRef.current.element.selectionStart;
-    const prevString = currentValue.slice(0, selectionStart);
-    const nextString = currentValue.slice(selectionStart);
-    const todayMoment = moment(date);
-
-    if (!prevString.endsWith('@')) {
-      editorRef.current.element.value =
-        //eslint-disable-next-line
-        prevString + todayMoment.format('YYYY-MM-DD') + nextString;
-      editorRef.current.element.setSelectionRange(selectionStart + 10, selectionStart + 10);
-      editorRef.current.focus();
-      handleContentChange(editorRef.current.element.value);
-      return;
-    } else {
-      switch (InsertDateFormat) {
-        case 'Dataview':
-          editorRef.current.element.value =
-            //eslint-disable-next-line
-            currentValue.slice(0, editorRef.current.element.selectionStart - 1) +
-            '[due::' +
-            todayMoment.format('YYYY-MM-DD') +
-            ']' +
-            nextString;
-          editorRef.current.element.setSelectionRange(selectionStart + 17, selectionStart + 17);
-          editorRef.current.focus();
-          handleContentChange(editorRef.current.element.value);
-          break;
-        case 'Tasks':
-          editorRef.current.element.value =
-            //eslint-disable-next-line
-            currentValue.slice(0, editorRef.current.element.selectionStart - 1) +
-            '📆' +
-            todayMoment.format('YYYY-MM-DD') +
-            nextString;
-          editorRef.current.element.setSelectionRange(selectionStart + 11, selectionStart + 11);
-          editorRef.current.focus();
-          handleContentChange(editorRef.current.element.value);
-      }
-    }
-  };
 
   // Toggle List OR TASK
   const handleChangeStatus = () => {
@@ -689,50 +483,6 @@ const MemoEditor: React.FC<Props> = () => {
     handleContentChange(editorRef.current.element.value);
   }, []);
 
-  const updateDateSelectorPopupPosition = useCallback(() => {
-    if (!editorRef.current || !popperRef.current) {
-      return;
-    }
-
-    const leaves = app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-    const leaf = leaves[0];
-    const leafView = leaf.view.containerEl;
-
-    const seletorPopupWidth = 280;
-    const editorWidth = leafView.clientWidth;
-
-    // positionX = editorWidth;
-
-    const { x, y } = getCursorPostion(editorRef.current.element);
-    // const left = x + seletorPopupWidth + 16 > editorWidth ? editorWidth + 20 - seletorPopupWidth : x + 2;
-    let left: number;
-    let top: number;
-    if (!Platform.isMobile) {
-      left = x + seletorPopupWidth + 16 > editorWidth ? x + 18 : x + 18;
-      top = y + 34;
-    } else {
-      if (window.innerWidth - x > seletorPopupWidth) {
-        left = x + seletorPopupWidth + 16 > editorWidth ? x + 18 : x + 18;
-      } else if (window.innerWidth - x < seletorPopupWidth) {
-        left = x + seletorPopupWidth + 16 > editorWidth ? x + 34 : x + 34;
-      } else {
-        left = editorRef.current.element.clientWidth / 2;
-      }
-      if (DefaultEditorLocation === 'Bottom' && window.innerWidth > 875) {
-        top = y + 4;
-      } else if (DefaultEditorLocation === 'Bottom' && window.innerWidth <= 875) {
-        top = y + 19;
-      } else if (DefaultEditorLocation === 'Top' && window.innerWidth <= 875) {
-        top = y + 36;
-      }
-    }
-
-    positionX = x;
-
-    popperRef.current.style.left = `${left}px`;
-    popperRef.current.style.top = `${top}px`;
-  }, []);
-
   const handleUploadFileBtnClick = useCallback(() => {
     const inputEl = document.createElement('input');
     document.body.appendChild(inputEl);
@@ -756,6 +506,13 @@ const MemoEditor: React.FC<Props> = () => {
 
   const showEditStatus = Boolean(globalState.editMemoId);
 
+  // 指定日期写入：目标 chip 的打开/清除
+  const toggleWriteDateOpen = () => setIsWriteDateOpen((v: boolean) => !v);
+  const handleClearTargetDate = () => {
+    setTargetDate(null);
+    setIsWriteDateOpen(false);
+  };
+
   const editorConfig = useMemo(
     () => ({
       className: 'memo-editor',
@@ -773,13 +530,29 @@ const MemoEditor: React.FC<Props> = () => {
   );
 
   return (
-    <div className={`memo-editor-wrapper ${showEditStatus ? 'edit-ing' : ''} ${isEditorShown ? 'hidden' : ''}`}>
+    <div
+      ref={editorWrapperRef}
+      className={`memo-editor-wrapper ${showEditStatus ? 'edit-ing' : ''} ${isEditorShown ? 'hidden' : ''}`}
+    >
       <p className={`tip-text ${showEditStatus ? '' : 'hidden'}`}>Modifying...</p>
       <Editor
         ref={editorRef}
         {...editorConfig}
         tools={
           <>
+            {!showEditStatus && (
+              <span
+                ref={setCalAnchor}
+                className={`memo-write-date-anchor ${isWriteDateOpen ? 'active' : ''}`}
+                title={t('Write to date')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleWriteDateOpen();
+                }}
+              >
+                <CalendarSvg className="action-btn write-date" />
+              </span>
+            )}
             {/*<img className="action-btn add-tag" src={tag}  />*/}
             <Tag className="action-btn add-tag" onClick={handleTagTextBtnClick} />
             {/*<img className="action-btn file-upload" src={imageSvg} onClick={handleUploadFileBtnClick} />*/}
@@ -798,41 +571,33 @@ const MemoEditor: React.FC<Props> = () => {
           </>
         }
       />
-      <div ref={popperRef} className="date-picker">
-        {isDatePickerOpen && (
-          // <FocusTrap
-          //   active
-          //   focusTrapOptions={{
-          //     initialFocus: false,
-          //     allowOutsideClick: true,
-          //     clickOutsideDeactivates: true,
-          //     onDeactivate: closePopper,
-          //   }}
-          // >
-          <div
-            tabIndex={-1}
-            style={popper.styles.popper}
-            {...popper.attributes.popper}
-            ref={setPopperElement}
-            role="dialog"
+      {!showEditStatus && targetDate && (
+        <div className="memo-write-date-target" onClick={toggleWriteDateOpen}>
+          <CalendarSvg className="icon-img" />
+          <span className="target-text">
+            {t('Write on')} {targetDate.format('YYYY-MM-DD HH:mm')}
+          </span>
+          <span
+            className="target-clear"
+            title={t('Back to now')}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClearTargetDate();
+            }}
           >
-            <DatePicker
-              className={`editor-date-picker ${isDatePickerOpen ? '' : 'hidden'}`}
-              datestamp={currentDateStamp}
-              handleDateStampChange={handleDateInsertTrigger}
-            />
-            {/* <DayPicker
-                initialFocus={isPopperOpen}
-                mode="single"
-                defaultMonth={selected}
-                selected={selected}
-                onSelect={handleDateInsertTrigger}
-                onKeyPress={handleKeyPress}
-              /> */}
-          </div>
-          // </FocusTrap>
-        )}
-      </div>
+            ✕
+          </span>
+        </div>
+      )}
+      {isWriteDateOpen && (
+        <WriteDatePopover
+          anchorEl={calAnchor}
+          value={targetDate}
+          onSet={setTargetDate}
+          onClear={handleClearTargetDate}
+          onClose={() => setIsWriteDateOpen(false)}
+        />
+      )}
     </div>
   );
 };

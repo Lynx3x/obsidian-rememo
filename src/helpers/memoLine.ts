@@ -241,7 +241,9 @@ export function extractMemoTime(rawContent: string): { time: string; isOld: bool
         return {
             time: t[3] ? `${t[1]}:${t[2]}:${t[3]}` : `${t[1]}:${t[2]}`,
             isOld: !t[3],
-            rest: rawContent.slice(t[0].length).trim(),
+            // 只去掉紧跟时间的一个布局分隔空格，保留用户手打的行首空格
+            // （否则"写入→重读"往返会丢行首空格，导致发送后文字抖动一次）
+            rest: rawContent.slice(t[0].length).replace(/^ /, ''),
         };
     }
     // 旧格式 14 位时间戳（YYYYMMDDHHmmss）

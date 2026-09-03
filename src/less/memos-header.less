@@ -1,4 +1,5 @@
 @import './mixin.less';
+@import './theme.less';
 
 div[data-type='memos_view'] .section-header-container,
 div[data-type='memos_view'] .memos-header-container {
@@ -6,21 +7,21 @@ div[data-type='memos_view'] .memos-header-container {
   width: 100%;
   height: 40px;
   flex-wrap: nowrap;
-  margin-top: 16px;
-  // margin-bottom: 8px;
+  margin-top: 12px;
   flex-shrink: 0;
 
   > .title-text {
     .flex(row, flex-start, center);
-    font-weight: bold;
-    font-size: 18px;
+    font-weight: 700;
+    font-size: 17px;
     line-height: 40px;
-    color: @text-black;
+    color: var(--memo-text);
     margin-right: 8px;
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 0;
     cursor: pointer;
+    user-select: none;
 
     > .action-btn {
       .flex(row, center, center);
@@ -29,10 +30,19 @@ div[data-type='memos_view'] .memos-header-container {
       margin-right: 4px;
       flex-shrink: 0;
       background-color: unset;
+      border-radius: var(--memo-radius-s);
+      color: var(--memo-text-muted);
+      transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast);
 
       > .icon-img {
         width: 18px;
         height: 18px;
+        fill: currentColor;
+      }
+
+      &:hover {
+        color: var(--memo-accent);
+        background-color: var(--memo-surface-hover);
       }
     }
   }
@@ -42,156 +52,20 @@ div[data-type='memos_view'] .memos-header-container {
   }
 }
 
-//@media only screen and (max-width: 875px) {
-//  div[data-type='memos_view'] .section-header-container,
-//  div[data-type='memos_view'] .memos-header-container {
-//    height: auto;
-//    margin-top: 4px;
-//    margin-bottom: 0;
-//    padding: 0 12px;
-//    padding-bottom: 8px;
-//    > .title-text {
-//      > .action-btn {
-//        .flex(row, center, center);
-//        width: 60px;
-//        height: 24px;
-//        margin-right: -8px;
-//        margin-left: -20px;
-//        flex-shrink: 0;
-//        background-color: unset;
-//
-//        > .icon-img {
-//          width: 18px;
-//          height: 18px;
-//        }
-//      }
-//    }
-//  }
-//}
-
+// 移动端：收窄标题间距，放大左侧菜单热区
 div[data-type='memos_view'].mobile-view .section-header-container,
 div[data-type='memos_view'].mobile-view .memos-header-container {
   height: auto;
   margin-top: 4px;
   margin-bottom: 0;
-  padding: 0 12px;
-  padding-bottom: 8px;
+  padding: 0 12px 8px;
+
   > .title-text {
     > .action-btn {
-      .flex(row, center, center);
       width: 60px;
       height: 24px;
       margin-right: -8px;
       margin-left: -20px;
-      flex-shrink: 0;
-      background-color: unset;
-
-      > .icon-img {
-        width: 18px;
-        height: 18px;
-      }
-    }
-  }
-}
-
-.theme-dark div[data-type='memos_view'] .section-header-container,
-.theme-dark div[data-type='memos_view'] .memos-header-container {
-  .flex(row, space-between, center);
-  width: 100%;
-  height: 40px;
-  flex-wrap: nowrap;
-  margin-top: 16px;
-  // margin-bottom: 8px;
-  flex-shrink: 0;
-
-  > .title-text {
-    .flex(row, flex-start, center);
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 40px;
-    color: @text-dark-black;
-    margin-right: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-    cursor: pointer;
-
-    > .action-btn {
-      .flex(row, center, center);
-      width: 24px;
-      height: 24px;
-      margin-right: 4px;
-      flex-shrink: 0;
-      background-color: unset;
-
-      > .icon-img {
-        width: 18px;
-        height: 18px;
-
-        fill: #cdcdcd;
-      }
-    }
-  }
-
-  > .btns-container {
-    .flex(row, flex-end, center);
-  }
-}
-
-//@media only screen and (max-width: 875px) {
-//  .theme-dark div[data-type='memos_view'] .section-header-container,
-//  .theme-dark div[data-type='memos_view'] .memos-header-container {
-//    height: auto;
-//    margin-top: 4px;
-//    margin-bottom: 0;
-//    padding: 0 12px;
-//    padding-bottom: 8px;
-//    > .title-text {
-//      color: @text-dark-black;
-//      > .action-btn {
-//        .flex(row, center, center);
-//        width: 60px;
-//        height: 24px;
-//        margin-right: -8px;
-//        margin-left: -20px;
-//        flex-shrink: 0;
-//        background-color: unset;
-//
-//        > .icon-img {
-//          width: 18px;
-//          height: 18px;
-//
-//          filter: invert(0.8);
-//        }
-//      }
-//    }
-//  }
-//}
-
-.theme-dark div[data-type='memos_view'].mobile-view .section-header-container,
-.theme-dark div[data-type='memos_view'].mobile-view .memos-header-container {
-  height: auto;
-  margin-top: 4px;
-  margin-bottom: 0;
-  padding: 0 12px;
-  padding-bottom: 8px;
-  > .title-text {
-    color: @text-dark-black;
-    > .action-btn {
-      .flex(row, center, center);
-      width: 60px;
-      height: 24px;
-      margin-right: -8px;
-      margin-left: -20px;
-      flex-shrink: 0;
-      background-color: unset;
-
-      > .icon-img {
-        width: 18px;
-        height: 18px;
-
-        fill: #cdcdcd;
-      }
     }
   }
 }
