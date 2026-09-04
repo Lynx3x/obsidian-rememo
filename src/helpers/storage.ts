@@ -21,8 +21,8 @@ interface StorageData {
   // tiny undo index cache
   tinyUndoIndexCache: number;
 
-  // 数据体检：用户忽略的问题 key（"ruleId:path:line" → true）
-  auditIgnored: Record<string, boolean>;
+  // 数据体检：用户忽略的行 key（"path#line" → true，行粒度）
+  auditIgnoredLines: Record<string, boolean>;
 }
 
 type StorageKey = keyof StorageData;

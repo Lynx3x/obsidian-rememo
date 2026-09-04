@@ -9831,14 +9831,11 @@ async function getRemainingMemos(note) {
   return 0;
 }
 async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
-  var _a;
   if (!dailyNote) {
     return [];
   }
   const { vault } = appStore.getState().dailyNotesState.app;
   const Memos2 = await getRemainingMemos(dailyNote);
-  const toBackfill = [];
-  const toFixTime = [];
   if (Memos2 === 0)
     return;
   let fileContents = await vault.read(dailyNote);
@@ -9865,15 +9862,13 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
       continue;
     const indent = getIndentLevel(getIndentWidth(line));
     const stripped = line.replace(/^\s*[-*]\s(\[(?:.{1})\]\s?)?/, "");
-    const { time, isOld, rest } = extractMemoTime(stripped);
+    const { time, rest } = extractMemoTime(stripped);
     const memoDate = require$$0.moment(baseDate);
     if (time) {
       const [h2, m2, s] = time.split(":").map((x2) => parseInt(x2));
       memoDate.hours(h2).minutes(m2);
       if (!isNaN(s))
         memoDate.seconds(s);
-      if (isOld)
-        toFixTime.push({ path: dailyNote.path, lineIndex: i });
     }
     let content = rest;
     let hasId = "";
@@ -9883,7 +9878,6 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
       content = content.slice(0, -8).trimEnd();
     } else {
       hasId = Math.random().toString(36).slice(-6);
-      toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
     }
     let isDeleted = false;
     let deletedAt = "";
@@ -9922,79 +9916,6 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
   }
   fileLines = null;
   fileContents = null;
-  if (toBackfill.length > 0) {
-    await backfillMemoIds(vault, toBackfill);
-  }
-  if (toFixTime.length > 0 && ((_a = appStore.getState().settingsState.settings.TimeFormat) != null ? _a : "HH:mm:ss") !== "HH:mm") {
-    await backfillMemoTimes(vault, toFixTime);
-  }
-}
-async function backfillMemoIds(vault, toBackfill) {
-  const byPath = /* @__PURE__ */ new Map();
-  for (const item of toBackfill) {
-    const arr = byPath.get(item.path) || [];
-    arr.push({ lineIndex: item.lineIndex, generatedId: item.generatedId });
-    byPath.set(item.path, arr);
-  }
-  for (const [path, items] of byPath) {
-    const file = vault.getAbstractFileByPath(path);
-    if (!file)
-      continue;
-    const content = await vault.read(file);
-    const lines = getAllLinesFromFile$6(content);
-    let changed = false;
-    for (const { lineIndex, generatedId } of items) {
-      const line = lines[lineIndex];
-      if (line !== void 0 && !/\^\S{6}\s*$/.test(line)) {
-        lines[lineIndex] = line.trimEnd() + " ^" + generatedId;
-        changed = true;
-      }
-    }
-    if (changed) {
-      await vault.modify(file, lines.join("\n"));
-    }
-  }
-}
-async function backfillMemoTimes(vault, toFix) {
-  const byPath = /* @__PURE__ */ new Map();
-  for (const item of toFix) {
-    const arr = byPath.get(item.path) || [];
-    arr.push(item.lineIndex);
-    byPath.set(item.path, arr);
-  }
-  for (const [path, indices] of byPath) {
-    const file = vault.getAbstractFileByPath(path);
-    if (!file)
-      continue;
-    const content = await vault.read(file);
-    const lines = getAllLinesFromFile$6(content);
-    let changed = false;
-    for (const lineIndex of indices) {
-      const line = lines[lineIndex];
-      if (line === void 0)
-        continue;
-      const m2 = /^(\s*[-*]\s(\[(?:.{1})\]\s?)?)(.*)$/.exec(line);
-      if (!m2)
-        continue;
-      const prefix = m2[1];
-      const rest = m2[3];
-      const ts = /^(\d{14})\s?(.*)$/.exec(rest);
-      if (ts) {
-        const hh2 = ts[1].slice(8, 10), mm = ts[1].slice(10, 12), ss = ts[1].slice(12, 14);
-        lines[lineIndex] = prefix + `${hh2}:${mm}:${ss} ` + ts[2];
-        changed = true;
-        continue;
-      }
-      const t2 = /^(\d{1,2}:\d{2})(?!:\d{2})(\s|$)/.exec(rest);
-      if (t2) {
-        lines[lineIndex] = prefix + rest.replace(/^\d{1,2}:\d{2}/, t2[1] + ":00");
-        changed = true;
-      }
-    }
-    if (changed) {
-      await vault.modify(file, lines.join("\n"));
-    }
-  }
 }
 async function getMemos(onBatch) {
   const memos = [];
@@ -10981,7 +10902,7 @@ const bareBrRule = {
   }
 };
 const rules = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule];
-Object.fromEntries(rules.map((r2) => [r2.id, r2]));
+const ruleById = Object.fromEntries(rules.map((r2) => [r2.id, r2]));
 function readLines(file) {
   return file.vault.cachedRead(file).then((content) => content.split("\n"));
 }
@@ -11089,8 +11010,8 @@ async function applyFixes(issues) {
   return { applied, skipped, backupDir, changedFiles };
 }
 var auditDialog = "";
-const IGNORED_KEY = "auditIgnored";
-const ignoredKey = (issue) => `${issue.ruleId}:${issue.path}:${issue.line}`;
+const IGNORED_KEY = "auditIgnoredLines";
+const lineKey = (path, line) => `${path}#${line}`;
 const loadIgnored = () => {
   var _a;
   return (_a = storage.get([IGNORED_KEY])[IGNORED_KEY]) != null ? _a : {};
@@ -11098,20 +11019,25 @@ const loadIgnored = () => {
 const saveIgnored = (map) => storage.set({
   [IGNORED_KEY]: map
 });
+const SEVERITY_ORDER = {
+  error: 0,
+  warning: 1,
+  info: 2
+};
 const AuditDialog = ({
   destroy
 }) => {
   const [result, setResult] = react.exports.useState(null);
-  const [scanning, setScanning] = react.exports.useState(false);
+  const [busy, setBusy] = react.exports.useState(false);
   const [progress, setProgress] = react.exports.useState(null);
   const [ignored, setIgnored] = react.exports.useState(loadIgnored);
-  const [fixing, setFixing] = react.exports.useState(false);
-  const [fixMsg, setFixMsg] = react.exports.useState("");
+  const [collapsedFiles, setCollapsedFiles] = react.exports.useState({});
+  const [expandedLines, setExpandedLines] = react.exports.useState({});
+  const [msg, setMsg] = react.exports.useState("");
   const scan = async () => {
     var _a;
-    setScanning(true);
-    setFixMsg("");
-    setResult(null);
+    setBusy(true);
+    setMsg("");
     try {
       const res = await runAudit((done, total) => setProgress({
         done,
@@ -11119,17 +11045,45 @@ const AuditDialog = ({
       }));
       setResult(res);
     } catch (e) {
-      setFixMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a = e == null ? void 0 : e.message) != null ? _a : e}`);
+      setMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a = e == null ? void 0 : e.message) != null ? _a : e}`);
     } finally {
-      setScanning(false);
+      setBusy(false);
       setProgress(null);
     }
   };
   react.exports.useEffect(() => {
     scan();
   }, []);
-  const toggleIgnore = (issue) => {
-    const key = ignoredKey(issue);
+  const runFixLoop = async (pred, scopeLabel) => {
+    setBusy(true);
+    setMsg("");
+    let appliedTotal = 0;
+    try {
+      for (let round2 = 0; round2 < 6; round2++) {
+        const res = await runAudit();
+        setResult(res);
+        const targets = res.issues.filter((i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)]);
+        if (targets.length === 0) {
+          setMsg(appliedTotal > 0 ? `${scopeLabel}\uFF1A\u5DF2\u4FEE\u590D ${appliedTotal} \u5904 \u2705` : `${scopeLabel}\uFF1A\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898`);
+          return;
+        }
+        const out = await applyFixes(targets);
+        appliedTotal += out.applied;
+        if (out.applied === 0) {
+          setMsg(`${scopeLabel}\uFF1A\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5/\u8FC1\u79FB\uFF09\uFF0C\u5DF2\u4FEE ${appliedTotal} \u5904`);
+          return;
+        }
+      }
+      setMsg(`${scopeLabel}\uFF1A\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u4E00\u6B21\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879`);
+    } finally {
+      setBusy(false);
+    }
+    await scan();
+  };
+  const fixOneLine = (path, line) => runFixLoop((i) => i.path === path && i.line === line, `\u7B2C ${line} \u884C`);
+  const fixAll = () => runFixLoop(() => true, "\u4E00\u952E\u4FEE\u590D");
+  const toggleIgnore = (path, line) => {
+    const key = lineKey(path, line);
     const next = {
       ...ignored
     };
@@ -11140,36 +11094,44 @@ const AuditDialog = ({
     setIgnored(next);
     saveIgnored(next);
   };
-  const visibleIssues = result ? result.issues.filter((i) => !ignored[ignoredKey(i)]) : [];
-  const fixAll = async () => {
+  const tree = react.exports.useMemo(() => {
+    var _a;
     if (!result)
-      return;
-    const targets = result.issues.filter((i) => i.fixedLine && !ignored[ignoredKey(i)]);
-    setFixing(true);
-    try {
-      const out = await applyFixes(targets);
-      const tip = out.applied === 0 ? "\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898" : `\u5DF2\u4FEE\u590D ${out.applied} \u5904\uFF08\u6539\u52A8 ${out.changedFiles} \u4E2A\u6587\u4EF6\uFF09\u3002\u539F\u6587\u4EF6\u5907\u4EFD\u5728 ${out.backupDir}\u3002`;
-      const extra = out.skipped > 0 ? `\u53E6\u6709 ${out.skipped} \u5904\u4E0E\u5DF2\u4FEE\u95EE\u9898\u540C\u884C\uFF0C\u9700\u91CD\u65B0\u4F53\u68C0\u540E\u518D\u4FEE\uFF08\u540C\u4E00\u884C\u4E00\u6B21\u53EA\u4FEE\u4E00\u79CD\uFF09\u3002` : "";
-      setFixMsg(`${tip}${extra}`);
-    } finally {
-      setFixing(false);
+      return [];
+    const byPath = /* @__PURE__ */ new Map();
+    for (const issue of result.issues) {
+      if (ignored[lineKey(issue.path, issue.line)])
+        continue;
+      let byLine = byPath.get(issue.path);
+      if (!byLine) {
+        byLine = /* @__PURE__ */ new Map();
+        byPath.set(issue.path, byLine);
+      }
+      const list = (_a = byLine.get(issue.line)) != null ? _a : [];
+      list.push(issue);
+      byLine.set(issue.line, list);
     }
-    await scan();
-  };
-  const fixOne = async (issue) => {
-    setFixing(true);
-    try {
-      const out = await applyFixes([issue]);
-      setFixMsg(`\u5DF2\u4FEE\u590D ${out.applied} \u5904\u3002`);
-    } finally {
-      setFixing(false);
-    }
-    await scan();
-  };
+    return [...byPath.entries()].map(([path, byLine]) => ({
+      path,
+      lines: [...byLine.entries()].sort((a, b) => a[0] - b[0]).map(([line, issues]) => ({
+        line,
+        issues: issues.sort((a, b) => {
+          var _a2, _b, _c, _d;
+          return SEVERITY_ORDER[(_b = (_a2 = ruleById[a.ruleId]) == null ? void 0 : _a2.severity) != null ? _b : "info"] - SEVERITY_ORDER[(_d = (_c = ruleById[b.ruleId]) == null ? void 0 : _c.severity) != null ? _d : "info"] || a.ruleId.localeCompare(b.ruleId);
+        })
+      }))
+    })).sort((a, b) => a.path.localeCompare(b.path));
+  }, [result, ignored]);
   const stats = result ? {
-    total: visibleIssues.length,
-    fixable: visibleIssues.filter((i) => i.fixedLine).length
+    files: tree.length,
+    lines: tree.reduce((n2, f2) => n2 + f2.lines.length, 0),
+    issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
+    fixableLines: tree.reduce((n2, f2) => n2 + f2.lines.filter((l2) => l2.issues.some((i) => i.fixedLine)).length, 0)
   } : null;
+  const shortName = (path) => {
+    var _a;
+    return (_a = path.split("/").pop()) != null ? _a : path;
+  };
   return /* @__PURE__ */ jsxs(Fragment, {
     children: [/* @__PURE__ */ jsxs("div", {
       className: "dialog-header-container",
@@ -11186,95 +11148,145 @@ const AuditDialog = ({
       })]
     }), /* @__PURE__ */ jsxs("div", {
       className: "dialog-content-container audit-content",
-      children: [scanning && /* @__PURE__ */ jsx("div", {
-        className: "audit-scanning",
-        children: progress ? `\u626B\u63CF\u4E2D\u2026 ${progress.done}/${progress.total}` : "\u51C6\u5907\u4E2D\u2026"
-      }), !scanning && result && /* @__PURE__ */ jsxs(Fragment, {
+      children: [busy && /* @__PURE__ */ jsx("div", {
+        className: "audit-busy",
+        children: progress ? `\u626B\u63CF\u4E2D\u2026 ${progress.done}/${progress.total}` : "\u5904\u7406\u4E2D\u2026"
+      }), !busy && result && /* @__PURE__ */ jsxs(Fragment, {
         children: [/* @__PURE__ */ jsxs("div", {
           className: "audit-toolbar",
           children: [/* @__PURE__ */ jsxs("span", {
             className: "audit-stats",
-            children: ["\u5171\u626B\u63CF ", result.scannedFiles, " \u4E2A\u65E5\u8BB0\u6587\u4EF6 \xB7 ", stats == null ? void 0 : stats.total, " \u4E2A\u95EE\u9898", stats && stats.fixable > 0 ? `\uFF08\u53EF\u81EA\u52A8\u4FEE\u590D ${stats.fixable} \u4E2A\uFF09` : ""]
+            children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", stats == null ? void 0 : stats.files, " \xB7 memo ", stats == null ? void 0 : stats.lines, " \u6761 \xB7 \u95EE\u9898 ", stats == null ? void 0 : stats.issues, " \u4E2A", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
           }), /* @__PURE__ */ jsx("button", {
             className: "btn refresh-btn",
             onClick: scan,
             children: "\u91CD\u65B0\u4F53\u68C0"
-          }), stats && stats.fixable > 0 && /* @__PURE__ */ jsxs("button", {
+          }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsxs("button", {
             className: "btn fix-all-btn",
             onClick: fixAll,
-            disabled: fixing,
-            children: ["\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08", stats.fixable, "\uFF09"]
+            disabled: busy,
+            children: ["\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08", stats.fixableLines, " \u6761\uFF09"]
           })]
-        }), fixMsg && /* @__PURE__ */ jsx("div", {
-          className: "audit-fix-msg",
-          children: fixMsg
-        }), visibleIssues.length === 0 ? /* @__PURE__ */ jsx("div", {
+        }), msg && /* @__PURE__ */ jsx("div", {
+          className: "audit-msg",
+          children: msg
+        }), tree.length === 0 ? /* @__PURE__ */ jsx("div", {
           className: "audit-empty",
           children: "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}"
         }) : /* @__PURE__ */ jsx("div", {
-          className: "audit-rule-list",
-          children: rules.filter((r2) => {
-            var _a;
-            return (_a = result.byRule[r2.id]) == null ? void 0 : _a.some((i) => !ignored[ignoredKey(i)]);
-          }).map((rule) => {
-            const ruleIssues = result.byRule[rule.id].filter((i) => !ignored[ignoredKey(i)]);
+          className: "audit-file-list",
+          children: tree.map((file) => {
+            const collapsed = !!collapsedFiles[file.path];
+            const errCount = file.lines.reduce((n2, l2) => n2 + l2.issues.filter((i) => {
+              var _a;
+              return ((_a = ruleById[i.ruleId]) == null ? void 0 : _a.severity) === "error";
+            }).length, 0);
             return /* @__PURE__ */ jsxs("section", {
-              className: "audit-rule",
+              className: "audit-file",
               children: [/* @__PURE__ */ jsxs("header", {
-                className: "audit-rule-header",
+                className: "audit-file-header",
+                onClick: () => setCollapsedFiles({
+                  ...collapsedFiles,
+                  [file.path]: !collapsed
+                }),
                 children: [/* @__PURE__ */ jsx("span", {
-                  className: `severity severity-${rule.severity}`,
-                  children: rule.name
+                  className: "chevron",
+                  children: collapsed ? "\u25B8" : "\u25BE"
                 }), /* @__PURE__ */ jsx("span", {
-                  className: "audit-rule-count",
-                  children: ruleIssues.length
+                  className: "audit-file-name",
+                  title: file.path,
+                  children: shortName(file.path)
+                }), errCount > 0 && /* @__PURE__ */ jsxs("span", {
+                  className: "audit-file-err",
+                  children: [errCount, " \u5904\u9519\u8BEF"]
+                }), /* @__PURE__ */ jsxs("span", {
+                  className: "audit-file-count",
+                  children: [file.lines.length, " \u6761 memo"]
                 })]
-              }), /* @__PURE__ */ jsx("p", {
-                className: "audit-rule-why",
-                children: rule.why
-              }), /* @__PURE__ */ jsx("ul", {
-                className: "audit-issue-list",
-                children: ruleIssues.map((issue) => /* @__PURE__ */ jsxs("li", {
-                  className: "audit-issue",
-                  children: [/* @__PURE__ */ jsxs("div", {
-                    className: "audit-issue-meta",
-                    children: [/* @__PURE__ */ jsx("span", {
-                      className: "audit-file",
-                      children: issue.path
-                    }), /* @__PURE__ */ jsxs("span", {
-                      className: "audit-line",
-                      children: ["L", issue.line]
-                    }), issue.note && /* @__PURE__ */ jsx("span", {
-                      className: "audit-note",
-                      children: issue.note
+              }), !collapsed && /* @__PURE__ */ jsx("div", {
+                className: "audit-line-list",
+                children: file.lines.map(({
+                  line,
+                  issues
+                }) => {
+                  var _a;
+                  const exKey = lineKey(file.path, line);
+                  const expanded = !!expandedLines[exKey];
+                  const fixable = issues.some((i) => i.fixedLine);
+                  const raw = issues[0].raw;
+                  (_a = issues.find((i) => i.fixedLine)) == null ? void 0 : _a.fixedLine;
+                  return /* @__PURE__ */ jsxs("div", {
+                    className: "audit-line",
+                    children: [/* @__PURE__ */ jsxs("div", {
+                      className: "audit-line-head",
+                      children: [/* @__PURE__ */ jsx("button", {
+                        className: "btn expand-btn",
+                        onClick: () => setExpandedLines({
+                          ...expandedLines,
+                          [exKey]: !expanded
+                        }),
+                        title: expanded ? "\u6536\u8D77" : "\u5C55\u5F00\u539F\u6587",
+                        children: /* @__PURE__ */ jsx("span", {
+                          className: "chevron",
+                          children: expanded ? "\u25BE" : "\u25B8"
+                        })
+                      }), /* @__PURE__ */ jsxs("span", {
+                        className: "audit-line-no",
+                        children: ["L", line]
+                      }), /* @__PURE__ */ jsx("div", {
+                        className: "audit-line-preview",
+                        onClick: () => setExpandedLines({
+                          ...expandedLines,
+                          [exKey]: !expanded
+                        }),
+                        title: "\u70B9\u51FB\u5C55\u5F00/\u6536\u8D77",
+                        children: raw
+                      })]
+                    }), /* @__PURE__ */ jsx("div", {
+                      className: "audit-line-badges",
+                      children: issues.map((issue) => {
+                        var _a2, _b;
+                        const rule = ruleById[issue.ruleId];
+                        return /* @__PURE__ */ jsx("span", {
+                          className: `badge badge-${(_a2 = rule == null ? void 0 : rule.severity) != null ? _a2 : "info"}`,
+                          title: rule == null ? void 0 : rule.why,
+                          children: (_b = rule == null ? void 0 : rule.name) != null ? _b : issue.ruleId
+                        }, issue.ruleId);
+                      })
+                    }), expanded && /* @__PURE__ */ jsxs("div", {
+                      className: "audit-line-detail",
+                      children: [/* @__PURE__ */ jsx("pre", {
+                        className: "audit-code audit-code-raw",
+                        children: raw
+                      }), issues.filter((i) => i.fixedLine && i.fixedLine !== raw).map((i) => {
+                        var _a2, _b;
+                        return /* @__PURE__ */ jsxs("div", {
+                          children: [/* @__PURE__ */ jsxs("div", {
+                            className: "audit-fix-label",
+                            children: ["\u300C", (_b = (_a2 = ruleById[i.ruleId]) == null ? void 0 : _a2.name) != null ? _b : i.ruleId, "\u300D\u4FEE\u590D\u4E3A\uFF1A"]
+                          }), /* @__PURE__ */ jsx("pre", {
+                            className: "audit-code audit-code-fixed",
+                            children: i.fixedLine
+                          })]
+                        }, `fix-${i.ruleId}`);
+                      })]
+                    }), /* @__PURE__ */ jsxs("div", {
+                      className: "audit-line-actions",
+                      children: [fixable && /* @__PURE__ */ jsx("button", {
+                        className: "btn fix-one-btn",
+                        onClick: () => fixOneLine(file.path, line),
+                        disabled: busy,
+                        children: "\u4FEE\u590D\u8FD9\u6761 memo"
+                      }), /* @__PURE__ */ jsx("button", {
+                        className: "btn ignore-btn",
+                        onClick: () => toggleIgnore(file.path, line),
+                        children: "\u5FFD\u7565"
+                      })]
                     })]
-                  }), /* @__PURE__ */ jsx("pre", {
-                    className: "audit-code audit-code-raw",
-                    children: issue.raw
-                  }), issue.fixedLine && /* @__PURE__ */ jsxs(Fragment, {
-                    children: [/* @__PURE__ */ jsx("div", {
-                      className: "audit-arrow",
-                      children: "\u2193 \u4FEE\u590D\u4E3A"
-                    }), /* @__PURE__ */ jsx("pre", {
-                      className: "audit-code audit-code-fixed",
-                      children: issue.fixedLine
-                    })]
-                  }), /* @__PURE__ */ jsxs("div", {
-                    className: "audit-issue-actions",
-                    children: [issue.fixedLine && /* @__PURE__ */ jsx("button", {
-                      className: "btn fix-one-btn",
-                      onClick: () => fixOne(issue),
-                      disabled: fixing,
-                      children: "\u4FEE\u590D\u8FD9\u4E00\u6761"
-                    }), /* @__PURE__ */ jsx("button", {
-                      className: "btn ignore-btn",
-                      onClick: () => toggleIgnore(issue),
-                      children: "\u5FFD\u7565"
-                    })]
-                  })]
-                }, ignoredKey(issue)))
+                  }, exKey);
+                })
               })]
-            }, rule.id);
+            }, file.path);
           })
         })]
       })]

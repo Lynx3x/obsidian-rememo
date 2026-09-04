@@ -65,10 +65,8 @@ export async function getMemosFromDailyNote(
     }
     const { vault } = appStore.getState().dailyNotesState.app;
     const Memos = await getRemainingMemos(dailyNote);
-    // 收集缺 ^id 的 memo 行，读完统一回写（持久 ^id）
-    const toBackfill: { path: string; lineIndex: number; generatedId: string }[] = [];
-    // 收集旧时间格式的行，统一回写为 HH:mm:ss
-    const toFixTime: { path: string; lineIndex: number }[] = [];
+    // 注：旧"读取时自动补 ^id / 补秒回写"已移除（见 getMemosFromDailyNote 尾部）——
+    // 缺 id、旧时间戳等问题统一交给"数据体检"(audit) 检测与修复，读取不再隐式改写文件。
 
     if (Memos === 0) return;
 
@@ -99,14 +97,13 @@ export async function getMemosFromDailyNote(
         const indent = getIndentLevel(getIndentWidth(line));
         // 去列表标记（- [ ] / - / * + 缩进）
         const stripped = line.replace(/^\s*[-*]\s(\[(?:.{1})\]\s?)?/, '');
-        // 时间：支持新 HH:mm(:ss) 和旧 14 位时间戳，统一标准化
-        const { time, isOld, rest } = extractMemoTime(stripped);
+        // 时间：支持新 HH:mm(:ss) 和旧 14 位时间戳；两者都解析，不在此回写
+        const { time, rest } = extractMemoTime(stripped);
         const memoDate = moment(baseDate);
         if (time) {
             const [h, m, s] = time.split(':').map((x) => parseInt(x));
             memoDate.hours(h).minutes(m);
             if (!isNaN(s)) memoDate.seconds(s);
-            if (isOld) toFixTime.push({ path: dailyNote.path, lineIndex: i });
         }
         // 块 id
         let content = rest;
@@ -117,8 +114,9 @@ export async function getMemosFromDailyNote(
             // 只去掉 id 前的尾部空白（trimEnd），保留行首空格——否则"写入→重读"往返丢行首空格，发送后文字抖一下
             content = content.slice(0, -8).trimEnd();
         } else {
+            // 缺 ^id：先用内存随机 id 支撑本会话（编辑/评论/引用可用）；
+            // 落盘修复交给"数据体检"(audit missing-id)，读取不再自动补写
             hasId = Math.random().toString(36).slice(-6);
-            toBackfill.push({ path: dailyNote.path, lineIndex: i, generatedId: hasId });
         }
         // 删除标记：检测 deletedAt（剥掉 id 后位于内容末尾）
         let isDeleted = false;
@@ -161,102 +159,6 @@ export async function getMemosFromDailyNote(
     }
     fileLines = null;
     fileContents = null;
-    // 持久 ^id：补写缺 id 的 memo 行（一次性迁移，之后稳定）
-    if (toBackfill.length > 0) {
-        await backfillMemoIds(vault, toBackfill);
-    }
-    // 时间格式统一：旧格式/无秒行回写为 HH:mm:ss。
-    // 仅当界面开启"带秒"（TimeFormat 非 'HH:mm'）才回写；HH:mm 模式不打扰文件数据（undefined=默认带秒，旧行为）
-    if (
-      toFixTime.length > 0 &&
-      (appStore.getState().settingsState.settings.TimeFormat ?? 'HH:mm:ss') !== 'HH:mm'
-    ) {
-        await backfillMemoTimes(vault, toFixTime);
-    }
-}
-
-/**
- * 给缺 ^id 的 memo 行补写持久块 id。
- * 只在行尾追加 ` ^xxxxxx`，不改动其它内容；按文件分组批量读写。
- */
-async function backfillMemoIds(
-    vault: any,
-    toBackfill: { path: string; lineIndex: number; generatedId: string }[],
-): Promise<void> {
-    // 按文件分组，避免重复读同一文件
-    const byPath = new Map<string, { lineIndex: number; generatedId: string }[]>();
-    for (const item of toBackfill) {
-        const arr = byPath.get(item.path) || [];
-        arr.push({ lineIndex: item.lineIndex, generatedId: item.generatedId });
-        byPath.set(item.path, arr);
-    }
-    for (const [path, items] of byPath) {
-        const file = vault.getAbstractFileByPath(path) as TFile;
-        if (!file) continue;
-        const content = await vault.read(file);
-        const lines = getAllLinesFromFile(content);
-        let changed = false;
-        for (const { lineIndex, generatedId } of items) {
-            const line = lines[lineIndex];
-            // 行尾已无 id（防并发/重复），追加
-            if (line !== undefined && !/\^\S{6}\s*$/.test(line)) {
-                lines[lineIndex] = line.trimEnd() + ' ^' + generatedId;
-                changed = true;
-            }
-        }
-        if (changed) {
-            await vault.modify(file, lines.join('\n'));
-        }
-    }
-}
-
-/**
- * 统一旧时间格式为 `HH:mm:ss`（迁移）：
- *   - `HH:mm` → `HH:mm:00`
- *   - 14 位时间戳（旧评论）→ `HH:mm:ss`
- * 只改行内时间部分，不动其它内容。
- */
-async function backfillMemoTimes(vault: any, toFix: { path: string; lineIndex: number }[]): Promise<void> {
-    const byPath = new Map<string, number[]>();
-    for (const item of toFix) {
-        const arr = byPath.get(item.path) || [];
-        arr.push(item.lineIndex);
-        byPath.set(item.path, arr);
-    }
-    for (const [path, indices] of byPath) {
-        const file = vault.getAbstractFileByPath(path) as TFile;
-        if (!file) continue;
-        const content = await vault.read(file);
-        const lines = getAllLinesFromFile(content);
-        let changed = false;
-        for (const lineIndex of indices) {
-            const line = lines[lineIndex];
-            if (line === undefined) continue;
-            // 去缩进 + 列表标记后处理
-            // group1 已含任务标记（group2 嵌套在内），只取 group1，避免 `[ ] [ ]` 重复
-            const m = /^(\s*[-*]\s(\[(?:.{1})\]\s?)?)(.*)$/.exec(line);
-            if (!m) continue;
-            const prefix = m[1];
-            const rest = m[3];
-            // 旧 14 位时间戳
-            const ts = /^(\d{14})\s?(.*)$/.exec(rest);
-            if (ts) {
-                const hh = ts[1].slice(8, 10), mm = ts[1].slice(10, 12), ss = ts[1].slice(12, 14);
-                lines[lineIndex] = prefix + `${hh}:${mm}:${ss} ` + ts[2];
-                changed = true;
-                continue;
-            }
-            // HH:mm 无秒 → 补 :00
-            const t = /^(\d{1,2}:\d{2})(?!:\d{2})(\s|$)/.exec(rest);
-            if (t) {
-                lines[lineIndex] = prefix + rest.replace(/^\d{1,2}:\d{2}/, t[1] + ':00');
-                changed = true;
-            }
-        }
-        if (changed) {
-            await vault.modify(file, lines.join('\n'));
-        }
-    }
 }
 
 export async function getMemos(

@@ -1,17 +1,18 @@
-// 数据体检报告弹窗：eslint 式——按规则分组、每条展示原因(why)与原行/修复预览，
-// 支持逐条修复/忽略与一键全修（修复前自动备份到 .rememo-backup/audit-<ts>/）。
-import React, { useEffect, useState } from 'react';
+// 数据体检报告弹窗 v2：以"文件 → memo 行"分组（用户修复的对象是 memo，不是单个问题）。
+// - 文件卡片可折叠；行内容默认单行缩略，点击展开看原文与修复预览
+// - 修复粒度为行：该行所有可修问题循环修复到干净（备份在 .rememo-backup/audit-<ts>/）
+// - 忽略粒度也是行；修复/忽略状态本地持久化
+import React, { useEffect, useMemo, useState } from 'react';
 import { applyFixes, runAudit } from '../engine';
-import { rules, ruleById } from '../rules';
-import { AuditResult, Issue } from '../types';
+import { ruleById } from '../rules';
+import { AuditResult, Issue, RuleSeverity } from '../types';
 import { storage } from '../../helpers/storage';
 import { showDialog } from '../../components/Dialog';
 import '../../less/audit-dialog.less';
 
-const IGNORED_KEY = 'auditIgnored';
+const IGNORED_KEY = 'auditIgnoredLines';
 type IgnoredMap = Record<string, boolean>;
-
-const ignoredKey = (issue: Issue) => `${issue.ruleId}:${issue.path}:${issue.line}`;
+const lineKey = (path: string, line: number) => `${path}#${line}`;
 
 const loadIgnored = (): IgnoredMap => storage.get([IGNORED_KEY])[IGNORED_KEY] ?? {};
 const saveIgnored = (map: IgnoredMap) => storage.set({ [IGNORED_KEY]: map });
@@ -20,25 +21,27 @@ interface Props {
   destroy: () => void;
 }
 
+const SEVERITY_ORDER: Record<RuleSeverity, number> = { error: 0, warning: 1, info: 2 };
+
 const AuditDialog: React.FC<Props> = ({ destroy }) => {
   const [result, setResult] = useState<AuditResult | null>(null);
-  const [scanning, setScanning] = useState(false);
+  const [busy, setBusy] = useState(false); // 扫描或修复中
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [ignored, setIgnored] = useState<IgnoredMap>(loadIgnored);
-  const [fixing, setFixing] = useState(false);
-  const [fixMsg, setFixMsg] = useState('');
+  const [collapsedFiles, setCollapsedFiles] = useState<Record<string, boolean>>({});
+  const [expandedLines, setExpandedLines] = useState<Record<string, boolean>>({});
+  const [msg, setMsg] = useState('');
 
   const scan = async () => {
-    setScanning(true);
-    setFixMsg('');
-    setResult(null);
+    setBusy(true);
+    setMsg('');
     try {
       const res = await runAudit((done, total) => setProgress({ done, total }));
       setResult(res);
     } catch (e: any) {
-      setFixMsg(`扫描失败：${e?.message ?? e}`);
+      setMsg(`扫描失败：${e?.message ?? e}`);
     } finally {
-      setScanning(false);
+      setBusy(false);
       setProgress(null);
     }
   };
@@ -47,8 +50,41 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
     scan();
   }, []);
 
-  const toggleIgnore = (issue: Issue) => {
-    const key = ignoredKey(issue);
+  // ---- 修复：目标过滤 → 循环跑"扫描+应用"直到该行/全部无剩余可修 ----
+  const runFixLoop = async (pred: (i: Issue) => boolean, scopeLabel: string) => {
+    setBusy(true);
+    setMsg('');
+    let appliedTotal = 0;
+    try {
+      for (let round = 0; round < 6; round++) {
+        const res = await runAudit();
+        setResult(res);
+        const targets = res.issues.filter((i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)]);
+        if (targets.length === 0) {
+          setMsg(appliedTotal > 0 ? `${scopeLabel}：已修复 ${appliedTotal} 处 ✅` : `${scopeLabel}：没有可自动修复的问题`);
+          return;
+        }
+        const out = await applyFixes(targets);
+        appliedTotal += out.applied;
+        if (out.applied === 0) {
+          setMsg(`${scopeLabel}：无法继续自动修复（剩余问题需人工/迁移），已修 ${appliedTotal} 处`);
+          return;
+        }
+      }
+      setMsg(`${scopeLabel}：已达修复轮次上限，请再点一次「重新体检」确认剩余项`);
+    } finally {
+      setBusy(false);
+    }
+    await scan();
+  };
+
+  const fixOneLine = (path: string, line: number) =>
+    runFixLoop((i) => i.path === path && i.line === line, `第 ${line} 行`);
+
+  const fixAll = () => runFixLoop(() => true, '一键修复');
+
+  const toggleIgnore = (path: string, line: number) => {
+    const key = lineKey(path, line);
     const next = { ...ignored };
     if (next[key]) delete next[key];
     else next[key] = true;
@@ -56,46 +92,52 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
     saveIgnored(next);
   };
 
-  const visibleIssues = result ? result.issues.filter((i) => !ignored[ignoredKey(i)]) : [];
-
-  const fixAll = async () => {
-    if (!result) return;
-    const targets = result.issues.filter((i) => i.fixedLine && !ignored[ignoredKey(i)]);
-    setFixing(true);
-    try {
-      const out = await applyFixes(targets);
-      const tip =
-        out.applied === 0
-          ? '没有可自动修复的问题'
-          : `已修复 ${out.applied} 处（改动 ${out.changedFiles} 个文件）。原文件备份在 ${out.backupDir}。`;
-      const extra =
-        out.skipped > 0
-          ? `另有 ${out.skipped} 处与已修问题同行，需重新体检后再修（同一行一次只修一种）。`
-          : '';
-      setFixMsg(`${tip}${extra}`);
-    } finally {
-      setFixing(false);
+  // ---- 树：文件 → 行 → 问题 ----
+  const tree = useMemo(() => {
+    if (!result) return [];
+    const byPath = new Map<string, Map<number, Issue[]>>();
+    for (const issue of result.issues) {
+      if (ignored[lineKey(issue.path, issue.line)]) continue;
+      let byLine = byPath.get(issue.path);
+      if (!byLine) {
+        byLine = new Map();
+        byPath.set(issue.path, byLine);
+      }
+      const list = byLine.get(issue.line) ?? [];
+      list.push(issue);
+      byLine.set(issue.line, list);
     }
-    await scan(); // 修复后重扫，报告实时收敛
-  };
-
-  const fixOne = async (issue: Issue) => {
-    setFixing(true);
-    try {
-      const out = await applyFixes([issue]);
-      setFixMsg(`已修复 ${out.applied} 处。`);
-    } finally {
-      setFixing(false);
-    }
-    await scan();
-  };
+    return [...byPath.entries()]
+      .map(([path, byLine]) => ({
+        path,
+        lines: [...byLine.entries()]
+          .sort((a, b) => a[0] - b[0])
+          .map(([line, issues]) => ({
+            line,
+            issues: issues.sort(
+              (a, b) =>
+                SEVERITY_ORDER[ruleById[a.ruleId]?.severity ?? 'info'] -
+                  SEVERITY_ORDER[ruleById[b.ruleId]?.severity ?? 'info'] ||
+                a.ruleId.localeCompare(b.ruleId),
+            ),
+          })),
+      }))
+      .sort((a, b) => a.path.localeCompare(b.path));
+  }, [result, ignored]);
 
   const stats = result
     ? {
-        total: visibleIssues.length,
-        fixable: visibleIssues.filter((i) => i.fixedLine).length,
+        files: tree.length,
+        lines: tree.reduce((n, f) => n + f.lines.length, 0),
+        issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
+        fixableLines: tree.reduce(
+          (n, f) => n + f.lines.filter((l) => l.issues.some((i) => i.fixedLine)).length,
+          0,
+        ),
       }
     : null;
+
+  const shortName = (path: string) => path.split('/').pop() ?? path;
 
   return (
     <>
@@ -107,81 +149,142 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
           ✕
         </button>
       </div>
-      <div className="dialog-content-container audit-content">
-        {scanning && (
-          <div className="audit-scanning">
-            {progress ? `扫描中… ${progress.done}/${progress.total}` : '准备中…'}
-          </div>
-        )}
 
-        {!scanning && result && (
+      <div className="dialog-content-container audit-content">
+        {busy && <div className="audit-busy">{progress ? `扫描中… ${progress.done}/${progress.total}` : '处理中…'}</div>}
+
+        {!busy && result && (
           <>
             <div className="audit-toolbar">
               <span className="audit-stats">
-                共扫描 {result.scannedFiles} 个日记文件 · {stats?.total} 个问题
-                {stats && stats.fixable > 0 ? `（可自动修复 ${stats.fixable} 个）` : ''}
+                有问题文件 {stats?.files} · memo {stats?.lines} 条 · 问题 {stats?.issues} 个
+                {stats && stats.fixableLines > 0 ? `（可修 ${stats.fixableLines} 条）` : ''}
               </span>
               <button className="btn refresh-btn" onClick={scan}>
                 重新体检
               </button>
-              {stats && stats.fixable > 0 && (
-                <button className="btn fix-all-btn" onClick={fixAll} disabled={fixing}>
-                  一键修复全部（{stats.fixable}）
+              {stats && stats.fixableLines > 0 && (
+                <button className="btn fix-all-btn" onClick={fixAll} disabled={busy}>
+                  一键修复全部（{stats.fixableLines} 条）
                 </button>
               )}
             </div>
-            {fixMsg && <div className="audit-fix-msg">{fixMsg}</div>}
+            {msg && <div className="audit-msg">{msg}</div>}
 
-            {visibleIssues.length === 0 ? (
+            {tree.length === 0 ? (
               <div className="audit-empty">没发现问题 🎉</div>
             ) : (
-              <div className="audit-rule-list">
-                {rules
-                  .filter((r) => result.byRule[r.id]?.some((i) => !ignored[ignoredKey(i)]))
-                  .map((rule) => {
-                    const ruleIssues = result.byRule[rule.id].filter((i) => !ignored[ignoredKey(i)]);
-                    return (
-                      <section className="audit-rule" key={rule.id}>
-                        <header className="audit-rule-header">
-                          <span className={`severity severity-${rule.severity}`}>{rule.name}</span>
-                          <span className="audit-rule-count">{ruleIssues.length}</span>
-                        </header>
-                        <p className="audit-rule-why">{rule.why}</p>
-                        <ul className="audit-issue-list">
-                          {ruleIssues.map((issue) => (
-                            <li className="audit-issue" key={ignoredKey(issue)}>
-                              <div className="audit-issue-meta">
-                                <span className="audit-file">{issue.path}</span>
-                                <span className="audit-line">L{issue.line}</span>
-                                {issue.note && <span className="audit-note">{issue.note}</span>}
-                              </div>
-                              <pre className="audit-code audit-code-raw">{issue.raw}</pre>
-                              {issue.fixedLine && (
-                                <>
-                                  <div className="audit-arrow">↓ 修复为</div>
-                                  <pre className="audit-code audit-code-fixed">{issue.fixedLine}</pre>
-                                </>
-                              )}
-                              <div className="audit-issue-actions">
-                                {issue.fixedLine && (
+              <div className="audit-file-list">
+                {tree.map((file) => {
+                  const collapsed = !!collapsedFiles[file.path];
+                  const errCount = file.lines.reduce(
+                    (n, l) => n + l.issues.filter((i) => ruleById[i.ruleId]?.severity === 'error').length,
+                    0,
+                  );
+                  return (
+                    <section className="audit-file" key={file.path}>
+                      <header
+                        className="audit-file-header"
+                        onClick={() =>
+                          setCollapsedFiles({ ...collapsedFiles, [file.path]: !collapsed })
+                        }
+                      >
+                        <span className="chevron">{collapsed ? '▸' : '▾'}</span>
+                        <span className="audit-file-name" title={file.path}>
+                          {shortName(file.path)}
+                        </span>
+                        {errCount > 0 && <span className="audit-file-err">{errCount} 处错误</span>}
+                        <span className="audit-file-count">{file.lines.length} 条 memo</span>
+                      </header>
+
+                      {!collapsed && (
+                        <div className="audit-line-list">
+                          {file.lines.map(({ line, issues }) => {
+                            const exKey = lineKey(file.path, line);
+                            const expanded = !!expandedLines[exKey];
+                            const fixable = issues.some((i) => i.fixedLine);
+                            const raw = issues[0].raw;
+                            const fixed = issues.find((i) => i.fixedLine)?.fixedLine;
+                            return (
+                              <div className="audit-line" key={exKey}>
+                                <div className="audit-line-head">
                                   <button
-                                    className="btn fix-one-btn"
-                                    onClick={() => fixOne(issue)}
-                                    disabled={fixing}
+                                    className="btn expand-btn"
+                                    onClick={() =>
+                                      setExpandedLines({ ...expandedLines, [exKey]: !expanded })
+                                    }
+                                    title={expanded ? '收起' : '展开原文'}
                                   >
-                                    修复这一条
+                                    <span className="chevron">{expanded ? '▾' : '▸'}</span>
                                   </button>
+                                  <span className="audit-line-no">L{line}</span>
+                                  <div
+                                    className="audit-line-preview"
+                                    onClick={() =>
+                                      setExpandedLines({ ...expandedLines, [exKey]: !expanded })
+                                    }
+                                    title="点击展开/收起"
+                                  >
+                                    {raw}
+                                  </div>
+                                </div>
+
+                                <div className="audit-line-badges">
+                                  {issues.map((issue) => {
+                                    const rule = ruleById[issue.ruleId];
+                                    return (
+                                      <span
+                                        key={issue.ruleId}
+                                        className={`badge badge-${rule?.severity ?? 'info'}`}
+                                        title={rule?.why}
+                                      >
+                                        {rule?.name ?? issue.ruleId}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+
+                                {expanded && (
+                                  <div className="audit-line-detail">
+                                    <pre className="audit-code audit-code-raw">{raw}</pre>
+                                    {issues
+                                      .filter((i) => i.fixedLine && i.fixedLine !== raw)
+                                      .map((i) => (
+                                        <div key={`fix-${i.ruleId}`}>
+                                          <div className="audit-fix-label">
+                                            「{ruleById[i.ruleId]?.name ?? i.ruleId}」修复为：
+                                          </div>
+                                          <pre className="audit-code audit-code-fixed">{i.fixedLine}</pre>
+                                        </div>
+                                      ))}
+                                  </div>
                                 )}
-                                <button className="btn ignore-btn" onClick={() => toggleIgnore(issue)}>
-                                  忽略
-                                </button>
+
+                                <div className="audit-line-actions">
+                                  {fixable && (
+                                    <button
+                                      className="btn fix-one-btn"
+                                      onClick={() => fixOneLine(file.path, line)}
+                                      disabled={busy}
+                                    >
+                                      修复这条 memo
+                                    </button>
+                                  )}
+                                  <button
+                                    className="btn ignore-btn"
+                                    onClick={() => toggleIgnore(file.path, line)}
+                                  >
+                                    忽略
+                                  </button>
+                                </div>
                               </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
-                    );
-                  })}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
               </div>
             )}
           </>
