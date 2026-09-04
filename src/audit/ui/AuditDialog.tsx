@@ -1,12 +1,14 @@
-// 数据体检报告弹窗 v2：以"文件 → memo 行"分组（用户修复的对象是 memo，不是单个问题）。
-// - 文件卡片可折叠；行内容默认单行缩略，点击展开看原文与修复预览
-// - 修复粒度为行：该行所有可修问题循环修复到干净（备份在 .rememo-backup/audit-<ts>/）
-// - 忽略粒度也是行；修复/忽略状态本地持久化
+// 数据体检报告弹窗 v2.1：文件 → memo 行分组，新日期文件在上。
+// - 行内容只做单行缩略（hover 可看全文），要看具体内容点「查看」跳到日记文件对应行
+// - 修复粒度为行：该行所有可修问题循环修复到干净（备份 .rememo-backup/audit-<ts>/）
+// - 忽略粒度为行；状态本地持久化
 import React, { useEffect, useMemo, useState } from 'react';
+import { TFile } from 'obsidian';
 import { applyFixes, runAudit } from '../engine';
 import { ruleById } from '../rules';
 import { AuditResult, Issue, RuleSeverity } from '../types';
 import { storage } from '../../helpers/storage';
+import appStore from '../../stores/appStore';
 import { showDialog } from '../../components/Dialog';
 import '../../less/audit-dialog.less';
 
@@ -25,11 +27,10 @@ const SEVERITY_ORDER: Record<RuleSeverity, number> = { error: 0, warning: 1, inf
 
 const AuditDialog: React.FC<Props> = ({ destroy }) => {
   const [result, setResult] = useState<AuditResult | null>(null);
-  const [busy, setBusy] = useState(false); // 扫描或修复中
+  const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [ignored, setIgnored] = useState<IgnoredMap>(loadIgnored);
+  const [ignored, setIgnored] = useState<IgnoredMap>(loadIgnored());
   const [collapsedFiles, setCollapsedFiles] = useState<Record<string, boolean>>({});
-  const [expandedLines, setExpandedLines] = useState<Record<string, boolean>>({});
   const [msg, setMsg] = useState('');
 
   const scan = async () => {
@@ -50,7 +51,7 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
     scan();
   }, []);
 
-  // ---- 修复：目标过滤 → 循环跑"扫描+应用"直到该行/全部无剩余可修 ----
+  // ---- 修复：循环"扫描+应用"直到目标行/全部无可修 ----
   const runFixLoop = async (pred: (i: Issue) => boolean, scopeLabel: string) => {
     setBusy(true);
     setMsg('');
@@ -59,15 +60,23 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
       for (let round = 0; round < 6; round++) {
         const res = await runAudit();
         setResult(res);
-        const targets = res.issues.filter((i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)]);
+        const targets = res.issues.filter(
+          (i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)],
+        );
         if (targets.length === 0) {
-          setMsg(appliedTotal > 0 ? `${scopeLabel}：已修复 ${appliedTotal} 处 ✅` : `${scopeLabel}：没有可自动修复的问题`);
+          setMsg(
+            appliedTotal > 0
+              ? `${scopeLabel}：已修复 ${appliedTotal} 处 ✅`
+              : `${scopeLabel}：没有可自动修复的问题`,
+          );
           return;
         }
         const out = await applyFixes(targets);
         appliedTotal += out.applied;
         if (out.applied === 0) {
-          setMsg(`${scopeLabel}：无法继续自动修复（剩余问题需人工/迁移），已修 ${appliedTotal} 处`);
+          setMsg(
+            `${scopeLabel}：无法继续自动修复（剩余问题需人工/迁移），已修 ${appliedTotal} 处`,
+          );
           return;
         }
       }
@@ -92,7 +101,16 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
     saveIgnored(next);
   };
 
-  // ---- 树：文件 → 行 → 问题 ----
+  const openFile = async (path: string, line: number) => {
+    const app = appStore.getState().dailyNotesState.app;
+    const file = app.vault.getAbstractFileByPath(path);
+    if (file instanceof TFile) {
+      const leaf = app.workspace.getLeaf(false);
+      await leaf.openFile(file, { active: true, eState: { line: Math.max(line - 1, 0) } });
+    }
+  };
+
+  // ---- 树：文件 → 行（新日期文件在上：路径字典序倒排）----
   const tree = useMemo(() => {
     if (!result) return [];
     const byPath = new Map<string, Map<number, Issue[]>>();
@@ -122,7 +140,7 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
             ),
           })),
       }))
-      .sort((a, b) => a.path.localeCompare(b.path));
+      .sort((a, b) => b.path.localeCompare(a.path)); // 新日期文件在上
   }, [result, ignored]);
 
   const stats = result
@@ -151,7 +169,11 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
       </div>
 
       <div className="dialog-content-container audit-content">
-        {busy && <div className="audit-busy">{progress ? `扫描中… ${progress.done}/${progress.total}` : '处理中…'}</div>}
+        {busy && (
+          <div className="audit-busy">
+            {progress ? `扫描中… ${progress.done}/${progress.total}` : '处理中…'}
+          </div>
+        )}
 
         {!busy && result && (
           <>
@@ -178,7 +200,9 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
                 {tree.map((file) => {
                   const collapsed = !!collapsedFiles[file.path];
                   const errCount = file.lines.reduce(
-                    (n, l) => n + l.issues.filter((i) => ruleById[i.ruleId]?.severity === 'error').length,
+                    (n, l) =>
+                      n +
+                      l.issues.filter((i) => ruleById[i.ruleId]?.severity === 'error').length,
                     0,
                   );
                   return (
@@ -193,42 +217,26 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
                         <span className="audit-file-name" title={file.path}>
                           {shortName(file.path)}
                         </span>
-                        {errCount > 0 && <span className="audit-file-err">{errCount} 处错误</span>}
+                        {errCount > 0 && (
+                          <span className="audit-file-err">{errCount} 处错误</span>
+                        )}
                         <span className="audit-file-count">{file.lines.length} 条 memo</span>
                       </header>
 
                       {!collapsed && (
                         <div className="audit-line-list">
                           {file.lines.map(({ line, issues }) => {
-                            const exKey = lineKey(file.path, line);
-                            const expanded = !!expandedLines[exKey];
+                            const key = lineKey(file.path, line);
                             const fixable = issues.some((i) => i.fixedLine);
                             const raw = issues[0].raw;
-                            const fixed = issues.find((i) => i.fixedLine)?.fixedLine;
                             return (
-                              <div className="audit-line" key={exKey}>
+                              <div className="audit-line" key={key}>
                                 <div className="audit-line-head">
-                                  <button
-                                    className="btn expand-btn"
-                                    onClick={() =>
-                                      setExpandedLines({ ...expandedLines, [exKey]: !expanded })
-                                    }
-                                    title={expanded ? '收起' : '展开原文'}
-                                  >
-                                    <span className="chevron">{expanded ? '▾' : '▸'}</span>
-                                  </button>
                                   <span className="audit-line-no">L{line}</span>
-                                  <div
-                                    className="audit-line-preview"
-                                    onClick={() =>
-                                      setExpandedLines({ ...expandedLines, [exKey]: !expanded })
-                                    }
-                                    title="点击展开/收起"
-                                  >
+                                  <span className="audit-line-preview" title={raw}>
                                     {raw}
-                                  </div>
+                                  </span>
                                 </div>
-
                                 <div className="audit-line-badges">
                                   {issues.map((issue) => {
                                     const rule = ruleById[issue.ruleId];
@@ -243,23 +251,6 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
                                     );
                                   })}
                                 </div>
-
-                                {expanded && (
-                                  <div className="audit-line-detail">
-                                    <pre className="audit-code audit-code-raw">{raw}</pre>
-                                    {issues
-                                      .filter((i) => i.fixedLine && i.fixedLine !== raw)
-                                      .map((i) => (
-                                        <div key={`fix-${i.ruleId}`}>
-                                          <div className="audit-fix-label">
-                                            「{ruleById[i.ruleId]?.name ?? i.ruleId}」修复为：
-                                          </div>
-                                          <pre className="audit-code audit-code-fixed">{i.fixedLine}</pre>
-                                        </div>
-                                      ))}
-                                  </div>
-                                )}
-
                                 <div className="audit-line-actions">
                                   {fixable && (
                                     <button
@@ -267,9 +258,15 @@ const AuditDialog: React.FC<Props> = ({ destroy }) => {
                                       onClick={() => fixOneLine(file.path, line)}
                                       disabled={busy}
                                     >
-                                      修复这条 memo
+                                      修复这条
                                     </button>
                                   )}
+                                  <button
+                                    className="btn view-btn"
+                                    onClick={() => openFile(file.path, line)}
+                                  >
+                                    查看
+                                  </button>
                                   <button
                                     className="btn ignore-btn"
                                     onClick={() => toggleIgnore(file.path, line)}

@@ -732,7 +732,6 @@ div[data-type='memos_view'] svg.action-btn,
   font-size: 14px;
 }
 .dialog-wrapper.audit-dialog .chevron {
-  display: inline-block;
   font-size: 11px;
   color: var(--memo-text-faint);
   flex-shrink: 0;
@@ -824,6 +823,7 @@ div[data-type='memos_view'] svg.action-btn,
   border-radius: 8px;
   color: var(--memo-danger);
   background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
+  flex-shrink: 0;
 }
 .dialog-wrapper.audit-dialog .audit-file-header .audit-file-count {
   margin-left: auto;
@@ -847,21 +847,7 @@ div[data-type='memos_view'] svg.action-btn,
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  gap: 6px;
-}
-.dialog-wrapper.audit-dialog .audit-line-head .expand-btn {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border-radius: var(--memo-radius-s);
-  background-color: transparent;
-}
-.dialog-wrapper.audit-dialog .audit-line-head .expand-btn:hover {
-  background-color: var(--memo-surface-hover);
+  gap: 8px;
 }
 .dialog-wrapper.audit-dialog .audit-line-head .audit-line-no {
   flex-shrink: 0;
@@ -875,7 +861,7 @@ div[data-type='memos_view'] svg.action-btn,
   font-size: 13px;
   line-height: 1.5;
   color: var(--memo-text);
-  cursor: pointer;
+  cursor: default;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -909,35 +895,6 @@ div[data-type='memos_view'] svg.action-btn,
   color: var(--memo-text-muted);
   background-color: var(--memo-surface-hover);
 }
-.dialog-wrapper.audit-dialog .audit-line-detail {
-  margin-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.dialog-wrapper.audit-dialog .audit-code {
-  margin: 0;
-  padding: 4px 8px;
-  font-size: 12px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-all;
-  border-radius: var(--memo-radius-s);
-  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
-}
-.dialog-wrapper.audit-dialog .audit-code-raw {
-  color: var(--memo-text);
-  background-color: var(--memo-surface-hover);
-}
-.dialog-wrapper.audit-dialog .audit-fix-label {
-  font-size: 11px;
-  color: var(--memo-text-faint);
-  margin-top: 2px;
-}
-.dialog-wrapper.audit-dialog .audit-code-fixed {
-  color: var(--memo-text);
-  background-color: color-mix(in srgb, var(--memo-accent) 8%, var(--memo-surface-hover));
-}
 .dialog-wrapper.audit-dialog .audit-line-actions {
   display: flex;
   flex-direction: row;
@@ -969,6 +926,7 @@ div[data-type='memos_view'] svg.action-btn,
 .dialog-wrapper.audit-dialog .audit-line-actions .fix-one-btn:hover {
   background-color: var(--memo-accent-hover);
 }
+.dialog-wrapper.audit-dialog .audit-line-actions .view-btn,
 .dialog-wrapper.audit-dialog .audit-line-actions .ignore-btn {
   color: var(--memo-text-muted);
 }

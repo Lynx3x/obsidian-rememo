@@ -1,7 +1,7 @@
 @import './mixin.less';
 
-// 数据体检报告弹窗 v2：文件 → memo 行分组（注意：行结构全部用 div，勿用 li——
-// theme.less 会给 li::before 注入 '•'，会把内容挤成"孤立圆点行"）
+// 数据体检报告弹窗 v2.1：文件 → memo 行分组
+// 注意：行结构全部用 div，勿用 li——theme.less 会给 li::before 注入 '•'，flex 下变成孤立圆点行
 .dialog-wrapper.audit-dialog {
   > .dialog-container {
     width: 760px;
@@ -49,7 +49,6 @@
   }
 
   .chevron {
-    display: inline-block;
     font-size: 11px;
     color: var(--memo-text-faint);
     flex-shrink: 0;
@@ -150,6 +149,7 @@
       border-radius: 8px;
       color: var(--memo-danger);
       background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
+      flex-shrink: 0;
     }
 
     .audit-file-count {
@@ -177,20 +177,7 @@
 
   .audit-line-head {
     .flex(row, flex-start, center);
-    gap: 6px;
-
-    .expand-btn {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      .flex(row, center, center);
-      border-radius: var(--memo-radius-s);
-      background-color: transparent;
-
-      &:hover {
-        background-color: var(--memo-surface-hover);
-      }
-    }
+    gap: 8px;
 
     .audit-line-no {
       flex-shrink: 0;
@@ -205,7 +192,7 @@
       font-size: 13px;
       line-height: 1.5;
       color: var(--memo-text);
-      cursor: pointer;
+      cursor: default;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -243,41 +230,6 @@
     }
   }
 
-  // ---- 展开详情 ----
-  .audit-line-detail {
-    margin-top: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .audit-code {
-    margin: 0;
-    padding: 4px 8px;
-    font-size: 12px;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-break: break-all;
-    border-radius: var(--memo-radius-s);
-    .mono-font-family();
-  }
-
-  .audit-code-raw {
-    color: var(--memo-text);
-    background-color: var(--memo-surface-hover);
-  }
-
-  .audit-fix-label {
-    font-size: 11px;
-    color: var(--memo-text-faint);
-    margin-top: 2px;
-  }
-
-  .audit-code-fixed {
-    color: var(--memo-text);
-    background-color: color-mix(in srgb, var(--memo-accent) 8%, var(--memo-surface-hover));
-  }
-
   // ---- 行操作 ----
   .audit-line-actions {
     .flex(row, flex-start, center);
@@ -312,6 +264,7 @@
       }
     }
 
+    .view-btn,
     .ignore-btn {
       color: var(--memo-text-muted);
     }

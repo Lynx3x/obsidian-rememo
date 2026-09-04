@@ -11030,9 +11030,8 @@ const AuditDialog = ({
   const [result, setResult] = react.exports.useState(null);
   const [busy, setBusy] = react.exports.useState(false);
   const [progress, setProgress] = react.exports.useState(null);
-  const [ignored, setIgnored] = react.exports.useState(loadIgnored);
+  const [ignored, setIgnored] = react.exports.useState(loadIgnored());
   const [collapsedFiles, setCollapsedFiles] = react.exports.useState({});
-  const [expandedLines, setExpandedLines] = react.exports.useState({});
   const [msg, setMsg] = react.exports.useState("");
   const scan = async () => {
     var _a;
@@ -11094,6 +11093,19 @@ const AuditDialog = ({
     setIgnored(next);
     saveIgnored(next);
   };
+  const openFile = async (path, line) => {
+    const app2 = appStore.getState().dailyNotesState.app;
+    const file = app2.vault.getAbstractFileByPath(path);
+    if (file instanceof require$$0.TFile) {
+      const leaf = app2.workspace.getLeaf(false);
+      await leaf.openFile(file, {
+        active: true,
+        eState: {
+          line: Math.max(line - 1, 0)
+        }
+      });
+    }
+  };
   const tree = react.exports.useMemo(() => {
     var _a;
     if (!result)
@@ -11120,7 +11132,7 @@ const AuditDialog = ({
           return SEVERITY_ORDER[(_b = (_a2 = ruleById[a.ruleId]) == null ? void 0 : _a2.severity) != null ? _b : "info"] - SEVERITY_ORDER[(_d = (_c = ruleById[b.ruleId]) == null ? void 0 : _c.severity) != null ? _d : "info"] || a.ruleId.localeCompare(b.ruleId);
         })
       }))
-    })).sort((a, b) => a.path.localeCompare(b.path));
+    })).sort((a, b) => b.path.localeCompare(a.path));
   }, [result, ignored]);
   const stats = result ? {
     files: tree.length,
@@ -11209,81 +11221,50 @@ const AuditDialog = ({
                   line,
                   issues
                 }) => {
-                  var _a;
-                  const exKey = lineKey(file.path, line);
-                  const expanded = !!expandedLines[exKey];
+                  const key = lineKey(file.path, line);
                   const fixable = issues.some((i) => i.fixedLine);
                   const raw = issues[0].raw;
-                  (_a = issues.find((i) => i.fixedLine)) == null ? void 0 : _a.fixedLine;
                   return /* @__PURE__ */ jsxs("div", {
                     className: "audit-line",
                     children: [/* @__PURE__ */ jsxs("div", {
                       className: "audit-line-head",
-                      children: [/* @__PURE__ */ jsx("button", {
-                        className: "btn expand-btn",
-                        onClick: () => setExpandedLines({
-                          ...expandedLines,
-                          [exKey]: !expanded
-                        }),
-                        title: expanded ? "\u6536\u8D77" : "\u5C55\u5F00\u539F\u6587",
-                        children: /* @__PURE__ */ jsx("span", {
-                          className: "chevron",
-                          children: expanded ? "\u25BE" : "\u25B8"
-                        })
-                      }), /* @__PURE__ */ jsxs("span", {
+                      children: [/* @__PURE__ */ jsxs("span", {
                         className: "audit-line-no",
                         children: ["L", line]
-                      }), /* @__PURE__ */ jsx("div", {
+                      }), /* @__PURE__ */ jsx("span", {
                         className: "audit-line-preview",
-                        onClick: () => setExpandedLines({
-                          ...expandedLines,
-                          [exKey]: !expanded
-                        }),
-                        title: "\u70B9\u51FB\u5C55\u5F00/\u6536\u8D77",
+                        title: raw,
                         children: raw
                       })]
                     }), /* @__PURE__ */ jsx("div", {
                       className: "audit-line-badges",
                       children: issues.map((issue) => {
-                        var _a2, _b;
+                        var _a, _b;
                         const rule = ruleById[issue.ruleId];
                         return /* @__PURE__ */ jsx("span", {
-                          className: `badge badge-${(_a2 = rule == null ? void 0 : rule.severity) != null ? _a2 : "info"}`,
+                          className: `badge badge-${(_a = rule == null ? void 0 : rule.severity) != null ? _a : "info"}`,
                           title: rule == null ? void 0 : rule.why,
                           children: (_b = rule == null ? void 0 : rule.name) != null ? _b : issue.ruleId
                         }, issue.ruleId);
                       })
-                    }), expanded && /* @__PURE__ */ jsxs("div", {
-                      className: "audit-line-detail",
-                      children: [/* @__PURE__ */ jsx("pre", {
-                        className: "audit-code audit-code-raw",
-                        children: raw
-                      }), issues.filter((i) => i.fixedLine && i.fixedLine !== raw).map((i) => {
-                        var _a2, _b;
-                        return /* @__PURE__ */ jsxs("div", {
-                          children: [/* @__PURE__ */ jsxs("div", {
-                            className: "audit-fix-label",
-                            children: ["\u300C", (_b = (_a2 = ruleById[i.ruleId]) == null ? void 0 : _a2.name) != null ? _b : i.ruleId, "\u300D\u4FEE\u590D\u4E3A\uFF1A"]
-                          }), /* @__PURE__ */ jsx("pre", {
-                            className: "audit-code audit-code-fixed",
-                            children: i.fixedLine
-                          })]
-                        }, `fix-${i.ruleId}`);
-                      })]
                     }), /* @__PURE__ */ jsxs("div", {
                       className: "audit-line-actions",
                       children: [fixable && /* @__PURE__ */ jsx("button", {
                         className: "btn fix-one-btn",
                         onClick: () => fixOneLine(file.path, line),
                         disabled: busy,
-                        children: "\u4FEE\u590D\u8FD9\u6761 memo"
+                        children: "\u4FEE\u590D\u8FD9\u6761"
+                      }), /* @__PURE__ */ jsx("button", {
+                        className: "btn view-btn",
+                        onClick: () => openFile(file.path, line),
+                        children: "\u67E5\u770B"
                       }), /* @__PURE__ */ jsx("button", {
                         className: "btn ignore-btn",
                         onClick: () => toggleIgnore(file.path, line),
                         children: "\u5FFD\u7565"
                       })]
                     })]
-                  }, exKey);
+                  }, key);
                 })
               })]
             }, file.path);
