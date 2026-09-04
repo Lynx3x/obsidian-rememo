@@ -1,6 +1,20 @@
 @import './mixin.less';
 
 // 数据体检整页（路由 /audit）。列表结构一律用 div（勿用 li——theme 会给 li::before 注入 •）。
+
+
+// 主操作按钮（accent 文字 + 淡底 + 描边，不依赖 accent 底上的白字）
+.btn-accent() {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+  background-image: none;
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+
+  &:hover {
+    color: var(--memo-accent);
+    background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
+  }
+}
 .audit-page-wrapper {
   width: 100%;
   height: 100%;
@@ -133,13 +147,7 @@
   }
 
   .fix-all-btn {
-    background-color: var(--memo-accent);
-    background-image: none;
-    color: var(--memo-on-accent);
-
-    &:hover {
-      background-color: var(--memo-accent-hover);
-    }
+    .btn-accent();
   }
 }
 
@@ -340,17 +348,8 @@
     }
   }
 
-  // 行内主操作：accent 文字 + 淡底 + 描边（不依赖 accent 底上的白字——主题一变就不可读）
   .fix-one-btn {
-    color: var(--memo-accent);
-    background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
-    background-image: none;
-    border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
-
-    &:hover {
-      color: var(--memo-accent);
-      background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
-    }
+    .btn-accent();
   }
 
   .view-btn,

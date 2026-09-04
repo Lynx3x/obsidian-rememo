@@ -7072,12 +7072,14 @@ div[data-type='memos_view'].mobile-view .memo-trash-wrapper > .section-header-co
   cursor: not-allowed;
 }
 .audit-toolbar .fix-all-btn {
-  background-color: var(--memo-accent);
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
   background-image: none;
-  color: var(--memo-on-accent);
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
 }
 .audit-toolbar .fix-all-btn:hover {
-  background-color: var(--memo-accent-hover);
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
 }
 .audit-busy,
 .audit-empty {
