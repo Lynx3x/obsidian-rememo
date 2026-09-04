@@ -6,9 +6,13 @@
 // 策略：调色板交给 Obsidian 主题变量（随用户主题 / accent 自动变），
 // 这里只定义"语义别名 + 骨架(圆角/阴影/动效)"，一次定义全局生效。
 // 所有主屏组件直接消费 var(--memo-*)；若 Obsidian 变量缺失给 fallback。
+//
+// 作用域：主视图 div[data-type='memos_view']，以及插件自绘弹窗根
+// .dialog-wrapper（showDialog portal 到 body，不在视图内，需各自补 token）。
 // ============================================================================
 
-div[data-type='memos_view'] {
+// token + 通用元素规则。两个根作用域都吃同一份，保持主屏/弹窗观感一致。
+.memo-theme-root() {
   // ---- 颜色（Obsidian 主题变量）----
   --memo-bg: var(--background-primary); // 卡片/编辑器底
   --memo-canvas: var(--background-secondary); // 列表画布（衬托卡片，视效果启用）
@@ -33,6 +37,10 @@ div[data-type='memos_view'] {
   --memo-shadow-card-hover: 0 3px 10px rgba(0, 0, 0, 0.07);
   --memo-shadow-s: var(--shadow-s, 0 1px 3px rgba(0, 0, 0, 0.12));
   --memo-shadow-l: var(--shadow-l, 0 8px 24px rgba(0, 0, 0, 0.12));
+  // 全屏遮罩（弹窗 showup 背板）
+  --memo-overlay: var(--background-modifier-cover, rgba(0, 0, 0, 0.5));
+
+  // 热力色阶兜底（主题分支见文件末尾：浅=暗绿、深=亮绿，都是 GitHub 式绿阶）
 
   // ---- 动效节奏 ----
   --memo-transition-fast: 120ms ease;
@@ -102,14 +110,44 @@ div[data-type='memos_view'] {
   }
 }
 
+// token 作用域：主视图 + 插件 portal 到 body 的弹窗/浮层根
+div[data-type='memos_view'],
+.dialog-wrapper {
+  .memo-theme-root();
+}
+
+// 热力色阶：统一绿（owner 拍板 2026-09-04）——浅色深绿档，深色用 GitHub 亮绿档保证可见。
+// 值只在这里按主题各给一套，组件一律只消费 var(--memo-heat-N) 一份。
+.theme-light {
+  div[data-type='memos_view'],
+  .dialog-wrapper {
+    --memo-heat-1: #9be9a8;
+    --memo-heat-2: #40c463;
+    --memo-heat-3: #30a14e;
+    --memo-heat-4: #216e39;
+  }
+}
+
+.theme-dark {
+  div[data-type='memos_view'],
+  .dialog-wrapper {
+    --memo-heat-1: #0e4429;
+    --memo-heat-2: #006d32;
+    --memo-heat-3: #26a641;
+    --memo-heat-4: #39d353;
+  }
+}
+
 // 图标基色：未特化的 svg 统一 muted（浅深一致，:where 特异性为 0，任何组件规则都能覆盖）
-:where(div[data-type='memos_view'] svg) {
+:where(div[data-type='memos_view'] svg, .dialog-wrapper svg) {
   fill: var(--memo-text-muted);
 }
 
 // 带 icon 类名者取父级 color（供组件以 color/fill 着色强调）
 div[data-type='memos_view'] svg.icon-img,
-div[data-type='memos_view'] svg.action-btn {
+div[data-type='memos_view'] svg.action-btn,
+.dialog-wrapper svg.icon-img,
+.dialog-wrapper svg.action-btn {
   fill: currentColor;
 }
 
@@ -173,11 +211,14 @@ div[data-type='memos_view'] svg.action-btn {
   }
 }
 
-// 尊重系统"减弱动态效果"
+// 尊重系统"减弱动态效果"（覆盖主视图 + 弹窗）
 @media (prefers-reduced-motion: reduce) {
   div[data-type='memos_view'] *,
   div[data-type='memos_view'] *::before,
-  div[data-type='memos_view'] *::after {
+  div[data-type='memos_view'] *::after,
+  .dialog-wrapper *,
+  .dialog-wrapper *::before,
+  .dialog-wrapper *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

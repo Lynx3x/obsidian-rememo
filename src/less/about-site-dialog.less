@@ -1,6 +1,6 @@
 @import './mixin.less';
 
-.about-site-dialog {
+.dialog-wrapper.about-site-dialog {
   > .dialog-container {
     width: 420px;
 
@@ -15,14 +15,14 @@
         margin: 4px 0;
         width: 100%;
         height: 1px;
-        background-color: lightgray;
+        background-color: var(--memo-border);
         border: none;
       }
 
       .normal-text {
         .flex(row, flex-start, center);
         font-size: 13px;
-        color: gray;
+        color: var(--memo-text-muted);
         white-space: pre-wrap;
         .mono-font-family();
       }

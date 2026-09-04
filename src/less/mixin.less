@@ -1,39 +1,4 @@
-@text-black: #37352f;
-@text-gray: #52504b;
-@text-lightgray: #cac8c4;
-@text-blue: #5783f7;
-@text-unresolved-blue: #8fa2d6;
-@text-green: #55bb8e;
-@text-red: #d28653;
-
-@text-dark-black: #d2d1cd;
-@text-dark-gray: #c7c4bb;
-@text-dark-lightgray: #5e5b56;
-@text-dark-blue: #bbbec7;
-@text-dark-unresolved-blue: #8c92a1;
-@text-dark-green: #457560;
-@text-dark-red: #940b01;
-@text-dark-light-red: #d24c42;
-
-@bg-black: #2f3437;
-@bg-gray: #e4e4e4;
-@bg-whitegray: #f8f8f8;
-@bg-Searchbar-lightgray: #fcfcfc;
-@bg-lightgray: #eaeaea;
-@bg-blue: #1337a3;
-@bg-yellow: yellow;
-@bg-light-blue: #eef3fe;
-@bg-paper-yellow: #fbf4de;
-
-@bg-dark-black: #cacdcf;
-@bg-dark-gray: #353535;
-@bg-dark-whitegray: #808080;
-@bg-dark-lightgray: #727171;
-@bg-dark-Search-lightgray: #302e2e;
-@bg-dark-blue: #2c395a;
-@bg-dark-yellow: rgb(119, 119, 119);
-@bg-dark-light-blue: #616161;
-@bg-dark-paper-yellow: #5f5f5f;
+// 旧 @text-*/@bg-* 浅深变量已全部随 token 化移除（无消费者）；如需语义色见 theme.less 的 --memo-*。
 
 .mono-font-family {
   font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
@@ -60,10 +25,10 @@
     width: @width;
     height: @height;
     border-radius: 8px;
-    background-color: #d5d5d5;
+    background-color: var(--memo-border, #d5d5d5);
 
     &:hover {
-      background-color: #ccc;
+      background-color: var(--memo-border-strong, #ccc);
     }
   }
 }

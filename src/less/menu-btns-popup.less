@@ -1,16 +1,20 @@
 @import './mixin.less';
 
-.theme-light div[data-type='memos_view'] .menu-btns-popup {
+// 用户名旁的三点菜单弹层
+div[data-type='memos_view'] .menu-btns-popup {
   .flex(column, flex-start, flex-start);
   position: absolute;
   margin-top: 4px;
   margin-left: 90px;
   padding: 4px;
   width: 180px;
-  border-radius: 8px;
-  z-index: 20;
-  box-shadow: 0 0 8px 0 rgb(0 0 0 / 20%);
-  background-color: white;
+  border-radius: var(--memo-radius-m);
+  z-index: 50;
+  box-shadow: var(--memo-shadow-s);
+  background-color: var(--memo-bg);
+  border: 1px solid var(--memo-border);
+  transform-origin: top right;
+  animation: memo-pop-in 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   &:hover {
     display: flex;
@@ -22,8 +26,9 @@
     padding: 8px 4px;
     font-size: 14px;
     line-height: 1.6;
-    border-radius: 4px;
+    border-radius: var(--memo-radius-s);
     text-align: left;
+    transition: background-color var(--memo-transition-fast);
 
     > .icon {
       display: block;
@@ -34,70 +39,11 @@
     }
 
     &:hover {
-      background-color: @bg-whitegray;
+      background-color: var(--memo-surface-hover);
     }
   }
 }
-
-//@media only screen and (max-width: 875px) {
-//  div[data-type='memos_view'] .menu-btns-popup {
-//    margin-left: 64px;
-//  }
-//}
 
 div[data-type='memos_view'].mobile-view .menu-btns-popup {
   margin-left: 64px;
-}
-
-.theme-dark div[data-type='memos_view'] .menu-btns-popup {
-  .flex(column, flex-start, flex-start);
-  position: absolute;
-  margin-top: 4px;
-  margin-left: 90px;
-  padding: 4px;
-  width: 180px;
-  border-radius: 8px;
-  z-index: 20;
-  // box-shadow: 0 0 8px 0 rgba(255, 255, 255, 0.2);
-  background-color: rgb(0, 0, 0);
-
-  &:hover {
-    display: flex;
-  }
-
-  > .btn {
-    .flex(row, flex-start, center);
-    width: 100%;
-    padding: 8px 4px;
-    font-size: 14px;
-    line-height: 1.6;
-    border-radius: 4px;
-    text-align: left;
-
-    > .icon {
-      display: block;
-      width: 28px;
-      text-align: center;
-      margin-right: 4px;
-      font-size: 14px;
-    }
-
-    &:hover {
-      background-color: @bg-dark-whitegray;
-    }
-  }
-}
-
-//@media only screen and (max-width: 875px) {
-//  .theme-dark {
-//    div[data-type='memos_view'] .menu-btns-popup {
-//      margin-left: 64px;
-//    }
-//  }
-//}
-
-.theme-dark {
-  div[data-type='memos_view'].mobile-view .menu-btns-popup {
-    margin-left: 64px;
-  }
 }

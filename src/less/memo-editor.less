@@ -44,15 +44,5 @@ div[data-type='memos_view'].mobile-view .memo-editor-wrapper {
   margin: auto;
 }
 
-.theme-light .mobile-view img.memo-show-editor-button {
-  position: fixed;
-  z-index: 10;
-  filter: opacity(30%);
-}
+// 注：旧 `img.memo-show-editor-button` 双写规则已删 —— DOM 元素是 div（MemoEditor.tsx），img 选择器永不命中
 
-.theme-dark .mobile-view img.memo-show-editor-button {
-  position: fixed;
-  z-index: 10;
-  transition: visibility 0s linear 0.5s, opacity 0.5s linear;
-  filter: invert(0.8) opacity(65%);
-}

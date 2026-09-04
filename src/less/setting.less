@@ -17,7 +17,7 @@ div[data-type='memos_view'] .preference-wrapper {
     > .title-text {
       font-weight: bold;
       font-size: 18px;
-      color: @text-black;
+      color: var(--memo-text);
     }
   }
 
@@ -38,15 +38,15 @@ div[data-type='memos_view'] .preference-wrapper {
     > .section-container {
       .flex(column, flex-start, flex-start);
       width: 100%;
-      background-color: white;
+      background-color: var(--memo-bg);
       margin: 8px 0;
       padding: 16px;
       padding-bottom: 8px;
-      border-radius: 8px;
+      border-radius: var(--memo-radius-m);
 
       > .title-text {
         font-size: 15px;
-        color: @text-black;
+        color: var(--memo-text);
         font-weight: bold;
         margin-bottom: 8px;
       }

@@ -22,13 +22,25 @@
 - 关键帧：`memo-fade-in`、`memo-pop-in`(弹层)、`memo-comment-in`、`memo-edit-pulse`；`prefers-reduced-motion` 兜底在 theme.less 内
 - `global.less` 顶部 `@import './theme.less'`。新样式文件也 `@import './theme.less'` 以便用 mixin/token。
 
-## 已 token 化收口（主屏）— 别再写回双份
+## 已 token 化收口 — 别再写回双份
 
-`global / memo-editor / editor / common-date-picker / memo(含评论) / memo-content / memolist / pagination / memos-header / search-bar / memo-filter / home(画布=background-secondary) / memo-trash(仅补间距) / image(容器 overflow hidden)`
+**主屏**：`global / memo-editor / editor / common-date-picker / memo(含评论) / memo-content / memolist / pagination / memos-header / search-bar / memo-filter / home(画布=background-secondary) / memo-trash / image(容器 overflow hidden)`
 
-## 还没做（次级界面，下一批）
+**次级界面（2026-09-04 收口，待 Obsidian 目视）**：`dialog`(弹窗外壳) / `about-site-dialog` / `daily-memo-diary-dialog` / `memo-card-dialog` / `create-query-dialog` / `share-memo-image-dialog` / `tag-list`(含 rename-tag-dialog) / `query-list` / `usage-heat-map` / `user-banner` / `siderbar` / `menu-btns-popup` / `daily-memo` / `setting` / `preferences-section` / `suggest`(.rta 联想) / `common/selector`。收口时的语义归一：**“主操作/选中激活”一律 `--memo-accent`（原绿/红/蓝混杂）、危险操作 `--memo-danger`、次要提示 `--memo-text-muted`、浮层 = `--memo-bg`+1px `--memo-border`+`--memo-shadow-s`、卡 = `--memo-bg`+`--memo-shadow-card`**。日期/标签等输入控件需显式覆盖 Obsidian `.text-input`（坑 4）。
 
-弹窗 dialog、DailyMemoDiaryDialog、ShareMemoImageDialog、usage-heat-map、设置页、标签/查询/侧栏、preferences、memo-card-dialog、menu-btns-popup 等仍拖着旧样式的浅深双份/硬编码色，按同一套 token 收口即可。
+**全库浅深双写已清零**，唯一保留的 theme 分支是两处刻意适配（有注释）：
+- `preview-lightbox.less`：全屏灯箱的浅/深按钮基色（覆盖在 Obsidian 之上，不属于任何 token 作用域）
+- `memo-write-date.less`：深色时钟图标的单行 invert 特调
+
+## Token 作用域（弹窗 portal 在 body，不在视图内！）
+
+theme.less 把 `.memo-theme-root()` mixin **同挂 `div[data-type='memos_view']` 与 `.dialog-wrapper`**——`showDialog` 会把弹窗 portal 到 `document.body`，没有后者时弹窗内 `var(--memo-*)` 全部失效。凡插件自绘的 body 级浮层（弹窗/灯箱/菜单等）要消费 token：要么挂在已有作用域下，要么先在 theme.less 扩展作用域列表。
+新增 token（2026-09-04）：`--memo-overlay`（弹窗遮罩，引 `--background-modifier-cover`）、`--memo-heat-1..4`（热力色阶，GitHub 式绿阶——**值在 theme.less 末尾按浅/深主题各给一套明度**，组件只消费 var 一份；深色不套用浅色半透明值，否则看不见色块）。
+
+## 还没做
+
+- 主屏/次级界面细节微调等 owner 目视后反馈（间距/强弱/对比度）。
+- 死 CSS 已随收口删除：`my-account-section / change-password-dialog / mentions / toast / signin` 5 个 less 无任何 import；`mixin.less` 36 个无消费者 `@bg-*`/`@text-*` 变量。勿再按旧名字找它们。
 
 ## 动效约定 & 参数位置
 
