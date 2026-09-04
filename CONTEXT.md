@@ -83,6 +83,12 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - **同日再删死界面（2026-09-04 下午）**：React 设置页 `/setting` 整链删除（无任何导航入口；设置实际走 Obsidian 原生 MemosSettingTab）——pages/Setting.tsx、PreferencesSection.tsx、setting.less、preferences-section.less、homeRouter '/setting' key、locationService/location.d.ts 的 '/setting'；tag-list.less 内 rename-tag-dialog 段删除（全库无 rename tag 功能，纯死 CSS）。**注意 memo-card-dialog 不是死的**：它是三点菜单「阅读」(READ) 的展示卡（另有点 memo 时间戳触发），Roadmap 里要优化的"阅读页"就是它，勿删
   - 热力图配色 owner 拍板（2026-09-04）：**深浅统一绿阶**（浅=旧深绿档 #9be9a8→#216e39，深=GitHub 亮绿档 #0e4429→#39d353），值集中在 theme.less 按主题给，勿再改
   - 侧栏选中态（选中标签/查询项、新建查询按钮、rta 选中）统一 accent 已获 owner 认可，保持
+- **时间格式开关（2026-09-04）**: 设置新增 `TimeFormat`（默认 `'HH:mm:ss'`，可切 `'HH:mm'`）。只影响渲染与回写策略，**不改用户数据**：
+  - 显示层：`utils.getTimeString/getDateTimeString` 加可选 `showSeconds` 参（默认 true 保持旧行为）；卡头/评论时间（Memo.tsx）、日记弹窗 chip（DailyMemo.tsx）、回收站删除时间（DeletedMemo.tsx）、阅读卡（MemoCardDialog.tsx）全部跟随
+  - 回写：HH:mm:ss 模式读取到无秒行照旧回写补秒；**HH:mm 模式暂停回写**（obGetMemos.ts 判断 `settings.TimeFormat !== 'HH:mm'`），切回带秒后恢复——`undefined` 兜底=带秒旧行为
+  - 新 memo 落盘始终 HH:mm:ss，不随开关（数据完备性优先）
+  - 翻译 key：'Time display format' / 'Time display format description'（en/zh-cn）
+  - 注：`npx tsc` src 有两条**基线噪音**（非本次引入）：CommentInput.tsx `'Cancel'` 不在 en keyof、Editor.tsx rta 泛型不匹配
 - **阶段 F1 指定日期添加（2026-09-03）**:
   - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
   - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建

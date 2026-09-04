@@ -7801,6 +7801,8 @@ var en = {
   "UI language for date": "UI language for date",
   "Translates the date UI language. Only 'en' and 'zh' are available.": "Translates the date UI language. Only 'en' and 'zh' are available.",
   "Default prefix": "Default prefix",
+  "Time display format": "Time display format",
+  "Time display format description": "Time in the UI: HH:mm:ss (with seconds, default) or HH:mm (without seconds). This option only affects display - data in your note files is never modified.",
   "Set the default prefix when create memo, 'List' by default.": "Set the default prefix when create memo, 'List' by default.",
   "Default insert date format": "Default insert date format",
   "Set the default date format when insert date by @, 'Tasks' by default.": "Set the default date format when insert date by @, 'Tasks' by default.",
@@ -8494,6 +8496,8 @@ var zhCN = {
   "UI language for date": "\u9488\u5BF9\u65E5\u671F\u5C55\u793A\u7684\u8BED\u8A00\u754C\u9762",
   "Translates the date UI language. Only 'en' and 'zh' are available.": "\u5BF9\u65E5\u671F\u7684\u4E0D\u540C\u7FFB\u8BD1\u3002\u76EE\u524D\u53EA\u80FD\u9009\u62E9 'en' \u548C 'zh'\uFF08\u672A\u6765\u4F1A\u5E9F\u7F6E\uFF09",
   "Default prefix": "\u9ED8\u8BA4\u524D\u7F00",
+  "Time display format": "\u65F6\u95F4\u663E\u793A\u683C\u5F0F",
+  "Time display format description": "\u754C\u9762\u65F6\u95F4\u663E\u793A HH:mm:ss\uFF08\u5E26\u79D2\uFF0C\u9ED8\u8BA4\uFF09\u6216 HH:mm\uFF08\u4E0D\u5E26\u79D2\uFF09\u3002\u8BE5\u9009\u9879\u53EA\u5F71\u54CD\u663E\u793A\uFF0C\u4E0D\u4F1A\u4FEE\u6539\u65E5\u8BB0\u6587\u4EF6\u91CC\u7684\u6570\u636E\u3002",
   "Set the default prefix when create memo, 'List' by default.": "\u8BBE\u7F6E\u9ED8\u8BA4\u7684\u524D\u7F00\u6837\u5F0F\u3002\u9ED8\u8BA4\u4E3A\u5217\u8868",
   "Default insert date format": "\u63D2\u5165\u65E5\u671F\u9644\u5E26\u7684\u6837\u5F0F",
   "Set the default date format when insert date by @, 'Tasks' by default.": "\u5F53\u4F7F\u7528 @ \u6765\u5FEB\u901F\u63D2\u5165\u65E5\u671F\u65F6\uFF0C\u63D2\u5165\u65E5\u671F\u9644\u5E26\u7684\u6837\u5F0F\uFF0C\u9ED8\u8BA4\u4E3A 'Tasks' \u6837\u5F0F",
@@ -8708,7 +8712,7 @@ var utils;
     return `${year}/${month}/${date}`;
   }
   utils2.getDateString = getDateString;
-  function getTimeString(t2) {
+  function getTimeString(t2, showSeconds = true) {
     const d = new Date(getTimeStampByDate(t2));
     const hours = d.getHours();
     const mins = d.getMinutes();
@@ -8716,10 +8720,10 @@ var utils;
     const hoursStr = hours < 10 ? "0" + hours : hours;
     const minsStr = mins < 10 ? "0" + mins : mins;
     const secsStr = secs < 10 ? "0" + secs : secs;
-    return `${hoursStr}:${minsStr}:${secsStr}`;
+    return `${hoursStr}:${minsStr}${showSeconds ? ":" + secsStr : ""}`;
   }
   utils2.getTimeString = getTimeString;
-  function getDateTimeString(t2) {
+  function getDateTimeString(t2, showSeconds = true) {
     const d = new Date(getTimeStampByDate(t2));
     const year = d.getFullYear();
     const month = d.getMonth() + 1;
@@ -8732,7 +8736,7 @@ var utils;
     const hoursStr = hours < 10 ? "0" + hours : hours;
     const minsStr = mins < 10 ? "0" + mins : mins;
     const secsStr = secs < 10 ? "0" + secs : secs;
-    return `${year}/${monthStr}/${dateStr} ${hoursStr}:${minsStr}:${secsStr}`;
+    return `${year}/${monthStr}/${dateStr} ${hoursStr}:${minsStr}${showSeconds ? ":" + secsStr : ""}`;
   }
   utils2.getDateTimeString = getDateTimeString;
   function dedupe(data) {
@@ -9825,6 +9829,7 @@ async function getRemainingMemos(note) {
   return 0;
 }
 async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
+  var _a;
   if (!dailyNote) {
     return [];
   }
@@ -9918,7 +9923,7 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
   if (toBackfill.length > 0) {
     await backfillMemoIds(vault, toBackfill);
   }
-  if (toFixTime.length > 0) {
+  if (toFixTime.length > 0 && ((_a = appStore.getState().settingsState.settings.TimeFormat) != null ? _a : "HH:mm:ss") !== "HH:mm") {
     await backfillMemoTimes(vault, toFixTime);
   }
 }
@@ -13513,9 +13518,10 @@ const MemoImage = (props) => {
   });
 };
 const MemoCardDialog = (props) => {
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== "HH:mm";
   const [memo2, setMemo] = react.exports.useState({
     ...props.memo,
-    createdAtStr: utils$1.getDateTimeString(props.memo.createdAt)
+    createdAtStr: utils$1.getDateTimeString(props.memo.createdAt, showSeconds)
   });
   const [linkMemos, setLinkMemos] = react.exports.useState([]);
   const [linkedMemos, setLinkedMemos] = react.exports.useState([]);
@@ -13531,7 +13537,7 @@ const MemoCardDialog = (props) => {
             if (memoTemp) {
               linkMemos2.push({
                 ...memoTemp,
-                createdAtStr: utils$1.getDateTimeString(memoTemp.createdAt),
+                createdAtStr: utils$1.getDateTimeString(memoTemp.createdAt, showSeconds),
                 dateStr: utils$1.getDateString(memoTemp.createdAt)
               });
             }
@@ -13541,7 +13547,7 @@ const MemoCardDialog = (props) => {
         const linkedMemos2 = await memoService.getLinkedMemos(memo2.id);
         setLinkedMemos(linkedMemos2.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).map((m2) => ({
           ...m2,
-          createdAtStr: utils$1.getDateTimeString(m2.createdAt),
+          createdAtStr: utils$1.getDateTimeString(m2.createdAt, showSeconds),
           dateStr: utils$1.getDateString(m2.createdAt)
         })));
       } catch (error) {
@@ -14586,7 +14592,7 @@ const Memo = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "time-text",
           onClick: handleShowMemoStoryDialog,
-          children: utils$1.getDateTimeString(propsMemo.createdAt)
+          children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
         }), /* @__PURE__ */ jsx("div", {
           className: `memo-type-img ${(propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE") && ShowTaskLabel ? "" : "hidden"}`,
           children: (_a = handleMemoTypeShow()) != null ? _a : ""
@@ -14734,6 +14740,11 @@ const MemoComment = ({
   onReply,
   onDelete
 }) => {
+  const {
+    settingsState: {
+      settings
+    }
+  } = react.exports.useContext(appContext);
   const children = allMemos.filter((m2) => m2.linkId === comment.hasId && !m2.isDeleted).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
   const [hovered, setHovered] = dist(false);
   return /* @__PURE__ */ jsxs("div", {
@@ -14744,7 +14755,7 @@ const MemoComment = ({
       onMouseLeave: () => setHovered(false),
       children: [/* @__PURE__ */ jsx("div", {
         className: "memo-comment-time",
-        children: utils$1.getDateTimeString(comment.createdAt)
+        children: utils$1.getDateTimeString(comment.createdAt, settings.TimeFormat !== "HH:mm")
       }), /* @__PURE__ */ jsx("div", {
         className: "memo-comment-text",
         onClick: (e) => onContentClick(e, comment),
@@ -14792,10 +14803,11 @@ const DailyMemo = (props) => {
   const {
     memo: propsMemo
   } = props;
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== "HH:mm";
   const memo2 = {
     ...propsMemo,
-    createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt),
-    timeStr: utils$1.getTimeString(propsMemo.createdAt)
+    createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt, showSeconds),
+    timeStr: utils$1.getTimeString(propsMemo.createdAt, showSeconds)
   };
   const {
     external,
@@ -21149,10 +21161,11 @@ const DeletedMemo = (props) => {
     memo: propsMemo,
     handleDeletedMemoAction
   } = props;
-  const deletedAtStr = propsMemo.deletedAt ? require$$0.moment(propsMemo.deletedAt, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss") : utils$1.getDateTimeString(Date.now());
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== "HH:mm";
+  const deletedAtStr = propsMemo.deletedAt ? require$$0.moment(propsMemo.deletedAt, "YYYYMMDDHHmmss").format(showSeconds ? "YYYY/MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm") : utils$1.getDateTimeString(Date.now(), showSeconds);
   const memo2 = {
     ...propsMemo,
-    createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt),
+    createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt, showSeconds),
     deletedAtStr
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
@@ -21629,7 +21642,8 @@ const DEFAULT_SETTINGS = {
   DefaultDarkBackgroundImage: "",
   DefaultMemoComposition: "{TIME} {CONTENT}",
   ShowCommentOnMemos: false,
-  ShowLeftSideBar: false
+  ShowLeftSideBar: false,
+  TimeFormat: "HH:mm:ss"
 };
 class MemosSettingTab extends require$$0.PluginSettingTab {
   constructor(app2, plugin) {
@@ -21733,6 +21747,15 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       dropdown.addOption("Task", t$1("Task"));
       dropdown.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
         this.plugin.settings.DefaultPrefix = value;
+        this.applySettingsUpdate();
+      });
+    });
+    new require$$0.Setting(containerEl).setName(t$1("Time display format")).setDesc(t$1("Time display format description")).addDropdown(async (d) => {
+      dropdown = d;
+      dropdown.addOption("HH:mm:ss", "HH:mm:ss");
+      dropdown.addOption("HH:mm", "HH:mm");
+      dropdown.setValue(this.plugin.settings.TimeFormat).onChange(async (value) => {
+        this.plugin.settings.TimeFormat = value;
         this.applySettingsUpdate();
       });
     });

@@ -52,6 +52,9 @@ export default {
   "Translates the date UI language. Only 'en' and 'zh' are available.":
     "Translates the date UI language. Only 'en' and 'zh' are available.",
   'Default prefix': 'Default prefix',
+  'Time display format': 'Time display format',
+  'Time display format description':
+    "Time in the UI: HH:mm:ss (with seconds, default) or HH:mm (without seconds). This option only affects display - data in your note files is never modified.",
   "Set the default prefix when create memo, 'List' by default.":
     "Set the default prefix when create memo, 'List' by default.",
   'Default insert date format': 'Default insert date format',

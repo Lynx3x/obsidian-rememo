@@ -572,7 +572,7 @@ const Memo: React.FC<Props> = (props: Props) => {
       <div className="memo-top-wrapper">
         <div className="memo-top-left-wrapper">
           <span className="time-text" onClick={handleShowMemoStoryDialog}>
-            {utils.getDateTimeString(propsMemo.createdAt)}
+            {utils.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== 'HH:mm')}
           </span>
           <div
             className={`memo-type-img ${
@@ -805,6 +805,9 @@ interface MemoCommentProps {
 }
 
 const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentClick, onEdit, onReply, onDelete }) => {
+  const {
+    settingsState: { settings },
+  } = useContext(appContext);
   const children = allMemos
     .filter((m) => m.linkId === comment.hasId && !m.isDeleted)
     .sort((a, b) => utils.getTimeStampByDate(a.createdAt) - utils.getTimeStampByDate(b.createdAt));
@@ -816,7 +819,7 @@ const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentC
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div className="memo-comment-time">{utils.getDateTimeString(comment.createdAt)}</div>
+        <div className="memo-comment-time">{utils.getDateTimeString(comment.createdAt, settings.TimeFormat !== 'HH:mm')}</div>
         <div
           className="memo-comment-text"
           onClick={(e) => onContentClick(e, comment)}

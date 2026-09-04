@@ -34,6 +34,8 @@ export interface MemosSettings {
   ShowTaskLabel: boolean;
   ShowCommentOnMemos: boolean;
   ShowLeftSideBar: boolean;
+  /** 界面时间显示格式：'HH:mm:ss'（带秒，默认）| 'HH:mm'（不带秒）。只影响渲染，不改文件数据 */
+  TimeFormat: 'HH:mm:ss' | 'HH:mm';
 }
 
 export const DEFAULT_SETTINGS: MemosSettings = {
@@ -66,6 +68,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   DefaultMemoComposition: '{TIME} {CONTENT}',
   ShowCommentOnMemos: false,
   ShowLeftSideBar: false,
+  TimeFormat: 'HH:mm:ss',
 };
 
 export class MemosSettingTab extends PluginSettingTab {
@@ -264,6 +267,19 @@ export class MemosSettingTab extends PluginSettingTab {
         dropdown.addOption('Task', t('Task'));
         dropdown.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
           this.plugin.settings.DefaultPrefix = value;
+          this.applySettingsUpdate();
+        });
+      });
+
+    new Setting(containerEl)
+      .setName(t('Time display format'))
+      .setDesc(t('Time display format description'))
+      .addDropdown(async (d: DropdownComponent) => {
+        dropdown = d;
+        dropdown.addOption('HH:mm:ss', 'HH:mm:ss');
+        dropdown.addOption('HH:mm', 'HH:mm');
+        dropdown.setValue(this.plugin.settings.TimeFormat).onChange(async (value: 'HH:mm:ss' | 'HH:mm') => {
+          this.plugin.settings.TimeFormat = value;
           this.applySettingsUpdate();
         });
       });

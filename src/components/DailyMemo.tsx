@@ -18,10 +18,12 @@ interface Props {
 const DailyMemo: React.FC<Props> = (props: Props) => {
   const { app } = appStore.getState().dailyNotesState;
   const { memo: propsMemo } = props;
+  // 时间格式开关：HH:mm 模式不带秒（纯渲染；弹窗每次打开重读设置）
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== 'HH:mm';
   const memo: DailyMemo = {
     ...propsMemo,
-    createdAtStr: utils.getDateTimeString(propsMemo.createdAt),
-    timeStr: utils.getTimeString(propsMemo.createdAt),
+    createdAtStr: utils.getDateTimeString(propsMemo.createdAt, showSeconds),
+    timeStr: utils.getTimeString(propsMemo.createdAt, showSeconds),
   };
 
   // 图片解析收敛到 memoImages 深模块（含 external/internal 分离，供区块渲染）

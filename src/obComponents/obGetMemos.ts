@@ -165,8 +165,12 @@ export async function getMemosFromDailyNote(
     if (toBackfill.length > 0) {
         await backfillMemoIds(vault, toBackfill);
     }
-    // 时间格式统一：旧格式回写为 HH:mm:ss
-    if (toFixTime.length > 0) {
+    // 时间格式统一：旧格式/无秒行回写为 HH:mm:ss。
+    // 仅当界面开启"带秒"（TimeFormat 非 'HH:mm'）才回写；HH:mm 模式不打扰文件数据（undefined=默认带秒，旧行为）
+    if (
+      toFixTime.length > 0 &&
+      (appStore.getState().settingsState.settings.TimeFormat ?? 'HH:mm:ss') !== 'HH:mm'
+    ) {
         await backfillMemoTimes(vault, toFixTime);
     }
 }

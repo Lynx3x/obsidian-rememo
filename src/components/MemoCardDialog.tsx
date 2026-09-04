@@ -5,6 +5,7 @@ import { globalStateService, memoService } from '../services';
 import { parseHtmlToRawText } from '../helpers/marked';
 import { formatMemoContent } from './Memo';
 import { showDialog } from './Dialog';
+import appStore from '../stores/appStore';
 import '../less/memo-card-dialog.less';
 import { Notice } from 'obsidian';
 import Close from '../icons/close.svg?component';
@@ -23,9 +24,11 @@ interface Props extends DialogProps {
 }
 
 const MemoCardDialog: React.FC<Props> = (props: Props) => {
+  // 时间格式开关：HH:mm 模式不带秒（纯渲染；弹窗每次打开重读设置）
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== 'HH:mm';
   const [memo, setMemo] = useState<FormattedMemo>({
     ...props.memo,
-    createdAtStr: utils.getDateTimeString(props.memo.createdAt),
+    createdAtStr: utils.getDateTimeString(props.memo.createdAt, showSeconds),
   });
   const [linkMemos, setLinkMemos] = useState<LinkedMemo[]>([]);
   const [linkedMemos, setLinkedMemos] = useState<LinkedMemo[]>([]);
@@ -42,7 +45,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
             if (memoTemp) {
               linkMemos.push({
                 ...memoTemp,
-                createdAtStr: utils.getDateTimeString(memoTemp.createdAt),
+                createdAtStr: utils.getDateTimeString(memoTemp.createdAt, showSeconds),
                 dateStr: utils.getDateString(memoTemp.createdAt),
               });
             }
@@ -56,7 +59,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
             .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt))
             .map((m) => ({
               ...m,
-              createdAtStr: utils.getDateTimeString(m.createdAt),
+              createdAtStr: utils.getDateTimeString(m.createdAt, showSeconds),
               dateStr: utils.getDateString(m.createdAt),
             })),
         );

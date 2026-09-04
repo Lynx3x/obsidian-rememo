@@ -45,7 +45,7 @@ namespace utils {
     return `${year}/${month}/${date}`;
   }
 
-  export function getTimeString(t: Date | number | string): string {
+  export function getTimeString(t: Date | number | string, showSeconds = true): string {
     const d = new Date(getTimeStampByDate(t));
 
     const hours = d.getHours();
@@ -56,11 +56,12 @@ namespace utils {
     const minsStr = mins < 10 ? '0' + mins : mins;
     const secsStr = secs < 10 ? '0' + secs : secs;
 
-    return `${hoursStr}:${minsStr}:${secsStr}`;
+    // showSeconds=false：只显示到 HH:mm（纯渲染，不影响数据）
+    return `${hoursStr}:${minsStr}${showSeconds ? ':' + secsStr : ''}`;
   }
 
   // For example: 2021-4-8 17:52:17
-  export function getDateTimeString(t: Date | number | string): string {
+  export function getDateTimeString(t: Date | number | string, showSeconds = true): string {
     const d = new Date(getTimeStampByDate(t));
 
     const year = d.getFullYear();
@@ -76,7 +77,8 @@ namespace utils {
     const minsStr = mins < 10 ? '0' + mins : mins;
     const secsStr = secs < 10 ? '0' + secs : secs;
 
-    return `${year}/${monthStr}/${dateStr} ${hoursStr}:${minsStr}:${secsStr}`;
+    // showSeconds=false：只显示到 HH:mm（纯渲染，不影响数据）
+    return `${year}/${monthStr}/${dateStr} ${hoursStr}:${minsStr}${showSeconds ? ':' + secsStr : ''}`;
   }
 
   export function dedupe<T>(data: T[]): T[] {

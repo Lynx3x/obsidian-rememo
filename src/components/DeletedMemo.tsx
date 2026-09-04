@@ -1,5 +1,6 @@
 import utils from '../helpers/utils';
 import useToggle from '../hooks/useToggle';
+import appStore from '../stores/appStore';
 import { memoService } from '../services';
 import { formatMemoContent } from './Memo';
 import '../less/memo.less';
@@ -18,13 +19,15 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
   // const { app }  = appStore.getState().dailyNotesState;
 
   const { memo: propsMemo, handleDeletedMemoAction } = props;
+  // 时间格式开关：HH:mm 模式不带秒（纯渲染，不动数据）
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== 'HH:mm';
   // deletedAt 是 14 位时间戳（YYYYMMDDHHmmss），转成可显示格式
   const deletedAtStr = propsMemo.deletedAt
-    ? moment(propsMemo.deletedAt, 'YYYYMMDDHHmmss').format('YYYY/MM/DD HH:mm:ss')
-    : utils.getDateTimeString(Date.now());
+    ? moment(propsMemo.deletedAt, 'YYYYMMDDHHmmss').format(showSeconds ? 'YYYY/MM/DD HH:mm:ss' : 'YYYY/MM/DD HH:mm')
+    : utils.getDateTimeString(Date.now(), showSeconds);
   const memo: FormattedMemo = {
     ...propsMemo,
-    createdAtStr: utils.getDateTimeString(propsMemo.createdAt),
+    createdAtStr: utils.getDateTimeString(propsMemo.createdAt, showSeconds),
     deletedAtStr,
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
