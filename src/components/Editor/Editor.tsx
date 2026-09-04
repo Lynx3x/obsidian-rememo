@@ -54,9 +54,20 @@ interface EditorProps {
   onContentChange: (content: string) => void;
 }
 
-//eslint-disable-next-line
+// eslint-disable-next-line
 const TItem = ({ entity: { name, char, file } }: ItemProps) => {
-  return <div>{`${char}`}</div>;
+  // # 标签联想：保持原样单行
+  if (!file) {
+    return <div className="rta-sug-tag">{char}</div>;
+  }
+  // [[ 文件联想：md 显示 basename（无扩展名），图片带扩展名；右侧淡色短路径便于消歧
+  const dir = file.parent?.path && file.parent.path !== '/' ? file.parent.path : '';
+  return (
+    <div className="rta-sug-file">
+      <span className="rta-sug-name">{file.extension === 'md' ? file.basename : file.name}</span>
+      {dir ? <span className="rta-sug-path">{dir}</span> : null}
+    </div>
+  );
 };
 //eslint-disable-next-line
 const Loading = ({ data }: LoadingProps) => {

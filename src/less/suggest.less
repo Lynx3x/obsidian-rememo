@@ -104,6 +104,39 @@
   padding-right: 4px;
 }
 
+// [[ 文件联想条目：左文件名（可收缩省略）、右淡色目录（消歧）
+.rta-sug-file {
+  .flex(row, space-between, center);
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+
+  .rta-sug-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: var(--memo-text);
+  }
+
+  .rta-sug-path {
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    color: var(--memo-text-faint);
+  }
+}
+
+// 选中高亮（accent 底）时：主名继承高亮色，目录淡亮
+.rta__entity--selected .rta-sug-path {
+  color: var(--memo-on-accent);
+  opacity: 0.75;
+}
+
 .rta__entity--selected {
   color: var(--memo-on-accent);
   text-decoration: none;

@@ -17788,33 +17788,39 @@ const usedTags = (seletecText) => {
 var suggest = "";
 const getSuggestions = (inputStr) => {
   const { app: app2 } = dailyNotesService.getState();
-  const abstractFiles = app2.vault.getAllLoadedFiles();
-  const files = [];
-  let actualInput;
-  abstractFiles.forEach((file) => {
-    if (inputStr === "[") {
-      actualInput = "";
-      const lowerCaseInputStr = actualInput.toLowerCase();
-      if (file instanceof require$$0.TFile && (file.extension === "md" || file.extension === "png" || file.extension === "jpg" || file.extension === "jpeg" || file.extension === "gif") && file.path.toLowerCase().contains(lowerCaseInputStr)) {
-        files.push({
-          name: file.basename,
-          char: file.name,
-          file
-        });
-      }
-    } else if (inputStr.contains("[")) {
-      actualInput = inputStr.slice(1);
-      const lowerCaseInputStr = actualInput.toLowerCase();
-      if (file instanceof require$$0.TFile && (file.extension === "md" || file.extension === "png" || file.extension === "jpg" || file.extension === "jpeg" || file.extension === "gif") && file.path.toLowerCase().contains(lowerCaseInputStr)) {
-        files.push({
-          name: file.basename,
-          char: file.name,
-          file
-        });
-      }
+  const query = (inputStr.startsWith("[") ? inputStr.slice(1) : inputStr).toLowerCase();
+  const results = [];
+  app2.vault.getAllLoadedFiles().forEach((file) => {
+    if (!(file instanceof require$$0.TFile))
+      return;
+    const ext = file.extension;
+    if (!(ext === "md" || ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif"))
+      return;
+    const base = file.basename.toLowerCase();
+    const path = file.path.toLowerCase();
+    let score = 0;
+    if (!query) {
+      score = 1;
+    } else if (base === query) {
+      score = 100;
+    } else if (base.startsWith(query)) {
+      score = 60;
+    } else if (base.includes(query)) {
+      score = 40;
+    } else if (path.includes(query)) {
+      score = 20;
+    } else {
+      return;
     }
+    results.push({
+      name: file.basename,
+      char: file.name,
+      file,
+      score
+    });
   });
-  return files;
+  results.sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
+  return results.map(({ score, ...item }) => item);
 };
 const TItem = ({
   entity: {
@@ -17823,8 +17829,23 @@ const TItem = ({
     file
   }
 }) => {
-  return /* @__PURE__ */ jsx("div", {
-    children: `${char}`
+  var _a;
+  if (!file) {
+    return /* @__PURE__ */ jsx("div", {
+      className: "rta-sug-tag",
+      children: char
+    });
+  }
+  const dir = ((_a = file.parent) == null ? void 0 : _a.path) && file.parent.path !== "/" ? file.parent.path : "";
+  return /* @__PURE__ */ jsxs("div", {
+    className: "rta-sug-file",
+    children: [/* @__PURE__ */ jsx("span", {
+      className: "rta-sug-name",
+      children: file.extension === "md" ? file.basename : file.name
+    }), dir ? /* @__PURE__ */ jsx("span", {
+      className: "rta-sug-path",
+      children: dir
+    }) : null]
   });
 };
 const Loading = ({

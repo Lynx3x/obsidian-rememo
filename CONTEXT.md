@@ -89,6 +89,7 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - 新 memo 落盘始终 HH:mm:ss，不随开关（数据完备性优先）
   - 翻译 key：'Time display format' / 'Time display format description'（en/zh-cn）
   - 注：`npx tsc` src 有两条**基线噪音**（非本次引入）：CommentInput.tsx `'Cancel'` 不在 en keyof、Editor.tsx rta 泛型不匹配
+- **`[[` 文件名联想增强（2026-09-04）**: rta '[[' trigger 早已存在（多字符 trigger 库支持），本轮把"基础版"做成类 Obsidian：`obFileSuggester.getSuggestions` 评分排序（basename 前缀 > basename 包含 > 全路径包含，同分路径字典序，空 query 全量按路径列出）；联想条目显示 md 用 basename（无扩展名）、图片带扩展名 + 右侧淡色目录消歧，选中高亮走 accent（suggest.less 新增 `.rta-sug-file/name/path`）。注意 rta 传给 dataProvider 的 token 仍带 '['（如 '[ob'），剥前缀处已兼容
 - **阶段 F1 指定日期添加（2026-09-03）**:
   - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
   - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建
