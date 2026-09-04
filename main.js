@@ -9479,7 +9479,7 @@ class LocationService {
       });
     };
     this.getValidPathname = (pathname) => {
-      if (["/", "/homeboard", "/recycle"].includes(pathname)) {
+      if (["/", "/homeboard", "/recycle", "/audit"].includes(pathname)) {
         return pathname;
       } else {
         return "/";
@@ -10752,533 +10752,6 @@ function showAboutSiteDialog() {
     className: "about-site-dialog"
   }, AboutSiteDialog);
 }
-const LEGACY_TIME_REG = /^(\s*[-*]\s(\[[^\]]{1}\]\s+)?)(\d{14})(?=\s|$)/;
-function toClockTime(ts) {
-  return `${ts.slice(8, 10)}:${ts.slice(10, 12)}:${ts.slice(12, 14)}`;
-}
-const legacyTimeRule = {
-  id: "legacy-time",
-  name: "\u65E7 14 \u4F4D\u65F6\u95F4\u6233",
-  why: "\u884C\u9996\u662F\u65E7\u7248 14 \u4F4D\u65F6\u95F4\u6233\uFF08YYYYMMDDHHmmss\uFF09\u3002\u65F6\u95F4\u5E94\u7EDF\u4E00\u4E3A HH:mm:ss\uFF08\u5E26\u79D2\uFF09\u2014\u2014\u65E7\u7248\u8BFB\u53D6\u7AEF\u4F1A\u628A\u5B83\u5F53\u201C\u65E7\u683C\u5F0F\u201D\u53CD\u590D\u8981\u6C42\u56DE\u5199\u3002\u4FEE\u590D\uFF1A\u53EA\u66FF\u6362\u65F6\u95F4\u4F4D\u4E3A HH:mm:ss\uFF0C\u5185\u5BB9\u4E0E ^id \u4E0D\u52A8\u3002",
-  severity: "warning",
-  detect(ctx) {
-    const issues = [];
-    ctx.lines.forEach((line, idx) => {
-      if (!ctx.inScope[idx])
-        return;
-      const m2 = LEGACY_TIME_REG.exec(line);
-      if (m2) {
-        issues.push({
-          ruleId: this.id,
-          path: ctx.path,
-          line: idx + 1,
-          raw: line,
-          fixedLine: `${m2[1]}${toClockTime(m2[3])}${line.slice(m2[0].length)}`
-        });
-      }
-    });
-    return issues;
-  }
-};
-const ID_AT_END$1 = /\^([A-Za-z0-9]{6})\s*$/;
-function randomId$1(exclude) {
-  let id2 = "";
-  do {
-    id2 = Math.random().toString(36).slice(-6);
-  } while (exclude.has(id2));
-  return id2;
-}
-const dupIdRule = {
-  id: "dup-id",
-  name: "\u91CD\u590D ^id",
-  why: "\u540C\u4E00\u6587\u4EF6\u91CC\u51FA\u73B0\u91CD\u590D\u7684 ^id\u3002^id \u662F memo/\u8BC4\u8BBA\u7684\u6301\u4E45\u4E3B\u952E\uFF0C\u91CD\u590D\u4F1A\u4F7F\u8BC4\u8BBA\u5F52\u5C5E\u3001\u56DE\u6536\u7AD9\u3001\u5F15\u7528\u5168\u90E8\u6B67\u4E49\u3002\u4FEE\u590D\uFF1A\u4FDD\u7559\u7B2C\u4E00\u4E2A\u51FA\u73B0\u7684 id\uFF0C\u540E\u7EED\u91CD\u590D\u884C\u6362\u6210\u4E00\u4E2A\u65B0\u7684\u968F\u673A ^id\uFF08\u5F15\u7528\u65B9\u82E5\u6307\u5411\u88AB\u6362\u6389\u7684\u65E7 id \u9700\u4E00\u5E76\u8FC1\u79FB\u2014\u2014\u8BE5\u573A\u666F\u5728\u8FC1\u79FB\u89C4\u5219\u4E2D\u5904\u7406\uFF09\u3002",
-  severity: "error",
-  detect(ctx) {
-    const seen = /* @__PURE__ */ new Map();
-    const occupied = /* @__PURE__ */ new Set();
-    ctx.lines.forEach((line) => {
-      const m2 = ID_AT_END$1.exec(line);
-      if (m2)
-        occupied.add(m2[1]);
-    });
-    const issues = [];
-    ctx.lines.forEach((line, idx) => {
-      if (!ctx.inScope[idx])
-        return;
-      const m2 = ID_AT_END$1.exec(line);
-      if (!m2)
-        return;
-      const id2 = m2[1];
-      if (seen.has(id2)) {
-        const fresh = randomId$1(occupied);
-        occupied.add(fresh);
-        issues.push({
-          ruleId: this.id,
-          path: ctx.path,
-          line: idx + 1,
-          raw: line,
-          note: `\u9996\u6B21\u51FA\u73B0\u5728\u7B2C ${seen.get(id2)} \u884C`,
-          fixedLine: line.slice(0, m2.index) + "^" + fresh
-        });
-      } else {
-        seen.set(id2, idx + 1);
-      }
-    });
-    return issues;
-  }
-};
-const TOP_BULLET = /^[-*]\s(\[[^\]]{1}\]\s+)?/;
-const INDENT_BULLET = /^\s{1,}[-*]\s/;
-const ID_AT_END = /\^([A-Za-z0-9]{6})\s*$/;
-const PURE_HEADER = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
-function detectEra(lines) {
-  for (const line of lines) {
-    if (TOP_BULLET.test(line)) {
-      return PURE_HEADER.test(line) ? "new" : "old";
-    }
-  }
-  return "unknown";
-}
-function randomId() {
-  return Math.random().toString(36).slice(-6);
-}
-const missingIdRule = {
-  id: "missing-id",
-  name: "\u7F3A\u5C11 ^id",
-  why: "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\uFF08Obsidian \u539F\u751F ^id \u662F\u884C\u632A\u4F4D\u4E0D\u53D8\u7684\uFF09\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
-  severity: "warning",
-  detect(ctx) {
-    const era = detectEra(ctx.lines);
-    const issues = [];
-    ctx.lines.forEach((line, idx) => {
-      if (!ctx.inScope[idx])
-        return;
-      const isTop = TOP_BULLET.test(line);
-      const isIndent = INDENT_BULLET.test(line);
-      if (!isTop && !isIndent)
-        return;
-      if (era === "new" && isIndent)
-        return;
-      if (ID_AT_END.test(line))
-        return;
-      issues.push({
-        ruleId: this.id,
-        path: ctx.path,
-        line: idx + 1,
-        raw: line,
-        fixedLine: `${line.trimEnd()} ^${randomId()}`
-      });
-    });
-    return issues;
-  }
-};
-const BR_REG = /<br\s*\/?>|&lt;br\s*\/?&gt;/gi;
-const bareBrRule = {
-  id: "bare-br",
-  name: "\u65E7 <br> \u6362\u884C\u7F16\u7801",
-  why: "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\uFF08\u8FC1\u79FB\u529F\u80FD\u968F P1.5 \u63D0\u4F9B\uFF0C\u5C4A\u65F6\u6B64\u89C4\u5219\u4F1A\u81EA\u52A8\u5347\u7EA7\u4E3A\u53EF\u4FEE\u590D\uFF09\u3002",
-  severity: "info",
-  detect(ctx) {
-    const affectedLines = ctx.lines.filter((l2) => BR_REG.test(l2));
-    if (affectedLines.length === 0)
-      return [];
-    const issues = [];
-    ctx.lines.forEach((line, idx) => {
-      var _a;
-      if (!ctx.inScope[idx])
-        return;
-      const count = ((_a = line.match(BR_REG)) != null ? _a : []).length;
-      if (count > 0) {
-        issues.push({
-          ruleId: this.id,
-          path: ctx.path,
-          line: idx + 1,
-          raw: line,
-          note: `\u8BE5\u884C\u542B ${count} \u5904 <br>\uFF1B\u672C\u6587\u4EF6\u5171 ${affectedLines.length} \u884C\u53D7\u5F71\u54CD\uFF0C\u5EFA\u8BAE\u6574\u4F53\u8FC1\u79FB`
-        });
-      }
-    });
-    return issues;
-  }
-};
-const rules = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule];
-const ruleById = Object.fromEntries(rules.map((r2) => [r2.id, r2]));
-function readLines(file) {
-  return file.vault.cachedRead(file).then((content) => content.split("\n"));
-}
-function computeScope(lines, processBelow) {
-  const inScope = new Array(lines.length).fill(false);
-  const tokenRe = processBelow ? new RegExp(processBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")) : null;
-  let active = !tokenRe;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (tokenRe && !active && tokenRe.test(line))
-      active = true;
-    if (active && /^#{1,} /.test(line))
-      active = false;
-    if (active)
-      inScope[i] = true;
-  }
-  return inScope;
-}
-async function runAudit(onProgress) {
-  var _a, _b;
-  const app2 = appStore.getState().dailyNotesState.app;
-  app2.vault;
-  const dailyNotes = getAllDailyNotes_1();
-  const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").map(([, f2]) => f2).sort((a, b) => b.path.localeCompare(a.path));
-  const issues = [];
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    onProgress == null ? void 0 : onProgress(i + 1, files.length);
-    let lines;
-    try {
-      lines = await readLines(file);
-    } catch {
-      continue;
-    }
-    const ctx = { path: file.path, lines, inScope: computeScope(lines, (_a = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a : "") };
-    for (const rule of rules) {
-      issues.push(...rule.detect(ctx));
-    }
-  }
-  const byRule = {};
-  for (const rule of rules)
-    byRule[rule.id] = [];
-  for (const issue of issues)
-    (_b = byRule[issue.ruleId]) == null ? void 0 : _b.push(issue);
-  return { issues, byRule, scannedFiles: files.length };
-}
-async function applyFixes(issues) {
-  var _a;
-  const fixable = issues.filter((i) => i.fixedLine);
-  if (fixable.length === 0)
-    return { applied: 0, skipped: 0, backupDir: "", changedFiles: 0 };
-  const app2 = appStore.getState().dailyNotesState.app;
-  const vault = app2.vault;
-  const adapter = vault.adapter;
-  const picked = /* @__PURE__ */ new Map();
-  let skipped = 0;
-  for (const issue of fixable) {
-    const key = `${issue.path}#${issue.line}`;
-    if (picked.has(key))
-      skipped++;
-    else
-      picked.set(key, issue);
-  }
-  const pickedIssues = [...picked.values()];
-  const ts = require$$0.moment().format("YYYYMMDD-HHmmss");
-  const backupDir = require$$0.normalizePath(".rememo-backup/audit-" + ts);
-  try {
-    await adapter.mkdir(require$$0.normalizePath(".rememo-backup"));
-  } catch {
-  }
-  await adapter.mkdir(backupDir);
-  const byPath = /* @__PURE__ */ new Map();
-  for (const issue of pickedIssues) {
-    const list = (_a = byPath.get(issue.path)) != null ? _a : [];
-    list.push(issue);
-    byPath.set(issue.path, list);
-  }
-  let applied = 0;
-  let changedFiles = 0;
-  for (const [path, pathIssues] of byPath) {
-    const file = vault.getAbstractFileByPath(path);
-    if (!(file instanceof require$$0.TFile))
-      continue;
-    const lines = await readLines(file);
-    const fileName = file.name;
-    await adapter.write(require$$0.normalizePath(`${backupDir}/${fileName}`), lines.join("\n"));
-    let changed = false;
-    const handledLines = /* @__PURE__ */ new Set();
-    for (const issue of pathIssues) {
-      const lineIdx = issue.line - 1;
-      if (lineIdx < 0 || lineIdx >= lines.length)
-        continue;
-      if (handledLines.has(lineIdx))
-        continue;
-      handledLines.add(lineIdx);
-      lines[lineIdx] = issue.fixedLine;
-      applied++;
-      changed = true;
-    }
-    if (changed) {
-      await vault.modify(file, lines.join("\n"));
-      changedFiles++;
-    }
-  }
-  return { applied, skipped, backupDir, changedFiles };
-}
-var auditDialog = "";
-const IGNORED_KEY = "auditIgnoredLines";
-const lineKey = (path, line) => `${path}#${line}`;
-const loadIgnored = () => {
-  var _a;
-  return (_a = storage.get([IGNORED_KEY])[IGNORED_KEY]) != null ? _a : {};
-};
-const saveIgnored = (map) => storage.set({
-  [IGNORED_KEY]: map
-});
-const SEVERITY_ORDER = {
-  error: 0,
-  warning: 1,
-  info: 2
-};
-const AuditDialog = ({
-  destroy
-}) => {
-  const [result, setResult] = react.exports.useState(null);
-  const [busy, setBusy] = react.exports.useState(false);
-  const [progress, setProgress] = react.exports.useState(null);
-  const [ignored, setIgnored] = react.exports.useState(loadIgnored());
-  const [collapsedFiles, setCollapsedFiles] = react.exports.useState({});
-  const [msg, setMsg] = react.exports.useState("");
-  const scan = async () => {
-    var _a;
-    setBusy(true);
-    setMsg("");
-    try {
-      const res = await runAudit((done, total) => setProgress({
-        done,
-        total
-      }));
-      setResult(res);
-    } catch (e) {
-      setMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a = e == null ? void 0 : e.message) != null ? _a : e}`);
-    } finally {
-      setBusy(false);
-      setProgress(null);
-    }
-  };
-  react.exports.useEffect(() => {
-    scan();
-  }, []);
-  const runFixLoop = async (pred, scopeLabel) => {
-    setBusy(true);
-    setMsg("");
-    let appliedTotal = 0;
-    try {
-      for (let round2 = 0; round2 < 6; round2++) {
-        const res = await runAudit();
-        setResult(res);
-        const targets = res.issues.filter((i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)]);
-        if (targets.length === 0) {
-          setMsg(appliedTotal > 0 ? `${scopeLabel}\uFF1A\u5DF2\u4FEE\u590D ${appliedTotal} \u5904 \u2705` : `${scopeLabel}\uFF1A\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898`);
-          return;
-        }
-        const out = await applyFixes(targets);
-        appliedTotal += out.applied;
-        if (out.applied === 0) {
-          setMsg(`${scopeLabel}\uFF1A\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5/\u8FC1\u79FB\uFF09\uFF0C\u5DF2\u4FEE ${appliedTotal} \u5904`);
-          return;
-        }
-      }
-      setMsg(`${scopeLabel}\uFF1A\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u4E00\u6B21\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879`);
-    } finally {
-      setBusy(false);
-    }
-    await scan();
-  };
-  const fixOneLine = (path, line) => runFixLoop((i) => i.path === path && i.line === line, `\u7B2C ${line} \u884C`);
-  const fixAll = () => runFixLoop(() => true, "\u4E00\u952E\u4FEE\u590D");
-  const toggleIgnore = (path, line) => {
-    const key = lineKey(path, line);
-    const next = {
-      ...ignored
-    };
-    if (next[key])
-      delete next[key];
-    else
-      next[key] = true;
-    setIgnored(next);
-    saveIgnored(next);
-  };
-  const openFile = async (path, line) => {
-    const app2 = appStore.getState().dailyNotesState.app;
-    const file = app2.vault.getAbstractFileByPath(path);
-    if (file instanceof require$$0.TFile) {
-      const leaf = app2.workspace.getLeaf(false);
-      await leaf.openFile(file, {
-        active: true,
-        eState: {
-          line: Math.max(line - 1, 0)
-        }
-      });
-    }
-  };
-  const tree = react.exports.useMemo(() => {
-    var _a;
-    if (!result)
-      return [];
-    const byPath = /* @__PURE__ */ new Map();
-    for (const issue of result.issues) {
-      if (ignored[lineKey(issue.path, issue.line)])
-        continue;
-      let byLine = byPath.get(issue.path);
-      if (!byLine) {
-        byLine = /* @__PURE__ */ new Map();
-        byPath.set(issue.path, byLine);
-      }
-      const list = (_a = byLine.get(issue.line)) != null ? _a : [];
-      list.push(issue);
-      byLine.set(issue.line, list);
-    }
-    return [...byPath.entries()].map(([path, byLine]) => ({
-      path,
-      lines: [...byLine.entries()].sort((a, b) => a[0] - b[0]).map(([line, issues]) => ({
-        line,
-        issues: issues.sort((a, b) => {
-          var _a2, _b, _c, _d;
-          return SEVERITY_ORDER[(_b = (_a2 = ruleById[a.ruleId]) == null ? void 0 : _a2.severity) != null ? _b : "info"] - SEVERITY_ORDER[(_d = (_c = ruleById[b.ruleId]) == null ? void 0 : _c.severity) != null ? _d : "info"] || a.ruleId.localeCompare(b.ruleId);
-        })
-      }))
-    })).sort((a, b) => b.path.localeCompare(a.path));
-  }, [result, ignored]);
-  const stats = result ? {
-    files: tree.length,
-    lines: tree.reduce((n2, f2) => n2 + f2.lines.length, 0),
-    issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
-    fixableLines: tree.reduce((n2, f2) => n2 + f2.lines.filter((l2) => l2.issues.some((i) => i.fixedLine)).length, 0)
-  } : null;
-  const shortName = (path) => {
-    var _a;
-    return (_a = path.split("/").pop()) != null ? _a : path;
-  };
-  return /* @__PURE__ */ jsxs(Fragment, {
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "dialog-header-container",
-      children: [/* @__PURE__ */ jsxs("p", {
-        className: "title-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "icon-text",
-          children: "\u{1FA7A}"
-        }), " \u6570\u636E\u4F53\u68C0"]
-      }), /* @__PURE__ */ jsx("button", {
-        className: "btn close-btn",
-        onClick: destroy,
-        children: "\u2715"
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "dialog-content-container audit-content",
-      children: [busy && /* @__PURE__ */ jsx("div", {
-        className: "audit-busy",
-        children: progress ? `\u626B\u63CF\u4E2D\u2026 ${progress.done}/${progress.total}` : "\u5904\u7406\u4E2D\u2026"
-      }), !busy && result && /* @__PURE__ */ jsxs(Fragment, {
-        children: [/* @__PURE__ */ jsxs("div", {
-          className: "audit-toolbar",
-          children: [/* @__PURE__ */ jsxs("span", {
-            className: "audit-stats",
-            children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", stats == null ? void 0 : stats.files, " \xB7 memo ", stats == null ? void 0 : stats.lines, " \u6761 \xB7 \u95EE\u9898 ", stats == null ? void 0 : stats.issues, " \u4E2A", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
-          }), /* @__PURE__ */ jsx("button", {
-            className: "btn refresh-btn",
-            onClick: scan,
-            children: "\u91CD\u65B0\u4F53\u68C0"
-          }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsxs("button", {
-            className: "btn fix-all-btn",
-            onClick: fixAll,
-            disabled: busy,
-            children: ["\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08", stats.fixableLines, " \u6761\uFF09"]
-          })]
-        }), msg && /* @__PURE__ */ jsx("div", {
-          className: "audit-msg",
-          children: msg
-        }), tree.length === 0 ? /* @__PURE__ */ jsx("div", {
-          className: "audit-empty",
-          children: "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}"
-        }) : /* @__PURE__ */ jsx("div", {
-          className: "audit-file-list",
-          children: tree.map((file) => {
-            const collapsed = !!collapsedFiles[file.path];
-            const errCount = file.lines.reduce((n2, l2) => n2 + l2.issues.filter((i) => {
-              var _a;
-              return ((_a = ruleById[i.ruleId]) == null ? void 0 : _a.severity) === "error";
-            }).length, 0);
-            return /* @__PURE__ */ jsxs("section", {
-              className: "audit-file",
-              children: [/* @__PURE__ */ jsxs("header", {
-                className: "audit-file-header",
-                onClick: () => setCollapsedFiles({
-                  ...collapsedFiles,
-                  [file.path]: !collapsed
-                }),
-                children: [/* @__PURE__ */ jsx("span", {
-                  className: "chevron",
-                  children: collapsed ? "\u25B8" : "\u25BE"
-                }), /* @__PURE__ */ jsx("span", {
-                  className: "audit-file-name",
-                  title: file.path,
-                  children: shortName(file.path)
-                }), errCount > 0 && /* @__PURE__ */ jsxs("span", {
-                  className: "audit-file-err",
-                  children: [errCount, " \u5904\u9519\u8BEF"]
-                }), /* @__PURE__ */ jsxs("span", {
-                  className: "audit-file-count",
-                  children: [file.lines.length, " \u6761 memo"]
-                })]
-              }), !collapsed && /* @__PURE__ */ jsx("div", {
-                className: "audit-line-list",
-                children: file.lines.map(({
-                  line,
-                  issues
-                }) => {
-                  const key = lineKey(file.path, line);
-                  const fixable = issues.some((i) => i.fixedLine);
-                  const raw = issues[0].raw;
-                  return /* @__PURE__ */ jsxs("div", {
-                    className: "audit-line",
-                    children: [/* @__PURE__ */ jsxs("div", {
-                      className: "audit-line-head",
-                      children: [/* @__PURE__ */ jsxs("span", {
-                        className: "audit-line-no",
-                        children: ["L", line]
-                      }), /* @__PURE__ */ jsx("span", {
-                        className: "audit-line-preview",
-                        title: raw,
-                        children: raw
-                      })]
-                    }), /* @__PURE__ */ jsx("div", {
-                      className: "audit-line-badges",
-                      children: issues.map((issue) => {
-                        var _a, _b;
-                        const rule = ruleById[issue.ruleId];
-                        return /* @__PURE__ */ jsx("span", {
-                          className: `badge badge-${(_a = rule == null ? void 0 : rule.severity) != null ? _a : "info"}`,
-                          title: rule == null ? void 0 : rule.why,
-                          children: (_b = rule == null ? void 0 : rule.name) != null ? _b : issue.ruleId
-                        }, issue.ruleId);
-                      })
-                    }), /* @__PURE__ */ jsxs("div", {
-                      className: "audit-line-actions",
-                      children: [fixable && /* @__PURE__ */ jsx("button", {
-                        className: "btn fix-one-btn",
-                        onClick: () => fixOneLine(file.path, line),
-                        disabled: busy,
-                        children: "\u4FEE\u590D\u8FD9\u6761"
-                      }), /* @__PURE__ */ jsx("button", {
-                        className: "btn view-btn",
-                        onClick: () => openFile(file.path, line),
-                        children: "\u67E5\u770B"
-                      }), /* @__PURE__ */ jsx("button", {
-                        className: "btn ignore-btn",
-                        onClick: () => toggleIgnore(file.path, line),
-                        children: "\u5FFD\u7565"
-                      })]
-                    })]
-                  }, key);
-                })
-              })]
-            }, file.path);
-          })
-        })]
-      })]
-    })]
-  });
-};
-function showAuditDialog() {
-  showDialog({
-    className: "audit-dialog"
-  }, AuditDialog);
-}
 var menuBtnsPopup = "";
 const MenuBtnsPopup = (props) => {
   const {
@@ -11363,7 +10836,7 @@ const MenuBtnsPopup = (props) => {
       }), " ", t$1("Recycle bin")]
     }), /* @__PURE__ */ jsxs("button", {
       className: "btn action-btn",
-      onClick: showAuditDialog,
+      onClick: () => locationService.pushHistory("/audit"),
       children: [/* @__PURE__ */ jsx("span", {
         className: "icon",
         children: "\u{1FA7A}"
@@ -21925,8 +21398,583 @@ const MemoTrash = () => {
     })]
   });
 };
+const LEGACY_TIME_REG = /^(\s*[-*]\s(\[[^\]]{1}\]\s+)?)(\d{14})(?=\s|$)/;
+function toClockTime(ts) {
+  return `${ts.slice(8, 10)}:${ts.slice(10, 12)}:${ts.slice(12, 14)}`;
+}
+const legacyTimeRule = {
+  id: "legacy-time",
+  name: "\u65E7 14 \u4F4D\u65F6\u95F4\u6233",
+  why: "\u884C\u9996\u662F\u65E7\u7248 14 \u4F4D\u65F6\u95F4\u6233\uFF08YYYYMMDDHHmmss\uFF09\u3002\u65F6\u95F4\u5E94\u7EDF\u4E00\u4E3A HH:mm:ss\uFF08\u5E26\u79D2\uFF09\u2014\u2014\u65E7\u7248\u8BFB\u53D6\u7AEF\u4F1A\u628A\u5B83\u5F53\u201C\u65E7\u683C\u5F0F\u201D\u53CD\u590D\u8981\u6C42\u56DE\u5199\u3002\u4FEE\u590D\uFF1A\u53EA\u66FF\u6362\u65F6\u95F4\u4F4D\u4E3A HH:mm:ss\uFF0C\u5185\u5BB9\u4E0E ^id \u4E0D\u52A8\u3002",
+  severity: "warning",
+  detect(ctx) {
+    const issues = [];
+    ctx.lines.forEach((line, idx) => {
+      if (!ctx.inScope[idx])
+        return;
+      const m2 = LEGACY_TIME_REG.exec(line);
+      if (m2) {
+        issues.push({
+          ruleId: this.id,
+          path: ctx.path,
+          line: idx + 1,
+          raw: line,
+          fixedLine: `${m2[1]}${toClockTime(m2[3])}${line.slice(m2[0].length)}`
+        });
+      }
+    });
+    return issues;
+  }
+};
+const ID_AT_END$1 = /\^([A-Za-z0-9]{6})\s*$/;
+function randomId$1(exclude) {
+  let id2 = "";
+  do {
+    id2 = Math.random().toString(36).slice(-6);
+  } while (exclude.has(id2));
+  return id2;
+}
+const dupIdRule = {
+  id: "dup-id",
+  name: "\u91CD\u590D ^id",
+  why: "\u540C\u4E00\u6587\u4EF6\u91CC\u51FA\u73B0\u91CD\u590D\u7684 ^id\u3002^id \u662F memo/\u8BC4\u8BBA\u7684\u6301\u4E45\u4E3B\u952E\uFF0C\u91CD\u590D\u4F1A\u4F7F\u8BC4\u8BBA\u5F52\u5C5E\u3001\u56DE\u6536\u7AD9\u3001\u5F15\u7528\u5168\u90E8\u6B67\u4E49\u3002\u4FEE\u590D\uFF1A\u4FDD\u7559\u7B2C\u4E00\u4E2A\u51FA\u73B0\u7684 id\uFF0C\u540E\u7EED\u91CD\u590D\u884C\u6362\u6210\u4E00\u4E2A\u65B0\u7684\u968F\u673A ^id\uFF08\u5F15\u7528\u65B9\u82E5\u6307\u5411\u88AB\u6362\u6389\u7684\u65E7 id \u9700\u4E00\u5E76\u8FC1\u79FB\u2014\u2014\u8BE5\u573A\u666F\u5728\u8FC1\u79FB\u89C4\u5219\u4E2D\u5904\u7406\uFF09\u3002",
+  severity: "error",
+  detect(ctx) {
+    const seen = /* @__PURE__ */ new Map();
+    const occupied = /* @__PURE__ */ new Set();
+    ctx.lines.forEach((line) => {
+      const m2 = ID_AT_END$1.exec(line);
+      if (m2)
+        occupied.add(m2[1]);
+    });
+    const issues = [];
+    ctx.lines.forEach((line, idx) => {
+      if (!ctx.inScope[idx])
+        return;
+      const m2 = ID_AT_END$1.exec(line);
+      if (!m2)
+        return;
+      const id2 = m2[1];
+      if (seen.has(id2)) {
+        const fresh = randomId$1(occupied);
+        occupied.add(fresh);
+        issues.push({
+          ruleId: this.id,
+          path: ctx.path,
+          line: idx + 1,
+          raw: line,
+          note: `\u9996\u6B21\u51FA\u73B0\u5728\u7B2C ${seen.get(id2)} \u884C`,
+          fixedLine: line.slice(0, m2.index) + "^" + fresh
+        });
+      } else {
+        seen.set(id2, idx + 1);
+      }
+    });
+    return issues;
+  }
+};
+const TOP_BULLET = /^[-*]\s(\[[^\]]{1}\]\s+)?/;
+const INDENT_BULLET = /^\s{1,}[-*]\s/;
+const ID_AT_END = /\^([A-Za-z0-9]{6})\s*$/;
+const PURE_HEADER = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
+function detectEra(lines) {
+  for (const line of lines) {
+    if (TOP_BULLET.test(line)) {
+      return PURE_HEADER.test(line) ? "new" : "old";
+    }
+  }
+  return "unknown";
+}
+function randomId() {
+  return Math.random().toString(36).slice(-6);
+}
+const missingIdRule = {
+  id: "missing-id",
+  name: "\u7F3A\u5C11 ^id",
+  why: "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\uFF08Obsidian \u539F\u751F ^id \u662F\u884C\u632A\u4F4D\u4E0D\u53D8\u7684\uFF09\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
+  severity: "warning",
+  detect(ctx) {
+    const era = detectEra(ctx.lines);
+    const issues = [];
+    ctx.lines.forEach((line, idx) => {
+      if (!ctx.inScope[idx])
+        return;
+      const isTop = TOP_BULLET.test(line);
+      const isIndent = INDENT_BULLET.test(line);
+      if (!isTop && !isIndent)
+        return;
+      if (era === "new" && isIndent)
+        return;
+      if (ID_AT_END.test(line))
+        return;
+      issues.push({
+        ruleId: this.id,
+        path: ctx.path,
+        line: idx + 1,
+        raw: line,
+        fixedLine: `${line.trimEnd()} ^${randomId()}`
+      });
+    });
+    return issues;
+  }
+};
+const BR_REG = /<br\s*\/?>|&lt;br\s*\/?&gt;/gi;
+const bareBrRule = {
+  id: "bare-br",
+  name: "\u65E7 <br> \u6362\u884C\u7F16\u7801",
+  why: "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\uFF08\u8FC1\u79FB\u529F\u80FD\u968F P1.5 \u63D0\u4F9B\uFF0C\u5C4A\u65F6\u6B64\u89C4\u5219\u4F1A\u81EA\u52A8\u5347\u7EA7\u4E3A\u53EF\u4FEE\u590D\uFF09\u3002",
+  severity: "info",
+  detect(ctx) {
+    const affectedLines = ctx.lines.filter((l2) => BR_REG.test(l2));
+    if (affectedLines.length === 0)
+      return [];
+    const issues = [];
+    ctx.lines.forEach((line, idx) => {
+      var _a;
+      if (!ctx.inScope[idx])
+        return;
+      const count = ((_a = line.match(BR_REG)) != null ? _a : []).length;
+      if (count > 0) {
+        issues.push({
+          ruleId: this.id,
+          path: ctx.path,
+          line: idx + 1,
+          raw: line,
+          note: `\u8BE5\u884C\u542B ${count} \u5904 <br>\uFF1B\u672C\u6587\u4EF6\u5171 ${affectedLines.length} \u884C\u53D7\u5F71\u54CD\uFF0C\u5EFA\u8BAE\u6574\u4F53\u8FC1\u79FB`
+        });
+      }
+    });
+    return issues;
+  }
+};
+const rules = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule];
+const ruleById = Object.fromEntries(rules.map((r2) => [r2.id, r2]));
+function readLines(file) {
+  return file.vault.cachedRead(file).then((content) => content.split("\n"));
+}
+function computeScope(lines, processBelow) {
+  const inScope = new Array(lines.length).fill(false);
+  const tokenRe = processBelow ? new RegExp(processBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")) : null;
+  let active = !tokenRe;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (tokenRe && !active && tokenRe.test(line))
+      active = true;
+    if (active && /^#{1,} /.test(line))
+      active = false;
+    if (active)
+      inScope[i] = true;
+  }
+  return inScope;
+}
+async function runAudit(onProgress) {
+  var _a, _b;
+  const app2 = appStore.getState().dailyNotesState.app;
+  app2.vault;
+  const dailyNotes = getAllDailyNotes_1();
+  const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").map(([, f2]) => f2).sort((a, b) => b.path.localeCompare(a.path));
+  const issues = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    onProgress == null ? void 0 : onProgress(i + 1, files.length);
+    let lines;
+    try {
+      lines = await readLines(file);
+    } catch {
+      continue;
+    }
+    const ctx = { path: file.path, lines, inScope: computeScope(lines, (_a = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a : "") };
+    for (const rule of rules) {
+      issues.push(...rule.detect(ctx));
+    }
+  }
+  const byRule = {};
+  for (const rule of rules)
+    byRule[rule.id] = [];
+  for (const issue of issues)
+    (_b = byRule[issue.ruleId]) == null ? void 0 : _b.push(issue);
+  return { issues, byRule, scannedFiles: files.length };
+}
+async function applyFixes(issues) {
+  var _a;
+  const empty = { applied: 0, skipped: 0, backupDir: "", changedFiles: 0, appliedLines: [] };
+  const fixable = issues.filter((i) => i.fixedLine);
+  if (fixable.length === 0)
+    return empty;
+  const app2 = appStore.getState().dailyNotesState.app;
+  const vault = app2.vault;
+  const adapter = vault.adapter;
+  const picked = /* @__PURE__ */ new Map();
+  let skipped = 0;
+  for (const issue of fixable) {
+    const key = `${issue.path}#${issue.line}`;
+    if (picked.has(key))
+      skipped++;
+    else
+      picked.set(key, issue);
+  }
+  const pickedIssues = [...picked.values()];
+  const ts = require$$0.moment().format("YYYYMMDD-HHmmss");
+  const backupDir = require$$0.normalizePath(".rememo-backup/audit-" + ts);
+  try {
+    await adapter.mkdir(require$$0.normalizePath(".rememo-backup"));
+  } catch {
+  }
+  await adapter.mkdir(backupDir);
+  const byPath = /* @__PURE__ */ new Map();
+  for (const issue of pickedIssues) {
+    const list = (_a = byPath.get(issue.path)) != null ? _a : [];
+    list.push(issue);
+    byPath.set(issue.path, list);
+  }
+  let applied = 0;
+  let changedFiles = 0;
+  const appliedLines = [];
+  for (const [path, pathIssues] of byPath) {
+    const file = vault.getAbstractFileByPath(path);
+    if (!(file instanceof require$$0.TFile))
+      continue;
+    const lines = await readLines(file);
+    const fileName = file.name;
+    await adapter.write(require$$0.normalizePath(`${backupDir}/${fileName}`), lines.join("\n"));
+    let changed = false;
+    const handledLines = /* @__PURE__ */ new Set();
+    for (const issue of pathIssues) {
+      const lineIdx = issue.line - 1;
+      if (lineIdx < 0 || lineIdx >= lines.length)
+        continue;
+      if (handledLines.has(lineIdx))
+        continue;
+      handledLines.add(lineIdx);
+      lines[lineIdx] = issue.fixedLine;
+      applied++;
+      appliedLines.push({ path, line: issue.line, raw: issue.raw });
+      changed = true;
+    }
+    if (changed) {
+      await vault.modify(file, lines.join("\n"));
+      changedFiles++;
+    }
+  }
+  return { applied, skipped, backupDir, changedFiles, appliedLines };
+}
+var auditPage = "";
+const IGNORED_KEY = "auditIgnoredLines";
+const lineKey = (path, line) => `${path}#${line}`;
+const loadIgnored = () => {
+  var _a;
+  return (_a = storage.get([IGNORED_KEY])[IGNORED_KEY]) != null ? _a : {};
+};
+const saveIgnored = (map) => storage.set({
+  [IGNORED_KEY]: map
+});
+const SEVERITY_ORDER = {
+  error: 0,
+  warning: 1,
+  info: 2
+};
+const FLASH_MAX = 8;
+const AuditPage = () => {
+  var _a, _b, _c;
+  const [result, setResult] = react.exports.useState(null);
+  const [busy, setBusy] = react.exports.useState(false);
+  const [progress, setProgress] = react.exports.useState(null);
+  const [ignored, setIgnored] = react.exports.useState(loadIgnored());
+  const [collapsedFiles, setCollapsedFiles] = react.exports.useState({});
+  const [fixedFlash, setFixedFlash] = react.exports.useState([]);
+  const [msg, setMsg] = react.exports.useState("");
+  const scan = react.exports.useCallback(async (options) => {
+    var _a2;
+    setBusy(true);
+    if (!(options == null ? void 0 : options.silent))
+      setMsg("");
+    try {
+      const res = await runAudit((done, total) => setProgress({
+        done,
+        total
+      }));
+      setResult(res);
+    } catch (e) {
+      setMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`);
+    } finally {
+      setBusy(false);
+      setProgress(null);
+    }
+  }, []);
+  react.exports.useEffect(() => {
+    scan();
+  }, [scan]);
+  const pushFlash = (lines) => {
+    if (lines.length === 0)
+      return;
+    setFixedFlash((prev) => {
+      const seen = new Set(prev.map((f2) => lineKey(f2.path, f2.line)));
+      const merged = [...prev];
+      for (const f2 of lines) {
+        if (!seen.has(lineKey(f2.path, f2.line))) {
+          merged.push(f2);
+          seen.add(lineKey(f2.path, f2.line));
+        }
+      }
+      return merged.slice(-FLASH_MAX);
+    });
+  };
+  const runFixLoop = async (pred, scopeLabel) => {
+    setBusy(true);
+    setMsg("");
+    try {
+      for (let round2 = 0; round2 < 6; round2++) {
+        const res = await runAudit();
+        setResult(res);
+        const targets = res.issues.filter((i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)]);
+        if (targets.length === 0) {
+          if (round2 === 0)
+            setMsg(`${scopeLabel}\uFF1A\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898`);
+          return;
+        }
+        const out = await applyFixes(targets);
+        if (out.appliedLines.length > 0)
+          pushFlash(out.appliedLines);
+        if (out.applied === 0) {
+          setMsg(`${scopeLabel}\uFF1A\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5/\u8FC1\u79FB\uFF09`);
+          return;
+        }
+      }
+      setMsg(`${scopeLabel}\uFF1A\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879`);
+    } finally {
+      setBusy(false);
+    }
+    await scan({
+      silent: true
+    });
+  };
+  const fixOneLine = (path, line) => runFixLoop((i) => i.path === path && i.line === line, `L${line}`);
+  const fixAll = () => runFixLoop(() => true, "\u4E00\u952E\u4FEE\u590D");
+  const toggleIgnore = (path, line) => {
+    const key = lineKey(path, line);
+    const next = {
+      ...ignored
+    };
+    if (next[key])
+      delete next[key];
+    else
+      next[key] = true;
+    setIgnored(next);
+    saveIgnored(next);
+  };
+  const openFile = async (path, line) => {
+    const app2 = appStore.getState().dailyNotesState.app;
+    const file = app2.vault.getAbstractFileByPath(path);
+    if (file instanceof require$$0.TFile) {
+      const leaf = app2.workspace.getLeaf(false);
+      await leaf.openFile(file, {
+        active: true,
+        eState: {
+          line: Math.max(line - 1, 0)
+        }
+      });
+    }
+  };
+  const tree = react.exports.useMemo(() => {
+    var _a2;
+    if (!result)
+      return [];
+    const byPath = /* @__PURE__ */ new Map();
+    for (const issue of result.issues) {
+      if (ignored[lineKey(issue.path, issue.line)])
+        continue;
+      let byLine = byPath.get(issue.path);
+      if (!byLine) {
+        byLine = /* @__PURE__ */ new Map();
+        byPath.set(issue.path, byLine);
+      }
+      const list = (_a2 = byLine.get(issue.line)) != null ? _a2 : [];
+      list.push(issue);
+      byLine.set(issue.line, list);
+    }
+    return [...byPath.entries()].map(([path, byLine]) => ({
+      path,
+      lines: [...byLine.entries()].sort((a, b) => a[0] - b[0]).map(([line, issues]) => ({
+        line,
+        issues: issues.sort((a, b) => {
+          var _a3, _b2, _c2, _d;
+          return SEVERITY_ORDER[(_b2 = (_a3 = ruleById[a.ruleId]) == null ? void 0 : _a3.severity) != null ? _b2 : "info"] - SEVERITY_ORDER[(_d = (_c2 = ruleById[b.ruleId]) == null ? void 0 : _c2.severity) != null ? _d : "info"] || a.ruleId.localeCompare(b.ruleId);
+        })
+      }))
+    })).sort((a, b) => b.path.localeCompare(a.path));
+  }, [result, ignored]);
+  const stats = result ? {
+    files: tree.length,
+    lines: tree.reduce((n2, f2) => n2 + f2.lines.length, 0),
+    issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
+    fixableLines: tree.reduce((n2, f2) => n2 + f2.lines.filter((l2) => l2.issues.some((i) => i.fixedLine)).length, 0)
+  } : null;
+  const shortName = (path) => {
+    var _a2;
+    return (_a2 = path.split("/").pop()) != null ? _a2 : path;
+  };
+  return /* @__PURE__ */ jsx("div", {
+    className: "audit-page-wrapper",
+    children: /* @__PURE__ */ jsxs("div", {
+      className: "audit-page-inner",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "audit-page-header",
+        children: [/* @__PURE__ */ jsx("p", {
+          className: "title-text",
+          children: "\u{1FA7A} \u6570\u636E\u4F53\u68C0"
+        }), /* @__PURE__ */ jsx("p", {
+          className: "sub-text",
+          children: "\u68C0\u6D4B\u65E5\u8BB0\u6587\u4EF6\u4E2D\u7684\u6570\u636E\u7ED3\u6784\u95EE\u9898\u3002\u4FEE\u590D\u524D\u81EA\u52A8\u5907\u4EFD\u5230 .rememo-backup/audit-\u65F6\u95F4\u6233/\uFF0C\u53EF\u653E\u5FC3\u64CD\u4F5C\u3002"
+        })]
+      }), fixedFlash.length > 0 && /* @__PURE__ */ jsxs("div", {
+        className: "audit-flash",
+        children: [/* @__PURE__ */ jsxs("div", {
+          className: "audit-flash-head",
+          children: [/* @__PURE__ */ jsx("span", {
+            children: "\u2705 \u6700\u8FD1\u4FEE\u590D"
+          }), /* @__PURE__ */ jsx("button", {
+            className: "btn clear-flash-btn",
+            onClick: () => setFixedFlash([]),
+            children: "\u6E05\u7A7A"
+          })]
+        }), fixedFlash.map((f2) => /* @__PURE__ */ jsxs("div", {
+          className: "audit-flash-item",
+          children: [/* @__PURE__ */ jsx("span", {
+            className: "audit-file-mini",
+            children: shortName(f2.path)
+          }), /* @__PURE__ */ jsxs("span", {
+            className: "audit-line-mini",
+            children: ["L", f2.line]
+          }), /* @__PURE__ */ jsx("span", {
+            className: "audit-flash-raw",
+            title: f2.raw,
+            children: f2.raw
+          })]
+        }, lineKey(f2.path, f2.line)))]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "audit-toolbar",
+        children: [/* @__PURE__ */ jsxs("span", {
+          className: "audit-stats",
+          children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", (_a = stats == null ? void 0 : stats.files) != null ? _a : 0, " \xB7 memo ", (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0, " \u6761 \xB7 \u95EE\u9898 ", (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0, " \u4E2A", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
+        }), /* @__PURE__ */ jsx("button", {
+          className: "btn refresh-btn",
+          onClick: () => scan(),
+          disabled: busy,
+          children: "\u91CD\u65B0\u4F53\u68C0"
+        }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsxs("button", {
+          className: "btn fix-all-btn",
+          onClick: fixAll,
+          disabled: busy,
+          children: ["\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08", stats.fixableLines, " \u6761\uFF09"]
+        })]
+      }), busy && /* @__PURE__ */ jsx("div", {
+        className: "audit-busy",
+        children: progress ? `\u626B\u63CF\u4E2D\u2026 ${progress.done}/${progress.total}` : "\u5904\u7406\u4E2D\u2026"
+      }), msg && /* @__PURE__ */ jsx("div", {
+        className: "audit-msg",
+        children: msg
+      }), !busy && result && tree.length === 0 && /* @__PURE__ */ jsx("div", {
+        className: "audit-empty",
+        children: "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}"
+      }), !busy && tree.length > 0 && /* @__PURE__ */ jsx("div", {
+        className: "audit-file-list",
+        children: tree.map((file) => {
+          const collapsed = !!collapsedFiles[file.path];
+          const errCount = file.lines.reduce((n2, l2) => n2 + l2.issues.filter((i) => {
+            var _a2;
+            return ((_a2 = ruleById[i.ruleId]) == null ? void 0 : _a2.severity) === "error";
+          }).length, 0);
+          return /* @__PURE__ */ jsxs("section", {
+            className: "audit-file",
+            children: [/* @__PURE__ */ jsxs("header", {
+              className: "audit-file-header",
+              onClick: () => setCollapsedFiles({
+                ...collapsedFiles,
+                [file.path]: !collapsed
+              }),
+              children: [/* @__PURE__ */ jsx("span", {
+                className: "chevron",
+                children: collapsed ? "\u25B8" : "\u25BE"
+              }), /* @__PURE__ */ jsx("span", {
+                className: "audit-file-name",
+                title: file.path,
+                children: shortName(file.path)
+              }), errCount > 0 && /* @__PURE__ */ jsxs("span", {
+                className: "audit-file-err",
+                children: [errCount, " \u5904\u9519\u8BEF"]
+              }), /* @__PURE__ */ jsxs("span", {
+                className: "audit-file-count",
+                children: [file.lines.length, " \u6761 memo"]
+              })]
+            }), !collapsed && /* @__PURE__ */ jsx("div", {
+              className: "audit-line-list",
+              children: file.lines.map(({
+                line,
+                issues
+              }) => {
+                var _a2, _b2;
+                const key = lineKey(file.path, line);
+                const fixableIssue = issues.find((i) => i.fixedLine);
+                const raw = issues[0].raw;
+                return /* @__PURE__ */ jsxs("div", {
+                  className: "audit-line",
+                  children: [/* @__PURE__ */ jsxs("div", {
+                    className: "audit-line-head",
+                    children: [/* @__PURE__ */ jsxs("span", {
+                      className: "audit-line-no",
+                      children: ["L", line]
+                    }), /* @__PURE__ */ jsx("span", {
+                      className: "audit-line-preview",
+                      title: raw,
+                      children: raw
+                    })]
+                  }), /* @__PURE__ */ jsx("div", {
+                    className: "audit-line-badges",
+                    children: issues.map((issue) => {
+                      var _a3, _b3;
+                      const rule = ruleById[issue.ruleId];
+                      return /* @__PURE__ */ jsx("span", {
+                        className: `badge badge-${(_a3 = rule == null ? void 0 : rule.severity) != null ? _a3 : "info"}`,
+                        title: rule == null ? void 0 : rule.why,
+                        children: (_b3 = rule == null ? void 0 : rule.name) != null ? _b3 : issue.ruleId
+                      }, issue.ruleId);
+                    })
+                  }), fixableIssue && fixableIssue.fixedLine !== raw && /* @__PURE__ */ jsxs("div", {
+                    className: "audit-fix-preview",
+                    title: fixableIssue.fixedLine,
+                    children: [/* @__PURE__ */ jsxs("span", {
+                      className: "audit-fix-label",
+                      children: ["\u300C", (_b2 = (_a2 = ruleById[fixableIssue.ruleId]) == null ? void 0 : _a2.name) != null ? _b2 : fixableIssue.ruleId, "\u300D \u4FEE\u590D\u4E3A\uFF1A"]
+                    }), fixableIssue.fixedLine]
+                  }), /* @__PURE__ */ jsxs("div", {
+                    className: "audit-line-actions",
+                    children: [fixableIssue && /* @__PURE__ */ jsx("button", {
+                      className: "btn fix-one-btn",
+                      onClick: () => fixOneLine(file.path, line),
+                      disabled: busy,
+                      children: "\u4FEE\u590D\u8FD9\u6761"
+                    }), /* @__PURE__ */ jsx("button", {
+                      className: "btn view-btn",
+                      onClick: () => openFile(file.path, line),
+                      children: "\u67E5\u770B"
+                    }), /* @__PURE__ */ jsx("button", {
+                      className: "btn ignore-btn",
+                      onClick: () => toggleIgnore(file.path, line),
+                      children: "\u5FFD\u7565"
+                    })]
+                  })]
+                }, key);
+              })
+            })]
+          }, file.path);
+        })
+      })]
+    })
+  });
+};
 const homeRouter = {
   "/recycle": /* @__PURE__ */ jsx(MemoTrash, {}),
+  "/audit": /* @__PURE__ */ jsx(AuditPage, {}),
   "*": /* @__PURE__ */ jsx(Memos$1, {})
 };
 const routerSwitch = (router) => {

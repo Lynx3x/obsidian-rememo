@@ -1,0 +1,351 @@
+@import './mixin.less';
+
+// 数据体检整页（路由 /audit）。列表结构一律用 div（勿用 li——theme 会给 li::before 注入 •）。
+.audit-page-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  .hide-scroll-bar();
+}
+
+.audit-page-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// ---- 页头 ----
+.audit-page-header {
+  .title-text {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--memo-text);
+  }
+
+  .sub-text {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--memo-text-muted);
+  }
+}
+
+// ---- 最近修复（置顶反馈）----
+.audit-flash {
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 35%, transparent);
+  border-radius: var(--memo-radius-m);
+  background-color: color-mix(in srgb, var(--memo-accent) 7%, var(--memo-bg));
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .audit-flash-head {
+    .flex(row, space-between, center);
+
+    > span {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--memo-accent);
+    }
+
+    .clear-flash-btn {
+      height: 20px;
+      padding: 0 8px;
+      font-size: 11px;
+      border-radius: var(--memo-radius-s);
+      color: var(--memo-text-muted);
+      background-color: transparent;
+
+      &:hover {
+        background-color: var(--memo-surface-hover);
+      }
+    }
+  }
+
+  .audit-flash-item {
+    .flex(row, flex-start, center);
+    gap: 8px;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.5;
+
+    .audit-file-mini {
+      flex-shrink: 0;
+      color: var(--memo-text);
+      font-weight: bold;
+      .mono-font-family();
+    }
+
+    .audit-line-mini {
+      flex-shrink: 0;
+      color: var(--memo-text-faint);
+      .mono-font-family();
+    }
+
+    .audit-flash-raw {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--memo-text-muted);
+      .mono-font-family();
+    }
+  }
+}
+
+// ---- 工具条 / 状态 ----
+.audit-toolbar {
+  .flex(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .audit-stats {
+    margin-right: auto;
+    font-size: 13px;
+    color: var(--memo-text-muted);
+  }
+
+  .btn {
+    height: 28px;
+    padding: 0 14px;
+    font-size: 13px;
+    border-radius: var(--memo-radius-s);
+    background-color: var(--memo-surface-hover);
+    color: var(--memo-text);
+    transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast);
+
+    &:hover {
+      background-color: var(--memo-border);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .fix-all-btn {
+    background-color: var(--memo-accent);
+    color: var(--memo-on-accent);
+
+    &:hover {
+      background-color: var(--memo-accent-hover);
+    }
+  }
+}
+
+.audit-busy,
+.audit-empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--memo-text-muted);
+  font-size: 14px;
+}
+
+.audit-msg {
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  border-radius: var(--memo-radius-m);
+  color: var(--memo-text);
+  background-color: var(--memo-surface-hover);
+}
+
+.chevron {
+  font-size: 11px;
+  color: var(--memo-text-faint);
+  flex-shrink: 0;
+}
+
+// ---- 文件卡片 ----
+.audit-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audit-file {
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-m);
+  background-color: var(--memo-bg);
+  overflow: hidden;
+}
+
+.audit-file-header {
+  .flex(row, flex-start, center);
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--memo-transition-fast);
+
+  &:hover {
+    background-color: var(--memo-surface-hover);
+  }
+
+  .audit-file-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--memo-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    .mono-font-family();
+  }
+
+  .audit-file-err {
+    font-size: 11px;
+    padding: 0 7px;
+    line-height: 17px;
+    border-radius: 9px;
+    color: var(--memo-danger);
+    background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
+    flex-shrink: 0;
+  }
+
+  .audit-file-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--memo-text-faint);
+    flex-shrink: 0;
+  }
+}
+
+// ---- memo 行条目 ----
+.audit-line-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.audit-line {
+  padding: 8px 14px 8px 20px;
+  border-top: 1px dashed var(--memo-border);
+
+  &:first-child {
+    border-top: none;
+  }
+}
+
+.audit-line-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  .audit-line-no {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--memo-text-faint);
+    .mono-font-family();
+  }
+
+  // 行内容：块级 + 单行省略（双保险写法）
+  .audit-line-preview {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--memo-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    .mono-font-family();
+  }
+}
+
+.audit-line-badges {
+  .flex(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+
+  .badge {
+    font-size: 11px;
+    line-height: 17px;
+    padding: 0 8px;
+    border-radius: 9px;
+    user-select: none;
+  }
+
+  .badge-error {
+    color: var(--memo-danger);
+    background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
+  }
+
+  .badge-warning {
+    color: var(--memo-accent);
+    background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+  }
+
+  .badge-info {
+    color: var(--memo-text-muted);
+    background-color: var(--memo-surface-hover);
+  }
+}
+
+// 修复预览（单行缩略，hover 全文）
+.audit-fix-preview {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--memo-text);
+  background-color: color-mix(in srgb, var(--memo-accent) 7%, var(--memo-surface-hover));
+  border-radius: var(--memo-radius-s);
+  padding: 2px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  .mono-font-family();
+
+  .audit-fix-label {
+    color: var(--memo-text-faint);
+  }
+}
+
+// ---- 行操作 ----
+.audit-line-actions {
+  .flex(row, flex-start, center);
+  gap: 8px;
+  margin-top: 6px;
+
+  .btn {
+    height: 24px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: var(--memo-radius-s);
+    background-color: var(--memo-surface-hover);
+    color: var(--memo-text);
+    transition: background-color var(--memo-transition-fast), opacity var(--memo-transition-fast);
+
+    &:hover {
+      background-color: var(--memo-border);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .fix-one-btn {
+    background-color: var(--memo-accent);
+    color: var(--memo-on-accent);
+
+    &:hover {
+      background-color: var(--memo-accent-hover);
+    }
+  }
+
+  .view-btn,
+  .ignore-btn {
+    color: var(--memo-text-muted);
+  }
+}

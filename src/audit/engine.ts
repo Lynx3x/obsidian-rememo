@@ -66,14 +66,22 @@ export async function runAudit(
 
 /**
  * 修复一批 issue（仅行级可修 fixedLine）。
- * 返回 { applied, skipped, backupDir, changedFiles }
+ * 返回 { applied, skipped, backupDir, changedFiles, appliedLines }
  * skipped = 同 path+line 撞了多条可修规则、只取了第一条的其余条数（重扫可继续修）。
+ * appliedLines = 本次实际修复的行明细（供 UI 展示"最近修复"）。
  */
 export async function applyFixes(
   issues: Issue[],
-): Promise<{ applied: number; skipped: number; backupDir: string; changedFiles: number }> {
+): Promise<{
+  applied: number;
+  skipped: number;
+  backupDir: string;
+  changedFiles: number;
+  appliedLines: { path: string; line: number; raw: string }[];
+}> {
+  const empty = { applied: 0, skipped: 0, backupDir: '', changedFiles: 0, appliedLines: [] };
   const fixable = issues.filter((i) => i.fixedLine);
-  if (fixable.length === 0) return { applied: 0, skipped: 0, backupDir: '', changedFiles: 0 };
+  if (fixable.length === 0) return empty;
 
   const app = appStore.getState().dailyNotesState.app;
   const vault = app.vault;
@@ -108,6 +116,7 @@ export async function applyFixes(
 
   let applied = 0;
   let changedFiles = 0;
+  const appliedLines: { path: string; line: number; raw: string }[] = [];
   for (const [path, pathIssues] of byPath) {
     const file = vault.getAbstractFileByPath(path);
     if (!(file instanceof TFile)) continue;
@@ -126,6 +135,7 @@ export async function applyFixes(
       handledLines.add(lineIdx);
       lines[lineIdx] = issue.fixedLine as string;
       applied++;
+      appliedLines.push({ path, line: issue.line, raw: issue.raw });
       changed = true;
     }
     if (changed) {
@@ -134,5 +144,5 @@ export async function applyFixes(
     }
   }
 
-  return { applied, skipped, backupDir, changedFiles };
+  return { applied, skipped, backupDir, changedFiles, appliedLines };
 }

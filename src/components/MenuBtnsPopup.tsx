@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { locationService, resourceService } from '../services';
 import showAboutSiteDialog from './AboutSiteDialog';
-import showAuditDialog from '../audit/ui/AuditDialog';
 import '../less/menu-btns-popup.less';
 import dailyNotesService from '../services/dailyNotesService';
 import { t } from '../translations/helper';
@@ -89,7 +88,7 @@ const MenuBtnsPopup: React.FC<Props> = (props: Props) => {
       <button className="btn action-btn" onClick={handleMemosTrashBtnClick}>
         <span className="icon">🗑️</span> {t('Recycle bin')}
       </button>
-      <button className="btn action-btn" onClick={showAuditDialog}>
+      <button className="btn action-btn" onClick={() => locationService.pushHistory('/audit')}>
         <span className="icon">🩺</span> {t('Audit data')}
       </button>
       <button className="btn action-btn" onClick={handleImportBtnClick}>
