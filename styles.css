@@ -675,6 +675,267 @@ div[data-type='memos_view'] svg.action-btn,
 .hide-scroll-bar::-webkit-scrollbar {
   display: none;
 }
+.dialog-wrapper.audit-dialog > .dialog-container {
+  width: 720px;
+  max-width: calc(100vw - 48px);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dialog-wrapper.audit-dialog > .dialog-container > .dialog-header-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-shrink: 0;
+}
+.dialog-wrapper.audit-dialog > .dialog-container > .dialog-header-container .close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--memo-radius-s);
+  color: var(--memo-text-muted);
+  transition: background-color var(--memo-transition-fast);
+}
+.dialog-wrapper.audit-dialog > .dialog-container > .dialog-header-container .close-btn:hover {
+  background-color: var(--memo-surface-hover);
+}
+.dialog-wrapper.audit-dialog .audit-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-right: 4px;
+}
+.dialog-wrapper.audit-dialog .audit-content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  cursor: pointer;
+}
+.dialog-wrapper.audit-dialog .audit-content::-webkit-scrollbar-thumb {
+  width: 6px;
+  height: 6px;
+  border-radius: 8px;
+  background-color: var(--memo-border, #d5d5d5);
+}
+.dialog-wrapper.audit-dialog .audit-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--memo-border-strong, #ccc);
+}
+.dialog-wrapper.audit-dialog .audit-scanning,
+.dialog-wrapper.audit-dialog .audit-empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--memo-text-muted);
+  font-size: 14px;
+}
+.dialog-wrapper.audit-dialog .audit-toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.dialog-wrapper.audit-dialog .audit-toolbar .audit-stats {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--memo-text-muted);
+}
+.dialog-wrapper.audit-dialog .audit-toolbar .btn {
+  height: 26px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: var(--memo-radius-s);
+  background-color: var(--memo-surface-hover);
+  color: var(--memo-text);
+  transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast);
+}
+.dialog-wrapper.audit-dialog .audit-toolbar .btn:hover {
+  background-color: var(--memo-border);
+}
+.dialog-wrapper.audit-dialog .audit-toolbar .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dialog-wrapper.audit-dialog .audit-toolbar .fix-all-btn {
+  background-color: var(--memo-accent);
+  color: var(--memo-on-accent);
+}
+.dialog-wrapper.audit-dialog .audit-toolbar .fix-all-btn:hover {
+  background-color: var(--memo-accent-hover);
+}
+.dialog-wrapper.audit-dialog .audit-fix-msg {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  border-radius: var(--memo-radius-s);
+  color: var(--memo-text);
+  background-color: var(--memo-surface-hover);
+}
+.dialog-wrapper.audit-dialog .audit-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dialog-wrapper.audit-dialog .audit-rule {
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-m);
+  padding: 10px 12px;
+  background-color: var(--memo-bg);
+}
+.dialog-wrapper.audit-dialog .audit-rule-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+.dialog-wrapper.audit-dialog .audit-rule-header .severity {
+  font-size: 13px;
+  font-weight: bold;
+  padding: 1px 8px;
+  border-radius: var(--memo-radius-s);
+}
+.dialog-wrapper.audit-dialog .audit-rule-header .severity-error {
+  color: var(--memo-danger);
+  background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
+}
+.dialog-wrapper.audit-dialog .audit-rule-header .severity-warning {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+}
+.dialog-wrapper.audit-dialog .audit-rule-header .severity-info {
+  color: var(--memo-text-muted);
+  background-color: var(--memo-surface-hover);
+}
+.dialog-wrapper.audit-dialog .audit-rule-header .audit-rule-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--memo-text-faint);
+}
+.dialog-wrapper.audit-dialog .audit-rule-why {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--memo-text-muted);
+}
+.dialog-wrapper.audit-dialog .audit-issue-list {
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dialog-wrapper.audit-dialog .audit-issue {
+  border-top: 1px dashed var(--memo-border);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dialog-wrapper.audit-dialog .audit-issue-meta {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+}
+.dialog-wrapper.audit-dialog .audit-issue-meta .audit-file {
+  color: var(--memo-text);
+  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+.dialog-wrapper.audit-dialog .audit-issue-meta .audit-line {
+  color: var(--memo-text-faint);
+  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+.dialog-wrapper.audit-dialog .audit-issue-meta .audit-note {
+  color: var(--memo-text-muted);
+}
+.dialog-wrapper.audit-dialog .audit-code {
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border-radius: var(--memo-radius-s);
+  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+.dialog-wrapper.audit-dialog .audit-code-raw {
+  color: var(--memo-text);
+  background-color: var(--memo-surface-hover);
+}
+.dialog-wrapper.audit-dialog .audit-arrow {
+  font-size: 11px;
+  color: var(--memo-text-faint);
+}
+.dialog-wrapper.audit-dialog .audit-code-fixed {
+  color: var(--memo-text);
+  background-color: color-mix(in srgb, var(--memo-accent) 8%, var(--memo-surface-hover));
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions .btn {
+  height: 24px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: var(--memo-radius-s);
+  background-color: var(--memo-surface-hover);
+  color: var(--memo-text);
+  transition: background-color var(--memo-transition-fast);
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions .btn:hover {
+  background-color: var(--memo-border);
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions .fix-one-btn {
+  background-color: var(--memo-accent);
+  color: var(--memo-on-accent);
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions .fix-one-btn:hover {
+  background-color: var(--memo-accent-hover);
+}
+.dialog-wrapper.audit-dialog .audit-issue-actions .ignore-btn {
+  color: var(--memo-text-muted);
+}
+.mono-font-family {
+  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+.hide-scroll-bar {
+  scrollbar-width: none;
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+.hide-scroll-bar::-webkit-scrollbar-thumb {
+  width: 0;
+  height: 0;
+  border-radius: 8px;
+  background-color: var(--memo-border, #d5d5d5);
+}
+.hide-scroll-bar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--memo-border-strong, #ccc);
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
 div[data-type='memos_view'] .menu-btns-popup {
   display: flex;
   flex-direction: column;

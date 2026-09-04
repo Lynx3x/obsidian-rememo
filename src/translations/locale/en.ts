@@ -112,6 +112,7 @@ export default {
   'Comment it...': 'Comment it...',
   Settings: 'Settings',
   'Recycle bin': 'Recycle bin',
+  'Audit data': 'Audit data',
   'About Me': 'About Me',
   'Fetching data...': 'Fetching data...',
   'Here is No Zettels.': 'Here is No Zettels.',

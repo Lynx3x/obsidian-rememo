@@ -20,6 +20,9 @@ interface StorageData {
   tinyUndoActionsCache: InputAction[];
   // tiny undo index cache
   tinyUndoIndexCache: number;
+
+  // 数据体检：用户忽略的问题 key（"ruleId:path:line" → true）
+  auditIgnored: Record<string, boolean>;
 }
 
 type StorageKey = keyof StorageData;
@@ -29,7 +32,7 @@ type StorageKey = keyof StorageData;
  */
 export namespace storage {
   export function get(keys: StorageKey[]): Partial<StorageData> {
-    const data: Partial<StorageData> = {};
+    const data: Record<string, unknown> = {};
 
     for (const key of keys) {
       try {
@@ -43,7 +46,7 @@ export namespace storage {
       }
     }
 
-    return data;
+    return data as Partial<StorageData>;
   }
 
   export function set(data: Partial<StorageData>) {

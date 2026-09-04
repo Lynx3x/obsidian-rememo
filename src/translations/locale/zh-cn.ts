@@ -90,6 +90,7 @@ export default {
   'CREATE FILTER': '创建检索式',
   Settings: '设置',
   'Recycle bin': '回收站',
+  'Audit data': '数据体检',
   'About Me': '关于',
   'Fetching data...': '获取数据中...',
   'Here is No Zettels.': '没有找到 memo',

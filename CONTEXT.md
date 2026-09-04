@@ -90,6 +90,7 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - 翻译 key：'Time display format' / 'Time display format description'（en/zh-cn）
   - 注：`npx tsc` src 有两条**基线噪音**（非本次引入）：CommentInput.tsx `'Cancel'` 不在 en keyof、Editor.tsx rta 泛型不匹配
 - **`[[` 文件名联想增强（2026-09-04）**: rta '[[' trigger 早已存在（多字符 trigger 库支持），本轮把"基础版"做成类 Obsidian：`obFileSuggester.getSuggestions` 评分排序（basename 前缀 > basename 包含 > 全路径包含，同分路径字典序，空 query 全量按路径列出）；联想条目显示 md 用 basename（无扩展名）、图片带扩展名 + 右侧淡色目录消歧，选中高亮走 accent（suggest.less 新增 `.rta-sug-file/name/path`）。注意 rta 传给 dataProvider 的 token 仍带 '['（如 '[ob'），剥前缀处已兼容
+- **大改立项（2026-09-05）**: 富内容存储（卡片块多行正文，弃 `<br>`）+ cm6 输入内核。**决策与规格见 [PLAN-FORMAT.md](PLAN-FORMAT.md)**（头行纯标识、正文 4 空格缩进、deletedAt 仍放行内、评论/引用首期不做未来走跨文件引用卡）。P0 = `src/audit/` 规则引擎体检工具（先行，eslint 式规则注册表，同时是迁移执行器）。tag 联想事实更正：Obsidian 原生有（1.4.0 changelog "Tag autocomplete now uses a fuzzy search algorithm"），cm6 autocomplete 框架内实现，别再断言没有。
 - **阶段 F1 指定日期添加（2026-09-03）**:
   - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
   - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建
@@ -153,4 +154,4 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **指定日期写入（2026-09-03）**：MemoEditor 工具栏新增 `calendar.svg` 按钮 → `WriteDatePopover`（DatePicker+HH:mm）。目标 moment 存 `targetDate`（react-usestateref 的 ref 供空依赖回调读），**保留到手动 ✕**；编辑态不显示。`memoService.createMemo(content, isList, targetDate ?? undefined)`，缺省仍写"现在/今天"。旧 @/📆 日期插入 + `InsertDateFormat` 设置 + `select-date-picker.less` 已移除。
 - 注意：`styles.css` 已随次级收口重新 build（224.6 KiB，main.js 本轮无改动）。次级界面 token 化（2026-09-04）尚未目视，弹窗/回收站/设置/热力图/标签/查询/侧栏需逐文件在 Obsidian 里看浅/深 + 换 accent。
 
-_See also: [REFACTOR-2026.md](REFACTOR-2026.md) (2026 重构方案，部分已实施) · [UI-STYLE.md](UI-STYLE.md) (样式/动效接续文档：token、已收口清单、待办、坑)。_
+_See also: [PLAN-FORMAT.md](PLAN-FORMAT.md) (2026-09-05 富内容存储+cm6 大改计划，P0 体检引擎进行中) · [REFACTOR-2026.md](REFACTOR-2026.md) (2026 重构方案，部分已实施) · [UI-STYLE.md](UI-STYLE.md) (样式/动效接续文档：token、已收口清单、待办、坑)。_

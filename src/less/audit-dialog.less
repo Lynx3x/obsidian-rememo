@@ -1,0 +1,253 @@
+@import './mixin.less';
+
+// 数据体检报告弹窗（audit 规则引擎的 UI；token 单份书写）
+.dialog-wrapper.audit-dialog {
+  > .dialog-container {
+    width: 720px;
+    max-width: calc(100vw - 48px);
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    > .dialog-header-container {
+      .flex(row, space-between, center);
+      width: 100%;
+      flex-shrink: 0;
+
+      .close-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: var(--memo-radius-s);
+        color: var(--memo-text-muted);
+        transition: background-color var(--memo-transition-fast);
+
+        &:hover {
+          background-color: var(--memo-surface-hover);
+        }
+      }
+    }
+  }
+
+  .audit-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    .pretty-scroll-bar(6px, 6px);
+    padding-right: 4px;
+  }
+
+  .audit-scanning,
+  .audit-empty {
+    padding: 32px 0;
+    text-align: center;
+    color: var(--memo-text-muted);
+    font-size: 14px;
+  }
+
+  .audit-toolbar {
+    .flex(row, flex-start, center);
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .audit-stats {
+      margin-right: auto;
+      font-size: 13px;
+      color: var(--memo-text-muted);
+    }
+
+    .btn {
+      height: 26px;
+      padding: 0 12px;
+      font-size: 13px;
+      border-radius: var(--memo-radius-s);
+      background-color: var(--memo-surface-hover);
+      color: var(--memo-text);
+      transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast);
+
+      &:hover {
+        background-color: var(--memo-border);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .fix-all-btn {
+      background-color: var(--memo-accent);
+      color: var(--memo-on-accent);
+
+      &:hover {
+        background-color: var(--memo-accent-hover);
+      }
+    }
+  }
+
+  .audit-fix-msg {
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    border-radius: var(--memo-radius-s);
+    color: var(--memo-text);
+    background-color: var(--memo-surface-hover);
+  }
+
+  .audit-rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .audit-rule {
+    border: 1px solid var(--memo-border);
+    border-radius: var(--memo-radius-m);
+    padding: 10px 12px;
+    background-color: var(--memo-bg);
+  }
+
+  .audit-rule-header {
+    .flex(row, flex-start, center);
+    gap: 8px;
+
+    .severity {
+      font-size: 13px;
+      font-weight: bold;
+      padding: 1px 8px;
+      border-radius: var(--memo-radius-s);
+    }
+
+    .severity-error {
+      color: var(--memo-danger);
+      background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
+    }
+
+    .severity-warning {
+      color: var(--memo-accent);
+      background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+    }
+
+    .severity-info {
+      color: var(--memo-text-muted);
+      background-color: var(--memo-surface-hover);
+    }
+
+    .audit-rule-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--memo-text-faint);
+    }
+  }
+
+  .audit-rule-why {
+    margin: 6px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--memo-text-muted);
+  }
+
+  .audit-issue-list {
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .audit-issue {
+    border-top: 1px dashed var(--memo-border);
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .audit-issue-meta {
+    .flex(row, flex-start, center);
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+
+    .audit-file {
+      color: var(--memo-text);
+      .mono-font-family();
+    }
+
+    .audit-line {
+      color: var(--memo-text-faint);
+      .mono-font-family();
+    }
+
+    .audit-note {
+      color: var(--memo-text-muted);
+    }
+  }
+
+  .audit-code {
+    margin: 0;
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-radius: var(--memo-radius-s);
+    .mono-font-family();
+  }
+
+  .audit-code-raw {
+    color: var(--memo-text);
+    background-color: var(--memo-surface-hover);
+  }
+
+  .audit-arrow {
+    font-size: 11px;
+    color: var(--memo-text-faint);
+  }
+
+  .audit-code-fixed {
+    color: var(--memo-text);
+    background-color: color-mix(in srgb, var(--memo-accent) 8%, var(--memo-surface-hover));
+  }
+
+  .audit-issue-actions {
+    .flex(row, flex-start, center);
+    gap: 8px;
+
+    .btn {
+      height: 24px;
+      padding: 0 10px;
+      font-size: 12px;
+      border-radius: var(--memo-radius-s);
+      background-color: var(--memo-surface-hover);
+      color: var(--memo-text);
+      transition: background-color var(--memo-transition-fast);
+
+      &:hover {
+        background-color: var(--memo-border);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .fix-one-btn {
+      background-color: var(--memo-accent);
+      color: var(--memo-on-accent);
+
+      &:hover {
+        background-color: var(--memo-accent-hover);
+      }
+    }
+
+    .ignore-btn {
+      color: var(--memo-text-muted);
+    }
+  }
+}
