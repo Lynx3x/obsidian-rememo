@@ -74,12 +74,14 @@
   }
 
   // 输入/控件默认透明无边框（沿用旧意图，去掉浅深双写）
+  // 注意：必须清 background-image——Obsidian 主题常给 button 挂渐变，会盖住组件自设的背景色
   label,
   input,
   button:not(.rdp),
   textarea,
   img {
     background-color: transparent;
+    background-image: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     border: none;

@@ -9,6 +9,7 @@ import { ruleById } from '../rules';
 import { AuditResult, Issue, RuleSeverity } from '../types';
 import { storage } from '../../helpers/storage';
 import appStore from '../../stores/appStore';
+import Pagination from '../../components/Pagination';
 import '../../less/audit-page.less';
 
 const IGNORED_KEY = 'auditIgnoredLines';
@@ -35,6 +36,8 @@ const AuditPage: React.FC = () => {
   const [collapsedFiles, setCollapsedFiles] = useState<Record<string, boolean>>({});
   const [fixedFlash, setFixedFlash] = useState<FixedFlash[]>([]);
   const [msg, setMsg] = useState('');
+  const [page, setPage] = useState(1);
+  const FILE_PAGE_SIZE = 8; // 每页文件数
 
   const scan = useCallback(async (options?: { silent?: boolean }) => {
     setBusy(true);
@@ -168,6 +171,11 @@ const AuditPage: React.FC = () => {
 
   const shortName = (path: string) => path.split('/').pop() ?? path;
 
+  // ---- 分页（按文件，每页 FILE_PAGE_SIZE 个）----
+  const totalPages = Math.max(1, Math.ceil(tree.length / FILE_PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageFiles = tree.slice((safePage - 1) * FILE_PAGE_SIZE, safePage * FILE_PAGE_SIZE);
+
   return (
     <div className="audit-page-wrapper">
       <div className="audit-page-inner">
@@ -222,9 +230,9 @@ const AuditPage: React.FC = () => {
 
         {!busy && result && tree.length === 0 && <div className="audit-empty">没发现问题 🎉</div>}
 
-        {!busy && tree.length > 0 && (
+        {!busy && pageFiles.length > 0 && (
           <div className="audit-file-list">
-            {tree.map((file) => {
+            {pageFiles.map((file) => {
               const collapsed = !!collapsedFiles[file.path];
               const errCount = file.lines.reduce(
                 (n, l) =>
@@ -251,7 +259,9 @@ const AuditPage: React.FC = () => {
                     <div className="audit-line-list">
                       {file.lines.map(({ line, issues }) => {
                         const key = lineKey(file.path, line);
-                        const fixableIssue = issues.find((i) => i.fixedLine);
+                        const fixableIssues = issues.filter(
+                          (i) => i.fixedLine && i.fixedLine !== issues[0].raw,
+                        );
                         const raw = issues[0].raw;
                         return (
                           <div className="audit-line" key={key}>
@@ -275,17 +285,21 @@ const AuditPage: React.FC = () => {
                                 );
                               })}
                             </div>
-                            {fixableIssue && fixableIssue.fixedLine !== raw && (
-                              <div className="audit-fix-preview" title={fixableIssue.fixedLine}>
-                                <span className="audit-fix-label">
-                                  「{ruleById[fixableIssue.ruleId]?.name ?? fixableIssue.ruleId}」
-                                  修复为：
-                                </span>
-                                {fixableIssue.fixedLine}
-                              </div>
-                            )}
+                            {fixableIssues.length > 0 &&
+                              fixableIssues.map((issue) => (
+                                <div
+                                  className="audit-fix-preview"
+                                  key={`fix-${issue.ruleId}`}
+                                  title={issue.fixedLine}
+                                >
+                                  <span className="audit-fix-label">
+                                    「{ruleById[issue.ruleId]?.name ?? issue.ruleId}」修复为：
+                                  </span>
+                                  {issue.fixedLine}
+                                </div>
+                              ))}
                             <div className="audit-line-actions">
-                              {fixableIssue && (
+                              {fixableIssues.length > 0 && (
                                 <button
                                   className="btn fix-one-btn"
                                   onClick={() => fixOneLine(file.path, line)}
@@ -313,6 +327,15 @@ const AuditPage: React.FC = () => {
               );
             })}
           </div>
+        )}
+
+        {/* 分页（文件多于一页时显示） */}
+        {!busy && (
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         )}
       </div>
     </div>

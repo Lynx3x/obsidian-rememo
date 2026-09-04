@@ -21683,6 +21683,8 @@ const AuditPage = () => {
   const [collapsedFiles, setCollapsedFiles] = react.exports.useState({});
   const [fixedFlash, setFixedFlash] = react.exports.useState([]);
   const [msg, setMsg] = react.exports.useState("");
+  const [page, setPage] = react.exports.useState(1);
+  const FILE_PAGE_SIZE = 8;
   const scan = react.exports.useCallback(async (options) => {
     var _a2;
     setBusy(true);
@@ -21813,6 +21815,9 @@ const AuditPage = () => {
     var _a2;
     return (_a2 = path.split("/").pop()) != null ? _a2 : path;
   };
+  const totalPages = Math.max(1, Math.ceil(tree.length / FILE_PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageFiles = tree.slice((safePage - 1) * FILE_PAGE_SIZE, safePage * FILE_PAGE_SIZE);
   return /* @__PURE__ */ jsx("div", {
     className: "audit-page-wrapper",
     children: /* @__PURE__ */ jsxs("div", {
@@ -21876,9 +21881,9 @@ const AuditPage = () => {
       }), !busy && result && tree.length === 0 && /* @__PURE__ */ jsx("div", {
         className: "audit-empty",
         children: "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}"
-      }), !busy && tree.length > 0 && /* @__PURE__ */ jsx("div", {
+      }), !busy && pageFiles.length > 0 && /* @__PURE__ */ jsx("div", {
         className: "audit-file-list",
-        children: tree.map((file) => {
+        children: pageFiles.map((file) => {
           const collapsed = !!collapsedFiles[file.path];
           const errCount = file.lines.reduce((n2, l2) => n2 + l2.issues.filter((i) => {
             var _a2;
@@ -21912,9 +21917,8 @@ const AuditPage = () => {
                 line,
                 issues
               }) => {
-                var _a2, _b2;
                 const key = lineKey(file.path, line);
-                const fixableIssue = issues.find((i) => i.fixedLine);
+                const fixableIssues = issues.filter((i) => i.fixedLine && i.fixedLine !== issues[0].raw);
                 const raw = issues[0].raw;
                 return /* @__PURE__ */ jsxs("div", {
                   className: "audit-line",
@@ -21931,24 +21935,27 @@ const AuditPage = () => {
                   }), /* @__PURE__ */ jsx("div", {
                     className: "audit-line-badges",
                     children: issues.map((issue) => {
-                      var _a3, _b3;
+                      var _a2, _b2;
                       const rule = ruleById[issue.ruleId];
                       return /* @__PURE__ */ jsx("span", {
-                        className: `badge badge-${(_a3 = rule == null ? void 0 : rule.severity) != null ? _a3 : "info"}`,
+                        className: `badge badge-${(_a2 = rule == null ? void 0 : rule.severity) != null ? _a2 : "info"}`,
                         title: rule == null ? void 0 : rule.why,
-                        children: (_b3 = rule == null ? void 0 : rule.name) != null ? _b3 : issue.ruleId
+                        children: (_b2 = rule == null ? void 0 : rule.name) != null ? _b2 : issue.ruleId
                       }, issue.ruleId);
                     })
-                  }), fixableIssue && fixableIssue.fixedLine !== raw && /* @__PURE__ */ jsxs("div", {
-                    className: "audit-fix-preview",
-                    title: fixableIssue.fixedLine,
-                    children: [/* @__PURE__ */ jsxs("span", {
-                      className: "audit-fix-label",
-                      children: ["\u300C", (_b2 = (_a2 = ruleById[fixableIssue.ruleId]) == null ? void 0 : _a2.name) != null ? _b2 : fixableIssue.ruleId, "\u300D \u4FEE\u590D\u4E3A\uFF1A"]
-                    }), fixableIssue.fixedLine]
+                  }), fixableIssues.length > 0 && fixableIssues.map((issue) => {
+                    var _a2, _b2;
+                    return /* @__PURE__ */ jsxs("div", {
+                      className: "audit-fix-preview",
+                      title: issue.fixedLine,
+                      children: [/* @__PURE__ */ jsxs("span", {
+                        className: "audit-fix-label",
+                        children: ["\u300C", (_b2 = (_a2 = ruleById[issue.ruleId]) == null ? void 0 : _a2.name) != null ? _b2 : issue.ruleId, "\u300D\u4FEE\u590D\u4E3A\uFF1A"]
+                      }), issue.fixedLine]
+                    }, `fix-${issue.ruleId}`);
                   }), /* @__PURE__ */ jsxs("div", {
                     className: "audit-line-actions",
-                    children: [fixableIssue && /* @__PURE__ */ jsx("button", {
+                    children: [fixableIssues.length > 0 && /* @__PURE__ */ jsx("button", {
                       className: "btn fix-one-btn",
                       onClick: () => fixOneLine(file.path, line),
                       disabled: busy,
@@ -21968,6 +21975,10 @@ const AuditPage = () => {
             })]
           }, file.path);
         })
+      }), !busy && /* @__PURE__ */ jsx(Pagination, {
+        currentPage: safePage,
+        totalPages,
+        onPageChange: setPage
       })]
     })
   });

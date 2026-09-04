@@ -117,6 +117,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -375,6 +376,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -1377,6 +1379,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -3714,6 +3717,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -4025,6 +4029,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -4525,6 +4530,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -4770,6 +4776,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -5126,6 +5133,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -5472,6 +5480,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -5752,6 +5761,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -6021,6 +6031,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -6361,6 +6372,7 @@ div[data-type='memos_view'] textarea,
 div[data-type='memos_view'] img,
 .dialog-wrapper img {
   background-color: transparent;
+  background-image: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -7046,7 +7058,9 @@ div[data-type='memos_view'].mobile-view .memo-trash-wrapper > .section-header-co
   padding: 0 14px;
   font-size: 13px;
   border-radius: var(--memo-radius-s);
+  border: 1px solid transparent;
   background-color: var(--memo-surface-hover);
+  background-image: none;
   color: var(--memo-text);
   transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast);
 }
@@ -7059,6 +7073,7 @@ div[data-type='memos_view'].mobile-view .memo-trash-wrapper > .section-header-co
 }
 .audit-toolbar .fix-all-btn {
   background-color: var(--memo-accent);
+  background-image: none;
   color: var(--memo-on-accent);
 }
 .audit-toolbar .fix-all-btn:hover {
@@ -7226,7 +7241,9 @@ div[data-type='memos_view'].mobile-view .memo-trash-wrapper > .section-header-co
   padding: 0 10px;
   font-size: 12px;
   border-radius: var(--memo-radius-s);
+  border: 1px solid transparent;
   background-color: var(--memo-surface-hover);
+  background-image: none;
   color: var(--memo-text);
   transition: background-color var(--memo-transition-fast), opacity var(--memo-transition-fast);
 }
@@ -7239,6 +7256,7 @@ div[data-type='memos_view'].mobile-view .memo-trash-wrapper > .section-header-co
 }
 .audit-line-actions .fix-one-btn {
   background-color: var(--memo-accent);
+  background-image: none;
   color: var(--memo-on-accent);
 }
 .audit-line-actions .fix-one-btn:hover {
