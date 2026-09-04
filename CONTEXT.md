@@ -80,6 +80,9 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - **行为/观感变化（目视重点）**：daily-memo（日记弹窗时间线）dark 专属两行截断已移除（深色现在全文显示）；memo-card-dialog 纸黄色卡 → memo-bg 随主题（去掉"便签纸"质感，若觉素再议）；热力图深色红阶 → 与浅色同色相的绿阶（深色用 GitHub dark 亮绿值，深色下色阶才可见）；share 弹窗卡片底色/文字随主题（导出所见即所得），去大硬阴影；create-query/rename-tag 等主按钮绿红混杂 → accent
   - **清理**：删 5 个无 import 的死 less（my-account-section/change-password-dialog/mentions/toast/signin）；mixin.less 顶部 36 个无消费者 `@bg-*`/`@text-*` 变量移除；pretty-scroll-bar 吃 token（fallback 保留）。styles.css 283.6→224.6 KiB
   - 全库浅深双写清零，仅剩两处刻意适配（有注释）：preview-lightbox 灯箱按钮基色、memo-write-date 深色时钟图标 invert
+  - **同日再删死界面（2026-09-04 下午）**：React 设置页 `/setting` 整链删除（无任何导航入口；设置实际走 Obsidian 原生 MemosSettingTab）——pages/Setting.tsx、PreferencesSection.tsx、setting.less、preferences-section.less、homeRouter '/setting' key、locationService/location.d.ts 的 '/setting'；tag-list.less 内 rename-tag-dialog 段删除（全库无 rename tag 功能，纯死 CSS）。**注意 memo-card-dialog 不是死的**：它是三点菜单「阅读」(READ) 的展示卡（另有点 memo 时间戳触发），Roadmap 里要优化的"阅读页"就是它，勿删
+  - 热力图配色 owner 拍板（2026-09-04）：**深浅统一绿阶**（浅=旧深绿档 #9be9a8→#216e39，深=GitHub 亮绿档 #0e4429→#39d353），值集中在 theme.less 按主题给，勿再改
+  - 侧栏选中态（选中标签/查询项、新建查询按钮、rta 选中）统一 accent 已获 owner 认可，保持
 - **阶段 F1 指定日期添加（2026-09-03）**:
   - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
   - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建

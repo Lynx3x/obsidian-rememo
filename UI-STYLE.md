@@ -26,7 +26,8 @@
 
 **主屏**：`global / memo-editor / editor / common-date-picker / memo(含评论) / memo-content / memolist / pagination / memos-header / search-bar / memo-filter / home(画布=background-secondary) / memo-trash / image(容器 overflow hidden)`
 
-**次级界面（2026-09-04 收口，待 Obsidian 目视）**：`dialog`(弹窗外壳) / `about-site-dialog` / `daily-memo-diary-dialog` / `memo-card-dialog` / `create-query-dialog` / `share-memo-image-dialog` / `tag-list`(含 rename-tag-dialog) / `query-list` / `usage-heat-map` / `user-banner` / `siderbar` / `menu-btns-popup` / `daily-memo` / `setting` / `preferences-section` / `suggest`(.rta 联想) / `common/selector`。收口时的语义归一：**“主操作/选中激活”一律 `--memo-accent`（原绿/红/蓝混杂）、危险操作 `--memo-danger`、次要提示 `--memo-text-muted`、浮层 = `--memo-bg`+1px `--memo-border`+`--memo-shadow-s`、卡 = `--memo-bg`+`--memo-shadow-card`**。日期/标签等输入控件需显式覆盖 Obsidian `.text-input`（坑 4）。
+**次级界面（2026-09-04 收口，待 Obsidian 目视）**：`dialog`(弹窗外壳) / `about-site-dialog` / `daily-memo-diary-dialog` / `memo-card-dialog` / `create-query-dialog` / `share-memo-image-dialog` / `tag-list` / `query-list` / `usage-heat-map` / `user-banner` / `siderbar` / `menu-btns-popup` / `daily-memo` / `suggest`(.rta 联想) / `common/selector`。收口时的语义归一：**“主操作/选中激活”一律 `--memo-accent`（原绿/红/蓝混杂）、危险操作 `--memo-danger`、次要提示 `--memo-text-muted`、浮层 = `--memo-bg`+1px `--memo-border`+`--memo-shadow-s`、卡 = `--memo-bg`+`--memo-shadow-card`**。日期/标签等输入控件需显式覆盖 Obsidian `.text-input`（坑 4）。
+同批删除的死界面（勿再找）：React 设置页 `/setting` 链（pages/Setting、PreferencesSection、setting.less、preferences-section.less、路由与类型）——设置实际在 Obsidian 原生设置里；tag-list 内 rename-tag-dialog 段（无功能）。`setting` 的语义名与 `pages/Setting.tsx` 无关（那是 Obsidian 原生 setting tab 入口）。
 
 **全库浅深双写已清零**，唯一保留的 theme 分支是两处刻意适配（有注释）：
 - `preview-lightbox.less`：全屏灯箱的浅/深按钮基色（覆盖在 Obsidian 之上，不属于任何 token 作用域）

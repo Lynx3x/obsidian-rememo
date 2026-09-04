@@ -136,57 +136,6 @@ div[data-type='memos_view'] .tags-wrapper {
   }
 }
 
-// 重命名标签弹窗
-.dialog-wrapper.rename-tag-dialog {
-  > .dialog-container {
-    width: 320px;
-
-    > .dialog-content-container {
-      .flex(column, flex-start, flex-start);
-
-      > .tag-text {
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-
-      > .text-input {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid var(--memo-border);
-        border-radius: var(--memo-radius-s);
-        font-size: 14px;
-        margin-bottom: 12px;
-      }
-
-      > .btns-container {
-        .flex(row, flex-end, center);
-        width: 100%;
-
-        > .btn-text {
-          font-size: 14px;
-          margin-left: 12px;
-          cursor: pointer;
-
-          &:hover {
-            opacity: 0.8;
-          }
-
-          &.cancel-btn {
-            color: var(--memo-text-muted);
-          }
-
-          &.confirm-btn {
-            background-color: var(--memo-accent);
-            color: var(--memo-on-accent);
-            padding: 4px 12px;
-            border-radius: var(--memo-radius-s);
-          }
-        }
-      }
-    }
-  }
-}
-
 div[data-type='memos_view'].mobile-view .tags-wrapper,
 div[data-type='memos_view'].mobile-view .tags-wrapper-mobile-emulate {
   background-color: var(--memo-bg);
@@ -198,9 +147,4 @@ div[data-type='memos_view'].mobile-view .tags-wrapper-mobile-emulate {
       flex-grow: 1;
     }
   }
-}
-
-.mobile-view .rename-tag-dialog,
-.mobile-view .rename-tag-dialog-mobile-emulate {
-  padding-top: 64px;
 }
