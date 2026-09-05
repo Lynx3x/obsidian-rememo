@@ -1,11 +1,11 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Compartment, EditorState } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
-import { EditorView, keymap, placeholder, ViewPlugin } from '@codemirror/view';
+import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
 import { completionStatus } from '@codemirror/autocomplete';
+import { memoAutocomplete } from '../../editor/suggest';
 import { memoInputHighlight } from '../../editor/highlight';
-// import { memoAutocomplete } from '../../editor/suggest'; // 诊断期停用自产联想（探测原生）
 import { getNativeMarkdownEditorClass } from '../../editor/native';
 import appStore from '../../stores/appStore';
 import '../../less/editor.less';
@@ -75,7 +75,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
   const viewRef = useRef<EditorView | null>(null); // 原生实例的 cm（EditorView）
   const nativeRef = useRef<any>(null); // 内核 MarkdownEditor 子类实例
   const roCompartmentRef = useRef(new Compartment());
-  // 全量扩展快照（内核 + 自产，实例化后缓存）——clear() 重建 state 用
+  // 全量扩展快照（内核 super + 自产，buildLocalExtensions 内捕获一次）——clear() 重建 state 用
   const extRef = useRef<Extension[]>([]);
   // 动态回调经 ref 转发（原生实例只建一次）
   const cbRef = useRef<{
@@ -97,8 +97,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
   // 发送键可用态（仅空内容时禁用确认钮，与旧 textarea disabled 语义一致）
   const [hasContent, setHasContent] = useState(() => initialContent.length > 0);
-  // hasContent 的镜像 ref（updateListener 内比对失步用，诊断 2026-09-05 灰按钮问题）
-  const hasContentRef = useRef(initialContent.length > 0);
 
   useEffect(() => {
     const parent = mountRef.current;
@@ -151,12 +149,9 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
       buildLocalExtensions(): Extension[] {
         const exts: Extension[] = super.buildLocalExtensions?.() ?? [];
+        // 换行：主编辑器的 lineWrapping 由内核更外层注入，子类不自带——这里显式补上
+        exts.push(EditorView.lineWrapping);
         exts.push(
-          // 诊断：确认 buildLocalExtensions 结果被内核消费（看到本行即扩展链通）
-          ViewPlugin.define(() => {
-            console.debug('[rememo] native ext mounted');
-            return {};
-          }),
           // 聚焦/失焦即桥接/卸下 activeEditor（仿 kanban MarkdownEditor focus 处理）
           Prec.highest(
             EditorView.domEventHandlers({
@@ -172,7 +167,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           ),
           placeholder(cbRef.current.placeholder),
           memoInputHighlight,
-          // memoAutocomplete, // 诊断期停用：探测内核子类是否自带 #/[[ 原生联想（防双弹层）
+          memoAutocomplete(),
           keymap.of([
             {
               key: 'Enter',
@@ -204,17 +199,14 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           EditorView.updateListener.of((u) => {
             if (u.docChanged) {
               const text = u.state.doc.toString();
-              const has = text.length > 0;
-              // 诊断：doc 非空但 hasContent 却为 false（发送按钮灰）时应看到本行
-              if (has !== hasContentRef.current) {
-                console.warn('[rememo-input] hasContent 状态失步', { has, hasContent: hasContentRef.current, len: text.length });
-                hasContentRef.current = has;
-              }
-              setHasContent(has);
+              setHasContent(text.length > 0);
               cbRef.current.change(text);
             }
           }),
         );
+        // 全量扩展快照（内核 super + 自产）：仅在内核构造调用本方法这一次时捕获，
+        // 供 clear() 重建 state 用（重建 = undo 历史一起清，发送后 Ctrl+Z 不复活旧文）
+        extRef.current = exts;
         return exts;
       }
     }
@@ -236,12 +228,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     }
     viewRef.current = cm;
     cbRef.current.get = () => cm.state.doc.toString();
-    // 全量扩展快照（内核 super 扩展 + 自产）：clear() 重建 state 用（清 undo 历史）
-    try {
-      extRef.current = native.buildLocalExtensions?.() ?? [];
-    } catch (err) {
-      console.error('[rememo] 缓存扩展快照失败', err);
-    }
 
     // 初始内容：优先实例 .set（kanban 同款），缺则走 editor 包装 setValue
     const initial = initialContent ?? '';
@@ -311,21 +297,14 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       clear: () => {
         const cm = viewRef.current;
         if (!cm) return;
-        const ext = extRef.current;
-        if (!ext || ext.length === 0) {
-          // 无扩展快照（异常路径）：退回 dispatch 清空
-          if (cm.state.doc.length > 0) {
-            cm.dispatch({ changes: { from: 0, to: cm.state.doc.length, insert: '' } });
-          }
-          setHasContent(false);
-          hasContentRef.current = false;
-          return;
+        if (extRef.current.length > 0) {
+          // 重建 state：undo 历史随重建一起清掉——发送后 Ctrl+Z 不应复活旧文（旧 dispatch
+          // 清空会被原生 undo 拉回，造成输入框残留旧文 + 状态失步）；setState 不受 readOnly 拦
+          cm.setState(EditorState.create({ doc: '', extensions: extRef.current }));
+        } else if (cm.state.doc.length > 0) {
+          cm.dispatch({ changes: { from: 0, to: cm.state.doc.length, insert: '' } });
         }
-        // 重建 state：连 undo 历史一起清掉（发送后 Ctrl+Z 不应复活旧文——旧实现 dispatch
-        // 清空会被原生 undo 拉回，造成"残留文本"与状态失步；setState 不受 readOnly 拦截）
-        cm.setState(EditorState.create({ doc: '', extensions: ext }));
         setHasContent(false);
-        hasContentRef.current = false;
       },
       setEditable: (editable: boolean) => {
         const view = viewRef.current;

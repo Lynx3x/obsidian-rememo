@@ -26932,7 +26932,7 @@ function setLeftStyle(elt, value) {
   if (isNaN(current) || Math.abs(value - current) > 1)
     elt.style.left = value + "px";
 }
-const baseTheme = /* @__PURE__ */ EditorView.baseTheme({
+const baseTheme$2 = /* @__PURE__ */ EditorView.baseTheme({
   ".cm-tooltip": {
     zIndex: 500,
     boxSizing: "border-box"
@@ -26996,8 +26996,15 @@ const baseTheme = /* @__PURE__ */ EditorView.baseTheme({
 });
 const noOffset = { x: 0, y: 0 };
 const showTooltip = /* @__PURE__ */ Facet.define({
-  enables: [tooltipPlugin, baseTheme]
+  enables: [tooltipPlugin, baseTheme$2]
 });
+function getTooltip(view, tooltip) {
+  let plugin = view.plugin(tooltipPlugin);
+  if (!plugin)
+    return null;
+  let found = plugin.manager.tooltips.indexOf(tooltip);
+  return found < 0 ? null : plugin.manager.tooltipViews[found];
+}
 class GutterMarker extends RangeValue {
   compare(other) {
     return this == other || this.constructor == other.constructor && this.eq(other);
@@ -30045,13 +30052,536 @@ function applyCompletion(view, option) {
   return true;
 }
 const createTooltip = /* @__PURE__ */ completionTooltip(completionState, applyCompletion);
+function moveCompletionSelection(forward, by = "option") {
+  return (view) => {
+    let cState = view.state.field(completionState, false);
+    if (!cState || !cState.open || cState.open.disabled || Date.now() - cState.open.timestamp < view.state.facet(completionConfig).interactionDelay)
+      return false;
+    let step = 1, tooltip;
+    if (by == "page" && (tooltip = getTooltip(view, cState.open.tooltip)))
+      step = Math.max(2, Math.floor(tooltip.dom.offsetHeight / tooltip.dom.querySelector("li").offsetHeight) - 1);
+    let { length } = cState.open.options;
+    let selected = cState.open.selected > -1 ? cState.open.selected + step * (forward ? 1 : -1) : forward ? 0 : length - 1;
+    if (selected < 0)
+      selected = by == "page" ? 0 : length - 1;
+    else if (selected >= length)
+      selected = by == "page" ? length - 1 : 0;
+    view.dispatch({ effects: setSelectedEffect.of(selected) });
+    return true;
+  };
+}
+const acceptCompletion = (view) => {
+  let cState = view.state.field(completionState, false);
+  if (view.state.readOnly || !cState || !cState.open || cState.open.selected < 0 || cState.open.disabled || Date.now() - cState.open.timestamp < view.state.facet(completionConfig).interactionDelay)
+    return false;
+  return applyCompletion(view, cState.open.options[cState.open.selected]);
+};
+const startCompletion = (view) => {
+  let cState = view.state.field(completionState, false);
+  if (!cState)
+    return false;
+  view.dispatch({ effects: startCompletionEffect.of(true) });
+  return true;
+};
+const closeCompletion = (view) => {
+  let cState = view.state.field(completionState, false);
+  if (!cState || !cState.active.some((a) => a.state != 0))
+    return false;
+  view.dispatch({ effects: closeCompletionEffect.of(null) });
+  return true;
+};
+class RunningQuery {
+  constructor(active, context) {
+    this.active = active;
+    this.context = context;
+    this.time = Date.now();
+    this.updates = [];
+    this.done = void 0;
+  }
+}
+const MaxUpdateCount = 50, MinAbortTime = 1e3;
+const completionPlugin = /* @__PURE__ */ ViewPlugin.fromClass(class {
+  constructor(view) {
+    this.view = view;
+    this.debounceUpdate = -1;
+    this.running = [];
+    this.debounceAccept = -1;
+    this.pendingStart = false;
+    this.composing = 0;
+    for (let active of view.state.field(completionState).active)
+      if (active.isPending)
+        this.startQuery(active);
+  }
+  update(update) {
+    let cState = update.state.field(completionState);
+    let conf = update.state.facet(completionConfig);
+    if (!update.selectionSet && !update.docChanged && update.startState.field(completionState) == cState)
+      return;
+    let doesReset = update.transactions.some((tr2) => {
+      let type = getUpdateType(tr2, conf);
+      return type & 8 || (tr2.selection || tr2.docChanged) && !(type & 3);
+    });
+    for (let i2 = 0; i2 < this.running.length; i2++) {
+      let query = this.running[i2];
+      if (doesReset || query.context.abortOnDocChange && update.docChanged || query.updates.length + update.transactions.length > MaxUpdateCount && Date.now() - query.time > MinAbortTime) {
+        for (let handler of query.context.abortListeners) {
+          try {
+            handler();
+          } catch (e) {
+            logException(this.view.state, e);
+          }
+        }
+        query.context.abortListeners = null;
+        this.running.splice(i2--, 1);
+      } else {
+        query.updates.push(...update.transactions);
+      }
+    }
+    if (this.debounceUpdate > -1)
+      clearTimeout(this.debounceUpdate);
+    if (update.transactions.some((tr2) => tr2.effects.some((e) => e.is(startCompletionEffect))))
+      this.pendingStart = true;
+    let delay = this.pendingStart ? 50 : conf.activateOnTypingDelay;
+    this.debounceUpdate = cState.active.some((a) => a.isPending && !this.running.some((q2) => q2.active.source == a.source)) ? setTimeout(() => this.startUpdate(), delay) : -1;
+    if (this.composing != 0)
+      for (let tr2 of update.transactions) {
+        if (tr2.isUserEvent("input.type"))
+          this.composing = 2;
+        else if (this.composing == 2 && tr2.selection)
+          this.composing = 3;
+      }
+  }
+  startUpdate() {
+    this.debounceUpdate = -1;
+    this.pendingStart = false;
+    let { state } = this.view, cState = state.field(completionState);
+    for (let active of cState.active) {
+      if (active.isPending && !this.running.some((r2) => r2.active.source == active.source))
+        this.startQuery(active);
+    }
+    if (this.running.length && cState.open && cState.open.disabled)
+      this.debounceAccept = setTimeout(() => this.accept(), this.view.state.facet(completionConfig).updateSyncTime);
+  }
+  startQuery(active) {
+    let { state } = this.view, pos = cur(state);
+    let context = new CompletionContext(state, pos, active.explicit, this.view);
+    let pending = new RunningQuery(active, context);
+    this.running.push(pending);
+    Promise.resolve(active.source(context)).then((result) => {
+      if (!pending.context.aborted) {
+        pending.done = result || null;
+        this.scheduleAccept();
+      }
+    }, (err) => {
+      this.view.dispatch({ effects: closeCompletionEffect.of(null) });
+      logException(this.view.state, err);
+    });
+  }
+  scheduleAccept() {
+    if (this.running.every((q2) => q2.done !== void 0))
+      this.accept();
+    else if (this.debounceAccept < 0)
+      this.debounceAccept = setTimeout(() => this.accept(), this.view.state.facet(completionConfig).updateSyncTime);
+  }
+  accept() {
+    var _a2;
+    if (this.debounceAccept > -1)
+      clearTimeout(this.debounceAccept);
+    this.debounceAccept = -1;
+    let updated = [];
+    let conf = this.view.state.facet(completionConfig), cState = this.view.state.field(completionState);
+    for (let i2 = 0; i2 < this.running.length; i2++) {
+      let query = this.running[i2];
+      if (query.done === void 0)
+        continue;
+      this.running.splice(i2--, 1);
+      if (query.done) {
+        let pos = cur(query.updates.length ? query.updates[0].startState : this.view.state);
+        let limit = Math.min(pos, query.done.from + (query.active.explicit ? 0 : 1));
+        let active = new ActiveResult(query.active.source, query.active.explicit, limit, query.done, query.done.from, (_a2 = query.done.to) !== null && _a2 !== void 0 ? _a2 : pos);
+        for (let tr2 of query.updates)
+          active = active.update(tr2, conf);
+        if (active.hasResult()) {
+          updated.push(active);
+          continue;
+        }
+      }
+      let current = cState.active.find((a) => a.source == query.active.source);
+      if (current && current.isPending) {
+        if (query.done == null) {
+          let active = new ActiveSource(query.active.source, 0);
+          for (let tr2 of query.updates)
+            active = active.update(tr2, conf);
+          if (!active.isPending)
+            updated.push(active);
+        } else {
+          this.startQuery(current);
+        }
+      }
+    }
+    if (updated.length || cState.open && cState.open.disabled)
+      this.view.dispatch({ effects: setActiveEffect.of(updated) });
+  }
+}, {
+  eventHandlers: {
+    blur(event) {
+      let state = this.view.state.field(completionState, false);
+      if (state && state.tooltip && this.view.state.facet(completionConfig).closeOnBlur) {
+        let dialog2 = state.open && getTooltip(this.view, state.open.tooltip);
+        if (!dialog2 || !dialog2.dom.contains(event.relatedTarget))
+          setTimeout(() => this.view.dispatch({ effects: closeCompletionEffect.of(null) }), 10);
+      }
+    },
+    compositionstart() {
+      this.composing = 1;
+    },
+    compositionend() {
+      if (this.composing == 3) {
+        setTimeout(() => this.view.dispatch({ effects: startCompletionEffect.of(false) }), 20);
+      }
+      this.composing = 0;
+    }
+  }
+});
+const windows = typeof navigator == "object" && /* @__PURE__ */ /Win/.test(navigator.platform);
+const commitCharacters = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ EditorView.domEventHandlers({
+  keydown(event, view) {
+    let field = view.state.field(completionState, false);
+    if (!field || !field.open || field.open.disabled || field.open.selected < 0 || event.key.length > 1 || event.ctrlKey && !(windows && event.altKey) || event.metaKey)
+      return false;
+    let option = field.open.options[field.open.selected];
+    let result = field.active.find((a) => a.source == option.source);
+    let commitChars = option.completion.commitCharacters || result.result.commitCharacters;
+    if (commitChars && commitChars.indexOf(event.key) > -1)
+      applyCompletion(view, option);
+    return false;
+  }
+}));
+const baseTheme = /* @__PURE__ */ EditorView.baseTheme({
+  ".cm-tooltip.cm-tooltip-autocomplete": {
+    "& > ul": {
+      fontFamily: "monospace",
+      whiteSpace: "nowrap",
+      overflow: "hidden auto",
+      maxWidth_fallback: "700px",
+      maxWidth: "min(700px, 95vw)",
+      minWidth: "250px",
+      maxHeight: "10em",
+      height: "100%",
+      listStyle: "none",
+      margin: 0,
+      padding: 0,
+      "& > li, & > completion-section": {
+        padding: "1px 3px",
+        lineHeight: 1.2
+      },
+      "& > li": {
+        overflowX: "hidden",
+        textOverflow: "ellipsis",
+        cursor: "pointer"
+      },
+      "& > completion-section": {
+        display: "list-item",
+        borderBottom: "1px solid silver",
+        paddingLeft: "0.5em",
+        opacity: 0.7
+      }
+    }
+  },
+  "&light .cm-tooltip-autocomplete ul li[aria-selected]": {
+    background: "#17c",
+    color: "white"
+  },
+  "&light .cm-tooltip-autocomplete-disabled ul li[aria-selected]": {
+    background: "#777"
+  },
+  "&dark .cm-tooltip-autocomplete ul li[aria-selected]": {
+    background: "#347",
+    color: "white"
+  },
+  "&dark .cm-tooltip-autocomplete-disabled ul li[aria-selected]": {
+    background: "#444"
+  },
+  ".cm-completionListIncompleteTop:before, .cm-completionListIncompleteBottom:after": {
+    content: '"\xB7\xB7\xB7"',
+    opacity: 0.5,
+    display: "block",
+    textAlign: "center",
+    cursor: "pointer"
+  },
+  ".cm-tooltip.cm-completionInfo": {
+    position: "absolute",
+    padding: "3px 9px",
+    width: "max-content",
+    maxWidth: `${400}px`,
+    boxSizing: "border-box",
+    whiteSpace: "pre-line"
+  },
+  ".cm-completionInfo.cm-completionInfo-left": { right: "100%" },
+  ".cm-completionInfo.cm-completionInfo-right": { left: "100%" },
+  ".cm-completionInfo.cm-completionInfo-left-narrow": { right: `${30}px` },
+  ".cm-completionInfo.cm-completionInfo-right-narrow": { left: `${30}px` },
+  "&light .cm-snippetField": { backgroundColor: "#00000022" },
+  "&dark .cm-snippetField": { backgroundColor: "#ffffff22" },
+  ".cm-snippetFieldPosition": {
+    verticalAlign: "text-top",
+    width: 0,
+    height: "1.15em",
+    display: "inline-block",
+    margin: "0 -0.7px -.7em",
+    borderLeft: "1.4px dotted #888"
+  },
+  ".cm-completionMatchedText": {
+    textDecoration: "underline"
+  },
+  ".cm-completionDetail": {
+    marginLeft: "0.5em",
+    fontStyle: "italic"
+  },
+  ".cm-completionIcon": {
+    fontSize: "90%",
+    width: ".8em",
+    display: "inline-block",
+    textAlign: "center",
+    paddingRight: ".6em",
+    opacity: "0.6",
+    boxSizing: "content-box"
+  },
+  ".cm-completionIcon-function, .cm-completionIcon-method": {
+    "&:after": { content: "'\u0192'" }
+  },
+  ".cm-completionIcon-class": {
+    "&:after": { content: "'\u25CB'" }
+  },
+  ".cm-completionIcon-interface": {
+    "&:after": { content: "'\u25CC'" }
+  },
+  ".cm-completionIcon-variable": {
+    "&:after": { content: "'\u{1D465}'" }
+  },
+  ".cm-completionIcon-constant": {
+    "&:after": { content: "'\u{1D436}'" }
+  },
+  ".cm-completionIcon-type": {
+    "&:after": { content: "'\u{1D461}'" }
+  },
+  ".cm-completionIcon-enum": {
+    "&:after": { content: "'\u222A'" }
+  },
+  ".cm-completionIcon-property": {
+    "&:after": { content: "'\u25A1'" }
+  },
+  ".cm-completionIcon-keyword": {
+    "&:after": { content: "'\u{1F511}\uFE0E'" }
+  },
+  ".cm-completionIcon-namespace": {
+    "&:after": { content: "'\u25A2'" }
+  },
+  ".cm-completionIcon-text": {
+    "&:after": { content: "'abc'", fontSize: "50%", verticalAlign: "middle" }
+  }
+});
 const closedBracket = /* @__PURE__ */ new class extends RangeValue {
 }();
 closedBracket.startSide = 1;
 closedBracket.endSide = -1;
+function autocompletion(config = {}) {
+  return [
+    commitCharacters,
+    completionState,
+    completionConfig.of(config),
+    completionPlugin,
+    completionKeymapExt,
+    baseTheme
+  ];
+}
+const completionKeymap = [
+  { key: "Ctrl-Space", run: startCompletion },
+  { mac: "Alt-`", run: startCompletion },
+  { mac: "Alt-i", run: startCompletion },
+  { key: "Escape", run: closeCompletion },
+  { key: "ArrowDown", run: /* @__PURE__ */ moveCompletionSelection(true) },
+  { key: "ArrowUp", run: /* @__PURE__ */ moveCompletionSelection(false) },
+  { key: "PageDown", run: /* @__PURE__ */ moveCompletionSelection(true, "page") },
+  { key: "PageUp", run: /* @__PURE__ */ moveCompletionSelection(false, "page") },
+  { key: "Enter", run: acceptCompletion }
+];
+const completionKeymapExt = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ keymap.computeN([completionConfig], (state) => state.facet(completionConfig).defaultKeymap ? [completionKeymap] : []));
 function completionStatus(state) {
   let cState = state.field(completionState, false);
   return cState && cState.active.some((a) => a.isPending) ? "pending" : cState && cState.active.some((a) => a.state != 0) ? "active" : null;
+}
+const etTags = () => {
+  const { app: app2 } = dailyNotesService.getState();
+  const tags2 = app2.metadataCache.getTags();
+  return [...Object.keys(tags2)].map((p2) => p2.split("#").pop());
+};
+const usedTags = (seletecText) => {
+  let allTags;
+  if (UseVaultTags) {
+    allTags = etTags();
+  } else {
+    const { tags: tags2 } = memoService.getState();
+    allTags = tags2;
+  }
+  const lowerCaseInputStr = seletecText.toLowerCase();
+  const usedTags2 = [];
+  allTags.forEach((tag) => {
+    if (tag && tag.toLowerCase().contains(lowerCaseInputStr)) {
+      usedTags2.push({
+        name: tag,
+        char: tag
+      });
+    }
+  });
+  return usedTags2;
+};
+const getSuggestions = (inputStr) => {
+  const { app: app2 } = dailyNotesService.getState();
+  const query = (inputStr.startsWith("[") ? inputStr.slice(1) : inputStr).toLowerCase();
+  const results = [];
+  app2.vault.getAllLoadedFiles().forEach((file) => {
+    if (!(file instanceof require$$0.TFile))
+      return;
+    const ext = file.extension;
+    if (!(ext === "md" || ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif"))
+      return;
+    const base2 = file.basename.toLowerCase();
+    const path = file.path.toLowerCase();
+    let score2 = 0;
+    if (!query) {
+      score2 = 1;
+    } else if (base2 === query) {
+      score2 = 100;
+    } else if (base2.startsWith(query)) {
+      score2 = 60;
+    } else if (base2.includes(query)) {
+      score2 = 40;
+    } else if (path.includes(query)) {
+      score2 = 20;
+    } else {
+      return;
+    }
+    results.push({
+      name: file.basename,
+      char: file.name,
+      file,
+      score: score2
+    });
+  });
+  results.sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
+  return results.map(({ score: score2, ...item }) => item);
+};
+const isTagChar = (ch2) => ch2 !== "" && /[\p{L}\p{N}_/.-]/u.test(ch2);
+const isSpace = (ch2) => ch2 === void 0 || /\s/.test(ch2);
+function dbgNoResult(kind, token, extra) {
+  console.debug(`[rememo-suggest] ${kind} \u65E0\u7ED3\u679C`, { token, ...extra });
+}
+function tagCompletion(ctx) {
+  const { state, pos } = ctx;
+  const line = state.doc.lineAt(pos);
+  if (pos <= line.from)
+    return null;
+  let hash2 = pos;
+  while (hash2 > line.from && isTagChar(state.sliceDoc(hash2 - 1, hash2)))
+    hash2--;
+  if (hash2 === pos || state.sliceDoc(hash2 - 1, hash2) !== "#")
+    return null;
+  const prev = hash2 - 2 >= line.from ? state.sliceDoc(hash2 - 2, hash2 - 1) : "";
+  if (prev !== "" && !isSpace(prev))
+    return null;
+  const token = state.sliceDoc(hash2, pos);
+  const options = usedTags(token).map(({ name: name2 }) => ({
+    label: name2,
+    apply: "#" + name2
+  }));
+  if (options.length === 0) {
+    if (token.length > 0)
+      dbgNoResult("#\u6807\u7B7E", token);
+    return null;
+  }
+  return { from: hash2, options, filter: false };
+}
+function fileCompletion(ctx) {
+  const { state, pos } = ctx;
+  const line = state.doc.lineAt(pos);
+  let s = pos;
+  let brackets = 0;
+  while (s > line.from) {
+    const ch2 = state.sliceDoc(s - 1, s);
+    if (ch2 === "\n" || ch2 === "]")
+      break;
+    if (ch2 === "[") {
+      s--;
+      brackets++;
+      if (brackets >= 2)
+        break;
+      continue;
+    }
+    if (brackets > 0)
+      break;
+    s--;
+  }
+  if (brackets < 2)
+    return null;
+  const from = s;
+  const tokenWithBracket = state.sliceDoc(from + 1, pos);
+  const suggestions = getSuggestions(tokenWithBracket).slice(0, 10);
+  if (suggestions.length === 0) {
+    if (tokenWithBracket.length > 1)
+      dbgNoResult("[[\u6587\u4EF6", tokenWithBracket);
+    return null;
+  }
+  const options = suggestions.map(({ name: name2, file }) => {
+    const dir = file.parent && file.parent.path !== "/" ? file.parent.path : "";
+    return {
+      label: name2,
+      detail: dir,
+      file,
+      render: (el) => {
+        el.classList.add("cm-sug-file");
+        const nameEl = document.createElement("span");
+        nameEl.className = "cm-sug-name";
+        nameEl.textContent = name2;
+        el.appendChild(nameEl);
+        if (dir) {
+          const pathEl = document.createElement("span");
+          pathEl.className = "cm-sug-path";
+          pathEl.textContent = dir;
+          el.appendChild(pathEl);
+        }
+      },
+      apply: (view, completion, from2, to) => {
+        const f2 = completion == null ? void 0 : completion.file;
+        const app2 = appStore.getState().dailyNotesState.app;
+        let link = "";
+        if (f2 && app2.fileManager) {
+          link = app2.fileManager.generateMarkdownLink(f2, f2.path, "", "");
+        } else {
+          link = `[[${name2}]]`;
+        }
+        view.dispatch({
+          changes: { from: from2, to, insert: link },
+          selection: { anchor: from2 + link.length },
+          userEvent: "input.complete"
+        });
+      }
+    };
+  });
+  return { from, options, filter: false };
+}
+function memoAutocomplete() {
+  return [
+    autocompletion({
+      override: [(ctx) => {
+        var _a2;
+        return (_a2 = tagCompletion(ctx)) != null ? _a2 : fileCompletion(ctx);
+      }],
+      activateOnTyping: true,
+      maxRenderedOptions: 200
+    }),
+    keymap.of(completionKeymap)
+  ];
 }
 const TAG_CHAR = "\\p{L}\\p{N}_/\\.\\-";
 const CODE_RE = /`[^`\n]+?`/g;
@@ -30185,9 +30715,8 @@ const Editor = react.exports.forwardRef((props, ref) => {
   cbRef.current.placeholder = placeholderText;
   cbRef.current.enterToSend = enterToSend === true;
   const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
-  const hasContentRef = react.exports.useRef(initialContent.length > 0);
   react.exports.useEffect(() => {
-    var _a2, _b, _c, _d;
+    var _a2, _b;
     const parent = mountRef.current;
     if (!parent || parent.querySelector(".cm-editor")) {
       return;
@@ -30234,11 +30763,8 @@ const Editor = react.exports.forwardRef((props, ref) => {
       buildLocalExtensions() {
         var _a3, _b2;
         const exts = (_b2 = (_a3 = super.buildLocalExtensions) == null ? void 0 : _a3.call(this)) != null ? _b2 : [];
+        exts.push(EditorView.lineWrapping);
         exts.push(
-          ViewPlugin.define(() => {
-            console.debug("[rememo] native ext mounted");
-            return {};
-          }),
           Prec.highest(EditorView.domEventHandlers({
             focus: () => {
               bridgeActiveEditor(true);
@@ -30251,6 +30777,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
           })),
           placeholder(cbRef.current.placeholder),
           memoInputHighlight,
+          memoAutocomplete(),
           keymap.of([{
             key: "Enter",
             run: (view) => {
@@ -30286,20 +30813,12 @@ const Editor = react.exports.forwardRef((props, ref) => {
           EditorView.updateListener.of((u2) => {
             if (u2.docChanged) {
               const text = u2.state.doc.toString();
-              const has = text.length > 0;
-              if (has !== hasContentRef.current) {
-                console.warn("[rememo-input] hasContent \u72B6\u6001\u5931\u6B65", {
-                  has,
-                  hasContent: hasContentRef.current,
-                  len: text.length
-                });
-                hasContentRef.current = has;
-              }
-              setHasContent(has);
+              setHasContent(text.length > 0);
               cbRef.current.change(text);
             }
           })
         );
+        extRef.current = exts;
         return exts;
       }
     }
@@ -30320,18 +30839,13 @@ const Editor = react.exports.forwardRef((props, ref) => {
     }
     viewRef.current = cm;
     cbRef.current.get = () => cm.state.doc.toString();
-    try {
-      extRef.current = (_b = (_a2 = native.buildLocalExtensions) == null ? void 0 : _a2.call(native)) != null ? _b : [];
-    } catch (err) {
-      console.error("[rememo] \u7F13\u5B58\u6269\u5C55\u5FEB\u7167\u5931\u8D25", err);
-    }
     const initial = initialContent != null ? initialContent : "";
     if (initial) {
       try {
         if (typeof native.set === "function") {
           native.set(initial);
         } else {
-          (_d = (_c = native.editor) == null ? void 0 : _c.setValue) == null ? void 0 : _d.call(_c, initial);
+          (_b = (_a2 = native.editor) == null ? void 0 : _a2.setValue) == null ? void 0 : _b.call(_a2, initial);
         }
       } catch (err) {
         console.error("[rememo] \u8BBE\u7F6E\u521D\u59CB\u5185\u5BB9\u5931\u8D25", err);
@@ -30408,27 +30922,21 @@ const Editor = react.exports.forwardRef((props, ref) => {
       const cm = viewRef.current;
       if (!cm)
         return;
-      const ext = extRef.current;
-      if (!ext || ext.length === 0) {
-        if (cm.state.doc.length > 0) {
-          cm.dispatch({
-            changes: {
-              from: 0,
-              to: cm.state.doc.length,
-              insert: ""
-            }
-          });
-        }
-        setHasContent(false);
-        hasContentRef.current = false;
-        return;
+      if (extRef.current.length > 0) {
+        cm.setState(EditorState.create({
+          doc: "",
+          extensions: extRef.current
+        }));
+      } else if (cm.state.doc.length > 0) {
+        cm.dispatch({
+          changes: {
+            from: 0,
+            to: cm.state.doc.length,
+            insert: ""
+          }
+        });
       }
-      cm.setState(EditorState.create({
-        doc: "",
-        extensions: ext
-      }));
       setHasContent(false);
-      hasContentRef.current = false;
     },
     setEditable: (editable2) => {
       const view = viewRef.current;
@@ -34648,7 +35156,7 @@ class Memos extends require$$0.ItemView {
     this.plugin.settings.AutoSaveWhenOnMobile;
     QueryFileName = this.plugin.settings.QueryFileName;
     this.plugin.settings.DeleteFileName;
-    this.plugin.settings.UseVaultTags;
+    UseVaultTags = this.plugin.settings.UseVaultTags;
     this.plugin.settings.DefaultDarkBackgroundImage;
     this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
@@ -34668,6 +35176,7 @@ let ShowTime;
 let ShowDate;
 let AddBlankLineWhenDate;
 let QueryFileName;
+let UseVaultTags;
 let DefaultMemoComposition;
 let UseDailyOrPeriodic;
 let ShowLeftSideBar;
