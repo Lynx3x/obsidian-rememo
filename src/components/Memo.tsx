@@ -8,7 +8,7 @@ import {
   TAG_REG,
   WIKI_IMAGE_URL_REG,
 } from '../helpers/consts';
-import { stripMemoLinks } from '../helpers/memoLink';
+import { refPreview, refTimeLabel, stripMemoLinks } from '../helpers/memoLink';
 import MemoRefBar from './MemoRefBar';
 import useState from 'react-usestateref';
 import { parseMarkedToHtml, renderMemoContentLines } from '../helpers/marked';
@@ -269,6 +269,11 @@ const Memo: React.FC<Props> = (props: Props) => {
   const imageProps = {
     memo: propsMemo.content,
   };
+  // P3b 聚合区数据：被引用（指向本卡的 memo，时间降序，最新 3 条预览；点击整条开浮窗看全部）
+  const referenced = memoService
+    .getLinkedMemos(propsMemo)
+    .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+  const referencedTop = referenced.slice(0, 3);
   return (
     <div
       ref={memoCardRef}
@@ -340,6 +345,22 @@ const Memo: React.FC<Props> = (props: Props) => {
       ></div>
       <MemoImage {...imageProps} />
       <MemoRefBar content={propsMemo.content} currentPath={propsMemo.path} onOpenMemo={(tm) => showMemoCardDialog(tm)} />
+      {referenced.length > 0 && (
+        <div
+          className="memo-referenced-bar"
+          title={`${referenced.length} ${t('REFS')}`}
+          onClick={() => showMemoCardDialog(propsMemo)}
+        >
+          <span className="memo-ref-count">
+            {referenced.length} {t('REFS')}
+          </span>
+          {referencedTop.map((m) => (
+            <span key={m.id} className="memo-ref-preview">
+              {refTimeLabel(m.createdAt ?? '', m.path, propsMemo.path)} · {refPreview(m.content, 24)}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

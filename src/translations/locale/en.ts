@@ -98,6 +98,11 @@ export default {
   'Use Tags In Vault': 'Use Tags In Vault',
   'Use tags in vault rather than only in Memos. False by default.':
     'Use tags in vault rather than only in Memos. False by default.',
+  'Hide Memos With References In List': 'Hide Memos With References In List',
+  'Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.':
+    'Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.',
+  REFS: 'REFERENCES',
+  'Reference target deleted': 'Reference target deleted',
   'Ready to convert image into background': 'Ready to convert image into background',
   List: 'List',
   Task: 'Task',

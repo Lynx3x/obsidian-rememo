@@ -7812,6 +7812,10 @@ var en = {
   "Set the filename for query file. 'query' By default": "Set the filename for query file. 'query' By default",
   "Use Tags In Vault": "Use Tags In Vault",
   "Use tags in vault rather than only in Memos. False by default.": "Use tags in vault rather than only in Memos. False by default.",
+  "Hide Memos With References In List": "Hide Memos With References In List",
+  "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.",
+  REFS: "REFERENCES",
+  "Reference target deleted": "Reference target deleted",
   "Ready to convert image into background": "Ready to convert image into background",
   List: "List",
   Task: "Task",
@@ -8509,6 +8513,10 @@ var zhCN = {
   "Set the filename for query file. 'query' By default": "\u8BBE\u7F6E\u5B58\u653E\u68C0\u7D22\u5F0F\u7684\u6587\u4EF6\u7684\u6587\u4EF6\u540D\u3002\u9ED8\u8BA4\u4E3A'query'",
   "Use Tags In Vault": "\u4F7F\u7528\u5728\u5E93\u5185\u7684\u6240\u6709\u6807\u7B7E",
   "Use tags in vault rather than only in Memos. False by default.": "\u4F7F\u7528\u5728\u5E93\u5185\u7684\u800C\u4E0D\u662F Memos \u5185\u7684\u6807\u7B7E\u3002\u9ED8\u8BA4\u5173\u95ED",
+  "Hide Memos With References In List": "\u5728\u4E3B\u5217\u8868\u9690\u85CF\u5F15\u7528\u5361",
+  "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "\u4E3B\u5217\u8868\u4E0D\u663E\u793A\u5F15\u7528\u5361\uFF08\u5B83\u4EEC\u663E\u793A\u5728\u88AB\u5F15\u7528 memo \u7684\u805A\u5408\u533A\uFF09\u3002\u641C\u7D22/\u7B5B\u9009\u65F6\u4ECD\u53EF\u89C1\u3002\u9ED8\u8BA4\u5F00\u542F",
+  REFS: "\u5F15\u7528",
+  "Reference target deleted": "\u5F15\u7528\u76EE\u6807\u5DF2\u5220\u9664",
   "Don't support web image yet, please input image path in vault": "\u6682\u4E0D\u652F\u6301\u7F51\u7EDC\u56FE\u7247\uFF0C\u8BF7\u4F7F\u7528\u672C\u5730\u56FE\u7247",
   "Ready to convert image into background": "\u6B63\u5728\u5C06\u56FE\u7247\u8F6C\u6362\u4E3A\u80CC\u666F\u56FE",
   List: "\u5217\u8868",
@@ -8546,7 +8554,7 @@ var zhCN = {
   "All Data is Loaded \u{1F389}": "\u6240\u6709\u6570\u636E\u90FD\u52A0\u8F7D\u597D\u5566 \u{1F389}",
   "Quick filter": "\u5FEB\u901F\u7B5B\u9009",
   TYPE: "\u7C7B\u578B",
-  LINKED: "\u6709\u94FE\u63A5",
+  LINKED: "\u94FE\u63A5",
   "NO TAGS": "\u65E0\u6807\u7B7E",
   "HAS LINKS": "\u6709\u8D85\u94FE\u63A5",
   "HAS IMAGES": "\u6709\u56FE\u7247",
@@ -9486,8 +9494,23 @@ function extractLinkTargets(content2) {
 function stripMemoLinks(content2) {
   return content2.replace(MEMO_LINK_REG, "");
 }
+function hasMemoReferences(content2) {
+  return content2.match(MEMO_LINK_REG) !== null;
+}
 function refPreview(content2, max2 = 30) {
-  return stripMemoLinks(content2).replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim().slice(0, max2);
+  const cleaned = stripMemoLinks(content2).replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
+  return cleaned.length > max2 ? `${cleaned.slice(0, Math.max(max2 - 1, 1)).trimEnd()}\u2026` : cleaned;
+}
+function refTimeLabel(createdAt, targetPath, currentPath) {
+  var _a2;
+  const t2 = createdAt != null ? createdAt : "";
+  const timePart = t2.slice(11, 16);
+  if (targetPath === currentPath)
+    return timePart;
+  const curYear = (_a2 = currentPath.match(/(\d{4})-(\d{2})-(\d{2})\.md$/)) == null ? void 0 : _a2[1];
+  const targetYear = t2.slice(0, 4);
+  const datePart = curYear && targetYear === curYear ? t2.slice(5, 10) : t2.slice(2, 10);
+  return `${datePart} ${timePart}`.trim();
 }
 async function openMemoFile(memoId, path) {
   const { vault } = appStore.getState().dailyNotesState.app;
@@ -10132,12 +10155,12 @@ class MemoService {
       payload: { memos: [] }
     });
   }
-  async getLinkedMemos(memo2) {
+  getLinkedMemos(memo2) {
     var _a2;
     const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
     const targets = memo2.hasId ? [`${fileName}#^${memo2.hasId}`] : [];
     return this.getState().memos.filter(
-      (m2) => m2.id !== memo2.id && (targets.some((t2) => m2.content.includes(t2)) || m2.content.includes(memo2.id))
+      (m2) => m2.id !== memo2.id && !m2.isDeleted && (targets.some((t2) => m2.content.includes(t2)) || m2.content.includes(memo2.id))
     );
   }
   async createMemo(text, isTask, date) {
@@ -13240,23 +13263,21 @@ const MemoRefBar = ({
   return /* @__PURE__ */ jsx("div", {
     className: "memo-ref-bar",
     children: refTargets.map((target) => {
-      var _a2, _b;
+      var _a2;
       const tm = memoService.getMemoByLinkTarget(target);
       if (!tm) {
-        return /* @__PURE__ */ jsx("span", {
+        return /* @__PURE__ */ jsxs("span", {
           className: "memo-ref-item missing",
-          children: "\u2197 \u5F15\u7528\u76EE\u6807\u5DF2\u5220\u9664"
+          children: ["\u2197 ", t$2("Reference target deleted")]
         }, target);
       }
-      const sameDay = tm.path === currentPath;
-      const timePart = ((_a2 = tm.createdAt) != null ? _a2 : "").slice(11, 16);
-      const datePart = sameDay ? "" : `${((_b = tm.createdAt) != null ? _b : "").slice(5, 10)} `;
+      const timeLabel = refTimeLabel((_a2 = tm.createdAt) != null ? _a2 : "", tm.path, currentPath);
       const preview = refPreview(tm.content, 30);
       return /* @__PURE__ */ jsxs("span", {
         className: "memo-ref-item",
-        title: preview || timePart,
+        title: preview || timeLabel,
         onClick: () => onOpenMemo(tm),
-        children: ["\u2197 ", datePart, timePart, "\xB7 ", preview]
+        children: ["\u2197 ", timeLabel, "\xB7 ", preview]
       }, target);
     })
   });
@@ -13409,13 +13430,6 @@ const getLabelFromExternalLink = (line) => {
 const getContentFromExternalLink = (line) => {
   var _a2;
   return (_a2 = /\[([^\]]+)\]\((([^\]]+).md)\)/g.exec(line)) == null ? void 0 : _a2[3];
-};
-const parseHtmlToRawText = (htmlStr) => {
-  const tempEl = document.createElement("div");
-  tempEl.className = "memo-content-text";
-  tempEl.innerHTML = htmlStr;
-  const text = tempEl.innerText;
-  return text;
 };
 var memoCardDialog = "";
 function SvgEdit(props) {
@@ -13644,37 +13658,40 @@ const MemoCardDialog = (props) => {
         }
       })]
     }), linkMemos.length > 0 ? /* @__PURE__ */ jsxs("div", {
-      className: "linked-memos-wrapper",
+      className: "linked-memos-wrapper ref-comment-list",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "normal-text",
-        children: [t$2("LINKED"), " ", linkMemos.length, " MEMO", " "]
-      }), linkMemos.map((m2) => {
-        const rawtext = parseHtmlToRawText(formatMemoContent(m2.content)).replaceAll("\n", " ");
-        return /* @__PURE__ */ jsxs("div", {
-          className: "linked-memo-container",
-          onClick: () => handleLinkedMemoClick(m2),
-          children: [/* @__PURE__ */ jsxs("span", {
-            className: "time-text",
-            children: [m2.dateStr, " "]
-          }), rawtext]
-        }, m2.id);
-      })]
+        children: [linkMemos.length, " ", t$2("LINKED")]
+      }), linkMemos.map((m2) => /* @__PURE__ */ jsxs("div", {
+        className: "linked-memo-container",
+        onClick: () => handleLinkedMemoClick(m2),
+        children: [/* @__PURE__ */ jsxs("span", {
+          className: "time-text",
+          children: [m2.dateStr, " "]
+        }), refPreview(m2.content, 100)]
+      }, m2.id))]
     }) : null, linkedMemos.length > 0 ? /* @__PURE__ */ jsxs("div", {
-      className: "linked-memos-wrapper",
+      className: "linked-memos-wrapper ref-comment-list",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "normal-text",
-        children: [linkedMemos.length, " MEMO ", t$2("LINK TO THE"), " MEMO"]
-      }), linkedMemos.map((m2) => {
-        const rawtext = parseHtmlToRawText(formatMemoContent(m2.content)).replaceAll("\n", " ");
-        return /* @__PURE__ */ jsxs("div", {
-          className: "linked-memo-container",
-          onClick: () => handleLinkedMemoClick(m2),
-          children: [/* @__PURE__ */ jsxs("span", {
-            className: "time-text",
-            children: [m2.dateStr, " "]
-          }), rawtext]
-        }, m2.id);
-      })]
+        children: [linkedMemos.length, " ", t$2("REFS")]
+      }), linkedMemos.map((m2) => /* @__PURE__ */ jsxs("div", {
+        className: "ref-comment-item",
+        onClick: (e) => {
+          if (e.target.closest("a"))
+            return;
+          handleLinkedMemoClick(m2);
+        },
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "ref-comment-time",
+          children: m2.createdAtStr
+        }), /* @__PURE__ */ jsx("div", {
+          className: "ref-comment-content",
+          dangerouslySetInnerHTML: {
+            __html: formatMemoContent(m2.content, m2.id)
+          }
+        })]
+      }, m2.id))]
     }) : null]
   });
 };
@@ -14254,6 +14271,11 @@ const Memo = (props) => {
   const imageProps = {
     memo: propsMemo.content
   };
+  const referenced = memoService.getLinkedMemos(propsMemo).sort((a, b) => {
+    var _a2, _b;
+    return ((_a2 = b.createdAt) != null ? _a2 : "").localeCompare((_b = a.createdAt) != null ? _b : "");
+  });
+  const referencedTop = referenced.slice(0, 3);
   return /* @__PURE__ */ jsxs("div", {
     ref: memoCardRef,
     className: `memo-wrapper ${"memos-" + propsMemo.id} ${propsMemo.memoType}${menuOpen ? " menu-open" : ""}`,
@@ -14336,6 +14358,20 @@ const Memo = (props) => {
       content: propsMemo.content,
       currentPath: propsMemo.path,
       onOpenMemo: (tm) => showMemoCardDialog(tm)
+    }), referenced.length > 0 && /* @__PURE__ */ jsxs("div", {
+      className: "memo-referenced-bar",
+      title: `${referenced.length} ${t$2("REFS")}`,
+      onClick: () => showMemoCardDialog(propsMemo),
+      children: [/* @__PURE__ */ jsxs("span", {
+        className: "memo-ref-count",
+        children: [referenced.length, " ", t$2("REFS")]
+      }), referencedTop.map((m2) => {
+        var _a2;
+        return /* @__PURE__ */ jsxs("span", {
+          className: "memo-ref-preview",
+          children: [refTimeLabel((_a2 = m2.createdAt) != null ? _a2 : "", m2.path, propsMemo.path), " \xB7 ", refPreview(m2.content, 24)]
+        }, m2.id);
+      })]
     })]
   });
 };
@@ -33132,7 +33168,7 @@ const MemoList = () => {
     }
     return shouldShow;
   }) : memos.filter((memo2) => {
-    return !memo2.linkId && !memo2.isDeleted;
+    return !memo2.linkId && !memo2.isDeleted && !(settings.HideRefMemosInList && hasMemoReferences(memo2.content));
   });
   copyShownMemos = shownMemos;
   const totalPages = Math.ceil(shownMemos.length / ITEMS_PER_PAGE);
@@ -34871,6 +34907,7 @@ const DEFAULT_SETTINGS = {
   FocusOnEditor: true,
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
+  HideRefMemosInList: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
   ShowTime: true,
@@ -34971,6 +35008,16 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     new require$$0.Setting(containerEl).setName(t$2("Use Tags In Vault")).setDesc(t$2("Use tags in vault rather than only in Memos. False by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.UseVaultTags).onChange(async (value) => {
         this.plugin.settings.UseVaultTags = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$2("Hide Memos With References In List")).setDesc(
+      t$2(
+        "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default."
+      )
+    ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
+        this.plugin.settings.HideRefMemosInList = value;
         this.applySettingsUpdate();
       })
     );

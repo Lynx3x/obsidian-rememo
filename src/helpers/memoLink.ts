@@ -35,11 +35,27 @@ export function stripMemoLinks(content: string): string {
   return content.replace(MEMO_LINK_REG, '');
 }
 
-/** 引用条展示文本：剥引用标记与 <br> 后取前 max 字 */
+/** 正文是否含引用（feed 隐藏过滤等快速判定；match 不推进共享正则的 lastIndex） */
+export function hasMemoReferences(content: string): boolean {
+  return content.match(MEMO_LINK_REG) !== null;
+}
+
+/** 引用条展示文本：剥引用标记与 <br> 后取前 max 字，截断处补省略号 */
 export function refPreview(content: string, max = 30): string {
-  return stripMemoLinks(content)
+  const cleaned = stripMemoLinks(content)
     .replace(/<br\s*\/?>/gi, ' ')
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, max);
+    .trim();
+  return cleaned.length > max ? `${cleaned.slice(0, Math.max(max - 1, 1)).trimEnd()}…` : cleaned;
+}
+
+/** 引用时间标签三档：同文件只 HH:mm；跨文件同年 MM/DD HH:mm；跨年 YY/MM/DD HH:mm */
+export function refTimeLabel(createdAt: string, targetPath: string, currentPath: string): string {
+  const t = createdAt ?? '';
+  const timePart = t.slice(11, 16);
+  if (targetPath === currentPath) return timePart;
+  const curYear = currentPath.match(/(\d{4})-(\d{2})-(\d{2})\.md$/)?.[1];
+  const targetYear = t.slice(0, 4);
+  const datePart = curYear && targetYear === curYear ? t.slice(5, 10) : t.slice(2, 10); // MM/DD 或 YY/MM/DD
+  return `${datePart} ${timePart}`.trim();
 }

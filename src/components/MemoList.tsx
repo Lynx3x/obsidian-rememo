@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, use
 import appContext from '../stores/appContext';
 import { locationService, memoService, queryService } from '../services';
 import { FIRST_TAG_REG, IMAGE_URL_REG, LINK_REG, MEMO_LINK_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
+import { hasMemoReferences } from '../helpers/memoLink';
 import utils from '../helpers/utils';
 import { checkShouldShowMemoWithFilters } from '../helpers/filter';
 import Memo from './Memo';
@@ -132,8 +133,13 @@ const MemoList: React.FC<Props> = () => {
           return shouldShow;
         })
       : memos.filter((memo) => {
-          // 过滤评论（linkId 非空 = 评论）和已删除的 memo（isDeleted）
-          return !memo.linkId && !memo.isDeleted;
+          // 过滤旧评论字段残留（linkId）、已删除 memo，以及（设置开启时）引用卡
+          // （引用卡在其引用目标卡的聚合区可见，主列表默认不重复出现；搜索/过滤时不受此限）
+          return (
+            !memo.linkId &&
+            !memo.isDeleted &&
+            !(settings.HideRefMemosInList && hasMemoReferences(memo.content))
+          );
         });
 
   copyShownMemos = shownMemos;

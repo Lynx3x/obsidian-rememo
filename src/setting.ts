@@ -19,6 +19,8 @@ export interface MemosSettings {
   FocusOnEditor: boolean;
   OpenDailyMemosWithMemos: boolean;
   HideDoneTasks: boolean;
+  /** 主列表不显示引用卡（P3 引用模型；搜索/过滤时仍可见）。默认 true = 隐藏 */
+  HideRefMemosInList: boolean;
   /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
   EnterToSend: boolean;
   OpenMemosAutomatically: boolean;
@@ -53,6 +55,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   FocusOnEditor: true,
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
+  HideRefMemosInList: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
   // EditorMaxHeight: '250',
@@ -213,6 +216,20 @@ export class MemosSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.UseVaultTags).onChange(async (value) => {
           this.plugin.settings.UseVaultTags = value;
+          this.applySettingsUpdate();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('Hide Memos With References In List'))
+      .setDesc(
+        t(
+          'Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.',
+        ),
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
+          this.plugin.settings.HideRefMemosInList = value;
           this.applySettingsUpdate();
         }),
       );

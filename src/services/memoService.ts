@@ -213,14 +213,17 @@ class MemoService {
     }
 
     /**
-     * 获取引用（MEMO_LINK 指向）指定 memo 的所有 memo（P3：新式 `文件名#^id` 目标串 + 旧式内存 id 双匹配）
+     * 获取引用（MEMO_LINK 指向）指定 memo 的所有 memo（P3：新式 `文件名#^id` 目标串 + 旧式内存 id 双匹配；
+     * 排除已软删的引用卡——回收站条目不在聚合区出现）
      */
-    public async getLinkedMemos(memo: Model.Memo): Promise<Model.Memo[]> {
+    public getLinkedMemos(memo: Model.Memo): Model.Memo[] {
         const fileName = memo.path.split('/').pop() ?? memo.path;
         const targets = memo.hasId ? [`${fileName}#^${memo.hasId}`] : [];
         return this.getState().memos.filter(
             (m: Model.Memo) =>
-                m.id !== memo.id && (targets.some((t) => m.content.includes(t)) || m.content.includes(memo.id)),
+                m.id !== memo.id &&
+                !m.isDeleted &&
+                (targets.some((t) => m.content.includes(t)) || m.content.includes(memo.id)),
         );
     }
 

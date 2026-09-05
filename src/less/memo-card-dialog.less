@@ -16,7 +16,7 @@
       min-height: 64px;
       max-width: 100%;
       padding: 12px 24px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       border-radius: var(--memo-radius-m);
       background-color: var(--memo-bg);
       box-shadow: var(--memo-shadow-card);
@@ -43,9 +43,16 @@
           .flex(row, flex-end, center);
 
           > .btn {
-            background-color: transparent;
-            padding: 0;
-            border-radius: var(--memo-radius-s);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            padding: 2px;
+            background: transparent;
+            border: none; /* 去掉 Obsidian button 默认边框（否则图标按钮呈矩形框） */
+            box-shadow: none;
+            border-radius: var(--memo-radius-s); /* 方形 hover，与全局按钮调性一致 */
             transition: background-color var(--memo-transition-fast);
 
             &:hover {
@@ -53,8 +60,9 @@
             }
 
             > .icon-img {
-              width: 20px;
-              height: 20px;
+              display: block;
+              width: 18px;
+              height: 18px;
               fill: var(--memo-text-muted);
             }
           }
@@ -173,7 +181,10 @@
       > .linked-memo-container {
         font-size: 13px;
         line-height: 24px;
-        margin-top: 8px;
+        width: 100%;
+        padding: 2px 6px;
+        margin-top: 2px;
+        border-radius: var(--memo-radius-s);
         cursor: pointer;
         max-width: 100%;
         white-space: nowrap;
@@ -181,13 +192,29 @@
         text-overflow: ellipsis;
 
         &:hover {
-          opacity: 0.8;
+          background-color: var(--memo-surface-hover);
         }
 
         > .time-text {
           color: var(--memo-text-muted);
           .mono-font-family();
         }
+      }
+    }
+
+    // P3b 评论区面板：与被引用卡同卡式层级（bg + border）；紧跟主卡（间距收敛）、内容全部展示
+    //（不内滚——弹窗整体滚动；标题不会被单独滚走）
+    > .linked-memos-wrapper.ref-comment-list {
+      background-color: var(--memo-bg);
+      border: 1px solid var(--memo-border);
+      box-shadow: var(--memo-shadow-card);
+      margin-top: 0;
+      margin-bottom: 0; /* 评论区贴底，不留白 */
+      padding-bottom: 8px;
+
+      > .normal-text {
+        margin: 0 0 6px;
+        font-weight: 600;
       }
     }
   }

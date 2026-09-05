@@ -2,8 +2,9 @@
 // 展示：正文 MEMO_LINK 目标 → 卡底小字条（同文件省略日期，预览实时取目标内容）；
 //   点击由调用方决定（主列表/回收站 = 打开目标浮窗；浮窗内 = 内部导航）。
 import React from 'react';
-import { extractLinkTargets, refPreview } from '../helpers/memoLink';
+import { extractLinkTargets, refPreview, refTimeLabel } from '../helpers/memoLink';
 import { memoService } from '../services';
+import { t } from '../translations/helper';
 
 interface Props {
   content: string;
@@ -23,23 +24,20 @@ const MemoRefBar: React.FC<Props> = ({ content, currentPath, onOpenMemo }) => {
         if (!tm) {
           return (
             <span key={target} className="memo-ref-item missing">
-              ↗ 引用目标已删除
+              ↗ {t('Reference target deleted')}
             </span>
           );
         }
-        const sameDay = tm.path === currentPath;
-        const timePart = (tm.createdAt ?? '').slice(11, 16);
-        const datePart = sameDay ? '' : `${(tm.createdAt ?? '').slice(5, 10)} `;
+        const timeLabel = refTimeLabel(tm.createdAt ?? '', tm.path, currentPath);
         const preview = refPreview(tm.content, 30);
         return (
           <span
             key={target}
             className="memo-ref-item"
-            title={preview || timePart}
+            title={preview || timeLabel}
             onClick={() => onOpenMemo(tm)}
           >
-            ↗ {datePart}
-            {timePart}· {preview}
+            ↗ {timeLabel}· {preview}
           </span>
         );
       })}

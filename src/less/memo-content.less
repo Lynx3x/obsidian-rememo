@@ -11,11 +11,11 @@
   margin-top: 6px;
 
   > .memo-ref-item {
+    width: 100%;
     font-size: 12px;
     line-height: 1.5;
     color: var(--memo-text-muted);
     cursor: pointer;
-    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -28,6 +28,75 @@
       color: var(--memo-text-faint);
       cursor: default;
     }
+  }
+}
+
+// P3b 父卡聚合条（被引用，卡底）：折叠态 = 计数 + 最新 3 条预览；点击开浮窗看全部
+[data-type='memos_view'] .memo-wrapper .memo-referenced-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--memo-border);
+  cursor: pointer;
+
+  > .memo-ref-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--memo-text-muted);
+  }
+
+  > .memo-ref-preview {
+    width: 100%;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--memo-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--memo-accent);
+    }
+  }
+}
+
+// P3b 浮窗引用条目（被引用评论区 + 链接区共用）：时间等宽小字；hover 整行高亮
+.dialog-wrapper .ref-comment-item {
+  width: 100%; /* 短内容也占满整行，hover 块不悬空 */
+  padding: 8px 10px;
+  border-radius: var(--memo-radius-s, 8px);
+  cursor: pointer;
+  border-bottom: 1px solid var(--memo-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--memo-surface-hover);
+  }
+
+  > .ref-comment-time {
+    display: block;
+    font-size: 11px;
+    color: var(--memo-text-muted);
+    .mono-font-family();
+    margin-bottom: 2px;
+  }
+
+  > .ref-comment-content {
+    margin-top: 2px;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-normal);
+    word-wrap: break-word;
+    word-break: break-word;
+    /* 不加 pre-wrap：段落换行交给渲染出的块结构（与浮窗正文一致），避免文本内残留换行被双倍显示 */
   }
 }
 

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MEMO_LINK_REG } from '../helpers/consts';
+import { refPreview } from '../helpers/memoLink';
 import utils from '../helpers/utils';
 import { globalStateService, memoService } from '../services';
-import { parseHtmlToRawText } from '../helpers/marked';
 import { formatMemoContent } from './Memo';
 import { showDialog } from './Dialog';
 import appStore from '../stores/appStore';
@@ -174,35 +174,40 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
         })}
       </div>
       {linkMemos.length > 0 ? (
-        <div className="linked-memos-wrapper">
+        <div className="linked-memos-wrapper ref-comment-list">
           <p className="normal-text">
-            {t('LINKED')} {linkMemos.length} MEMO{' '}
+            {linkMemos.length} {t('LINKED')}
           </p>
-          {linkMemos.map((m) => {
-            const rawtext = parseHtmlToRawText(formatMemoContent(m.content)).replaceAll('\n', ' ');
-            return (
-              <div className="linked-memo-container" key={m.id} onClick={() => handleLinkedMemoClick(m)}>
-                <span className="time-text">{m.dateStr} </span>
-                {rawtext}
-              </div>
-            );
-          })}
+          {linkMemos.map((m) => (
+            <div className="linked-memo-container" key={m.id} onClick={() => handleLinkedMemoClick(m)}>
+              <span className="time-text">{m.dateStr} </span>
+              {refPreview(m.content, 100)}
+            </div>
+          ))}
         </div>
       ) : null}
       {linkedMemos.length > 0 ? (
-        <div className="linked-memos-wrapper">
+        <div className="linked-memos-wrapper ref-comment-list">
           <p className="normal-text">
-            {linkedMemos.length} MEMO {t('LINK TO THE')} MEMO
+            {linkedMemos.length} {t('REFS')}
           </p>
-          {linkedMemos.map((m) => {
-            const rawtext = parseHtmlToRawText(formatMemoContent(m.content)).replaceAll('\n', ' ');
-            return (
-              <div className="linked-memo-container" key={m.id} onClick={() => handleLinkedMemoClick(m)}>
-                <span className="time-text">{m.dateStr} </span>
-                {rawtext}
-              </div>
-            );
-          })}
+          {linkedMemos.map((m) => (
+            <div
+              className="ref-comment-item"
+              key={m.id}
+              onClick={(e) => {
+                // 条目内普通链接（外链等）点击不触发跳转导航
+                if ((e.target as HTMLElement).closest('a')) return;
+                handleLinkedMemoClick(m);
+              }}
+            >
+              <span className="ref-comment-time">{m.createdAtStr}</span>
+              <div
+                className="ref-comment-content"
+                dangerouslySetInnerHTML={{ __html: formatMemoContent(m.content, m.id) }}
+              />
+            </div>
+          ))}
         </div>
       ) : null}
     </>
