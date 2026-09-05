@@ -3763,7 +3763,6 @@ div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper > .usage-detail-
   align-items: flex-start;
   width: 240px;
   height: 100%;
-  background-color: var(--memo-canvas);
   overflow-x: hidden;
   overflow-y: auto;
   flex-shrink: 0;
