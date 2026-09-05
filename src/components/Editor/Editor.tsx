@@ -4,7 +4,6 @@ import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
 import { completionStatus } from '@codemirror/autocomplete';
-import { memoInputHighlight } from '../../editor/highlight';
 import { getNativeMarkdownEditorClass } from '../../editor/native';
 import { attachKeyCapture } from '../../editor/capture';
 import appStore from '../../stores/appStore';
@@ -163,7 +162,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           // 换行:内核主编辑器的 lineWrapping 由更外层注入,裸实例不自带——这里补
           EditorView.lineWrapping,
           placeholder(cbRef.current.placeholder),
-          memoInputHighlight,
           keymap.of([
             {
               key: 'Enter',

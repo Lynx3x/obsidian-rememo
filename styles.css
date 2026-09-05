@@ -102,10 +102,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -129,12 +129,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -347,10 +347,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -374,12 +374,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -1336,10 +1336,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -1363,12 +1363,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -3507,10 +3507,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -3534,12 +3534,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -3805,10 +3805,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -3832,12 +3832,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -3996,28 +3996,6 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-content:focus-
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-line {
   padding: 0;
   line-height: 24px;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-code {
-  font-family: var(--font-monospace, var(--font-interface));
-  padding: 0 3px;
-  border-radius: var(--memo-radius-s);
-  background-color: var(--memo-surface-hover);
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-bold {
-  font-weight: bold;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-italic {
-  font-style: italic;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-mark {
-  background-color: var(--text-highlight-bg, rgba(255, 220, 80, 0.4));
-  border-radius: 2px;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-tag {
-  color: var(--memo-accent);
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-link {
-  color: var(--memo-link, var(--memo-accent));
 }
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-placeholder {
   color: var(--memo-text-faint);
@@ -4247,10 +4225,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -4274,12 +4252,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -4479,10 +4457,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -4506,12 +4484,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -4822,10 +4800,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -4849,12 +4827,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -5155,10 +5133,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -5182,12 +5160,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -5422,10 +5400,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -5449,12 +5427,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -5678,10 +5656,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -5705,12 +5683,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -6005,10 +5983,10 @@ div[data-type='memos_view'] pre *,
 .dialog-wrapper pre * {
   font-family: var(--font-monospace, 'ubuntu-mono', monospace);
 }
-div[data-type='memos_view'] label,
-.dialog-wrapper label,
-div[data-type='memos_view'] input,
-.dialog-wrapper input,
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
 div[data-type='memos_view'] button:not(.rdp),
 .dialog-wrapper button:not(.rdp),
 div[data-type='memos_view'] textarea,
@@ -6032,12 +6010,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li,
-.dialog-wrapper li {
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
   list-style-type: none;
 }
-div[data-type='memos_view'] li::before,
-.dialog-wrapper li::before {
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;

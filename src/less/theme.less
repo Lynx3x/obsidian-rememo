@@ -73,8 +73,10 @@
 
   // 输入/控件默认透明无边框（沿用旧意图，去掉浅深双写）
   // 注意：必须清 background-image——Obsidian 主题常给 button 挂渐变，会盖住组件自设的背景色
-  label,
-  input,
+  // 排除内核 live preview 渲染的任务勾选框（label.task-list-label + input[type=checkbox]：
+  // unchecked 框靠主题 border 画，曾被子控件规则 border:none 误杀——主编辑器正常、rememo 不可见）
+  label:not(.task-list-label),
+  input:not([type='checkbox']),
   button:not(.rdp),
   textarea,
   img {
@@ -93,7 +95,9 @@
     box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
   }
 
-  li {
+  // 仅无 class 的裸 li 注入点号（memo 卡片渲染列表）；内核 live preview 渲染的
+  // li 均带 class（task-list-item 等），不受影响——曾误伤编辑器内 checkbox 标记
+  li:not([class]) {
     list-style-type: none;
 
     &::before {

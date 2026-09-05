@@ -6588,7 +6588,7 @@ function lk(a, b, c, d) {
   Jg(e, g2, f2);
   return g2;
 }
-function mk$1(a) {
+function mk(a) {
   a = a.current;
   if (!a.child)
     return null;
@@ -6657,7 +6657,7 @@ function tk(a, b, c, d, e) {
     if ("function" === typeof e) {
       var h2 = e;
       e = function() {
-        var a2 = mk$1(g2);
+        var a2 = mk(g2);
         h2.call(a2);
       };
     }
@@ -6668,7 +6668,7 @@ function tk(a, b, c, d, e) {
     if ("function" === typeof e) {
       var k = e;
       e = function() {
-        var a2 = mk$1(g2);
+        var a2 = mk(g2);
         k.call(a2);
       };
     }
@@ -6676,7 +6676,7 @@ function tk(a, b, c, d, e) {
       lk(b, g2, a, e);
     });
   }
-  return mk$1(g2);
+  return mk(g2);
 }
 ec = function(a) {
   if (13 === a.tag) {
@@ -30054,69 +30054,6 @@ function completionStatus(state) {
   let cState = state.field(completionState, false);
   return cState && cState.active.some((a) => a.isPending) ? "pending" : cState && cState.active.some((a) => a.state != 0) ? "active" : null;
 }
-const TAG_CHAR = "\\p{L}\\p{N}_/\\.\\-";
-const CODE_RE = /`[^`\n]+?`/g;
-const BOLD_RE = /\*\*[^*\n]+?\*\*/g;
-const ITALIC_RE = new RegExp("(?<!\\*)\\*[^*\\n]+?\\*(?!\\*)", "g");
-const MARK_RE = /==[^=\n]+?==/g;
-const LINK_RE = /\[\[[^\[\]\n]+?\]\]/g;
-const TAG_RE = new RegExp(`(?<![#${TAG_CHAR}])#(?:[${TAG_CHAR}]+)`, "gu");
-const mk = (cls) => Decoration.mark({ class: cls });
-const CODE = mk("cm-hl-code");
-const BOLD = mk("cm-hl-bold");
-const ITALIC = mk("cm-hl-italic");
-const MARK = mk("cm-hl-mark");
-const TAG = mk("cm-hl-tag");
-const LINK = mk("cm-hl-link");
-const overlaps = (aFrom, aTo, ranges) => ranges.some((r2) => aFrom < r2.to && aTo > r2.from);
-function buildSet(doc2) {
-  const builder = new RangeSetBuilder();
-  for (let ln = 1; ln <= doc2.lines; ln++) {
-    const line = doc2.line(ln);
-    const text = line.text;
-    const base2 = line.from;
-    const push = (re2, deco, skip) => {
-      re2.lastIndex = 0;
-      let m2;
-      while ((m2 = re2.exec(text)) !== null) {
-        const a = base2 + m2.index;
-        const b = a + m2[0].length;
-        if (!skip || !overlaps(a, b, skip))
-          builder.add(a, b, deco);
-      }
-    };
-    const codeRanges = [];
-    CODE_RE.lastIndex = 0;
-    let mc2;
-    while ((mc2 = CODE_RE.exec(text)) !== null) {
-      const a = base2 + mc2.index;
-      const b = a + mc2[0].length;
-      codeRanges.push({ from: a, to: b });
-      builder.add(a, b, CODE);
-    }
-    push(BOLD_RE, BOLD, codeRanges);
-    push(ITALIC_RE, ITALIC, codeRanges);
-    push(MARK_RE, MARK, codeRanges);
-    push(TAG_RE, TAG, codeRanges);
-    push(LINK_RE, LINK, codeRanges);
-  }
-  return builder.finish();
-}
-const memoInputHighlight = ViewPlugin.fromClass(
-  class {
-    constructor(view) {
-      this.deco = buildSet(view.state.doc);
-    }
-    update(update) {
-      if (update.docChanged) {
-        this.deco = buildSet(update.state.doc);
-      }
-    }
-  },
-  {
-    decorations: (v2) => v2.deco
-  }
-);
 let cachedClass = null;
 function getNativeMarkdownEditorClass(app2) {
   if (cachedClass)
@@ -30299,7 +30236,6 @@ const Editor = react.exports.forwardRef((props, ref) => {
         exts.push(
           EditorView.lineWrapping,
           placeholder(cbRef.current.placeholder),
-          memoInputHighlight,
           keymap.of([{
             key: "Enter",
             run: (view) => {
