@@ -1,8 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Compartment, EditorState } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
-import { EditorView, keymap, placeholder } from '@codemirror/view';
-import { Prec } from '@codemirror/state';
+import { EditorView, keymap } from '@codemirror/view';
 import { completionStatus } from '@codemirror/autocomplete';
 import { getNativeMarkdownEditorClass } from '../../editor/native';
 import { attachKeyCapture } from '../../editor/capture';
@@ -14,27 +13,30 @@ import { t } from '../../translations/helper';
 import Only from '../common/OnlyWhen';
 
 /**
- * memo 主输入（P2 定稿：Obsidian 原生 MarkdownEditor 嵌入 + 纯外层 DOM 控制）。
+ * memo 主输入（Obsidian 原生 MarkdownEditor 子类 + 纯外层 DOM 控制，P2 定稿）。
  *
- * 架构（2026-09-05 探针实测定稿）：
- * - 内核 embed/裸编辑器的生效 state 不吃任何 buildLocalExtensions 返回值
- *   （覆写/原型 patch/onUpdate 均不可靠）→ 控制权全部放在编辑器之外：
- *   * 变更回调 = contentDOM 的 input 事件（DOM 通道，驱动发送按钮可用态/缓存）
- *   * activeEditor 桥 = contentDOM focus/blur（Obsidian 编辑器命令路由到本输入）
- *   * 键盘 = contentDOM keydown（纯 Enter 发送模式）+ window capture 兜底
- *     （Ctrl/Cmd+Enter：Obsidian window capture 吞命中命令的 Mod 键，75b16ec 机制）
- *   * 编辑器挂进插件组件树（plugin.addChild，kanban 同款生命周期）
- * - 观感扩展（换行/高亮/联想/占位）走 cm6 官方 StateEffect.appendConfig 注入
- *   生效 state；addChild 的 load 链可能异步重建 state 抹掉注入 → 立即注入全量 +
- *   延迟补注 lineWrapping/高亮（facet/装饰类重复追加安全）
+ * 首设 set() 建态（2026-09-05 反编译定案，见 P2-INVESTIGATION.md §7）：内核构造器不建最终
+ * state（cmInit=false），真正 state 由首次 set() 构建：EditorState.create(
+ * [getLocalExtensions() = buildLocalExtensions 覆写并缓存, dynamic, RJ]) → cm.setState。
+ * 因此 new 之后必须无条件 native.set(initial)（空串也调）——此前 initial 为空时不调
+ * set()，super 侧内核扩展（联想触发等）从未进 state，是"时好时坏"的根因。
+ *
+ * 跨副本告诫（2026-09-05 实测修正）：插件自打包的 @codemirror/* 与内核 asar 内副本
+ * 不是同一模块实例——buildLocalExtensions 里推入的插件侧 facet 扩展（updateListener/
+ * placeholder/keymap/roCompartment）对内核创建的 state 不生效。实测：只留
+ * updateListener 时发送按钮可用态完全不更新。可靠通道 = 内核直调实例方法
+ * （onUpdate 覆写）与 DOM 事件（input/focus/blur）；占位因此走 CSS 叠层；
+ * readOnly 靠 setEditable 的 catch 退 DOM 锁兜底。
+ *
+ * 职责分工：
+ * - 变更回调 = onUpdate 覆写（用户输入 + 程序化 dispatch）+ contentDOM input
+ *   （用户输入）双通道，驱动发送按钮可用态/内容缓存
+ * - 键盘 = cm keymap（Enter 发送，facet 同受跨副本影响，EnterToSend 是否经此待探针）
+ *   + window capture 兜底（Mod-Enter 等：Obsidian 吞命中命令的 Mod 键，75b16ec 机制）
+ * - activeEditor 桥 = contentDOM focus/blur（Obsidian 编辑命令路由到本输入）
+ * - 编辑器挂进插件组件树（plugin.addChild，kanban 同款生命周期）
  * - removeHighlights 实例遮蔽：裸编辑器 state 无搜索高亮 field，点击/Esc 会崩
- * - readOnly 锁（发送后发射前）走 roCompartment（随 buildLocalExtensions 尝试，
- *   兜底由外层置 contenteditable 不可编辑）
  */
-
-// ===== 诊断区已移除(2026-09-05 正门方案):反编译确认最终 state 由首次 set() 构建,
-// cmInit=false → getLocalExtensions() → buildLocalExtensions()(覆写正门)→
-// EditorState.create → cm.setState。见 P2-INVESTIGATION.md §7。=====
 
 export interface EditorRefActions {
   element: HTMLElement;
@@ -82,18 +84,15 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
   const cbRef = useRef<{
     confirm: (content: string) => void;
     change: (content: string) => void;
-    placeholder: string;
     enterToSend: boolean;
     get?: () => string;
   }>({
     confirm: handleConfirmBtnClickCallback,
     change: handleContentChangeCallback,
-    placeholder: placeholderText,
     enterToSend: enterToSend === true,
   });
   cbRef.current.confirm = handleConfirmBtnClickCallback;
   cbRef.current.change = handleContentChangeCallback;
-  cbRef.current.placeholder = placeholderText;
   cbRef.current.enterToSend = enterToSend === true;
 
   const [hasContent, setHasContent] = useState(() => initialContent.length > 0);
@@ -154,20 +153,22 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       }
 
       buildLocalExtensions(): Extension[] {
-        // 正门(2026-09-05 反编译定案):最终 state 由首次 set() 构建,扩展 =
+        // 首设 set() 建态(2026-09-05 反编译定案):最终 state 由首次 set() 构建,扩展 =
         // [getLocalExtensions()(=buildLocalExtensions 覆写,缓存), dynamic, RJ]。
         // 必须 super 保留内核原版(updateEvent/onUpdate/联想触发等都在里面)。
         const exts: Extension[] = super.buildLocalExtensions?.() ?? [];
         exts.push(
           // 换行:内核主编辑器的 lineWrapping 由更外层注入,裸实例不自带——这里补
           EditorView.lineWrapping,
-          placeholder(cbRef.current.placeholder),
           keymap.of([
             {
               key: 'Enter',
               run: (view) => {
                 if (!cbRef.current.enterToSend) return false; // 默认模式：交原生续行/换行
                 if (completionStatus(view.state) === 'active') return false; // 联想打开：交联想接受
+                // 注意（2026-09-05 待目视收尾）：联想已换内核 editorSuggest（7c65cc9），
+                // completionStatus 只对 cm-autocomplete 有效——若内核先吃 Enter 则此判定
+                // 永不达（死分支）；若反而不拦，EnterToSend 模式下联想开按 Enter 会误发 memo。
                 sendFrom(view);
                 return true;
               },
@@ -190,17 +191,15 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
             },
           ]),
           roCompartmentRef.current.of([]),
-          EditorView.updateListener.of((u) => {
-            if (u.docChanged) {
-              const text = u.state.doc.toString();
-              setHasContent(text.length > 0);
-              cbRef.current.change(text);
-            }
-          }),
         );
         return exts;
       }
 
+      // onUpdate 覆写（2026-09-05 实测为可靠通道之一）：内核 updateEvent 直接调
+      // 实例方法，不经过插件侧 facet，故跨副本问题不影响它。曾推入的
+      // EditorView.updateListener 属插件自打包 cm6 副本的 facet，对内核创建的
+      // state 不生效（实测：只留它时按钮可用态完全不更新）→ 已退役，勿再依赖
+      // "插件侧扩展会随建态生效"的假设（同类还有 placeholder/keymap/roCompartment）。
       onUpdate(update: any, changed: boolean) {
         super.onUpdate?.(update, changed);
         if (update?.docChanged) {
@@ -232,8 +231,8 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       } catch (err) {
         console.error('[rememo] addChild 失败', err);
       }
-    } else {
     }
+    // 拿不到插件实例（异常环境）则只靠 cleanup 里的 native.unload 收尾
 
     const cm: EditorView | undefined = native.cm; // addChild/load 后重取
     if (!cm) {
@@ -253,14 +252,11 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     viewRef.current = cm;
     cbRef.current.get = () => cm.state.doc.toString();
 
-    // ---- appendConfig 注入观感扩展（cm6 官方通道，直接追加进当前生效 state；
-    // buildLocalExtensions 通道已证不可靠）。addChild 的 load 链可能异步重建 state
-    // 抹掉注入（换行曾随机丢失）→ 立即注入全量 + 延迟补注 lineWrapping/高亮
-    // （两者为 facet/装饰类扩展，重复追加安全；联想/占位保持单份防重复冲突）----
-    // ---- 正门初始化：无条件首设 set()（空串也调）→ 触发 cmInit=false 分支：
+    // ---- 首次 set() 建态：无条件首设 set()（空串也调）→ 触发 cmInit=false 分支：
     // EditorState.create 用 [getLocalExtensions()=buildLocalExtensions 覆写, dynamic,
-    // RJ] 建立最终 state（2026-09-05 反编译定案，见 P2-INVESTIGATION.md §7）。
-    // 此前 initial 为空时不调 set() → 覆写从未进 state（探针全对的根因）。
+    // RJ] 建立最终 state——super 侧内核扩展随之生效（联想等；插件侧 facet 不生效，
+    // 见文件头注"跨副本告诫"）。此前 initial 为空时不调 set() → 覆写从未进 state
+    // （"时好时坏"根因，fbb137e 定案）。
     const initial = initialContent ?? '';
     try {
       if (typeof native.set === 'function') {
@@ -272,8 +268,8 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       console.error('[rememo] 设置初始内容失败', err);
     }
 
-    // ---- 输入变更检测（DOM 通道，不依赖内核扩展）：contenteditable 的 input 事件
-    // 在用户打字/粘贴/删除时必然触发 → 驱动发送按钮可用态与内容缓存 ----
+    // ---- 输入变更检测（DOM 通道，实测为可靠路径之一）：contenteditable 的 input
+    // 事件在用户打字/粘贴/删除时必然触发 → 驱动发送按钮可用态与内容缓存 ----
     const onDomInput = () => {
       const text = cm.state.doc.toString();
       setHasContent(text.length > 0);
@@ -394,7 +390,8 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
             ),
           });
         } catch {
-          // compartment 不在生效 state（构建路径差异）时退回 DOM 锁
+          // roCompartment 属插件副本 facet，对内核 state 不生效时会抛（2026-09-05
+          // 实测 updateListener 不触发即此类问题）→ 退回 DOM 锁；此兜底必须保留
           const el = view.contentDOM as HTMLElement | undefined;
           if (el) el.contentEditable = editable ? 'true' : 'false';
         }

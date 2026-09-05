@@ -12271,7 +12271,7 @@ function CarouselSlide({ slide, offset: offset2 }) {
   };
   return react.exports.createElement("div", { ref: containerRef, className: clsx(cssClass(cssSlidePrefix()), !offscreen && cssClass(cssSlidePrefix("current")), cssClass(CLASS_FLEX_CENTER)), ...makeInertWhen(offscreen), onClick: handleBackdropClick, style }, renderSlide());
 }
-function Placeholder$1() {
+function Placeholder() {
   const style = useLightboxProps().styles.slide;
   return react.exports.createElement("div", { className: cssClass("slide"), style });
 }
@@ -12286,8 +12286,8 @@ function Carousel({ carousel }) {
     for (let index = currentIndex - preload; index <= currentIndex + preload; index += 1) {
       const slide = getSlide(slides, index);
       const key = globalIndex - currentIndex + index;
-      const placeholder2 = carousel.finite && (index < 0 || index > slides.length - 1);
-      items.push(!placeholder2 ? {
+      const placeholder = carousel.finite && (index < 0 || index > slides.length - 1);
+      items.push(!placeholder ? {
         key: [`${key}`, getSlideKey(slide)].filter(Boolean).join("|"),
         offset: index - currentIndex,
         slide
@@ -12300,7 +12300,7 @@ function Carousel({ carousel }) {
     [`${cssVar(cssPrefix$2("spacing_percent"))}`]: spacingValue.percent || 0,
     [`${cssVar(cssPrefix$2("padding_px"))}`]: paddingValue.pixel || 0,
     [`${cssVar(cssPrefix$2("padding_percent"))}`]: paddingValue.percent || 0
-  } }, items.map(({ key, slide, offset: offset2 }) => slide ? react.exports.createElement(CarouselSlide, { key, slide, offset: offset2 }) : react.exports.createElement(Placeholder$1, { key })));
+  } }, items.map(({ key, slide, offset: offset2 }) => slide ? react.exports.createElement(CarouselSlide, { key, slide, offset: offset2 }) : react.exports.createElement(Placeholder, { key })));
 }
 const CarouselModule = createModule(MODULE_CAROUSEL, Carousel);
 function useNavigationState() {
@@ -26576,49 +26576,6 @@ function runHandlers(map, event, view, scope) {
   currentKeyEvent = null;
   return handled;
 }
-class Placeholder extends WidgetType {
-  constructor(content2) {
-    super();
-    this.content = content2;
-  }
-  toDOM(view) {
-    let wrap = document.createElement("span");
-    wrap.className = "cm-placeholder";
-    wrap.style.pointerEvents = "none";
-    wrap.appendChild(typeof this.content == "string" ? document.createTextNode(this.content) : typeof this.content == "function" ? this.content(view) : this.content.cloneNode(true));
-    wrap.setAttribute("aria-hidden", "true");
-    return wrap;
-  }
-  coordsAt(dom) {
-    let rects = dom.firstChild ? clientRectsFor(dom.firstChild) : [];
-    if (!rects.length)
-      return null;
-    let style = window.getComputedStyle(dom.parentNode);
-    let rect = flattenRect(rects[0], style.direction != "rtl");
-    let lineHeight = parseInt(style.lineHeight);
-    if (rect.bottom - rect.top > lineHeight * 1.5)
-      return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.top + lineHeight };
-    return rect;
-  }
-  ignoreEvent() {
-    return false;
-  }
-}
-function placeholder(content2) {
-  let plugin = ViewPlugin.fromClass(class {
-    constructor(view) {
-      this.view = view;
-      this.placeholder = content2 ? Decoration.set([Decoration.widget({ widget: new Placeholder(content2), side: 1 }).range(0)]) : Decoration.none;
-    }
-    get decorations() {
-      return this.view.state.doc.length ? Decoration.none : this.placeholder;
-    }
-  }, { decorations: (v2) => v2.decorations });
-  return typeof content2 == "string" ? [
-    plugin,
-    EditorView.contentAttributes.of({ "aria-placeholder": content2 })
-  ] : plugin;
-}
 const Outside = "-10000px";
 class TooltipViewManager {
   constructor(view, facet, createTooltipView, removeTooltipView) {
@@ -30101,13 +30058,6 @@ function onWindowKeydown(e) {
     return;
   for (const b of holder.binds) {
     if (b.match(e)) {
-      if (e.defaultPrevented) {
-        console.debug("[rememo-kb] \u6309\u952E\u5DF2\u88AB Obsidian \u62A2\u5148\u5904\u7406\uFF08\u53EF\u80FD\u4F5C\u7528\u4E8E\u4E3B\u7F16\u8F91\u5668\uFF09", {
-          key: e.key,
-          ctrlKey: e.ctrlKey,
-          metaKey: e.metaKey
-        });
-      }
       b.run(holder.view);
       e.preventDefault();
       e.stopPropagation();
@@ -30170,12 +30120,10 @@ const Editor = react.exports.forwardRef((props, ref) => {
   const cbRef = react.exports.useRef({
     confirm: handleConfirmBtnClickCallback,
     change: handleContentChangeCallback,
-    placeholder: placeholderText,
     enterToSend: enterToSend === true
   });
   cbRef.current.confirm = handleConfirmBtnClickCallback;
   cbRef.current.change = handleContentChangeCallback;
-  cbRef.current.placeholder = placeholderText;
   cbRef.current.enterToSend = enterToSend === true;
   const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
   react.exports.useEffect(() => {
@@ -30235,7 +30183,6 @@ const Editor = react.exports.forwardRef((props, ref) => {
         const exts = (_b2 = (_a3 = super.buildLocalExtensions) == null ? void 0 : _a3.call(this)) != null ? _b2 : [];
         exts.push(
           EditorView.lineWrapping,
-          placeholder(cbRef.current.placeholder),
           keymap.of([{
             key: "Enter",
             run: (view) => {
@@ -30267,14 +30214,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
               return true;
             }
           }]),
-          roCompartmentRef.current.of([]),
-          EditorView.updateListener.of((u2) => {
-            if (u2.docChanged) {
-              const text = u2.state.doc.toString();
-              setHasContent(text.length > 0);
-              cbRef.current.change(text);
-            }
-          })
+          roCompartmentRef.current.of([])
         );
         return exts;
       }

@@ -91,12 +91,13 @@ div[data-type='memos_view'] .common-editor-wrapper {
       line-height: 24px;
     }
 
-    .cm-placeholder {
-      color: var(--memo-text-faint);
-      font-family: inherit;
-    }
+    // 占位 = 上方 .is-empty::before CSS 叠层（不依赖内核 placeholder 扩展——
+    // 2026-09-05 收敛，对应扩展已从 buildLocalExtensions 移除）
 
     // 联想弹层（cm6 tooltip），观感对齐旧 rta 弹层
+    // TODO(2026-09-05 目视后)：联想已换内核 editorSuggest，若弹层 DOM 是
+    // .suggestion-container（Obsidian 原生）而非 .cm-tooltip-autocomplete，
+    // 本块与下方 ul/li 样式整体可删
     .cm-tooltip.cm-tooltip-autocomplete {
       background-color: var(--memo-bg);
       border: 1px solid var(--memo-border);
@@ -132,29 +133,6 @@ div[data-type='memos_view'] .common-editor-wrapper {
       }
 
       .cm-completionLabel {
-        font-family: inherit;
-      }
-    }
-
-    // 文件联想条目：文件名 + 右淡色目录消歧
-    .cm-sug-file {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      gap: 12px;
-      font-family: inherit;
-
-      .cm-sug-name {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .cm-sug-path {
-        font-size: 11px;
-        color: var(--memo-text-faint);
-        flex-shrink: 0;
         font-family: inherit;
       }
     }

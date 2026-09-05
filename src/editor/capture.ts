@@ -7,9 +7,9 @@
 //
 // 解法：在 window 同一 capture 层**后注册**一个兜底监听——Obsidian 用的是
 // stopPropagation（非 stopImmediate），同层后续监听仍会收到事件：
-// 命中 memo 私有热键时直接执行与 cm keymap 相同的动作（keys/format 共用函数），
-// 再 stopImmediatePropagation 吞掉事件，阻止它继续下传到 contentDOM
-// （避免事件没被 Obsidian 吞时 cm keymap 二次触发）。
+// 命中 memo 私有热键时直接执行 bind 提供的动作（bind 由调用方 Editor.tsx 组装，
+// 语义与 cm keymap 同源），再 stopImmediatePropagation 吞掉事件，阻止它继续
+// 下传到 contentDOM（避免事件没被 Obsidian 吞时 cm keymap 二次触发）。
 import type { EditorView } from '@codemirror/view';
 
 export interface CaptureBinding {
@@ -43,15 +43,6 @@ function onWindowKeydown(e: KeyboardEvent): void {
 
   for (const b of holder.binds) {
     if (b.match(e)) {
-      if (e.defaultPrevented) {
-        // Obsidian 已先行命中并执行了同键命令（作用在 workspace.activeEditor
-        // = 主编辑器）——此处如实报告，供后续决定是否加 activeEditor 挡刀层
-        console.debug('[rememo-kb] 按键已被 Obsidian 抢先处理（可能作用于主编辑器）', {
-          key: e.key,
-          ctrlKey: e.ctrlKey,
-          metaKey: e.metaKey,
-        });
-      }
       b.run(holder.view);
       e.preventDefault();
       e.stopPropagation(); // 事件不再下传到 contentDOM

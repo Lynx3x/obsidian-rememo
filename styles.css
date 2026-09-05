@@ -3997,10 +3997,6 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-line {
   padding: 0;
   line-height: 24px;
 }
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-placeholder {
-  color: var(--memo-text-faint);
-  font-family: inherit;
-}
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip.cm-tooltip-autocomplete {
   background-color: var(--memo-bg);
   border: 1px solid var(--memo-border);
@@ -4031,25 +4027,6 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autoco
   background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
 }
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autocomplete ul li .cm-completionLabel {
-  font-family: inherit;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-sug-file {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 12px;
-  font-family: inherit;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-sug-file .cm-sug-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-sug-file .cm-sug-path {
-  font-size: 11px;
-  color: var(--memo-text-faint);
-  flex-shrink: 0;
   font-family: inherit;
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper {
