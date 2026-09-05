@@ -14837,7 +14837,7 @@ const RandomMemoDialog = ({
     pickRandom();
   }, []);
   const handleOpenDiary = react.exports.useCallback(async () => {
-    if (!memo2)
+    if (!memo2 || !memo2.path)
       return;
     const {
       app: app2

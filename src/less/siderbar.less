@@ -57,11 +57,14 @@
       background-color: var(--memo-surface-hover);
     }
 
-    // 页面项高亮与查询/标签列表的 active 观感一致（accent 实底）；随机是动作项不参与高亮
+    // 页面项激活 = 标签列表同款（accent 文字加粗、无实底）；随机是动作项不参与高亮
     &.active {
-      background-color: var(--memo-accent);
-      color: var(--memo-on-accent);
+      color: var(--memo-accent);
       font-weight: bold;
+
+      > .icon-img {
+        fill: var(--memo-accent);
+      }
     }
 
     > .icon-img {
@@ -69,6 +72,7 @@
       height: 18px;
       margin-right: 10px;
       flex-shrink: 0;
+      fill: currentColor; // 图标随项文字色（覆盖 theme 全局 muted 基色）
     }
 
     > .nav-text {

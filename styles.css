@@ -3874,15 +3874,18 @@ div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper > .usage-detail-
   background-color: var(--memo-surface-hover);
 }
 .memos-sidebar-nav > .memos-nav-item.active {
-  background-color: var(--memo-accent);
-  color: var(--memo-on-accent);
+  color: var(--memo-accent);
   font-weight: bold;
+}
+.memos-sidebar-nav > .memos-nav-item.active > .icon-img {
+  fill: var(--memo-accent);
 }
 .memos-sidebar-nav > .memos-nav-item > .icon-img {
   width: 18px;
   height: 18px;
   margin-right: 10px;
   flex-shrink: 0;
+  fill: currentColor;
 }
 .memos-sidebar-nav > .memos-nav-item > .nav-text {
   overflow: hidden;
