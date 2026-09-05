@@ -90,9 +90,11 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
   - 翻译 key：'Time display format' / 'Time display format description'（en/zh-cn）
   - 注：`npx tsc` src 有两条**基线噪音**（非本次引入）：CommentInput.tsx `'Cancel'` 不在 en keyof、Editor.tsx rta 泛型不匹配
 - **`[[` 文件名联想增强（2026-09-04）**: rta '[[' trigger 早已存在（多字符 trigger 库支持），本轮把"基础版"做成类 Obsidian：`obFileSuggester.getSuggestions` 评分排序（basename 前缀 > basename 包含 > 全路径包含，同分路径字典序，空 query 全量按路径列出）；联想条目显示 md 用 basename（无扩展名）、图片带扩展名 + 右侧淡色目录消歧，选中高亮走 accent（suggest.less 新增 `.rta-sug-file/name/path`）。注意 rta 传给 dataProvider 的 token 仍带 '['（如 '[ob'），剥前缀处已兼容
-- **P1 富内容进行中（2026-09-05/06）**: 双模式读取器（新格式块解析 parseNewFormatNote + 旧逐行）与行式渲染器（renderMemoContentLines 结构层 + parseMarkedToHtml 行内层）已上线；deletedAt 已可读化 `deletedAt: YYYY-MM-DD HH:mm:ss`（旧 14 位兼容读、无方括号）。**关键规则（教训）**：① `^id` 恒 **6 位** [A-Za-z0-9]{6}——两次事故皆因样例造了 7 位 demo001 致 era 探测失配、整文件被旧解析（正文缩进行全变嵌套评论）；② 新格式头行时间**无日期**（`- 09:00:00 ^id`，日期归文件名）；③ deletedAt 无方括号。样例数据在 `daily/2026-09-06.md`（dm0001~5）。渲染：空行=段落（`> p:not(.memo-md-line)+…` 段距 8px）、列表项紧凑。样例（daily/2026-09-06.md）目视已全部通过（2026-09-05）。**待办 P1b**：写入端（obCreate/obUpdate/obHide 恢复）仍按行号操作旧逻辑、未适配块定位与纯标识头行——新格式文件里新建/编辑/删除 memo 尚未可用；含任务卡片（头行 `- [ ]` 整卡勾选框 + 点击切换写回，见 PLAN-FORMAT 解析规则 5）
+- **P1 富内容进行中（2026-09-05/06）**: 双模式读取器（新格式块解析 parseNewFormatNote + 旧逐行）与行式渲染器（renderMemoContentLines 结构层 + parseMarkedToHtml 行内层）已上线；deletedAt 已可读化 `deletedAt: YYYY-MM-DD HH:mm:ss`（旧 14 位兼容读、无方括号）。**关键规则（教训）**：① `^id` 恒 **6 位** [A-Za-z0-9]{6}——两次事故皆因样例造了 7 位 demo001 致 era 探测失配、整文件被旧解析（正文缩进行全变嵌套评论）；② 新格式头行时间**无日期**（`- 09:00:00 ^id`，日期归文件名）；③ deletedAt 无方括号。样例数据在 `daily/2026-09-06.md`（dm0001~5）。渲染：空行=段落（`> p:not(.memo-md-line)+…` 段距 8px）、列表项紧凑。样例（daily/2026-09-06.md）目视已全部通过（2026-09-05）。**待办 P1b**：写入端（obCreate/obUpdate/obHide 恢复）仍按行号操作旧逻辑、未适配块定位与纯标识头行——新格式文件里新建/编辑/删除 memo 尚未可用；含任务卡片（头行 `- [ ]` 整卡勾选框 + 点击切换写回，见 PLAN-FORMAT 解析规则 5）——**已于同日 P1b 完成，双模式读取端本轮已收窄为行级只认纯标识头**（见下 P1b 条目，旧逐行解析随评论链删除）
 - **读取自动修复移除 + 体检 UI v2（2026-09-05）**: 读取端 `backfillMemoIds/backfillMemoTimes` 及其调用**已删除**（obGetMemos.ts）——缺 ^id 的行只生成内存随机 id 支撑会话、旧时间只解析不回写；数据问题全部收敛给"数据体检"修，读取不再隐式改写用户文件。**v2.1 起体检改为整页路由 `/audit`**（非弹窗，入口仍是三点菜单 🩺）：文件（路径倒序=新日期在上）→ memo 行分组，行内容单行缩略（hover 全文），可修行显示"修复为"预览，修复/忽略粒度=行，修复成功行上浮到页面顶部"最近修复"区（去重、可清空），「查看」用 openFile+eState.line 跳到日记文件定位行。修复循环：每轮全量重扫 → applyFixes（同 path+line 只取注册序第一条）→ 收敛，上限 6 轮；备份在 `.rememo-backup/audit-<ts>/`。坑：页面内列表一律用 **div** 别用 li（theme.less 会给 li::before 注入 '•'）。测试数据在开发库 `daily/2026-09-05.md` 尾部（【体检测试】行，曾两次被旧版 backfill 自动修掉，已重置回问题态）
 - **大改立项（2026-09-05）**: 富内容存储（卡片块多行正文，弃 `<br>`）+ cm6 输入内核。**决策与规格见 [PLAN-FORMAT.md](PLAN-FORMAT.md)**（头行纯标识、正文 4 空格缩进、deletedAt 仍放行内、评论/引用首期不做未来走跨文件引用卡）。P0 = `src/audit/` 规则引擎体检工具（先行，eslint 式规则注册表，同时是迁移执行器）。tag 联想事实更正：Obsidian 原生有（1.4.0 changelog "Tag autocomplete now uses a fuzzy search algorithm"），cm6 autocomplete 框架内实现，别再断言没有。
+- **P1b 写入端整体落地（2026-09-05，commit 4c881ec，已本地提交待 push）**: owner 拍板：**旧数据不再渲染为 memo**、**写入只写新格式**、旧行由数据体检整文件迁移恢复。落地内容：①读取端行级只认纯标识头（`classifyMemoRow` 三态：pure-header/old-top-row/other，读端+legacy-row 规则+迁移器共用），旧单行解析/缩进评论树/评论 UI 链（气泡/回复/编辑/CommentInput/obCommentMemo）**整链拆除，评论停摆至 P3 引用卡重建**；②写入端只写新格式卡片块（locateMemo 统一定位：^id 优先/行号兜底；obCreate 多行块插入并修 posNum=-1 行号恒差 2 旧 bug；obUpdate 只替换正文域头行不动、UI 不再拼 ^id；hide/restore/perm-delete 全按头行/块域；新增任务卡整卡勾选 toggleMemoTask）；③任务卡勾选框放**头部时间旁**（不再受 ShowTaskLabel 门控，该设置项已删），TASK-DONE 正文置灰不划线；④体检中心上线**整文件"旧→新"迁移 v1**（legacy-row detect-only 规则 + migrate.ts migrateFile：旧单位→块、`<br>` 解码、14 位时间归一、缩进评论子树折叠进父卡正文嵌套列表、已删评论丢弃计数、缺时间单位原样保留并报告；备份 `.rememo-backup/migrate-<ts>/`；AuditPage 文件头「整文件迁移」按钮，迁移后显式全量回读）；离线冒烟：dev 库 3 个旧文件转换后 0 旧行残留、94/94 正文段保真。styles.css 224.6→211.6 KiB。**待 owner 在 Obsidian 目视**（清单见下）。**旧数据行的"编辑器"不复存在**——文件里混写的旧行不显示，主列表只渲染纯标识头卡片块；mixed 文件追加新块立即可见
+- **P1b 目视清单（owner，2026-09-05 起）**: ①daily/2026-09-06.md 新样例：新建（普通/任务模式/写入日期）、双击编辑多行正文（空行分段/嵌套列表/代码块）、三点菜单删除→回收站→恢复/永久删除、任务卡勾选 [ ]↔[x] 落盘+TASK-DONE 置灰，每步后看文件原文一致性；②旧文件（2026-09-05 等）直接发一条新 memo → 新块立现、旧行消失；数据体检 → legacy-row → 点「整文件迁移」→ 旧行全部变卡片复现（时间/正文 <br> 还原/任务/deletedAt 进回收站/评论折叠成嵌套列表），`.rememo-backup/migrate-*` 有备份；③浅/深主题+换 accent 目视任务卡勾选框样式。注意：迁移前该文件旧行不可见属预期；迁移入口只在三点菜单「数据体检」
 - **阶段 F1 指定日期添加（2026-09-03）**:
   - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
   - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建
@@ -102,12 +104,14 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 
 ## Pending work (按顺序)
 
-1. **阶段 D 收尾** — ✅ 全部完成（时间迁移实测通过）
-2. **阶段 E 图片** — ✅ 代码完成，图片宽高/预览待 Obsidian 目视确认
-3. **阶段 F1 指定日期添加** — ✅ 全部完成（2026-09-03，Obsidian 目视确认通过）
-4. **UI 风格优化（方案 A 接 Obsidian 主题）** — 主屏 + **次级界面全部 token 化收口 ✅ 代码完成（2026-09-04）**，全库浅深双写清零。**Obsidian 目视待确认**（重点清单见上条目视 4 点 + 弹窗/回收站/设置/热力图/标签/查询/侧栏逐文件）。目视后若有细节（间距/动效强弱/对比度）再微调
-5. **阶段 G**: `parseMemo` 拆分（formatMemoContent 的 HTML 与图片/标签结构化）。
-6. **阶段 F2 小红书导出**（最低优先，**可弃**）: 需先调研导出格式（9 图/文案排版），暂不做。
+1. **P1b 目视 + 微调** — ✅ 代码完成（commit 4c881ec，未 push）。Obsidian 目视待 owner 确认（清单见 Completed 区 P1b 目视清单条目：新样例写/改/删/任务勾选、旧文件追加+体检迁移、浅深主题勾选框）。
+2. **阶段 D 收尾** — ✅ 全部完成（时间迁移实测通过）
+3. **阶段 E 图片** — ✅ 代码完成，图片宽高/预览待 Obsidian 目视确认
+4. **阶段 F1 指定日期添加** — ✅ 全部完成（2026-09-03，Obsidian 目视确认通过）
+5. **UI 风格优化（方案 A 接 Obsidian 主题）** — 主屏 + **次级界面全部 token 化收口 ✅ 代码完成（2026-09-04）**，全库浅深双写清零。**Obsidian 目视待确认**（重点清单见上条目视 4 点 + 弹窗/回收站/设置/热力图/标签/查询/侧栏逐文件）。目视后若有细节（间距/动效强弱/对比度）再微调
+6. **阶段 G**: `parseMemo` 拆分（formatMemoContent 的 HTML 与图片/标签结构化）。
+7. **阶段 F2 小红书导出**（最低优先，**可弃**）: 需先调研导出格式（9 图/文案排版），暂不做。
+8. **P1.5（迁移正式化）**: 迁移 v1 已在 P1b 上线（legacy-row + migrateFile + 每文件按钮），正式库（md-note-repo，317 文件勿碰）只读体检报告后再逐文件试点迁移；迁移规则后续迭代（已删评论/子树折叠语义偏差收紧、时间缺失行政策等）。
 
 ## Roadmap（新增规划 2026-09-04，未排期，实施前需与 owner 细化）
 
@@ -154,6 +158,6 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - 图片预览：`PreviewImageDialog` 独立挂载 yet-another-react-lightbox（弃 showDialog 双层），单图隐藏左右箭头、多图循环、Zoom 插件可用。
 - 深色评论样式补齐（memo.less）：actions 按钮、CommentInput 全套；`comment.svg` 硬编码 fill 改 `currentColor`；深色 send-btn 用 `@text-dark-red` 与主编辑器 confirm 一致。
 - **指定日期写入（2026-09-03）**：MemoEditor 工具栏新增 `calendar.svg` 按钮 → `WriteDatePopover`（DatePicker+HH:mm）。目标 moment 存 `targetDate`（react-usestateref 的 ref 供空依赖回调读），**保留到手动 ✕**；编辑态不显示。`memoService.createMemo(content, isList, targetDate ?? undefined)`，缺省仍写"现在/今天"。旧 @/📆 日期插入 + `InsertDateFormat` 设置 + `select-date-picker.less` 已移除。
-- 注意：`styles.css` 已随次级收口重新 build（224.6 KiB，main.js 本轮无改动）。次级界面 token 化（2026-09-04）尚未目视，弹窗/回收站/设置/热力图/标签/查询/侧栏需逐文件在 Obsidian 里看浅/深 + 换 accent。
+- 注意：`styles.css` 已随 P1b 重新 build（211.6 KiB，含任务卡勾选框样式与体检迁移按钮）。次级界面 token 化（2026-09-04）尚未目视，弹窗/回收站/设置/热力图/标签/查询/侧栏需逐文件在 Obsidian 里看浅/深 + 换 accent。
 
 _See also: [PLAN-FORMAT.md](PLAN-FORMAT.md) (富内容存储+cm6 大改计划：决策/规则/阶段/新需求登记) · [UI-STYLE.md](UI-STYLE.md) (样式/动效接续：token、已收口、坑)。REFACTOR-2026.md 已于 2026-09-05 删除（内容已被 CONTEXT 阶段记录取代，历史可查 git）。_

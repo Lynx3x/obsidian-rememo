@@ -22,6 +22,12 @@
 - 结构类（渲染器输出，勿手改 DOM）：`.memo-md-line`（列表/任务行，紧凑 margin，勿吃段落负 margin）、相邻普通段落 `> p:not(.memo-md-line) + …` 段距 8px（空行分段可见）、`pre`（代码块）、`.todo-block`/`.counter-block`、行内 `code`（theme.less 全局样式）。
 - 主操作/激活语义色已统一 accent/danger（见已收口清单）；**全库列表结构用 div 别用 li**（theme 会给 li::before 注入 '•'，flex 下变孤立圆点行）。
 
+## 任务卡勾选框（P1b，2026-09-05）
+
+- 任务卡（memoType TASK-TODO/DONE）在头部时间旁渲染 `.memo-task-toggle`（memo.less，替换已退役的 `.memo-type-img`）：20px 可点区，svg 16px `fill: currentColor`；悬停 accent；`.done`（TASK-DONE）勾选态 muted（低调度），正文置灰走 `.memo-wrapper.TASK-DONE > .memo-content-text { color: var(--memo-text-faint) }`（不划线）。
+- 勾选框恒显示（不受任何设置门控）；点击走 toggleMemoTask 写回头行 [ ]↔[x]，写完即回读。
+- 评论样式（`.memo-comment-*`、`memo-comment-in` 关键帧）已随 P1b 评论链拆除删除——勿再按旧名补样式，P3 引用卡会重建。
+
 ## Token 系统（唯一调色入口）
 
 文件：`src/less/theme.less`，作用域 `div[data-type='memos_view']`。
