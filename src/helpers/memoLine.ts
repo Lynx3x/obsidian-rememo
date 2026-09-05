@@ -37,9 +37,10 @@ export interface MemoLineFields {
  */
 export function extractDeletedAt(content: string): { isDeleted: boolean; deletedAt: string; rest: string } {
     // 值格式（新旧兼容）：旧 14 位数字 YYYYMMDDHHmmss，或可读 `YYYY-MM-DD HH:mm:ss`
-    const m = /(\sdeletedAt:\s*(.+?))\s*$/.exec(content);
+    // 前缀允许行首或空白（新格式头行剥时间时分隔空格可能被移除，deletedAt 会顶到行首）
+    const m = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content);
     if (m) {
-        const value = m[2].trim();
+        const value = m[1].trim();
         if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
             return {
                 isDeleted: true,
@@ -263,8 +264,8 @@ export function extractMemoTime(rawContent: string): { time: string; isOld: bool
 
 
 // ===== 文件格式 era 探测（旧单行格式 / 新卡片块格式） =====
-// 新格式头行 = 纯标识："- 时间 [deletedAt:…]? ^id"（行内无正文，可带任务标记；deletedAt 有/无方括号均可）
-const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[?deletedAt:[^\^]*\]?)?\s*\^[A-Za-z0-9]{6}\s*$/;
+// 新格式头行 = 纯标识："- 时间 [deletedAt: 值]? ^id"（行内无正文，可带任务标记；deletedAt 无方括号）
+const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+deletedAt:[^\^]*)?\s*\^[A-Za-z0-9]{6}\s*$/;
 const TOP_BULLET_LINE = /^[-*]\s/;
 
 export function isPureHeaderLine(line: string): boolean {

@@ -41,6 +41,11 @@
     white-space: pre-wrap;
   }
 
+  // 空行分段（markdown 段落）→ 相邻普通段落间拉开段距；列表行不受影响
+  > p:not(.memo-md-line) + p:not(.memo-md-line) {
+    margin-top: 8px;
+  }
+
   .tag-span {
     display: inline-block;
     width: auto;

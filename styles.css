@@ -1540,6 +1540,11 @@ div[data-type='memos_view'] svg.action-btn,
   min-height: 24px;
   white-space: pre-wrap;
 }
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line),
+[data-type='memos_view'] .daily-memo-wrapper .memo-comment-text > p:not(.memo-md-line) + p:not(.memo-md-line),
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
+  margin-top: 8px;
+}
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text .tag-span,
 [data-type='memos_view'] .daily-memo-wrapper .memo-comment-text .tag-span,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text .tag-span {

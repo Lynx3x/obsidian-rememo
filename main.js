@@ -9493,9 +9493,9 @@ class LocationService {
 }
 const locationService = new LocationService();
 function extractDeletedAt(content) {
-  const m2 = /(\sdeletedAt:\s*(.+?))\s*$/.exec(content);
+  const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content);
   if (m2) {
-    const value = m2[2].trim();
+    const value = m2[1].trim();
     if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
       return {
         isDeleted: true,
@@ -9562,7 +9562,7 @@ function extractMemoTime(rawContent) {
   }
   return { time: "", isOld: false, rest: rawContent.trim() };
 }
-const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[?deletedAt:[^\^]*\]?)?\s*\^[A-Za-z0-9]{6}\s*$/;
+const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+deletedAt:[^\^]*)?\s*\^[A-Za-z0-9]{6}\s*$/;
 const TOP_BULLET_LINE = /^[-*]\s/;
 function detectFileEra(lines) {
   for (const line of lines) {
