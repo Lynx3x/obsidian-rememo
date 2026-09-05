@@ -2,7 +2,7 @@ import { FIRST_TAG_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
 import { waitForInsert } from '../obComponents/obCreateMemo';
 import { changeMemo } from '../obComponents/obUpdateMemo';
 import { deleteMemo, obHideMemo, restoreMemo } from '../obComponents/obHideMemo';
-import { toggleMemoTask } from '../obComponents/obToggleMemoTask';
+import { toggleMemoTask, toggleMemoTaskType } from '../obComponents/obToggleMemoTask';
 import { getMemos, getMemosFromDailyNote } from '../obComponents/obGetMemos';
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
@@ -129,6 +129,16 @@ class MemoService {
      */
     public async toggleMemoTask(memo: Model.Memo): Promise<void> {
         const file = await toggleMemoTask(memo.id, memo.hasId, memo.path);
+        if (file) {
+            await this.fetchMemosFromFile(file);
+        }
+    }
+
+    /**
+     * 任务卡类型切换（普通 memo ⇄ 任务卡，三点菜单入口）
+     */
+    public async toggleMemoTaskType(memo: Model.Memo): Promise<void> {
+        const file = await toggleMemoTaskType(memo.id, memo.hasId, memo.path);
         if (file) {
             await this.fetchMemosFromFile(file);
         }

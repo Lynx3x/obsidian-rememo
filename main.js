@@ -7841,6 +7841,8 @@ var en = {
   RESTORE: "RESTORE",
   "Mark as done": "Mark as done",
   "Mark as todo": "Mark as todo",
+  "TURN INTO TASK": "TURN INTO TASK",
+  "TURN INTO MEMO": "TURN INTO MEMO",
   "DELETE AT": "DELETE AT",
   "Noooop!": "Noooop!",
   "All Data is Loaded \u{1F389}": "All Data is Loaded \u{1F389}",
@@ -8535,6 +8537,8 @@ var zhCN = {
   RESTORE: "\u6062\u590D",
   "Mark as done": "\u6807\u8BB0\u4E3A\u5DF2\u5B8C\u6210",
   "Mark as todo": "\u6807\u8BB0\u4E3A\u672A\u5B8C\u6210",
+  "TURN INTO TASK": "\u8F6C\u4E3A\u4EFB\u52A1\u5361",
+  "TURN INTO MEMO": "\u8F6C\u4E3A\u666E\u901A memo",
   "DELETE AT": "\u5220\u9664\u4E8E",
   "Noooop!": "\u5565\u90FD\u6CA1\u6709\uFF01",
   "All Data is Loaded \u{1F389}": "\u6240\u6709\u6570\u636E\u90FD\u52A0\u8F7D\u597D\u5566 \u{1F389}",
@@ -9718,6 +9722,32 @@ async function toggleMemoTask(memoid, hasId, path) {
   await vault.modify(loc.file, loc.lines.join("\n"));
   return loc.file;
 }
+async function toggleMemoTaskType(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const hint = parseInt(memoid.slice(14));
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  let newLine;
+  if (/^[-*]\s\[[ xX]\]/.test(line)) {
+    newLine = line.replace(/^([-*]\s)\[[ xX]\]\s?/, "$1");
+  } else if (/^[-*]\s(?=\d)/.test(line)) {
+    newLine = line.replace(/^([-*]\s)(?=\d)/, "$1[ ] ");
+  } else {
+    return null;
+  }
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
 function extractDeletedAt(content) {
   const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content);
   if (m2) {
@@ -10015,6 +10045,12 @@ class MemoService {
   }
   async toggleMemoTask(memo2) {
     const file = await toggleMemoTask(memo2.id, memo2.hasId, memo2.path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  async toggleMemoTaskType(memo2) {
+    const file = await toggleMemoTaskType(memo2.id, memo2.hasId, memo2.path);
     if (file) {
       await this.fetchMemosFromFile(file);
     }
@@ -14015,6 +14051,13 @@ const Memo = (props) => {
       new require$$0.Notice(error.message);
     }
   }, [propsMemo]);
+  const handleToggleTaskTypeClick = react.exports.useCallback(async () => {
+    try {
+      await memoService.toggleMemoTaskType(propsMemo);
+    } catch (error) {
+      new require$$0.Notice(error.message);
+    }
+  }, [propsMemo]);
   const animateShred = () => {
     var _a;
     const el = memoCardRef.current;
@@ -14131,20 +14174,24 @@ const Memo = (props) => {
     ref: memoCardRef,
     className: `memo-wrapper ${"memos-" + propsMemo.id} ${propsMemo.memoType}${menuOpen ? " menu-open" : ""}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
-    children: [/* @__PURE__ */ jsxs("div", {
+    children: [isTaskCard && /* @__PURE__ */ jsx("span", {
+      className: `memo-task-corner ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
+      "aria-hidden": "true",
+      children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
+    }), /* @__PURE__ */ jsxs("div", {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("div", {
         className: "memo-top-left-wrapper",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "time-text",
-          onClick: handleShowMemoStoryDialog,
-          children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
-        }), isTaskCard ? /* @__PURE__ */ jsx("span", {
+        children: [isTaskCard ? /* @__PURE__ */ jsx("span", {
           className: `memo-task-toggle ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
           title: t$1(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
           onClick: handleToggleTaskClick,
           children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
-        }) : null]
+        }) : null, /* @__PURE__ */ jsx("span", {
+          className: "time-text",
+          onClick: handleShowMemoStoryDialog,
+          children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
+        })]
       }), /* @__PURE__ */ jsx("div", {
         className: "memo-top-right-wrapper",
         children: /* @__PURE__ */ jsxs("div", {
@@ -14176,6 +14223,10 @@ const Memo = (props) => {
                 className: "btn",
                 onClick: handleEditMemoClick,
                 children: t$1("EDIT")
+              }), /* @__PURE__ */ jsx("span", {
+                className: "btn",
+                onClick: handleToggleTaskTypeClick,
+                children: isTaskCard ? t$1("TURN INTO MEMO") : t$1("TURN INTO TASK")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: () => handleSourceMemoClick(propsMemo),
@@ -20596,6 +20647,7 @@ function Memos$1() {
   }
 }
 const DeletedMemo = (props) => {
+  var _a;
   const {
     memo: propsMemo,
     handleDeletedMemoAction
@@ -20673,11 +20725,16 @@ const DeletedMemo = (props) => {
       toggleConfirmDeleteBtn(false);
     }
   };
+  const isTaskCard = propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE";
   return /* @__PURE__ */ jsxs("div", {
     ref: rootRef,
-    className: `memo-wrapper ${"memos-" + memo2.id}`,
+    className: `memo-wrapper ${"memos-" + memo2.id} ${(_a = propsMemo.memoType) != null ? _a : ""}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
-    children: [/* @__PURE__ */ jsxs("div", {
+    children: [isTaskCard && /* @__PURE__ */ jsx("span", {
+      className: `memo-task-corner ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
+      "aria-hidden": "true",
+      children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
+    }), /* @__PURE__ */ jsxs("div", {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("span", {
         className: "time-text",
@@ -21397,6 +21454,49 @@ const AuditPage = () => {
       setMigratingPath("");
     }
   };
+  const migrateAllLegacy = async () => {
+    var _a2;
+    if (!result)
+      return;
+    const app2 = appStore.getState().dailyNotesState.app;
+    const paths = [...new Set(result.issues.filter((i) => i.ruleId === "legacy-row" && !ignored[lineKey(i.path, i.line)]).map((i) => i.path))];
+    if (paths.length === 0)
+      return;
+    setBusy(true);
+    setMsg("");
+    let files = 0;
+    let converted = 0;
+    let skipped = 0;
+    let dropped = 0;
+    const failed = [];
+    try {
+      for (const path of paths) {
+        const file = app2.vault.getAbstractFileByPath(path);
+        if (!(file instanceof require$$0.TFile))
+          continue;
+        try {
+          const rep = await migrateFile(file);
+          if (rep.changed) {
+            files++;
+            converted += rep.converted;
+            skipped += rep.skipped;
+            dropped += rep.droppedComments;
+          }
+        } catch (e) {
+          failed.push(shortName(path));
+        }
+      }
+      setMsg(`\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A${files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 ${converted} \u4E2A\u65E7\u5355\u4F4D` + (dropped > 0 ? ` \xB7 \u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${dropped} \u884C` : "") + (skipped > 0 ? ` \xB7 ${skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + (failed.length > 0 ? ` \xB7 \u5931\u8D25\uFF1A${failed.join("\u3001")}` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002");
+      await scan({
+        silent: true
+      });
+      await memoService.fetchAllMemos();
+    } catch (e) {
+      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`);
+    } finally {
+      setBusy(false);
+    }
+  };
   const tree = react.exports.useMemo(() => {
     var _a2;
     if (!result)
@@ -21427,6 +21527,7 @@ const AuditPage = () => {
   }, [result, ignored]);
   const stats = result ? {
     files: tree.length,
+    legacyFiles: tree.filter((f2) => f2.lines.some((l2) => l2.issues.some((i) => i.ruleId === "legacy-row"))).length,
     lines: tree.reduce((n2, f2) => n2 + f2.lines.length, 0),
     issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
     fixableLines: tree.reduce((n2, f2) => n2 + f2.lines.filter((l2) => l2.issues.some((i) => i.fixedLine)).length, 0)
@@ -21480,12 +21581,17 @@ const AuditPage = () => {
         className: "audit-toolbar",
         children: [/* @__PURE__ */ jsxs("span", {
           className: "audit-stats",
-          children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", (_a = stats == null ? void 0 : stats.files) != null ? _a : 0, " \xB7 memo ", (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0, " \u6761 \xB7 \u95EE\u9898 ", (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0, " \u4E2A", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
+          children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", (_a = stats == null ? void 0 : stats.files) != null ? _a : 0, " \xB7 memo ", (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0, " \u6761 \xB7 \u95EE\u9898 ", (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0, " \u4E2A", stats && stats.legacyFiles > 0 ? `\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 ${stats.legacyFiles} \u4E2A\uFF09` : "", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
         }), /* @__PURE__ */ jsx("button", {
           className: "btn refresh-btn",
           onClick: () => scan(),
           disabled: busy,
           children: "\u91CD\u65B0\u4F53\u68C0"
+        }), stats && stats.legacyFiles > 0 && /* @__PURE__ */ jsxs("button", {
+          className: "btn migrate-all-btn",
+          onClick: migrateAllLegacy,
+          disabled: busy,
+          children: ["\u4E00\u952E\u8FC1\u79FB\u5168\u90E8\u65E7\u6587\u4EF6\uFF08", stats.legacyFiles, " \u4E2A\uFF09"]
         }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsxs("button", {
           className: "btn fix-all-btn",
           onClick: fixAll,

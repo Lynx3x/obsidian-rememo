@@ -130,6 +130,15 @@ const Memo: React.FC<Props> = (props: Props) => {
     [propsMemo],
   );
 
+  // 三点菜单「切换任务卡」：普通 memo ⇄ 任务卡（头行 - ⇄ - [ ]，写回后即回读）
+  const handleToggleTaskTypeClick = useCallback(async () => {
+    try {
+      await memoService.toggleMemoTaskType(propsMemo);
+    } catch (error: any) {
+      new Notice(error.message);
+    }
+  }, [propsMemo]);
+
   // 碎纸机效果：卡片切成 N 条下落。overlay 挂到卡片外层的定位祖先（offsetParent）上，
   // 这样真正的删除/下移填充可以立刻并行发生，不会先留一个“空卡槽”再跳。
   const animateShred = () => {
@@ -265,11 +274,16 @@ const Memo: React.FC<Props> = (props: Props) => {
       className={`memo-wrapper ${'memos-' + propsMemo.id} ${propsMemo.memoType}${menuOpen ? ' menu-open' : ''}`}
       onMouseLeave={handleMouseLeaveMemoWrapper}
     >
+      {isTaskCard && (
+        <span
+          className={`memo-task-corner ${propsMemo.memoType === 'TASK-DONE' ? 'done' : ''}`}
+          aria-hidden="true"
+        >
+          {propsMemo.memoType === 'TASK-DONE' ? <Task /> : <TaskBlank />}
+        </span>
+      )}
       <div className="memo-top-wrapper">
         <div className="memo-top-left-wrapper">
-          <span className="time-text" onClick={handleShowMemoStoryDialog}>
-            {utils.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== 'HH:mm')}
-          </span>
           {isTaskCard ? (
             <span
               className={`memo-task-toggle ${propsMemo.memoType === 'TASK-DONE' ? 'done' : ''}`}
@@ -279,6 +293,9 @@ const Memo: React.FC<Props> = (props: Props) => {
               {propsMemo.memoType === 'TASK-DONE' ? <Task /> : <TaskBlank />}
             </span>
           ) : null}
+          <span className="time-text" onClick={handleShowMemoStoryDialog}>
+            {utils.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== 'HH:mm')}
+          </span>
         </div>
         <div className="memo-top-right-wrapper">
           <div className="btns-container">
@@ -298,6 +315,9 @@ const Memo: React.FC<Props> = (props: Props) => {
                 </span>
                 <span className="btn" onClick={handleEditMemoClick}>
                   {t('EDIT')}
+                </span>
+                <span className="btn" onClick={handleToggleTaskTypeClick}>
+                  {isTaskCard ? t('TURN INTO MEMO') : t('TURN INTO TASK')}
                 </span>
                 <span className="btn" onClick={() => handleSourceMemoClick(propsMemo)}>
                   {t('SOURCE')}

@@ -161,6 +161,57 @@ const AuditPage: React.FC = () => {
     }
   };
 
+  // ---- 一键迁移全部含旧格式行的文件（逐个迁移，最后统一回读）----
+  const migrateAllLegacy = async () => {
+    if (!result) return;
+    const app = appStore.getState().dailyNotesState.app;
+    const paths = [
+      ...new Set(
+        result.issues
+          .filter((i) => i.ruleId === 'legacy-row' && !ignored[lineKey(i.path, i.line)])
+          .map((i) => i.path),
+      ),
+    ];
+    if (paths.length === 0) return;
+    setBusy(true);
+    setMsg('');
+    let files = 0;
+    let converted = 0;
+    let skipped = 0;
+    let dropped = 0;
+    const failed: string[] = [];
+    try {
+      for (const path of paths) {
+        const file = app.vault.getAbstractFileByPath(path);
+        if (!(file instanceof TFile)) continue;
+        try {
+          const rep = await migrateFile(file);
+          if (rep.changed) {
+            files++;
+            converted += rep.converted;
+            skipped += rep.skipped;
+            dropped += rep.droppedComments;
+          }
+        } catch (e: any) {
+          failed.push(shortName(path));
+        }
+      }
+      setMsg(
+        `全部迁移完成：${files} 个文件 · 转换 ${converted} 个旧单位` +
+          (dropped > 0 ? ` · 丢弃已删评论 ${dropped} 行` : '') +
+          (skipped > 0 ? ` · ${skipped} 个单位无法映射已原样保留` : '') +
+          (failed.length > 0 ? ` · 失败：${failed.join('、')}` : '') +
+          '。备份在 .rememo-backup/migrate-*。',
+      );
+      await scan({ silent: true });
+      await memoService.fetchAllMemos();
+    } catch (e: any) {
+      setMsg(`迁移失败：${e?.message ?? e}`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   // ---- 树：文件 → 行（新日期文件在上：路径字典序倒排）----
   const tree = useMemo(() => {
     if (!result) return [];
@@ -197,6 +248,9 @@ const AuditPage: React.FC = () => {
   const stats = result
     ? {
         files: tree.length,
+        legacyFiles: tree.filter((f) =>
+          f.lines.some((l) => l.issues.some((i) => i.ruleId === 'legacy-row')),
+        ).length,
         lines: tree.reduce((n, f) => n + f.lines.length, 0),
         issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
         fixableLines: tree.reduce(
@@ -249,11 +303,17 @@ const AuditPage: React.FC = () => {
         <div className="audit-toolbar">
           <span className="audit-stats">
             有问题文件 {stats?.files ?? 0} · memo {stats?.lines ?? 0} 条 · 问题 {stats?.issues ?? 0} 个
+            {stats && stats.legacyFiles > 0 ? `（含旧格式文件 ${stats.legacyFiles} 个）` : ''}
             {stats && stats.fixableLines > 0 ? `（可修 ${stats.fixableLines} 条）` : ''}
           </span>
           <button className="btn refresh-btn" onClick={() => scan()} disabled={busy}>
             重新体检
           </button>
+          {stats && stats.legacyFiles > 0 && (
+            <button className="btn migrate-all-btn" onClick={migrateAllLegacy} disabled={busy}>
+              一键迁移全部旧文件（{stats.legacyFiles} 个）
+            </button>
+          )}
           {stats && stats.fixableLines > 0 && (
             <button className="btn fix-all-btn" onClick={fixAll} disabled={busy}>
               一键修复全部（{stats.fixableLines} 条）

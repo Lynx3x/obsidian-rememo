@@ -1571,6 +1571,7 @@ div[data-type='memos_view'] .memo-wrapper {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  position: relative;
   width: 100%;
   padding: 12px 16px;
   background-color: var(--memo-bg);
@@ -1583,6 +1584,36 @@ div[data-type='memos_view'] .memo-wrapper:hover {
   border-color: var(--memo-border-strong);
   box-shadow: var(--memo-shadow-card-hover);
 }
+div[data-type='memos_view'] .memo-wrapper > .memo-task-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 26px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: var(--memo-on-accent);
+  background-color: var(--memo-accent);
+  border-top-left-radius: var(--memo-radius-m);
+  border-bottom-right-radius: var(--memo-radius-s);
+  pointer-events: none;
+  z-index: 1;
+}
+div[data-type='memos_view'] .memo-wrapper > .memo-task-corner > svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+div[data-type='memos_view'] .memo-wrapper > .memo-task-corner.done {
+  color: var(--memo-text);
+  background-color: color-mix(in srgb, var(--memo-text) 20%, var(--memo-bg));
+}
+div[data-type='memos_view'] .memo-wrapper.TASK-TODO > .memo-top-wrapper,
+div[data-type='memos_view'] .memo-wrapper.TASK-DONE > .memo-top-wrapper {
+  padding-left: 36px;
+}
 div[data-type='memos_view'] .memo-wrapper.menu-open .more-action-btns-wrapper {
   display: flex;
 }
@@ -1592,8 +1623,8 @@ div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: 24px;
-  margin-bottom: 12px;
+  height: 26px;
+  margin-bottom: 11px;
 }
 div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-wrapper {
   display: flex;
@@ -1616,27 +1647,32 @@ div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-w
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin-left: 4px;
+  width: 26px;
+  height: 26px;
+  margin-left: -2px;
   color: var(--memo-text-muted);
   cursor: pointer;
   border-radius: var(--memo-radius-s);
-  transition: color var(--memo-transition-fast);
+  transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast);
 }
 div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-wrapper > .memo-task-toggle > svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
 }
 div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-wrapper > .memo-task-toggle:hover {
   color: var(--memo-accent);
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-wrapper > .memo-task-toggle:active {
+  transform: scale(0.9);
 }
 div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-wrapper > .memo-task-toggle.done {
   color: var(--memo-text-faint);
 }
 div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-wrapper > .memo-task-toggle.done:hover {
   color: var(--memo-accent);
+  background-color: var(--memo-surface-hover);
 }
 div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-right-wrapper {
   display: flex;
@@ -6729,6 +6765,16 @@ div[data-type='memos_view'].mobile-view .memo-trash-wrapper > .section-header-co
   border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
 }
 .audit-toolbar .fix-all-btn:hover {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
+}
+.audit-toolbar .migrate-all-btn {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+  background-image: none;
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+}
+.audit-toolbar .migrate-all-btn:hover {
   color: var(--memo-accent);
   background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
 }

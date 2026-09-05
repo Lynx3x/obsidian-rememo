@@ -103,6 +103,8 @@ export default {
   RESTORE: '恢复',
   'Mark as done': '标记为已完成',
   'Mark as todo': '标记为未完成',
+  'TURN INTO TASK': '转为任务卡',
+  'TURN INTO MEMO': '转为普通 memo',
   'DELETE AT': '删除于',
   'Noooop!': '啥都没有！',
   'All Data is Loaded 🎉': '所有数据都加载好啦 🎉',

@@ -5,6 +5,7 @@
 // memo 卡片（主列表 + 评论）——浅深由主题变量接管，单份书写
 div[data-type='memos_view'] .memo-wrapper {
   .flex(column, flex-start, flex-start);
+  position: relative; // 左上角任务角标 .memo-task-corner 的定位基准
   width: 100%;
   padding: 12px 16px;
   background-color: var(--memo-bg);
@@ -19,6 +20,40 @@ div[data-type='memos_view'] .memo-wrapper {
     box-shadow: var(--memo-shadow-card-hover);
   }
 
+  // 任务卡左上角"盖角"色块（纯展示，pointer-events 已关，不挡点击）；
+  // 未完成 = accent 实底，已完成 = 置灰色（与 TASK-DONE 正文置灰同语义）
+  > .memo-task-corner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 26px;
+    .flex(row, center, center);
+    color: var(--memo-on-accent);
+    background-color: var(--memo-accent);
+    border-top-left-radius: var(--memo-radius-m);
+    border-bottom-right-radius: var(--memo-radius-s);
+    pointer-events: none;
+    z-index: 1;
+
+    > svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    &.done {
+      color: var(--memo-text);
+      background-color: color-mix(in srgb, var(--memo-text) 20%, var(--memo-bg));
+    }
+  }
+
+  // 任务卡头部行让位：勾选框/时间避开左上角标
+  &.TASK-TODO > .memo-top-wrapper,
+  &.TASK-DONE > .memo-top-wrapper {
+    padding-left: 36px;
+  }
+
   // 三点菜单被“钉住”（点击打开）时保持显示
   &.menu-open .more-action-btns-wrapper {
     display: flex;
@@ -27,8 +62,8 @@ div[data-type='memos_view'] .memo-wrapper {
   > .memo-top-wrapper {
     .flex(row, space-between, center);
     width: 100%;
-    height: 24px;
-    margin-bottom: 12px;
+    height: 26px;
+    margin-bottom: 11px;
 
     > .memo-top-left-wrapper {
       .flex(row, flex-start, center);
@@ -47,26 +82,32 @@ div[data-type='memos_view'] .memo-wrapper {
       }
 
       > .memo-task-toggle {
-        // 任务卡整卡勾选框（P1b）：头部时间旁，点击切换头行 [ ]↔[x]
+        // 任务卡整卡勾选框（P1b）：头部时间左侧，点击切换头行 [ ]↔[x]。
+        // 26px 热区 + hover 底色，保证好点
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 20px;
-        height: 20px;
-        margin-left: 4px;
+        width: 26px;
+        height: 26px;
+        margin-left: -2px;
         color: var(--memo-text-muted);
         cursor: pointer;
         border-radius: var(--memo-radius-s);
-        transition: color var(--memo-transition-fast);
+        transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast);
 
         > svg {
-          width: 16px;
-          height: 16px;
+          width: 18px;
+          height: 18px;
           fill: currentColor;
         }
 
         &:hover {
           color: var(--memo-accent);
+          background-color: var(--memo-surface-hover);
+        }
+
+        &:active {
+          transform: scale(0.9);
         }
 
         // 已完成：勾选态低调（正文同置灰），悬停仍回 accent 便于改回
@@ -75,6 +116,7 @@ div[data-type='memos_view'] .memo-wrapper {
 
           &:hover {
             color: var(--memo-accent);
+            background-color: var(--memo-surface-hover);
           }
         }
       }

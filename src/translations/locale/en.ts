@@ -124,6 +124,8 @@ export default {
   RESTORE: 'RESTORE',
   'Mark as done': 'Mark as done',
   'Mark as todo': 'Mark as todo',
+  'TURN INTO TASK': 'TURN INTO TASK',
+  'TURN INTO MEMO': 'TURN INTO MEMO',
   'DELETE AT': 'DELETE AT',
   'Noooop!': 'Noooop!',
   'All Data is Loaded 🎉': 'All Data is Loaded 🎉',
