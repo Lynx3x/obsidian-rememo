@@ -7775,6 +7775,8 @@ var en = {
   "When enable this, Memos will open when Obsidian opens. False by default.": "When enable this, Memos will open when Obsidian opens. False by default.",
   "Hide done tasks in Memo list": "Hide done tasks in Memo list",
   "Hide all done tasks in Memo list. Show done tasks by default.": "Hide all done tasks in Memo list. Show done tasks by default.",
+  "Send memo by Enter key": "Send memo by Enter key",
+  "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.": "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.",
   "Advanced Options": "Advanced Options",
   "UI language for date": "UI language for date",
   "Translates the date UI language. Only 'en' and 'zh' are available.": "Translates the date UI language. Only 'en' and 'zh' are available.",
@@ -8470,6 +8472,8 @@ var zhCN = {
   "When enable this, Memos will open when Obsidian opens. False by default.": "\u5F53\u5F00\u542F\u8BE5\u9009\u9879, Memos \u4F1A\u5728 Obsidian \u6253\u5F00\u65F6\u81EA\u52A8\u6253\u5F00\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F\u3002",
   "Hide done tasks in Memo list": "\u5728 memo \u5217\u8868\u4E2D\u9690\u85CF\u5DF2\u5B8C\u6210 memo",
   "Hide all done tasks in Memo list. Show done tasks by default.": "\u5728 memo \u5217\u8868\u4E2D\u9690\u85CF\u5DF2\u5B8C\u6210 memo\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F",
+  "Send memo by Enter key": "\u6309 Enter \u76F4\u63A5\u53D1\u9001",
+  "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.": "\u5F00\u542F\u540E\u6309 Enter \u76F4\u63A5\u53D1\u9001 memo\uFF0CCtrl/Cmd+Enter \u6362\u884C\u3002\u9ED8\u8BA4\u5173\u95ED\uFF08Enter \u6362\u884C\u3001Ctrl+Enter \u53D1\u9001\uFF09\u3002",
   "Advanced Options": "\u8FDB\u9636\u9009\u9879",
   "UI language for date": "\u9488\u5BF9\u65E5\u671F\u5C55\u793A\u7684\u8BED\u8A00\u754C\u9762",
   "Translates the date UI language. Only 'en' and 'zh' are available.": "\u5BF9\u65E5\u671F\u7684\u4E0D\u540C\u7FFB\u8BD1\u3002\u76EE\u524D\u53EA\u80FD\u9009\u62E9 'en' \u548C 'zh'\uFF08\u672A\u6765\u4F1A\u5E9F\u7F6E\uFF09",
@@ -31816,21 +31820,69 @@ function continueList(view) {
   });
   return true;
 }
-function memoInputKeymap(onSend) {
+const insertSingleNewline = (view) => {
+  const head = view.state.selection.main.head;
+  view.dispatch({
+    changes: { from: head, to: head, insert: "\n" },
+    selection: { anchor: head + 1 }
+  });
+  return true;
+};
+function memoInputKeymap(opts) {
   return [
     Prec.high(
       keymap.of([
-        { key: "Enter", run: continueList },
+        {
+          key: "Enter",
+          run: (view) => {
+            if (opts.isEnterToSend()) {
+              opts.send();
+              return true;
+            }
+            return continueList(view);
+          }
+        },
         {
           key: "Mod-Enter",
           run: (view) => {
-            if (onSend) {
-              onSend();
-              return true;
+            if (opts.isEnterToSend()) {
+              return insertSingleNewline(view);
             }
-            return false;
+            opts.send();
+            return true;
           }
         }
+      ])
+    )
+  ];
+}
+function wrapToggle(view, open, close = open) {
+  const { state, dispatch } = view;
+  const sel = state.selection.main;
+  if (sel.empty) {
+    const head = sel.head;
+    dispatch({
+      changes: { from: head, to: head, insert: open + close },
+      selection: { anchor: head + open.length }
+    });
+    return true;
+  }
+  const from = Math.min(sel.from, sel.to);
+  const to = Math.max(sel.from, sel.to);
+  const text = state.sliceDoc(from, to);
+  dispatch({
+    changes: { from, to, insert: open + text + close },
+    selection: { anchor: from + open.length, head: to + open.length }
+  });
+  return true;
+}
+function memoFormatKeymap() {
+  return [
+    Prec.high(
+      keymap.of([
+        { key: "Mod-b", run: (v2) => wrapToggle(v2, "**") },
+        { key: "Mod-i", run: (v2) => wrapToggle(v2, "*") },
+        { key: "Mod-e", run: (v2) => wrapToggle(v2, "`") }
       ])
     )
   ];
@@ -31911,7 +31963,7 @@ function tagCompletion(ctx) {
   const prev = hash2 - 2 >= line.from ? state.sliceDoc(hash2 - 2, hash2 - 1) : "";
   if (prev !== "" && !isSpace(prev))
     return null;
-  const token = state.sliceDoc(hash2 + 1, pos);
+  const token = state.sliceDoc(hash2, pos);
   const options = usedTags(token).map(({ name: name2 }) => ({
     label: name2,
     apply: "#" + name2
@@ -32083,7 +32135,8 @@ const Editor = react.exports.forwardRef((props, ref) => {
     showCancelBtn,
     onConfirmBtnClick: handleConfirmBtnClickCallback,
     onCancelBtnClick: handleCancelBtnClickCallback,
-    onContentChange: handleContentChangeCallback
+    onContentChange: handleContentChangeCallback,
+    enterToSend
   } = props;
   const mountRef = react.exports.useRef(null);
   const viewRef = react.exports.useRef(null);
@@ -32092,27 +32145,69 @@ const Editor = react.exports.forwardRef((props, ref) => {
   const cbRef = react.exports.useRef({
     confirm: handleConfirmBtnClickCallback,
     change: handleContentChangeCallback,
-    placeholder: placeholderText
+    placeholder: placeholderText,
+    enterToSend: enterToSend === true
   });
   cbRef.current.confirm = handleConfirmBtnClickCallback;
   cbRef.current.change = handleContentChangeCallback;
   cbRef.current.placeholder = placeholderText;
+  cbRef.current.enterToSend = enterToSend === true;
   const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
   react.exports.useEffect(() => {
     const parent = mountRef.current;
     if (!parent || parent.querySelector(".cm-editor")) {
       return;
     }
-    const buildExtensions = () => [EditorView.lineWrapping, history(), placeholder(cbRef.current.placeholder), memoInputHighlight, memoAutocomplete(), memoInputKeymap(() => {
-      var _a2, _b, _c;
-      return cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
-    }), keymap.of([...defaultKeymap, ...historyKeymap]), roCompartmentRef.current.of([]), EditorView.updateListener.of((u2) => {
-      if (u2.docChanged) {
-        const text = u2.state.doc.toString();
-        setHasContent(text.length > 0);
-        cbRef.current.change(text);
-      }
-    })];
+    const buildExtensions = () => [
+      EditorView.lineWrapping,
+      history(),
+      placeholder(cbRef.current.placeholder),
+      memoInputHighlight,
+      memoAutocomplete(),
+      memoFormatKeymap(),
+      memoInputKeymap({
+        send: () => {
+          var _a2, _b, _c;
+          return cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
+        },
+        isEnterToSend: () => cbRef.current.enterToSend
+      }),
+      keymap.of([...defaultKeymap, ...historyKeymap]),
+      EditorView.domEventHandlers({
+        keydown: (event, view2) => {
+          var _a2, _b, _c;
+          if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey)) {
+            return false;
+          }
+          if (cbRef.current.enterToSend) {
+            if (view2.state.readOnly)
+              return true;
+            const head = view2.state.selection.main.head;
+            view2.dispatch({
+              changes: {
+                from: head,
+                to: head,
+                insert: "\n"
+              },
+              selection: {
+                anchor: head + 1
+              }
+            });
+          } else {
+            cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
+          }
+          return true;
+        }
+      }),
+      roCompartmentRef.current.of([]),
+      EditorView.updateListener.of((u2) => {
+        if (u2.docChanged) {
+          const text = u2.state.doc.toString();
+          setHasContent(text.length > 0);
+          cbRef.current.change(text);
+        }
+      })
+    ];
     const createState = (doc2) => EditorState.create({
       doc: doc2,
       extensions: buildExtensions()
@@ -33978,7 +34073,8 @@ const MemoEditor = () => {
     DefaultEditorLocation,
     DefaultPrefix,
     FocusOnEditor: FocusOnEditor2,
-    UseButtonToShowEditor
+    UseButtonToShowEditor,
+    EnterToSend
   } = settings;
   const {
     app: app2
@@ -34386,10 +34482,11 @@ const MemoEditor = () => {
     showConfirmBtn: true,
     showCancelBtn: showEditStatus,
     showTools: true,
+    enterToSend: EnterToSend === true,
     onConfirmBtnClick: handleSaveBtnClick,
     onCancelBtnClick: handleCancelBtnClick,
     onContentChange: handleContentChange
-  }), [showEditStatus]);
+  }), [showEditStatus, EnterToSend]);
   return /* @__PURE__ */ jsxs("div", {
     ref: editorWrapperRef,
     className: `memo-editor-wrapper ${showEditStatus ? "edit-ing" : ""} ${isEditorShown ? "hidden" : ""}`,
@@ -36457,6 +36554,7 @@ const DEFAULT_SETTINGS = {
   FocusOnEditor: true,
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
+  EnterToSend: false,
   OpenMemosAutomatically: false,
   ShowTime: true,
   ShowDate: true,
@@ -36544,6 +36642,12 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     new require$$0.Setting(containerEl).setName(t$2("Hide done tasks in Memo list")).setDesc(t$2("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
         this.plugin.settings.HideDoneTasks = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$2("Send memo by Enter key")).setDesc(t$2("When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.EnterToSend).onChange(async (value) => {
+        this.plugin.settings.EnterToSend = value;
         this.applySettingsUpdate();
       })
     );

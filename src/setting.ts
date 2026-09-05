@@ -19,6 +19,8 @@ export interface MemosSettings {
   FocusOnEditor: boolean;
   OpenDailyMemosWithMemos: boolean;
   HideDoneTasks: boolean;
+  /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
+  EnterToSend: boolean;
   OpenMemosAutomatically: boolean;
   // EditorMaxHeight: string;
   ShowTime: boolean;
@@ -51,6 +53,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   FocusOnEditor: true,
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
+  EnterToSend: false,
   OpenMemosAutomatically: false,
   // EditorMaxHeight: '250',
   ShowTime: true,
@@ -190,6 +193,16 @@ export class MemosSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
           this.plugin.settings.HideDoneTasks = value;
+          this.applySettingsUpdate();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('Send memo by Enter key'))
+      .setDesc(t('When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.'))
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.EnterToSend).onChange(async (value) => {
+          this.plugin.settings.EnterToSend = value;
           this.applySettingsUpdate();
         }),
       );

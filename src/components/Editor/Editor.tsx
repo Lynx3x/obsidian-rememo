@@ -4,6 +4,7 @@ import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { memoInputKeymap } from '../../editor/keys';
+import { memoFormatKeymap } from '../../editor/format';
 import { memoAutocomplete } from '../../editor/suggest';
 import { memoInputHighlight } from '../../editor/highlight';
 import '../../less/editor.less';
@@ -49,6 +50,8 @@ interface EditorProps {
   onConfirmBtnClick: (content: string) => void;
   onCancelBtnClick: () => void;
   onContentChange: (content: string) => void;
+  /** true = Enter 直接发送（Ctrl/Cmd+Enter 换行）；false（默认）= Enter 换行/续行，Ctrl+Enter 发送 */
+  enterToSend?: boolean;
 }
 
 // eslint-disable-next-line react/display-name
@@ -62,6 +65,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     onConfirmBtnClick: handleConfirmBtnClickCallback,
     onCancelBtnClick: handleCancelBtnClickCallback,
     onContentChange: handleContentChangeCallback,
+    enterToSend,
   } = props;
 
   const mountRef = useRef<HTMLDivElement>(null);
@@ -73,15 +77,18 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     confirm: (content: string) => void;
     change: (content: string) => void;
     placeholder: string;
+    enterToSend: boolean;
     get?: () => string;
   }>({
     confirm: handleConfirmBtnClickCallback,
     change: handleContentChangeCallback,
     placeholder: placeholderText,
+    enterToSend: enterToSend === true,
   });
   cbRef.current.confirm = handleConfirmBtnClickCallback;
   cbRef.current.change = handleContentChangeCallback;
   cbRef.current.placeholder = placeholderText;
+  cbRef.current.enterToSend = enterToSend === true;
 
   // 发送键可用态（仅空内容时禁用确认钮，与旧 textarea disabled 语义一致）
   const [hasContent, setHasContent] = useState(() => initialContent.length > 0);
@@ -97,8 +104,33 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       placeholder(cbRef.current.placeholder),
       memoInputHighlight,
       memoAutocomplete(),
-      memoInputKeymap(() => cbRef.current.confirm(cbRef.current.get?.() ?? '')),
+      memoFormatKeymap(),
+      memoInputKeymap({
+        // 发送 = 以编辑器当前文档为准（缓存由 change 回调维护）
+        send: () => cbRef.current.confirm(cbRef.current.get?.() ?? ''),
+        isEnterToSend: () => cbRef.current.enterToSend,
+      }),
       keymap.of([...defaultKeymap, ...historyKeymap]),
+      // Ctrl/Cmd+Enter 在 DOM 层拦截（keymap 兜底同义分支），保证发送键可靠生效
+      EditorView.domEventHandlers({
+        keydown: (event, view) => {
+          if (event.key !== 'Enter' || !(event.ctrlKey || event.metaKey)) {
+            return false;
+          }
+          if (cbRef.current.enterToSend) {
+            // Enter 发送模式：Ctrl+Enter = 单个换行
+            if (view.state.readOnly) return true;
+            const head = view.state.selection.main.head;
+            view.dispatch({
+              changes: { from: head, to: head, insert: '\n' },
+              selection: { anchor: head + 1 },
+            });
+          } else {
+            cbRef.current.confirm(cbRef.current.get?.() ?? '');
+          }
+          return true;
+        },
+      }),
       roCompartmentRef.current.of([]),
       EditorView.updateListener.of((u) => {
         if (u.docChanged) {

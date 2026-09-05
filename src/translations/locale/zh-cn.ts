@@ -29,6 +29,9 @@ export default {
     '当开启该选项, Memos 会在 Obsidian 打开时自动打开。默认不开启。',
   'Hide done tasks in Memo list': '在 memo 列表中隐藏已完成 memo',
   'Hide all done tasks in Memo list. Show done tasks by default.': '在 memo 列表中隐藏已完成 memo。默认不开启',
+  'Send memo by Enter key': '按 Enter 直接发送',
+  'When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.':
+    '开启后按 Enter 直接发送 memo，Ctrl/Cmd+Enter 换行。默认关闭（Enter 换行、Ctrl+Enter 发送）。',
   'Advanced Options': '进阶选项',
   'UI language for date': '针对日期展示的语言界面',
   "Translates the date UI language. Only 'en' and 'zh' are available.":

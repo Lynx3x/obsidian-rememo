@@ -30,7 +30,8 @@ function tagCompletion(ctx: CompletionContext): CompletionResult | null {
   const prev = hash - 2 >= line.from ? state.sliceDoc(hash - 2, hash - 1) : '';
   if (prev !== '' && !isSpace(prev)) return null;
 
-  const token = state.sliceDoc(hash + 1, pos);
+  // hash 已停在 '#' 右侧 → token 从 hash 起（空 token = 刚打 '#'，列出全部）
+  const token = state.sliceDoc(hash, pos);
   const options = usedTags(token).map(({ name }) => ({
     label: name,
     apply: '#' + name,

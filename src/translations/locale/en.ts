@@ -47,6 +47,9 @@ export default {
   'Hide done tasks in Memo list': 'Hide done tasks in Memo list',
   'Hide all done tasks in Memo list. Show done tasks by default.':
     'Hide all done tasks in Memo list. Show done tasks by default.',
+  'Send memo by Enter key': 'Send memo by Enter key',
+  'When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.':
+    'When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.',
   'Advanced Options': 'Advanced Options',
   'UI language for date': 'UI language for date',
   "Translates the date UI language. Only 'en' and 'zh' are available.":

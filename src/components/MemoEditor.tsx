@@ -35,7 +35,7 @@ const MemoEditor: React.FC<Props> = () => {
   const {
     settingsState: { settings },
   } = useContext(appContext);
-  const { DefaultEditorLocation, DefaultPrefix, FocusOnEditor, UseButtonToShowEditor } = settings;
+  const { DefaultEditorLocation, DefaultPrefix, FocusOnEditor, UseButtonToShowEditor, EnterToSend } = settings;
   const { app } = dailyNotesService.getState();
 
   const [isListShown, toggleList] = useToggle(false);
@@ -501,11 +501,12 @@ const MemoEditor: React.FC<Props> = () => {
       showConfirmBtn: true,
       showCancelBtn: showEditStatus,
       showTools: true,
+      enterToSend: EnterToSend === true,
       onConfirmBtnClick: handleSaveBtnClick,
       onCancelBtnClick: handleCancelBtnClick,
       onContentChange: handleContentChange,
     }),
-    [showEditStatus],
+    [showEditStatus, EnterToSend],
   );
 
   return (

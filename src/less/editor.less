@@ -38,6 +38,13 @@ div[data-type='memos_view'] .common-editor-wrapper {
       caret-color: var(--memo-accent);
       // 空内容时也保持可点高度
       min-height: 24px;
+
+      // 防 Obsidian/浏览器给 contenteditable 画的 focus 虚线/描边
+      &:focus,
+      &:focus-visible,
+      &:focus-within {
+        outline: none;
+      }
     }
 
     .cm-line {
