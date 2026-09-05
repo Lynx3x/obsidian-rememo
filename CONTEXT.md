@@ -95,7 +95,8 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 - **大改立项（2026-09-05）**: 富内容存储（卡片块多行正文，弃 `<br>`）+ cm6 输入内核。**决策与规格见 [PLAN-FORMAT.md](PLAN-FORMAT.md)**（头行纯标识、正文 4 空格缩进、deletedAt 仍放行内、评论/引用首期不做未来走跨文件引用卡）。P0 = `src/audit/` 规则引擎体检工具（先行，eslint 式规则注册表，同时是迁移执行器）。tag 联想事实更正：Obsidian 原生有（1.4.0 changelog "Tag autocomplete now uses a fuzzy search algorithm"），cm6 autocomplete 框架内实现，别再断言没有。
 - **P1b 写入端整体落地（2026-09-05，commit 4c881ec，已本地提交待 push）**: owner 拍板：**旧数据不再渲染为 memo**、**写入只写新格式**、旧行由数据体检整文件迁移恢复。落地内容：①读取端行级只认纯标识头（`classifyMemoRow` 三态：pure-header/old-top-row/other，读端+legacy-row 规则+迁移器共用），旧单行解析/缩进评论树/评论 UI 链（气泡/回复/编辑/CommentInput/obCommentMemo）**整链拆除，评论停摆至 P3 引用卡重建**；②写入端只写新格式卡片块（locateMemo 统一定位：^id 优先/行号兜底；obCreate 多行块插入并修 posNum=-1 行号恒差 2 旧 bug；obUpdate 只替换正文域头行不动、UI 不再拼 ^id；hide/restore/perm-delete 全按头行/块域；新增任务卡整卡勾选 toggleMemoTask）；③任务卡勾选框放**头部时间旁**（不再受 ShowTaskLabel 门控，该设置项已删），TASK-DONE 正文置灰不划线；④体检中心上线**整文件"旧→新"迁移 v1**（legacy-row detect-only 规则 + migrate.ts migrateFile：旧单位→块、`<br>` 解码、14 位时间归一、缩进评论子树折叠进父卡正文嵌套列表、已删评论丢弃计数、缺时间单位原样保留并报告；备份 `.rememo-backup/migrate-<ts>/`；AuditPage 文件头「整文件迁移」按钮，迁移后显式全量回读）；离线冒烟：dev 库 3 个旧文件转换后 0 旧行残留、94/94 正文段保真。styles.css 224.6→211.6 KiB。**待 owner 在 Obsidian 目视**（清单见下）。**旧数据行的"编辑器"不复存在**——文件里混写的旧行不显示，主列表只渲染纯标识头卡片块；mixed 文件追加新块立即可见
 - **P1b 目视清单（owner，2026-09-05 起）**: ①daily/2026-09-06.md 新样例：新建（普通/任务模式/写入日期）、双击编辑多行正文（空行分段/嵌套列表/代码块）、三点菜单删除→回收站→恢复/永久删除、任务卡勾选 [ ]↔[x] 落盘+TASK-DONE 置灰，每步后看文件原文一致性；②旧文件（2026-09-05 等）直接发一条新 memo → 新块立现、旧行消失；数据体检 → legacy-row → 点「整文件迁移」→ 旧行全部变卡片复现（时间/正文 <br> 还原/任务/deletedAt 进回收站/评论折叠成嵌套列表），`.rememo-backup/migrate-*` 有备份；③浅/深主题+换 accent 目视任务卡勾选框样式。注意：迁移前该文件旧行不可见属预期；迁移入口只在三点菜单「数据体检」
-- **P1b 首轮目视反馈已落地（2026-09-05，commit 0b131f5，已 push）**: ①体检页新增「一键迁移全部旧文件（N 个）」；②任务卡左上角"盖角"色块（.memo-task-corner：accent 实底未完成/置灰已完成，pointer-events 关，回收站卡片同款）；③三点菜单新增「转为任务卡/转为普通 memo」（toggleMemoTaskType，头行 - ⇄ - [ ]）；④勾选框放大（26px 热区/18px 图标/hover 底色）并移到时间左侧。**待 owner 二轮目视**：角标色感（浅 accent 主题下 todo 实底对比）、勾选框手感、菜单入口位置、回收站角标。P2 cm6 输入内核仍未排期（owner 已知悉列表续行/原生快捷键属 P2）
+- **P1b 首轮目视反馈已落地（2026-09-05，commit 0b131f5，已 push）**: ①体检页新增「一键迁移全部旧文件（N 个）」；②任务卡左上角"盖角"色块（.memo-task-corner：accent 实底未完成/置灰已完成，pointer-events 关，回收站卡片同款）；③三点菜单新增「转为任务卡/转为普通 memo」（toggleMemoTaskType，头行 - ⇄ - [ ]）；④勾选框放大（26px 热区/18px 图标/hover 底色）并移到时间左侧。
+- **P1b 视觉二/三轮反馈已落地（2026-09-05，commits 3dfa3c0 / 7caf6c4，已 push），owner 目视通过（2026-09-05 "看起来差不多了"）**: 角标改为**左上 46×12px 半透明短斜带**（.memo-task-corner：accent 32%/完成置灰 14%，右端 45° 斜切、无图形、只盖顶部 padding 区不碰时间行、不做内容让位；回收站同款）；勾选框**放回时间文本右侧**；三点菜单容器 `width:max-content + min-width:112px`（主列表/回收站两处，长文案不再溢出），切换任务文案定稿 **「设为任务卡 / 取消任务卡」**（key TURN INTO TASK/TURN INTO MEMO）。**P2 cm6 输入内核不插队、按规划走**（列表续行/原生快捷键归 P2）。**遗留目视项：2026-09-04 批次的次级界面 token 化**（弹窗/回收站/设置/热力图/标签/查询/侧栏浅深+换 accent）仍未逐文件确认
 - **阶段 F1 指定日期添加（2026-09-03）**:
   - **移除旧「输入 @/📆 弹日历插截止日期文本」功能** + `InsertDateFormat` 设置项；删 `select-date-picker.less`（`.rdp-*` 旧 react-day-picker 死样式，全仓库仅 MemoEditor 一处 import）。owner 从未用过、无此需求
   - 新增**写入日期**：工具栏日历按钮 → 新组件 `WriteDatePopover`（复用 `DatePicker` + `.editor-date-picker` 外观、react-popper 定位、HH:mm input，秒固定 00）；选定后 chip `写入 YYYY-MM-DD HH:mm`，**保留到手动 ✕**（回默认"现在/今天"）。写旧日期文件不存在时走既有 createDailyNoteCheck 新建
@@ -105,7 +106,7 @@ Captures ideas ("memos") into Obsidian **daily notes**, lists them back, lets yo
 
 ## Pending work (按顺序)
 
-1. **P1b 目视 + 微调** — ✅ 代码完成（commit 4c881ec，未 push）。Obsidian 目视待 owner 确认（清单见 Completed 区 P1b 目视清单条目：新样例写/改/删/任务勾选、旧文件追加+体检迁移、浅深主题勾选框）。
+1. **P1b 目视 + 微调** — ✅ 全部完成（commit 4c881ec 起，至 7caf6c4，已 push；owner 目视通过 2026-09-05）。P2 cm6 输入内核不插队、按规划。
 2. **阶段 D 收尾** — ✅ 全部完成（时间迁移实测通过）
 3. **阶段 E 图片** — ✅ 代码完成，图片宽高/预览待 Obsidian 目视确认
 4. **阶段 F1 指定日期添加** — ✅ 全部完成（2026-09-03，Obsidian 目视确认通过）
