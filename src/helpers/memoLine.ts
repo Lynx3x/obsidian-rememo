@@ -36,14 +36,17 @@ export interface MemoLineFields {
  * 调用前应先剥掉行尾的块 id，使 deletedAt 位于内容末尾。
  */
 export function extractDeletedAt(content: string): { isDeleted: boolean; deletedAt: string; rest: string } {
-    const m = /(\sdeletedAt:\s*\d{14})\s*$/.exec(content);
+    // 值格式（新旧兼容）：旧 14 位数字 YYYYMMDDHHmmss，或可读 `YYYY-MM-DD HH:mm:ss`
+    const m = /(\sdeletedAt:\s*(.+?))\s*$/.exec(content);
     if (m) {
-        const deletedAt = /(\d{14})$/.exec(m[1])![1];
-        return {
-            isDeleted: true,
-            deletedAt,
-            rest: content.slice(0, m.index).trimEnd(),
-        };
+        const value = m[2].trim();
+        if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
+            return {
+                isDeleted: true,
+                deletedAt: value,
+                rest: content.slice(0, m.index).trimEnd(),
+            };
+        }
     }
     return { isDeleted: false, deletedAt: '', rest: content };
 }

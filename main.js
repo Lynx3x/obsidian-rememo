@@ -9493,14 +9493,16 @@ class LocationService {
 }
 const locationService = new LocationService();
 function extractDeletedAt(content) {
-  const m2 = /(\sdeletedAt:\s*\d{14})\s*$/.exec(content);
+  const m2 = /(\sdeletedAt:\s*(.+?))\s*$/.exec(content);
   if (m2) {
-    const deletedAt = /(\d{14})$/.exec(m2[1])[1];
-    return {
-      isDeleted: true,
-      deletedAt,
-      rest: content.slice(0, m2.index).trimEnd()
-    };
+    const value = m2[2].trim();
+    if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
+      return {
+        isDeleted: true,
+        deletedAt: value,
+        rest: content.slice(0, m2.index).trimEnd()
+      };
+    }
   }
   return { isDeleted: false, deletedAt: "", rest: content };
 }
@@ -10080,8 +10082,7 @@ async function obHideMemo(memoid) {
       return null;
     const line = fileLines[targetIdx];
     const now = require$$0.moment();
-    const now14 = now.format("YYYYMMDDHHmmss");
-    const deletedAtStr = " deletedAt: " + now14;
+    const deletedAtStr = " deletedAt: " + now.format("YYYY-MM-DD HH:mm:ss");
     let newLine;
     if (/\s*\^(\S{6})\s*$/.test(line)) {
       newLine = line.replace(/\s*\^(\S{6})\s*$/, deletedAtStr + " ^$1");
@@ -10114,7 +10115,7 @@ async function restoreMemoFromLine(memoid) {
   if (targetIdx === -1)
     return null;
   const line = fileLines[targetIdx];
-  const newLine = line.replace(/\s*deletedAt:\s*\d{14}/, "");
+  const newLine = line.replace(/\s*deletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/, "");
   if (newLine === line)
     return null;
   fileLines[targetIdx] = newLine;
@@ -21225,7 +21226,8 @@ const DeletedMemo = (props) => {
     handleDeletedMemoAction
   } = props;
   const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== "HH:mm";
-  const deletedAtStr = propsMemo.deletedAt ? require$$0.moment(propsMemo.deletedAt, "YYYYMMDDHHmmss").format(showSeconds ? "YYYY/MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm") : utils$1.getDateTimeString(Date.now(), showSeconds);
+  const parseDeletedAt = (value) => /^\d{14}$/.test(value) ? require$$0.moment(value, "YYYYMMDDHHmmss") : require$$0.moment(value, "YYYY-MM-DD HH:mm:ss");
+  const deletedAtStr = propsMemo.deletedAt ? parseDeletedAt(propsMemo.deletedAt).format(showSeconds ? "YYYY/MM/DD HH:mm:ss" : "YYYY/MM/DD HH:mm") : utils$1.getDateTimeString(Date.now(), showSeconds);
   const memo2 = {
     ...propsMemo,
     createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt, showSeconds),

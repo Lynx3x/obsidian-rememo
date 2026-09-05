@@ -30,8 +30,8 @@ export async function obHideMemo(memoid: string): Promise<TFile | null> {
 
     const line = fileLines[targetIdx];
     const now = moment();
-    const now14 = now.format('YYYYMMDDHHmmss');
-    const deletedAtStr = ' deletedAt: ' + now14;
+    // 可读时间格式（2026-09-06 起）：deletedAt: YYYY-MM-DD HH:mm:ss；读取端新旧格式都兼容
+    const deletedAtStr = ' deletedAt: ' + now.format('YYYY-MM-DD HH:mm:ss');
 
     // 在 ^id 前插入 deletedAt 标记；无 ^id 则追加
     let newLine: string;
@@ -72,7 +72,7 @@ export async function restoreMemoFromLine(memoid: string): Promise<TFile | null>
   if (targetIdx === -1) return null;
 
   const line = fileLines[targetIdx];
-  const newLine = line.replace(/\s*deletedAt:\s*\d{14}/, '');
+  const newLine = line.replace(/\s*deletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/, '');
   if (newLine === line) return null;
 
   fileLines[targetIdx] = newLine;

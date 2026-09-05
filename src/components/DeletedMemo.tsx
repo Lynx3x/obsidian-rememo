@@ -21,9 +21,15 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
   const { memo: propsMemo, handleDeletedMemoAction } = props;
   // 时间格式开关：HH:mm 模式不带秒（纯渲染，不动数据）
   const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== 'HH:mm';
-  // deletedAt 是 14 位时间戳（YYYYMMDDHHmmss），转成可显示格式
+  // deletedAt 新旧两种值：旧 14 位数字 / 可读 YYYY-MM-DD HH:mm:ss，转成统一显示格式
+  const parseDeletedAt = (value: string) =>
+    /^\d{14}$/.test(value)
+      ? moment(value, 'YYYYMMDDHHmmss')
+      : moment(value, 'YYYY-MM-DD HH:mm:ss');
   const deletedAtStr = propsMemo.deletedAt
-    ? moment(propsMemo.deletedAt, 'YYYYMMDDHHmmss').format(showSeconds ? 'YYYY/MM/DD HH:mm:ss' : 'YYYY/MM/DD HH:mm')
+    ? parseDeletedAt(propsMemo.deletedAt).format(
+        showSeconds ? 'YYYY/MM/DD HH:mm:ss' : 'YYYY/MM/DD HH:mm',
+      )
     : utils.getDateTimeString(Date.now(), showSeconds);
   const memo: FormattedMemo = {
     ...propsMemo,
