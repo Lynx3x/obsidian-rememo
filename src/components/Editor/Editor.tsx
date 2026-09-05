@@ -4,7 +4,6 @@ import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
 import { completionStatus } from '@codemirror/autocomplete';
-import { memoAutocomplete } from '../../editor/suggest';
 import { memoInputHighlight } from '../../editor/highlight';
 import { getNativeMarkdownEditorClass } from '../../editor/native';
 import { attachKeyCapture } from '../../editor/capture';
@@ -113,6 +112,11 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       return;
     }
 
+    // file 上下文（2026-09-05 定案）：Obsidian 内建文件/标签联想 = 内核 editorSuggest
+    // 通道（buildLocalExtensions 内核原版 updateEvent 触发），条件含 editor+file。
+    // 此前 file=null 原生联想不工作才自喂 suggest；挂 dev 库真实文件后原生联想可用
+    // （kanban 同款），自产 suggest 退役。
+    const contextFile: any = app?.vault?.getMarkdownFiles?.()?.[0] ?? null;
     const controller = {
       app,
       syncScroll: () => undefined, // 内核滚动处理调 owner.syncScroll（缺了会 TypeError）
@@ -122,8 +126,12 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       onMarkdownScroll: () => undefined,
       scroll: 0,
       editMode: null,
-      file: null,
-      path: '',
+      get file() {
+        return contextFile;
+      },
+      get path() {
+        return contextFile?.path ?? '';
+      },
       get editor() {
         return nativeRef.current?.editor;
       },
@@ -156,7 +164,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           EditorView.lineWrapping,
           placeholder(cbRef.current.placeholder),
           memoInputHighlight,
-          memoAutocomplete(),
           keymap.of([
             {
               key: 'Enter',
