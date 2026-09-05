@@ -6979,15 +6979,6 @@ function reducer$8(state, action) {
         editMemoId: action.payload.editMemoId
       };
     }
-    case "SET_COMMENT_MEMO_ID": {
-      if (action.payload.commentMemoId === state.commentMemoId) {
-        return state;
-      }
-      return {
-        ...state,
-        commentMemoId: action.payload.commentMemoId
-      };
-    }
     case "SET_MOBILE_VIEW": {
       if (action.payload.isMobileView === state.isMobileView) {
         return state;
@@ -6995,15 +6986,6 @@ function reducer$8(state, action) {
       return {
         ...state,
         isMobileView: action.payload.isMobileView
-      };
-    }
-    case "SET_CHANGED_BY_MEMOS": {
-      if (action.payload.changedByMemos === state.changedByMemos) {
-        return state;
-      }
-      return {
-        ...state,
-        changedByMemos: action.payload.changedByMemos
       };
     }
     case "SET_SHOW_SIDEBAR_IN_MOBILE_VIEW": {
@@ -7029,14 +7011,12 @@ function reducer$8(state, action) {
 const defaultState$6 = {
   markMemoId: "",
   editMemoId: "",
-  commentMemoId: "",
   shouldSplitMemoWord: true,
   shouldHideImageUrl: true,
   shouldUseMarkdownParser: true,
   useTinyUndoHistoryCache: false,
   isMobileView: false,
-  showSiderbarInMobileView: false,
-  changedByMemos: false
+  showSiderbarInMobileView: false
 };
 function reducer$7(state, action) {
   switch (action.type) {
@@ -7846,7 +7826,6 @@ var en = {
   DELETE: "DELETE",
   "CONFIRM\uFF01": "CONFIRM\uFF01",
   "CREATE FILTER": "CREATE FILTER",
-  "Comment it...": "Comment it...",
   Settings: "Settings",
   "Recycle bin": "Recycle bin",
   "Audit data": "Audit data",
@@ -7860,6 +7839,8 @@ var en = {
   SHARE: "SHARE",
   SOURCE: "SOURCE",
   RESTORE: "RESTORE",
+  "Mark as done": "Mark as done",
+  "Mark as todo": "Mark as todo",
   "DELETE AT": "DELETE AT",
   "Noooop!": "Noooop!",
   "All Data is Loaded \u{1F389}": "All Data is Loaded \u{1F389}",
@@ -7905,19 +7886,16 @@ var en = {
   'Set background image in light theme. Set something like "Daily/one.png"': 'Set background image in light theme. Set something like "Daily/one.png"',
   'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default',
   "Default Memo Composition": "Default Memo Composition",
-  "Show Tasks Label": "Show Tasks Label",
   "Show tasks label near the time text. False by default": "Show tasks label near the time text. False by default",
   "Please Open Memos First": "Please Open Memos First",
   DATE: "DATE",
   OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
   BEFORE: "BEFORE",
   AFTER: "AFTER",
-  "Allow Comments On Memos": "Allow Comments On Memos",
   "You can comment on memos. False by default": "You can comment on memos. False by default",
   Import: "Import",
   "TITLE CANNOT BE NULL!": "TITLE CANNOT BE NULL!",
   "FILTER CANNOT BE NULL!": "FILTER CANNOT BE NULL!",
-  "Comments In Original DailyNotes/Notes": "Comments In Original DailyNotes/Notes",
   "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "You should install Dataview Plugin ver 0.5.9 or later to use this feature.",
   "Open Memos Successfully": "Open Memos Successfully",
   "Fetch Error": "\u{1F62D} Fetch Error",
@@ -7938,7 +7916,6 @@ var en = {
   'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default',
   "Allow Memos to Fetch Memo from Notes": "Allow Memos to Fetch Memo from Notes",
   "Use Memos to manage all memos in your notes, not only in daily notes. False by default": "Use Memos to manage all memos in your notes, not only in daily notes. False by default",
-  "Always Show Memo Comments": "Always Show Memo Comments",
   "Always show memo comments on memos. False by default": "Always show memo comments on memos. False by default",
   "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.",
   "Please check your daily note plugin OR periodic notes plugin settings": "Please check your daily note plugin OR periodic notes plugin settings",
@@ -8556,6 +8533,8 @@ var zhCN = {
   SHARE: "\u5206\u4EAB",
   SOURCE: "\u6765\u6E90",
   RESTORE: "\u6062\u590D",
+  "Mark as done": "\u6807\u8BB0\u4E3A\u5DF2\u5B8C\u6210",
+  "Mark as todo": "\u6807\u8BB0\u4E3A\u672A\u5B8C\u6210",
   "DELETE AT": "\u5220\u9664\u4E8E",
   "Noooop!": "\u5565\u90FD\u6CA1\u6709\uFF01",
   "All Data is Loaded \u{1F389}": "\u6240\u6709\u6570\u636E\u90FD\u52A0\u8F7D\u597D\u5566 \u{1F389}",
@@ -8600,20 +8579,16 @@ var zhCN = {
   'Set background image in light theme. Set something like "Daily/one.png"': '\u8BBE\u7F6E\u6D45\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE\u3002\u8BF7\u8BBE\u7F6E\u7C7B\u4F3C"Daily/one.png"\u7684\u8DEF\u5F84',
   'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': '\u8BBE\u7F6E\u9ED8\u8BA4 Memo \u7EC4\u6210\uFF0C\u4F60\u5FC5\u987B\u8981\u4F7F\u7528 {TIME} \u4F5C\u4E3A "HH:mm" \u800C\u4E14\u8981\u8BBE\u7F6E {CONTENT} \u4F5C\u4E3A\u5185\u5BB9\u8BC6\u522B\u3002\u9ED8\u8BA4\u60C5\u51B5\u4E0B\uFF0C Memo \u57FA\u4E8E "{TIME} {CONTENT}" \u8BC6\u522B',
   "Default Memo Composition": "\u9ED8\u8BA4 Memo \u7EC4\u6210",
-  "Show Tasks Label": "\u5C55\u793A\u4EFB\u52A1\u6807\u7B7E",
   "Show tasks label near the time text. False by default": "\u5728 Memo \u7684\u65F6\u95F4\u65C1\u5C55\u793A\u4EFB\u52A1\u6807\u7B7E\u3002\u9ED8\u8BA4\u60C5\u51B5\u4E0B\u4E0D\u5C55\u793A",
   "Please Open Memos First": "\u8BF7\u5148\u6253\u5F00 Memos",
-  "Comment it...": "\u8BC4\u8BBA...",
   DATE: "\u65E5\u671F",
   OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "Obsidian Natrual DATES language \u63D2\u4EF6\u6CA1\u542F\u52A8",
   BEFORE: "\u5728\u4E4B\u524D",
   AFTER: "\u5728\u4E4B\u540E",
-  "Allow Comments On Memos": "\u5141\u8BB8\u5728 Memos \u4E0A\u8BC4\u8BBA",
   "You can comment on memos. False by default": "\u4F60\u53EF\u4EE5\u5728 Memos \u70B9\u51FB\u56FE\u6807\u8FDB\u884C\u8BC4\u8BBA\u4E86\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F",
   Import: "\u5BFC\u5165",
   "TITLE CANNOT BE NULL!": "\u6807\u9898\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
   "FILTER CANNOT BE NULL!": "\u7B5B\u9009\u5668\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
-  "Comments In Original DailyNotes/Notes": "\u5728\u539F\u6587\u4EF6\u4E2D\u8FDB\u884C\u8BC4\u8BBA",
   "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "\u4F60\u9700\u8981\u5B89\u88C5 0.5.9 \u7248\u672C\u4EE5\u4E0A\u7684 Dataview \u63D2\u4EF6\u6765\u4F7F\u7528\u8BE5\u529F\u80FD",
   "Open Memos Successfully": "\u6210\u529F\u6253\u5F00 Memos ",
   "Fetch Error": "\u{1F62D} Memos \u83B7\u53D6\u5931\u8D25",
@@ -8634,7 +8609,6 @@ var zhCN = {
   'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': '\u4F60\u53EF\u4EE5\u7ED9\u7B14\u8BB0\u8BBE\u7F6E\u6307\u5B9A\u68C0\u7D22\u5F0F\u6765\u8BA9 Memos \u53EF\u4EE5\u7D22\u5F15\u5230\u5B83\u3002\u9ED8\u8BA4\u4E3A "#memo" ',
   "Allow Memos to Fetch Memo from Notes": "\u5141\u8BB8 Memos \u4ECE\u7B14\u8BB0\u4E2D\u83B7\u53D6 Memo",
   "Use Memos to manage all memos in your notes, not only in daily notes. False by default": "\u4F7F\u7528 Memos \u6765\u7BA1\u7406\u4F60\u7B14\u8BB0\u4E2D\u7684 Memos\uFF0C\u4E0D\u5355\u53EA DailyNotes \u4E2D\u7684\u5185\u5BB9\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
-  "Always Show Memo Comments": "\u8BC4\u8BBA\u5C06\u603B\u662F\u53EF\u89C1",
   "Always show memo comments on memos. False by default": "\u5F53\u5F00\u542F\u540E\u8BC4\u8BBA\u603B\u662F\u4F1A\u5728 Memo \u7684\u4E0B\u65B9\u5C55\u793A\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
   "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u6240\u5728\u6587\u4EF6\u5939",
   "Please check your daily note plugin OR periodic notes plugin settings": "\u8BF7\u68C0\u67E5\u4F60\u7684\u65E5\u8BB0\u63D2\u4EF6\u548C/\u6216 Periodic Notes \u63D2\u4EF6\u7684\u8BBE\u7F6E",
@@ -9280,14 +9254,6 @@ class GlobalStateService {
         }
       });
     };
-    this.setCommentMemoId = (commentMemoId) => {
-      appStore.dispatch({
-        type: "SET_COMMENT_MEMO_ID",
-        payload: {
-          commentMemoId
-        }
-      });
-    };
     this.setMarkMemoId = (markMemoId) => {
       appStore.dispatch({
         type: "SET_MARK_MEMO_ID",
@@ -9301,14 +9267,6 @@ class GlobalStateService {
         type: "SET_MOBILE_VIEW",
         payload: {
           isMobileView
-        }
-      });
-    };
-    this.setChangedByMemos = (changedByMemos) => {
-      appStore.dispatch({
-        type: "SET_CHANGED_BY_MEMOS",
-        payload: {
-          changedByMemos
         }
       });
     };
@@ -9492,6 +9450,274 @@ class LocationService {
   }
 }
 const locationService = new LocationService();
+async function openMemoFile(memoId, path) {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  let file = null;
+  if (path) {
+    const f2 = vault.getAbstractFileByPath(require$$0.normalizePath(path));
+    if (f2 instanceof require$$0.TFile)
+      file = f2;
+  }
+  if (!file && /^\d{14,}/.test(memoId)) {
+    const date = require$$0.moment(memoId.slice(0, 14), "YYYYMMDDHHmmss");
+    const dailyNote = getDailyNote_1(date, dailyNotesService.getState().dailyNotes);
+    if (dailyNote instanceof require$$0.TFile)
+      file = dailyNote;
+  }
+  if (!file)
+    return null;
+  const content = await vault.read(file);
+  return { file, lines: content.split(/\r?\n/) };
+}
+function findHeaderLineIdx(lines, hasId, lineHint = 0) {
+  if (hasId) {
+    const want = "^" + hasId;
+    let best = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < lines.length; i++) {
+      const l2 = lines[i];
+      if (/^[-*]\s.*\^[A-Za-z0-9]{6}\s*$/.test(l2) && l2.trimEnd().endsWith(want)) {
+        const d = Math.abs(i - lineHint);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      }
+    }
+    if (best !== -1)
+      return best;
+  }
+  if (lineHint >= 0 && lineHint < lines.length && /^[-*]\s/.test(lines[lineHint])) {
+    return lineHint;
+  }
+  return -1;
+}
+function scanBodyEnd(lines, headerIdx) {
+  let last = headerIdx;
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const l2 = lines[i];
+    if (l2.trim() === "")
+      continue;
+    if (l2.length - l2.trimStart().length >= 4) {
+      last = i;
+      continue;
+    }
+    break;
+  }
+  return last;
+}
+function contentToBodyLines(content) {
+  if (content === "")
+    return [];
+  return content.split("\n").map((l2) => l2 === "" ? "" : "    " + l2);
+}
+async function waitForInsert(MemoContent, isTASK, insertDate) {
+  const date = insertDate ? insertDate : require$$0.moment();
+  const timeText = date.format("HH:mm:ss");
+  const generatedId = Math.random().toString(36).slice(-6);
+  const header = `${isTASK ? "- [ ] " : "- "}${timeText} ^${generatedId}`;
+  const content = (MemoContent != null ? MemoContent : "").replace(/\n+$/, "");
+  const bodyLines = contentToBodyLines(content);
+  const blockText = bodyLines.length > 0 ? [header, ...bodyLines].join("\n") : header;
+  const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
+  const memo2 = {
+    id: "",
+    content,
+    deletedAt: "",
+    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    memoType,
+    path: "",
+    hasId: generatedId,
+    linkId: ""
+  };
+  await writeBlockToDailyNote(date, blockText, memo2);
+  return memo2;
+}
+async function writeBlockToDailyNote(date, blockText, memo2) {
+  const { vault } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
+  let headerIdx;
+  const dailyNotes = await getAllDailyNotes_1();
+  const existingFile = getDailyNote_1(date, dailyNotes);
+  if (!existingFile) {
+    const file = await utils$1.createDailyNoteCheck(date);
+    const fileContents = await vault.read(file) || "";
+    const inserted = insertMemoBlock(InsertAfter || "", blockText, fileContents);
+    await vault.modify(file, inserted.content);
+    headerIdx = inserted.headerIdx;
+    memo2.path = file.path;
+  } else {
+    const fileContents = await vault.read(existingFile) || "";
+    const inserted = insertMemoBlock(InsertAfter || "", blockText, fileContents);
+    await vault.modify(existingFile, inserted.content);
+    headerIdx = inserted.headerIdx;
+    memo2.path = existingFile.path;
+  }
+  memo2.id = date.format("YYYYMMDDHHmmss") + headerIdx;
+}
+function insertMemoBlock(targetString, blockText, fileContent) {
+  const lines = fileContent.split(/\r?\n/);
+  const blockLines = blockText.split("\n");
+  if (lines.length === 1 && lines[0].trim() === "") {
+    return { content: blockText, headerIdx: 0 };
+  }
+  if (targetString !== "") {
+    const targetRe = new RegExp("\\s*" + targetString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*");
+    const targetIdx = lines.findIndex((line) => targetRe.test(line));
+    if (targetIdx !== -1) {
+      let nextHeading = -1;
+      for (let i = targetIdx + 1; i < lines.length; i++) {
+        if (/^#{1,} |^---/.test(lines[i])) {
+          nextHeading = i;
+          break;
+        }
+      }
+      if (nextHeading !== -1) {
+        let anchor = targetIdx;
+        for (let i = nextHeading - 1; i > targetIdx; i--) {
+          if (lines[i].trim() !== "") {
+            anchor = i;
+            break;
+          }
+        }
+        const out = [...lines.slice(0, anchor + 1), ...blockLines, ...lines.slice(anchor + 1)];
+        return { content: out.join("\n"), headerIdx: anchor + 1 };
+      }
+      return appendAtEnd(lines, blockLines);
+    }
+  }
+  return appendAtEnd(lines, blockLines);
+}
+function appendAtEnd(lines, blockLines) {
+  const last = lines.length - 1;
+  if (lines[last] === "") {
+    const out2 = [...lines.slice(0, last), ...blockLines, ""];
+    return { content: out2.join("\n"), headerIdx: last };
+  }
+  const out = [...lines, ...blockLines];
+  return { content: out.join("\n"), headerIdx: lines.length };
+}
+async function changeMemo(memoid, content, memoType, path, hasId) {
+  const loc = await openMemoFile(memoid, path);
+  if (!loc) {
+    throw new Error("File not found");
+  }
+  const hint = parseInt(memoid.slice(14));
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+  if (headerIdx === -1) {
+    throw new Error("Memo header not found in file");
+  }
+  const normalized = (content != null ? content : "").replace(/\n+$/, "");
+  const bodyLines = contentToBodyLines(normalized);
+  const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
+  const before = loc.lines.slice(0, headerIdx + 1);
+  const after = loc.lines.slice(bodyEnd + 1);
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, [...before, ...bodyLines, ...after].join("\n"));
+  const date = require$$0.moment(memoid.slice(0, 14), "YYYYMMDDHHmmss");
+  return {
+    id: memoid,
+    content: normalized,
+    user_id: 1,
+    deletedAt: "",
+    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    memoType: memoType || "JOURNAL",
+    hasId: hasId || "",
+    linkId: "",
+    path: loc.file.path
+  };
+}
+const DELETED_AT_VALUE_REG = /\s+deletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
+const lineHintOf = (memoid) => {
+  const n2 = parseInt(memoid.slice(14));
+  return isNaN(n2) ? 0 : n2;
+};
+async function obHideMemo(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  if (DELETED_AT_VALUE_REG.test(line))
+    return null;
+  const now = require$$0.moment();
+  const deletedAtStr = " deletedAt: " + now.format("YYYY-MM-DD HH:mm:ss");
+  let newLine;
+  if (/\s*\^[A-Za-z0-9]{6}\s*$/.test(line)) {
+    newLine = line.replace(/\s*\^([A-Za-z0-9]{6})\s*$/, deletedAtStr + " ^$1");
+  } else {
+    newLine = line.trimEnd() + deletedAtStr;
+  }
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
+async function restoreMemo(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  const newLine = line.replace(DELETED_AT_VALUE_REG, "");
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
+async function deleteMemo(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
+  if (headerIdx === -1)
+    return null;
+  const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
+  const newLines = [...loc.lines.slice(0, headerIdx), ...loc.lines.slice(bodyEnd + 1)];
+  if (newLines.length === loc.lines.length)
+    return null;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, newLines.join("\n"));
+  return loc.file;
+}
+async function toggleMemoTask(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const hint = parseInt(memoid.slice(14));
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  const mark = /^[-*]\s\[([ xX])\]/.exec(line);
+  if (!mark)
+    return null;
+  const nextMark = mark[1] === " " ? "x" : " ";
+  const newLine = line.replace(/^([-*]\s)\[[ xX]\]/, `$1[${nextMark}]`);
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
 function extractDeletedAt(content) {
   const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content);
   if (m2) {
@@ -9517,33 +9743,6 @@ const getTaskType = (memoTaskType) => {
     return "TASK-DONE";
   return "TASK-" + memoTaskType;
 };
-const serializeMemoLine = (fields) => {
-  const { isTask, content } = fields;
-  const time = fields.time !== void 0 ? fields.time : "";
-  let line = isTask ? "- [ ] " : "- ";
-  if (DefaultMemoComposition === "") {
-    line += time !== "" ? `${time} ${content}` : content;
-  } else {
-    line += DefaultMemoComposition.replace(/{TIME}/g, time).replace(/{CONTENT}/g, content);
-  }
-  return line;
-};
-const INDENT_UNIT = 4;
-function getIndentWidth(line) {
-  let width = 0;
-  for (const ch2 of line) {
-    if (ch2 === " ")
-      width += 1;
-    else if (ch2 === "	")
-      width += INDENT_UNIT;
-    else
-      break;
-  }
-  return width;
-}
-function getIndentLevel(indentWidth) {
-  return Math.round(indentWidth / INDENT_UNIT);
-}
 function extractMemoTime(rawContent) {
   const t2 = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(rawContent);
   if (t2) {
@@ -9562,8 +9761,33 @@ function extractMemoTime(rawContent) {
   }
   return { time: "", isOld: false, rest: rawContent.trim() };
 }
-const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+deletedAt:[^\^]*)?\s*\^[A-Za-z0-9]{6}\s*$/;
+const INDENT_UNIT = 4;
+function getIndentWidth(line) {
+  let width = 0;
+  for (const ch2 of line) {
+    if (ch2 === " ")
+      width += 1;
+    else if (ch2 === "	")
+      width += INDENT_UNIT;
+    else
+      break;
+  }
+  return width;
+}
+function unindentContentLine(line) {
+  return line.length >= 4 ? line.slice(4) : line;
+}
+const TIME_TEXT = String.raw`(?:\d{1,2}:\d{2}(?::\d{2})?|\d{14})`;
+const DELETED_AT_VALUE = String.raw`(?:\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`;
+const PURE_HEADER_LINE = new RegExp(
+  String.raw`^[-*]\s(\[[^\]]{1}\]\s?)?${TIME_TEXT}(\s+deletedAt:\s*${DELETED_AT_VALUE})?\s*(\^[A-Za-z0-9]{6})?\s*$`
+);
 const TOP_BULLET_LINE = /^[-*]\s/;
+function classifyMemoRow(line) {
+  if (!TOP_BULLET_LINE.test(line))
+    return "other";
+  return PURE_HEADER_LINE.test(line) ? "pure-header" : "old-top-row";
+}
 function detectFileEra(lines) {
   for (const line of lines) {
     if (TOP_BULLET_LINE.test(line)) {
@@ -9572,379 +9796,31 @@ function detectFileEra(lines) {
   }
   return "unknown";
 }
-function unindentContentLine(line) {
-  return line.length >= 4 ? line.slice(4) : line;
-}
-async function escapeRegExp(text) {
-  return await text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-}
-function getLinesInString(input) {
-  const lines = [];
-  let tempString = input;
-  while (tempString.contains("\n")) {
-    const lineEndIndex = tempString.indexOf("\n");
-    lines.push(tempString.slice(0, lineEndIndex));
-    tempString = tempString.slice(lineEndIndex + 1);
-  }
-  lines.push(tempString);
-  return lines;
-}
-async function waitForInsert(MemoContent, isTASK, insertDate) {
-  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
-  const date = insertDate ? insertDate : require$$0.moment();
-  const timeText = date.format("HH:mm:ss");
-  const generatedId = Math.random().toString(36).slice(-6);
-  const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter }) + " ^" + generatedId;
-  const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
-  const memo2 = {
-    id: "",
-    content: removeEnter,
-    deletedAt: "",
-    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    memoType,
-    path: "",
-    hasId: generatedId,
-    linkId: ""
-  };
-  await writeMemoToDailyNote(date, newEvent, memo2);
-  return memo2;
-}
-async function writeMemoToDailyNote(date, newEvent, memo2) {
-  const { vault } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
-  let lineNum;
-  const dailyNotes = await getAllDailyNotes_1();
-  const existingFile = getDailyNote_1(date, dailyNotes);
-  if (!existingFile) {
-    const file = await utils$1.createDailyNoteCheck(date);
-    const fileContents = await vault.read(file) || "";
-    const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
-    if (newFileContent.content) {
-      await vault.modify(file, newFileContent.content);
-      if (newFileContent.posNum === -1) {
-        const allLines = getAllLinesFromFile$9(newFileContent.content);
-        lineNum = allLines.length + 1;
-      } else {
-        lineNum = newFileContent.posNum + 1;
-      }
-    }
-    memo2.path = file.path;
-  } else {
-    const fileContents = await vault.read(existingFile) || "";
-    const newFileContent = await insertAfterHandler(InsertAfter || "", newEvent || "", fileContents);
-    await vault.modify(existingFile, newFileContent.content);
-    if (newFileContent.posNum === -1) {
-      const allLines = getAllLinesFromFile$9(newFileContent.content);
-      lineNum = allLines.length + 1;
-    } else {
-      lineNum = newFileContent.posNum + 1;
-    }
-    memo2.path = existingFile.path;
-  }
-  memo2.id = date.format("YYYYMMDDHHmmss") + lineNum;
-}
-async function insertAfterHandler(targetString, formatted, fileContent) {
-  const targetRegex = new RegExp(`s*${await escapeRegExp(targetString)}s*`);
-  const fileContentLines = getLinesInString(fileContent);
-  const targetPosition = fileContentLines.findIndex((line) => targetRegex.test(line));
-  const targetNotFound = targetPosition === -1;
-  if (targetNotFound) {
-    console.log("unable to find insert after line in file.");
-  }
-  const nextHeaderPositionAfterTargetPosition = fileContentLines.slice(targetPosition + 1).findIndex((line) => /^#+ |---/.test(line));
-  const foundNextHeader = nextHeaderPositionAfterTargetPosition !== -1;
-  if (foundNextHeader) {
-    let insertPosition = targetPosition;
-    for (let i = nextHeaderPositionAfterTargetPosition + targetPosition; i > targetPosition; i--) {
-      const lineIsNewline = /^[\s\n ]*$/.test(fileContentLines[i]);
-      if (!lineIsNewline) {
-        insertPosition = i;
-        break;
-      }
-    }
-    return await insertTextAfterPositionInBody(formatted, fileContent, insertPosition, foundNextHeader);
-  } else {
-    return await insertTextAfterPositionInBody(formatted, fileContent, fileContentLines.length - 1, foundNextHeader);
-  }
-}
-async function insertTextAfterPositionInBody(text, body, pos, found) {
-  if (pos === -1) {
-    return {
-      content: `${body}
-${text}`,
-      posNum: -1
-    };
-  }
-  const splitContent = body.split("\n");
-  if (found) {
-    const pre = splitContent.slice(0, pos + 1).join("\n");
-    const post = splitContent.slice(pos + 1).join("\n");
-    return {
-      content: `${pre}
-${text}
-${post}`,
-      posNum: pos
-    };
-  } else {
-    const pre = splitContent.slice(0, pos + 1).join("\n");
-    const post = splitContent.slice(pos + 1).join("\n");
-    if (/[\s\S]*?/g.test(post)) {
-      return {
-        content: `${pre}
-${text}`,
-        posNum: pos
-      };
-    } else {
-      return {
-        content: `${pre}${text}
-${post}`,
-        posNum: pos
-      };
-    }
-  }
-}
-const getAllLinesFromFile$9 = (cache) => cache.split(/\r?\n/);
-function convertDailyNotes(notes) {
-  return notes;
-}
-async function changeMemo(memoid, originalContent, content, memoType, path) {
-  const { dailyNotes } = dailyNotesService.getState();
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  const timeString = memoid.slice(0, 14);
-  const idString = parseInt(memoid.slice(14));
-  let changeDate;
-  if (/^\d{14}/g.test(content)) {
-    changeDate = require$$0.moment(content.slice(0, 14), "YYYYMMDDHHmmss");
-  } else {
-    changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmss");
-  }
-  let file;
-  if (path !== void 0) {
-    file = metadataCache.getFirstLinkpathDest("", path);
-  } else {
-    const notes = convertDailyNotes(dailyNotes);
-    const dailyNote = getDailyNote_1(changeDate, notes);
-    file = dailyNote;
-  }
-  if (!file) {
-    throw new Error("File not found");
-  }
-  const fileContent = await vault.read(file);
-  const fileLines = getAllLinesFromFile$8(fileContent);
-  const removeEnter = content.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2");
-  const originalLine = fileLines[idString];
-  const newLine = fileLines[idString].replace(originalContent, removeEnter);
-  const newFileContent = fileContent.replace(originalLine, newLine);
-  await vault.modify(file, newFileContent);
-  return {
-    id: memoid,
-    content: removeEnter,
-    user_id: 1,
-    deletedAt: "",
-    createdAt: changeDate.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: changeDate.format("YYYY/MM/DD HH:mm:ss"),
-    memoType: memoType || "JOURNAL",
-    hasId: memoid.slice(-6),
-    linkId: "",
-    path: file.path
-  };
-}
-const getAllLinesFromFile$8 = (cache) => cache.split(/\r?\n/);
-const getAllLinesFromFile$7 = (cache) => cache.split(/\r?\n/);
-async function commentMemo(MemoContent, isList2, path, oriID, hasID) {
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
-  const removeEnter = MemoContent.replace(/\n/g, "<br>").replace(/(<br>)(<br>)/g, "$1 $2").trim();
-  if (path === void 0) {
-    throw new Error("commentMemo: missing path");
-  }
-  const file = metadataCache.getFirstLinkpathDest("", path);
-  if (!file) {
-    throw new Error("commentMemo: cannot find file " + path);
-  }
-  const fileContents = await vault.read(file);
-  const lines = getAllLinesFromFile$7(fileContents);
-  let parentLineIdx = -1;
-  if (hasID) {
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes("^" + hasID)) {
-        parentLineIdx = i;
-        break;
-      }
-    }
-  }
-  if (parentLineIdx === -1 && oriID) {
-    const lineNo = parseInt(oriID.slice(14));
-    if (!isNaN(lineNo) && lineNo >= 0 && lineNo < lines.length) {
-      parentLineIdx = lineNo;
-    }
-  }
-  if (parentLineIdx === -1) {
-    throw new Error("commentMemo: cannot locate parent memo line");
-  }
-  const parentLine = lines[parentLineIdx];
-  const indentMatch = /^(\s*)/.exec(parentLine);
-  const baseIndent = indentMatch ? indentMatch[1] : "";
-  const commentIndent = baseIndent + "    ";
-  let insertIdx = parentLineIdx;
-  for (let i = parentLineIdx + 1; i < lines.length; i++) {
-    const l2 = lines[i];
-    if (l2.trim() === "") {
-      insertIdx = i;
-      break;
-    }
-    if (/^#{1,}/.test(l2)) {
-      insertIdx = i;
-      break;
-    }
-    const lIndentMatch = /^(\s*)/.exec(l2);
-    const lIndent = lIndentMatch ? lIndentMatch[1] : "";
-    if (lIndent.length <= baseIndent.length && /^\s*[-*]\s/.test(l2)) {
-      insertIdx = i - 1;
-      break;
-    }
-    insertIdx = i;
-  }
-  const time = require$$0.moment();
-  const generatedId = Math.random().toString(36).slice(-6);
-  const commentLine = `${commentIndent}- ${time.format("HH:mm:ss")} ${removeEnter} ^${generatedId}`;
-  const newLines = [...lines.slice(0, insertIdx + 1), commentLine, ...lines.slice(insertIdx + 1)];
-  await vault.modify(file, newLines.join("\n"));
-  return {
-    id: time.format("YYYYMMDDHHmmss") + (insertIdx + 1),
-    content: removeEnter,
-    deletedAt: "",
-    createdAt: time.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: time.format("YYYY/MM/DD HH:mm:ss"),
-    memoType: "JOURNAL",
-    path: file.path,
-    hasId: generatedId,
-    linkId: hasID || ""
-  };
-}
 class DailyNotesFolderMissingError extends Error {
 }
-async function getRemainingMemos(note) {
-  if (!note) {
-    return 0;
-  }
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let fileContents = await vault.read(note);
-  let regexMatch;
-  if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-    regexMatch = "(-|\\*) (\\[(.{1})\\]\\s)?" + DefaultMemoComposition.replace(/{TIME}/g, "((\\<time\\>)?\\d{1,2}:\\d{2}(:\\d{2})?(\\<\\/time\\>)?)?").replace(/ {CONTENT}/g, "(.*)$");
-  } else {
-    regexMatch = "(-|\\*) (\\[(.{1})\\]\\s)?((\\<time\\>)?\\d{1,2}\\:\\d{2}(\\:\\d{2})?)?";
-  }
-  const regexMatchRe = new RegExp(regexMatch, "gm");
-  const matchLength = (fileContents.match(regexMatchRe) || []).length;
-  const re2 = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"), "g");
-  const processEntriesHeader = (fileContents.match(re2) || []).length;
-  fileContents = null;
-  if (processEntriesHeader) {
-    return matchLength;
-  }
-  return 0;
-}
-async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
+async function getMemosFromDailyNote(dailyNote, allMemos) {
   if (!dailyNote) {
     return [];
   }
   const { vault } = appStore.getState().dailyNotesState.app;
-  const Memos2 = await getRemainingMemos(dailyNote);
-  if (Memos2 === 0)
-    return;
   let fileContents = await vault.read(dailyNote);
-  let fileLines = getAllLinesFromFile$6(fileContents);
+  let fileLines = getAllLinesFromFile$5(fileContents);
   const baseDate = getDateFromFile_1(dailyNote, "day");
-  if (detectFileEra(fileLines) === "new") {
-    parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate);
-    return allMemos;
-  }
-  let processHeaderFound = ProcessEntriesBelow === "";
-  const indentStack = [];
-  for (let i = 0; i < fileLines.length; i++) {
-    const line = fileLines[i];
-    if (line.length === 0)
-      continue;
-    if (lineContainsParseBelowToken(line)) {
-      processHeaderFound = true;
-      indentStack.length = 0;
-      continue;
-    }
-    if (processHeaderFound && /^#{1,} /g.test(line)) {
-      processHeaderFound = false;
-      continue;
-    }
-    if (!processHeaderFound)
-      continue;
-    if (!/^\s*[-*]\s/.test(line))
-      continue;
-    const indent = getIndentLevel(getIndentWidth(line));
-    const stripped = line.replace(/^\s*[-*]\s(\[(?:.{1})\]\s?)?/, "");
-    const { time, rest } = extractMemoTime(stripped);
-    const memoDate = require$$0.moment(baseDate);
-    if (time) {
-      const [h2, m2, s] = time.split(":").map((x2) => parseInt(x2));
-      memoDate.hours(h2).minutes(m2);
-      if (!isNaN(s))
-        memoDate.seconds(s);
-    }
-    let content = rest;
-    let hasId = "";
-    const idMatch = /\^(\S{6})\s*$/.exec(content);
-    if (idMatch) {
-      hasId = idMatch[1];
-      content = content.slice(0, -8).trimEnd();
-    } else {
-      hasId = Math.random().toString(36).slice(-6);
-    }
-    let isDeleted = false;
-    let deletedAt = "";
-    const delMatch = extractDeletedAt(content);
-    if (delMatch.isDeleted) {
-      isDeleted = true;
-      deletedAt = delMatch.deletedAt;
-      content = delMatch.rest;
-    }
-    let linkId = "";
-    if (indent > 0) {
-      while (indentStack.length > 0 && indentStack[indentStack.length - 1].level >= indent) {
-        indentStack.pop();
-      }
-      const parent = indentStack.length > 0 ? indentStack[indentStack.length - 1] : null;
-      if (parent)
-        linkId = parent.hasId;
-    } else {
-      indentStack.length = 0;
-    }
-    indentStack.push({ level: indent, hasId });
-    const memoType = /^\s*[-*]\s\[(.{1})\]\s/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
-    allMemos.push({
-      id: memoDate.format("YYYYMMDDHHmmss") + i,
-      content,
-      user_id: 1,
-      createdAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
-      updatedAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
-      memoType,
-      hasId,
-      linkId,
-      isDeleted,
-      deletedAt,
-      path: dailyNote.path,
-      blockStart: i,
-      blockEnd: i
-    });
-  }
+  parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate);
   fileLines = null;
   fileContents = null;
+  return allMemos;
 }
-function parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate) {
+function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
   const tokenRe = ProcessEntriesBelow ? new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")) : null;
   let active = !tokenRe;
   let current = null;
+  let pendingBlanks = 0;
   const flush = () => {
-    if (!current)
+    if (!current) {
+      pendingBlanks = 0;
       return;
+    }
     const memoDate = require$$0.moment(baseDate);
     if (current.time) {
       const [h2, m2, s] = current.time.split(":").map((x2) => parseInt(x2));
@@ -9952,8 +9828,7 @@ function parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate) {
       if (!isNaN(s))
         memoDate.seconds(s);
     }
-    const body = current.body.join("\n");
-    const content = current.extra ? current.extra + (body ? "\n" + body : "") : body;
+    const content = current.body.join("\n");
     allMemos.push({
       id: memoDate.format("YYYYMMDDHHmmss") + current.idx,
       content,
@@ -9970,12 +9845,43 @@ function parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate) {
       blockEnd: current.bodyEnd
     });
     current = null;
+    pendingBlanks = 0;
+  };
+  const parseHeader = (line, i) => {
+    const memoType = /^[-*]\s\[(.{1})\]\s?/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
+    const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s?)?/, "");
+    const { time, rest } = extractMemoTime(stripped);
+    let content = rest;
+    let hasId = "";
+    const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content);
+    if (idMatch) {
+      hasId = idMatch[1];
+      content = content.slice(0, idMatch.index).trimEnd();
+    } else {
+      hasId = Math.random().toString(36).slice(-6);
+    }
+    const delMatch = extractDeletedAt(content);
+    let isDeleted = false;
+    let deletedAt = "";
+    if (delMatch.isDeleted) {
+      isDeleted = true;
+      deletedAt = delMatch.deletedAt;
+    }
+    return {
+      idx: i,
+      hasId,
+      time: time || "",
+      deletedAt,
+      isDeleted,
+      memoType,
+      body: [],
+      bodyEnd: i
+    };
   };
   for (let i = 0; i < fileLines.length; i++) {
     const line = fileLines[i];
     if (tokenRe && !active && tokenRe.test(line)) {
       active = true;
-      flush();
       continue;
     }
     if (active && /^#{1,} /.test(line)) {
@@ -9985,49 +9891,34 @@ function parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate) {
     }
     if (!active)
       continue;
-    if (/^[-*]\s/.test(line)) {
+    const cls = classifyMemoRow(line);
+    if (cls === "pure-header") {
       flush();
-      const memoType = /^[-*]\s\[(.{1})\]\s/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
-      const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s+)?/, "");
-      const { time, rest } = extractMemoTime(stripped);
-      let content = rest;
-      let hasId = "";
-      const idMatch = /\^(\S{6})\s*$/.exec(content);
-      if (idMatch) {
-        hasId = idMatch[1];
-        content = content.slice(0, -8).trimEnd();
-      } else {
-        hasId = Math.random().toString(36).slice(-6);
-      }
-      const delMatch = extractDeletedAt(content);
-      let isDeleted = false;
-      let deletedAt = "";
-      if (delMatch.isDeleted) {
-        isDeleted = true;
-        deletedAt = delMatch.deletedAt;
-        content = delMatch.rest;
-      }
-      current = {
-        idx: i,
-        hasId,
-        time: time || "",
-        deletedAt,
-        isDeleted,
-        memoType,
-        extra: content.trim() !== "" ? content : "",
-        body: [],
-        bodyEnd: i
-      };
+      current = parseHeader(line, i);
       continue;
     }
-    if (current) {
-      if (line.length === 0 || line.trim() === "") {
-        current.body.push("");
-      } else {
-        current.body.push(unindentContentLine(line));
-      }
-      current.bodyEnd = i;
+    if (cls === "old-top-row") {
+      flush();
+      continue;
     }
+    if (!current) {
+      continue;
+    }
+    if (line.trim() === "") {
+      pendingBlanks++;
+      continue;
+    }
+    if (getIndentWidth(line) >= 4) {
+      if (pendingBlanks > 0) {
+        for (let b = 0; b < pendingBlanks; b++)
+          current.body.push("");
+        pendingBlanks = 0;
+      }
+      current.body.push(unindentContentLine(line));
+      current.bodyEnd = i;
+      continue;
+    }
+    flush();
   }
   flush();
 }
@@ -10037,7 +9928,7 @@ async function getMemos(onBatch) {
   const folder = getDailyNotePath();
   if (folder === "" || folder === void 0) {
     new require$$0.Notice(t$1("Please check your daily note plugin OR periodic notes plugin settings"));
-    return;
+    return memos;
   }
   const dailyNotesFolder = vault.getAbstractFileByPath(require$$0.normalizePath(folder));
   if (!dailyNotesFolder) {
@@ -10055,103 +9946,9 @@ async function getMemos(onBatch) {
   if (onBatch && files.length > 0) {
     await onBatch([...memos]);
   }
-  return { memos, commentMemos: [] };
-}
-const getAllLinesFromFile$6 = (cache) => cache.split(/\r?\n/);
-const lineContainsParseBelowToken = (line) => {
-  if (ProcessEntriesBelow === "") {
-    return false;
-  }
-  const re2 = new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1"), "");
-  return re2.test(line);
-};
-async function obHideMemo(memoid) {
-  const { dailyNotes } = dailyNotesService.getState();
-  if (/\d{14,}/.test(memoid)) {
-    const { vault } = appStore.getState().dailyNotesState.app;
-    const timeString = memoid.slice(0, 13);
-    const idString = parseInt(memoid.slice(14));
-    const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
-    const dailyNote = getDailyNote_1(changeDate, dailyNotes);
-    if (!dailyNote)
-      return null;
-    const fileContent = await vault.read(dailyNote);
-    const fileLines = getAllLinesFromFile$5(fileContent);
-    const targetIdx = idString < fileLines.length ? idString : -1;
-    if (targetIdx === -1)
-      return null;
-    const line = fileLines[targetIdx];
-    const now = require$$0.moment();
-    const deletedAtStr = " deletedAt: " + now.format("YYYY-MM-DD HH:mm:ss");
-    let newLine;
-    if (/\s*\^(\S{6})\s*$/.test(line)) {
-      newLine = line.replace(/\s*\^(\S{6})\s*$/, deletedAtStr + " ^$1");
-    } else {
-      newLine = line.trimEnd() + deletedAtStr;
-    }
-    if (newLine === line)
-      return null;
-    fileLines[targetIdx] = newLine;
-    await vault.modify(dailyNote, fileLines.join("\n"));
-    return dailyNote;
-  }
-  return null;
+  return memos;
 }
 const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
-async function restoreMemoFromLine(memoid) {
-  const { dailyNotes } = dailyNotesService.getState();
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  const timeString = memoid.slice(0, 13);
-  const idString = parseInt(memoid.slice(14));
-  const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
-  const dailyNote = getDailyNote_1(changeDate, dailyNotes);
-  if (!dailyNote)
-    return null;
-  const fileContent = await vault.read(dailyNote);
-  const fileLines = getAllLinesFromFile$5(fileContent);
-  const targetIdx = idString < fileLines.length ? idString : -1;
-  if (targetIdx === -1)
-    return null;
-  const line = fileLines[targetIdx];
-  const newLine = line.replace(/\s*deletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/, "");
-  if (newLine === line)
-    return null;
-  fileLines[targetIdx] = newLine;
-  await vault.modify(dailyNote, fileLines.join("\n"));
-  return dailyNote;
-}
-async function deleteMemoFromLine(memoid) {
-  const { dailyNotes } = dailyNotesService.getState();
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  const timeString = memoid.slice(0, 13);
-  const idString = parseInt(memoid.slice(14));
-  const changeDate = require$$0.moment(timeString, "YYYYMMDDHHmmSS");
-  const dailyNote = getDailyNote_1(changeDate, dailyNotes);
-  if (!dailyNote)
-    return null;
-  const fileContent = await vault.read(dailyNote);
-  const fileLines = getAllLinesFromFile$5(fileContent);
-  const targetIdx = idString < fileLines.length ? idString : -1;
-  if (targetIdx === -1)
-    return null;
-  const parentIndent = getIndentWidth(fileLines[targetIdx]);
-  let endIdx = targetIdx;
-  for (let i = targetIdx + 1; i < fileLines.length; i++) {
-    const l2 = fileLines[i];
-    if (l2.trim() === "" || /^#{1,}/.test(l2))
-      break;
-    if (getIndentWidth(l2) <= parentIndent)
-      break;
-    endIdx = i;
-  }
-  const newLines = [...fileLines.slice(0, targetIdx), ...fileLines.slice(endIdx + 1)];
-  await vault.modify(dailyNote, newLines.join("\n"));
-  return dailyNote;
-}
 class MemoService {
   constructor() {
     this.initialized = false;
@@ -10198,31 +9995,31 @@ class MemoService {
   getMemoById(id2) {
     return this.getState().memos.find((m2) => m2.id === id2) || null;
   }
-  getCommentMemoById(id2) {
-    return this.getState().memos.find((m2) => m2.id === id2 && m2.linkId) || null;
-  }
-  async hideMemoById(id2) {
-    const file = await obHideMemo(id2);
+  async hideMemoById(id2, hasId, path) {
+    const file = await obHideMemo(id2, hasId, path);
     if (file) {
       await this.fetchMemosFromFile(file);
     }
   }
-  async restoreMemoById(id2) {
-    const file = await restoreMemoFromLine(id2);
+  async restoreMemoById(id2, hasId, path) {
+    const file = await restoreMemo(id2, hasId, path);
     if (file) {
       await this.fetchMemosFromFile(file);
     }
   }
-  async deleteMemoById(id2) {
-    await deleteMemoFromLine(id2);
+  async deleteMemoById(id2, hasId, path) {
+    const file = await deleteMemo(id2, hasId, path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  async toggleMemoTask(memo2) {
+    const file = await toggleMemoTask(memo2.id, memo2.hasId, memo2.path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
   }
   editMemo(memo2) {
-    appStore.dispatch({
-      type: "EDIT_MEMO",
-      payload: memo2
-    });
-  }
-  editCommentMemo(memo2) {
     appStore.dispatch({
       type: "EDIT_MEMO",
       payload: memo2
@@ -10256,14 +10053,8 @@ class MemoService {
   async getLinkedMemos(memoId) {
     return this.getState().memos.filter((m2) => m2.content.includes(memoId));
   }
-  async getCommentMemos(memoId) {
-    return this.getState().memos.filter((m2) => m2.linkId === memoId);
-  }
   async createMemo(text, isTask, date) {
     return await waitForInsert(text, isTask, date);
-  }
-  async createCommentMemo(params) {
-    return await commentMemo(params.text, params.isList, params.path, params.ID, params.hasID);
   }
   async importMemos(text, isList2, date) {
     return await waitForInsert(text, isList2, date);
@@ -10271,10 +10062,10 @@ class MemoService {
   async updateMemo(params) {
     return await changeMemo(
       params.memoId,
-      params.originalText,
       params.text,
       params.type,
-      params.path
+      params.path,
+      params.hasId
     );
   }
   extractTagsFromContent(content) {
@@ -14111,38 +13902,6 @@ function SvgMore(props) {
     d: "M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
   }));
 }
-function SvgComment(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    t: 1650249616615,
-    className: "icon",
-    viewBox: "0 0 1024 1024",
-    xmlns: "http://www.w3.org/2000/svg",
-    "p-id": 2597,
-    width: 20,
-    height: 20,
-    fill: "currentColor",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M853.333333 768c35.413333 0 64-20.650667 64-55.978667V170.581333A63.978667 63.978667 0 0 0 853.333333 106.666667H170.666667C135.253333 106.666667 106.666667 135.253333 106.666667 170.581333v541.44C106.666667 747.285333 135.338667 768 170.666667 768h201.173333l110.016 117.44a42.752 42.752 0 0 0 60.586667 0.042667L651.904 768H853.333333z m-219.029333-42.666667h-6.250667l-115.797333 129.962667c-0.106667 0.106667-116.010667-129.962667-116.010667-129.962667H170.666667c-11.776 0-21.333333-1.621333-21.333334-13.312V170.581333A21.205333 21.205333 0 0 1 170.666667 149.333333h682.666666c11.776 0 21.333333 9.536 21.333334 21.248v541.44c0 11.754667-9.472 13.312-21.333334 13.312H634.304zM341.333333 490.666667a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z",
-    fill: "currentColor",
-    "p-id": 2598
-  }));
-}
-function SvgDelete(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    height: "24px",
-    viewBox: "0 0 24 24",
-    width: "24px",
-    fill: "currentColor",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M0 0h24v24H0V0z",
-    fill: "none"
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-  }));
-}
 function SvgTaskBlank(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -14173,100 +13932,7 @@ function SvgTask(props) {
     d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z"
   }));
 }
-function SvgSend(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    height: "24px",
-    viewBox: "0 0 24 24",
-    width: "24px",
-    fill: "currentColor",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M0 0h24v24H0V0z",
-    fill: "none"
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-  }));
-}
-const CommentInput = react.exports.forwardRef((props, ref) => {
-  const {
-    placeholder,
-    showCancelBtn,
-    onConfirmBtnClick,
-    onCancelBtnClick
-  } = props;
-  const [value, setValue] = react.exports.useState("");
-  const textareaRef = react.exports.useRef(null);
-  react.exports.useImperativeHandle(ref, () => ({
-    get element() {
-      return textareaRef.current;
-    },
-    focus: () => {
-      var _a;
-      (_a = textareaRef.current) == null ? void 0 : _a.focus();
-    },
-    insertText: (text) => {
-      const el = textareaRef.current;
-      if (!el)
-        return;
-      const start2 = el.selectionStart;
-      const end2 = el.selectionEnd;
-      const next = el.value.slice(0, start2) + text + el.value.slice(end2);
-      setValue(next);
-      requestAnimationFrame(() => {
-        el.focus();
-        el.setSelectionRange(start2 + text.length, start2 + text.length);
-      });
-    },
-    setContent: (text) => {
-      setValue(text);
-    },
-    getContent: () => {
-      var _a, _b;
-      return (_b = (_a = textareaRef.current) == null ? void 0 : _a.value) != null ? _b : "";
-    }
-  }), []);
-  const handleSend = () => {
-    const content = value.trim();
-    if (content === "")
-      return;
-    setValue("");
-    onConfirmBtnClick(content);
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: "memo-comment-input",
-    children: [/* @__PURE__ */ jsx("textarea", {
-      className: "memo-comment-input-textarea",
-      ref: textareaRef,
-      placeholder: placeholder || t$1("Comment it..."),
-      value,
-      onChange: (e) => setValue(e.target.value),
-      onKeyDown: (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          handleSend();
-        }
-      }
-    }), showCancelBtn ? /* @__PURE__ */ jsx("button", {
-      className: "memo-comment-cancel-btn",
-      onClick: onCancelBtnClick,
-      children: t$1("Cancel")
-    }) : null, /* @__PURE__ */ jsx("button", {
-      className: "memo-comment-send-btn",
-      onClick: handleSend,
-      disabled: !value.trim(),
-      title: "Send",
-      children: /* @__PURE__ */ jsx(SvgSend, {
-        className: "icon-img"
-      })
-    })]
-  });
-});
 const Memo = (props) => {
-  var _a;
-  const {
-    globalState
-  } = react.exports.useContext(appContext);
   const {
     settingsState: {
       settings
@@ -14274,25 +13940,12 @@ const Memo = (props) => {
   } = react.exports.useContext(appContext);
   const {
     DefaultEditorLocation,
-    ShowCommentOnMemos,
-    ShowTaskLabel,
     UseButtonToShowEditor
   } = settings;
   const {
     memo: propsMemo
   } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
-  const memoCommentRef = react.exports.useRef(null);
-  const [isCommentShown, toggleComment] = useToggle(false);
-  const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
-  const [commentMemos, setCommentMemos, commentMemosRef] = dist([]);
-  const [replyTo, setReplyTo] = dist(null);
-  const replyToRef = react.exports.useRef(null);
-  const setReplyToBoth = react.exports.useCallback((m2) => {
-    replyToRef.current = m2;
-    setReplyTo(m2);
-  }, []);
-  const [, setAddRandomIDflag, RandomIDRef] = dist(false);
   const [menuOpen, setMenuOpen] = dist(false);
   const memoCardRef = react.exports.useRef(null);
   react.exports.useEffect(() => {
@@ -14328,167 +13981,6 @@ const Memo = (props) => {
       setMenuOpen(false);
     }
   }, []);
-  react.exports.useEffect(() => {
-    if (!memoCommentRef.current) {
-      return;
-    }
-    const fetchCommentMemos = async () => {
-      const allCommentMemos = memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt));
-      setCommentMemos(allCommentMemos);
-    };
-    fetchCommentMemos();
-  }, [propsMemo.content, propsMemo.id]);
-  react.exports.useEffect(() => {
-    if (!memoCommentRef.current) {
-      return;
-    }
-    const handlePasteEvent = async (event) => {
-      var _a2;
-      if (event.clipboardData && event.clipboardData.files.length > 0) {
-        event.preventDefault();
-        const file = event.clipboardData.files[0];
-        const url = await handleUploadFile(file);
-        if (url) {
-          (_a2 = memoCommentRef.current) == null ? void 0 : _a2.insertText(url);
-        }
-      }
-    };
-    const handleDropEvent = async (event) => {
-      var _a2;
-      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-        event.preventDefault();
-        const file = event.dataTransfer.files[0];
-        const url = await handleUploadFile(file);
-        if (url) {
-          (_a2 = memoCommentRef.current) == null ? void 0 : _a2.insertText(url);
-        }
-      }
-    };
-    const handleClickEvent = () => {
-      var _a2, _b;
-      handleContentChange((_b = (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.value) != null ? _b : "");
-    };
-    const handleKeyDownEvent = () => {
-      setTimeout(() => {
-        var _a2, _b;
-        handleContentChange((_b = (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.value) != null ? _b : "");
-      });
-    };
-    memoCommentRef.current.element.addEventListener("paste", handlePasteEvent);
-    memoCommentRef.current.element.addEventListener("drop", handleDropEvent);
-    memoCommentRef.current.element.addEventListener("click", handleClickEvent);
-    memoCommentRef.current.element.addEventListener("keydown", handleKeyDownEvent);
-    return () => {
-      var _a2, _b;
-      (_a2 = memoCommentRef.current) == null ? void 0 : _a2.element.removeEventListener("paste", handlePasteEvent);
-      (_b = memoCommentRef.current) == null ? void 0 : _b.element.removeEventListener("drop", handleDropEvent);
-    };
-  }, []);
-  const handleCancelBtnClick = react.exports.useCallback(() => {
-    var _a2;
-    globalStateService.setCommentMemoId("");
-    (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
-    toggleComment(false);
-  }, []);
-  const handleContentChange = react.exports.useCallback((content) => {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content;
-    if (tempDiv.innerText.trim() === "") {
-      content = "";
-    }
-    setTimeout(() => {
-      var _a2;
-      (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-    });
-  }, []);
-  const handleSaveBtnClick = react.exports.useCallback(async (content) => {
-    var _a2, _b;
-    if (content === "") {
-      new require$$0.Notice(t$1("Content cannot be empty"));
-      return;
-    }
-    const {
-      commentMemoId
-    } = globalStateService.getState();
-    content = content.replaceAll("&nbsp;", " ");
-    globalStateService.setChangedByMemos(true);
-    try {
-      if (commentMemoId) {
-        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.setContent("");
-        const memo2 = memoService.getCommentMemoById(commentMemoId);
-        if (!memo2) {
-          throw new Error("Memo not found");
-        }
-        const prevMemo = memo2;
-        content = content.trim();
-        if (prevMemo && prevMemo.content !== content) {
-          const editedMemo = await memoService.updateMemo({
-            memoId: prevMemo.id,
-            originalText: prevMemo.content,
-            text: content,
-            type: prevMemo.memoType,
-            path: prevMemo.path
-          });
-          memoService.editCommentMemo(editedMemo);
-          setCommentMemos(commentMemosRef.current.map((m2) => {
-            if (m2.id.slice(14) === commentMemoId.slice(14) && m2.path === prevMemo.path) {
-              return editedMemo;
-            }
-            return m2;
-          }));
-        }
-        globalStateService.setCommentMemoId("");
-        toggleComment(false);
-      } else {
-        const parent = replyToRef.current || propsMemo;
-        let randomId2 = parent.hasId || "";
-        if (!randomId2) {
-          randomId2 = Math.random().toString(36).slice(-6);
-          setAddRandomIDflag(true);
-        }
-        (_b = memoCommentRef.current) == null ? void 0 : _b.setContent("");
-        const newMemo = await memoService.createCommentMemo({
-          text: content.trim(),
-          isList: true,
-          path: parent.path,
-          ID: parent.id,
-          hasID: randomId2
-        });
-        memoService.pushCommentMemo(newMemo);
-        setCommentMemos(memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
-        setReplyToBoth(null);
-        toggleComment(false);
-        if (RandomIDRef.current) {
-          const editedMemo = await memoService.updateMemo({
-            memoId: parent.id,
-            originalText: parent.content,
-            text: parent.content + " ^" + randomId2,
-            type: parent.memoType
-          });
-          editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
-          memoService.editMemo(editedMemo);
-          setAddRandomIDflag(false);
-        }
-      }
-    } catch (error) {
-      new require$$0.Notice(error.message);
-    }
-  }, []);
-  const handleUploadFile = react.exports.useCallback(async (file) => {
-    const {
-      type
-    } = file;
-    if (!type.startsWith("image")) {
-      return;
-    }
-    try {
-      const image2 = await resourceService.upload(file);
-      const url = `${image2}`;
-      return url;
-    } catch (error) {
-      new require$$0.Notice(error);
-    }
-  }, []);
   const handleShowMemoStoryDialog = () => {
     showMemoCardDialog(propsMemo);
   };
@@ -14513,8 +14005,18 @@ const Memo = (props) => {
   const handleSourceMemoClick = (m2) => {
     showMemoInDailyNotes(m2.id, m2.path || "");
   };
+  const isTaskCard = propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE";
+  const handleToggleTaskClick = react.exports.useCallback(async (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      await memoService.toggleMemoTask(propsMemo);
+    } catch (error) {
+      new require$$0.Notice(error.message);
+    }
+  }, [propsMemo]);
   const animateShred = () => {
-    var _a2;
+    var _a;
     const el = memoCardRef.current;
     if (!el) {
       return Promise.resolve();
@@ -14524,7 +14026,7 @@ const Memo = (props) => {
     if (w2 < 8 || h2 < 8) {
       return Promise.resolve();
     }
-    const host = (_a2 = el.offsetParent) != null ? _a2 : el.parentElement;
+    const host = (_a = el.offsetParent) != null ? _a : el.parentElement;
     if (!host) {
       return Promise.resolve();
     }
@@ -14582,7 +14084,7 @@ const Memo = (props) => {
     setMenuOpen(false);
     const shredDone = animateShred();
     try {
-      await memoService.hideMemoById(propsMemo.id);
+      await memoService.hideMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
     } catch (error) {
       new require$$0.Notice(error.message);
     }
@@ -14599,30 +14101,19 @@ const Memo = (props) => {
   const handleGenMemoImageBtnClick = () => {
     showShareMemoImageDialog(propsMemo);
   };
-  const handleMemoTypeShow = () => {
-    if (!ShowTaskLabel) {
-      return null;
-    }
-    if (propsMemo.memoType === "TASK-TODO") {
-      return /* @__PURE__ */ jsx(SvgTaskBlank, {});
-    } else if (propsMemo.memoType === "TASK-DONE") {
-      return /* @__PURE__ */ jsx(SvgTask, {});
-    }
-    return null;
-  };
   const handleMemoDoubleClick = react.exports.useCallback((event) => {
     if (event) {
       handleEditMemoClick();
     }
   }, []);
   const handleMemoContentClick = async (e, m2) => {
-    var _a2;
+    var _a;
     const targetEl = e.target;
     if (e.ctrlKey || e.metaKey) {
       handleSourceMemoClick(m2);
     }
     if (targetEl.className === "memo-link-text") {
-      const memoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
+      const memoId = (_a = targetEl.dataset) == null ? void 0 : _a.value;
       const memoTemp = memoService.getMemoById(memoId != null ? memoId : "");
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
@@ -14633,47 +14124,6 @@ const Memo = (props) => {
     } else if (targetEl.className === "todo-block")
       ;
   };
-  const handleCommentBlock = () => {
-    setReplyToBoth(null);
-    if (!isCommentShown) {
-      toggleComment(true);
-    } else {
-      toggleComment(false);
-    }
-    if (!isCommentListShown) {
-      toggleCommentList(true);
-    } else if (!ShowCommentOnMemos && isCommentListShown) {
-      toggleCommentList(false);
-    }
-  };
-  const handleEditCommentClick = react.exports.useCallback((memo2) => {
-    var _a2, _b;
-    globalStateService.setCommentMemoId(memo2.id);
-    if (!isCommentShown) {
-      toggleComment(true);
-    }
-    (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-    (_b = memoCommentRef.current) == null ? void 0 : _b.setContent(memo2.content.trim());
-  }, []);
-  const showEditStatus = Boolean(globalState.commentMemoId);
-  const handleReplyClick = react.exports.useCallback((comment) => {
-    const current = replyToRef.current;
-    if (current && current.id === comment.id) {
-      setReplyToBoth(null);
-      toggleComment(false);
-    } else {
-      setReplyToBoth(comment);
-      toggleComment(true);
-      setTimeout(() => {
-        var _a2;
-        (_a2 = memoCommentRef.current) == null ? void 0 : _a2.focus();
-      }, 0);
-    }
-  }, []);
-  const handleDeleteCommentClick = react.exports.useCallback(async (comment) => {
-    await memoService.hideMemoById(comment.id);
-    setCommentMemos(memoService.getState().memos.filter((m2) => m2.linkId === propsMemo.hasId && !m2.isDeleted).sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)));
-  }, [propsMemo.hasId]);
   const imageProps = {
     memo: propsMemo.content
   };
@@ -14689,22 +14139,15 @@ const Memo = (props) => {
           className: "time-text",
           onClick: handleShowMemoStoryDialog,
           children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
-        }), /* @__PURE__ */ jsx("div", {
-          className: `memo-type-img ${(propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE") && ShowTaskLabel ? "" : "hidden"}`,
-          children: (_a = handleMemoTypeShow()) != null ? _a : ""
-        })]
-      }), /* @__PURE__ */ jsxs("div", {
+        }), isTaskCard ? /* @__PURE__ */ jsx("span", {
+          className: `memo-task-toggle ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
+          title: t$1(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
+          onClick: handleToggleTaskClick,
+          children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
+        }) : null]
+      }), /* @__PURE__ */ jsx("div", {
         className: "memo-top-right-wrapper",
-        children: [/* @__PURE__ */ jsxs("div", {
-          className: "comment-button-wrapper",
-          children: [/* @__PURE__ */ jsx(SvgComment, {
-            className: "icon-img",
-            onClick: handleCommentBlock
-          }), commentMemos.length > 0 ? /* @__PURE__ */ jsx("div", {
-            className: "comment-text-count",
-            children: commentMemos.length
-          }) : null]
-        }), /* @__PURE__ */ jsxs("div", {
+        children: /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("span", {
             className: "btn more-action-btn",
@@ -14744,7 +14187,7 @@ const Memo = (props) => {
               })]
             })
           })]
-        })]
+        })
       })]
     }), /* @__PURE__ */ jsx("div", {
       className: "memo-content-text",
@@ -14755,31 +14198,6 @@ const Memo = (props) => {
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       ...imageProps
-    }), /* @__PURE__ */ jsxs("div", {
-      className: `memo-comment-wrapper`,
-      children: [commentMemos.length > 0 && isCommentListShown ? /* @__PURE__ */ jsx("div", {
-        className: `memo-comment-list`,
-        children: commentMemos.filter((m2) => !m2.isDeleted).map((m2, idx) => /* @__PURE__ */ jsx(MemoComment, {
-          comment: m2,
-          allMemos: memoService.getState().memos,
-          onContentClick: handleMemoContentClick,
-          onEdit: handleEditCommentClick,
-          onReply: handleReplyClick,
-          onDelete: handleDeleteCommentClick
-        }, m2.id || idx))
-      }) : null, /* @__PURE__ */ jsxs("div", {
-        className: `memo-comment-inputer ${isCommentShown ? "" : "hidden"}`,
-        children: [replyTo && replyTo.id !== propsMemo.id ? /* @__PURE__ */ jsxs("div", {
-          className: "memo-comment-replying",
-          children: ["\u56DE\u590D: ", replyTo.content.slice(0, 30)]
-        }) : null, /* @__PURE__ */ jsx(CommentInput, {
-          ref: memoCommentRef,
-          placeholder: t$1("Comment it..."),
-          showCancelBtn: showEditStatus,
-          onConfirmBtnClick: handleSaveBtnClick,
-          onCancelBtnClick: handleCancelBtnClick
-        })]
-      })]
     })]
   });
 };
@@ -14825,69 +14243,6 @@ function formatMemoContent(content, memoid) {
   }
   return tempDivContainer.innerHTML;
 }
-const MemoComment = ({
-  comment,
-  allMemos,
-  onContentClick,
-  onEdit,
-  onReply,
-  onDelete
-}) => {
-  const {
-    settingsState: {
-      settings
-    }
-  } = react.exports.useContext(appContext);
-  const children = allMemos.filter((m2) => m2.linkId === comment.hasId && !m2.isDeleted).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt));
-  const [hovered, setHovered] = dist(false);
-  return /* @__PURE__ */ jsxs("div", {
-    className: "memo-comment-item",
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "memo-comment",
-      onMouseEnter: () => setHovered(true),
-      onMouseLeave: () => setHovered(false),
-      children: [/* @__PURE__ */ jsx("div", {
-        className: "memo-comment-time",
-        children: utils$1.getDateTimeString(comment.createdAt, settings.TimeFormat !== "HH:mm")
-      }), /* @__PURE__ */ jsx("div", {
-        className: "memo-comment-text",
-        onClick: (e) => onContentClick(e, comment),
-        onDoubleClick: () => onEdit(comment),
-        dangerouslySetInnerHTML: {
-          __html: formatMemoContent(comment.content.trim(), comment.id)
-        }
-      }), /* @__PURE__ */ jsxs("div", {
-        className: `memo-comment-actions ${hovered ? "" : "hidden"}`,
-        children: [/* @__PURE__ */ jsx("button", {
-          className: "memo-comment-reply-btn",
-          onClick: () => onReply(comment),
-          title: t$1("Reply"),
-          children: /* @__PURE__ */ jsx(SvgComment, {
-            className: "icon-img"
-          })
-        }), /* @__PURE__ */ jsx("button", {
-          className: "memo-comment-delete-btn",
-          onClick: () => onDelete(comment),
-          title: t$1("Delete"),
-          children: /* @__PURE__ */ jsx(SvgDelete, {
-            className: "icon-img"
-          })
-        })]
-      })]
-    }), children.length > 0 ? /* @__PURE__ */ jsx("div", {
-      className: "memo-comment-children",
-      children: children.map((c) => /* @__PURE__ */ jsx(MemoComment, {
-        comment: c,
-        allMemos,
-        onContentClick,
-        onEdit,
-        onReply,
-        onDelete
-      }, c.id))
-    }) : null]
-  });
-};
-var Memo$1 = react.exports.memo(Memo);
 var dailyMemo = "";
 const DailyMemo = (props) => {
   const {
@@ -17879,6 +17234,21 @@ const usedTags = (seletecText) => {
   return usedTags2;
 };
 var suggest = "";
+function SvgSend(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "currentColor",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+  }));
+}
 const getSuggestions = (inputStr) => {
   const { app: app2 } = dailyNotesService.getState();
   const query = (inputStr.startsWith("[") ? inputStr.slice(1) : inputStr).toLowerCase();
@@ -20137,7 +19507,7 @@ const MemoEditor = () => {
     if (globalState.editMemoId && globalState.editMemoId !== prevGlobalStateRef.current.editMemoId) {
       const editMemo = memoService.getMemoById(globalState.editMemoId);
       if (editMemo) {
-        (_d = editorRef.current) == null ? void 0 : _d.setContent((_c = editMemo.content.replace(/<br>/g, "\n").replace(/ \^\S{6}$/, "")) != null ? _c : "");
+        (_d = editorRef.current) == null ? void 0 : _d.setContent((_c = editMemo.content) != null ? _c : "");
         (_e = editorRef.current) == null ? void 0 : _e.focus();
       }
     }
@@ -20263,14 +19633,13 @@ const MemoEditor = () => {
       if (editMemoId) {
         setEditorContentCache("");
         const prevMemo = memoService.getMemoById(editMemoId);
-        content = content + (prevMemo.hasId === "" ? "" : " ^" + prevMemo.hasId);
-        if (prevMemo && prevMemo.content !== content) {
+        if (prevMemo && prevMemo.content !== content.replace(/\n+$/, "")) {
           const editedMemo = await memoService.updateMemo({
             memoId: prevMemo.id,
-            originalText: prevMemo.content,
             text: content,
             type: prevMemo.memoType,
-            path: prevMemo.path
+            path: prevMemo.path,
+            hasId: prevMemo.hasId
           });
           editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
           memoService.editMemo(editedMemo);
@@ -21033,7 +20402,7 @@ const MemoList = () => {
     className: `memolist-wrapper ${isFetching ? "" : "completed"}`,
     onClick: handleMemoListClick,
     ref: wrapperElement,
-    children: [paginatedMemos.map((memo2) => /* @__PURE__ */ jsx(Memo$1, {
+    children: [paginatedMemos.map((memo2) => /* @__PURE__ */ jsx(Memo, {
       memo: memo2
     }, `${memo2.id}-${memo2.updatedAt}`)), /* @__PURE__ */ jsx("div", {
       className: "status-text-container",
@@ -21048,7 +20417,6 @@ const MemoList = () => {
     })]
   });
 };
-const CommentOnMemos = true;
 const getMemosByDate = (memos) => {
   const dataArr = [];
   memos.map((mapItem) => {
@@ -21067,13 +20435,6 @@ const getMemosByDate = (memos) => {
     }
   });
   return dataArr;
-};
-const getCommentMemos = (memos) => {
-  return memoService.getState().memos.filter((m2) => m2.linkId === memos.hasId).sort((a, b) => utils$1.getTimeStampByDate(a.createdAt) - utils$1.getTimeStampByDate(b.createdAt)).map((m2) => ({
-    ...m2,
-    createdAtStr: utils$1.getDateTimeString(m2.createdAt),
-    dateStr: utils$1.getDateString(m2.createdAt)
-  }));
 };
 const transferMemosIntoText = (memosArray) => {
   let outputText = "";
@@ -21108,24 +20469,6 @@ const transferMemosIntoText = (memosArray) => {
           }
         }
         outputText = outputText.replace(/ \^\S{6}/g, "");
-        {
-          if (dataArr[i].hasId !== void 0) {
-            const commentMemos = getCommentMemos(dataArr[i]);
-            if (commentMemos.length > 0) {
-              commentMemos.map((cm) => {
-                let memoType = "- ";
-                if (cm.memoType === "TASK-TODO") {
-                  memoType = "- [ ] ";
-                } else if (cm.memoType === "TASK-DONE") {
-                  memoType = "- [x] ";
-                } else if (cm.memoType.match(/TASK-(.*)?/g)) {
-                  memoType = "- [" + cm.memoType.match(/TASK-(.*)?/g)[1] + "] ";
-                }
-                outputText = outputText + indent + (ShowDate ? "    " + memoType + "[[" + require$$0.moment(cm.createdAt).format(dailyNotesformat) + "]] " : "    " + memoType) + require$$0.moment(cm.createdAt).format("HH:mm") + " " + cm.content + "\n";
-              });
-            }
-          }
-        }
       }
     } else {
       for (let i = 0; i < dataArr.length; i++) {
@@ -21142,27 +20485,9 @@ const transferMemosIntoText = (memosArray) => {
           }
         }
         outputText = outputText.replace(/ \^\S{6}/g, "");
-        {
-          if (dataArr[i].hasId !== void 0) {
-            const commentMemos = getCommentMemos(dataArr[i]);
-            if (commentMemos.length > 0) {
-              commentMemos.map((cm) => {
-                let memoType = "- ";
-                if (cm.memoType === "TASK-TODO") {
-                  memoType = "- [ ] ";
-                } else if (cm.memoType === "TASK-DONE") {
-                  memoType = "- [x] ";
-                } else if (cm.memoType.match(/TASK-(.*)?/g)) {
-                  memoType = "- [" + cm.memoType.match(/TASK-(.*)?/g)[1] + "] ";
-                }
-                outputText = outputText + indent + "    " + memoType + cm.content + "\n";
-              });
-            }
-          }
-        }
       }
     }
-    if (ShowDate && AddBlankLineWhenDate && !CommentOnMemos) {
+    if (ShowDate && AddBlankLineWhenDate) {
       outputText = outputText + "\n";
     }
   });
@@ -21324,7 +20649,7 @@ const DeletedMemo = (props) => {
     if (showConfirmDeleteBtn) {
       try {
         await animateOut(false);
-        await memoService.deleteMemoById(memo2.id);
+        await memoService.deleteMemoById(memo2.id, memo2.hasId, memo2.path);
         handleDeletedMemoAction(memo2.id);
       } catch (error) {
         new require$$0.Notice(error.message);
@@ -21336,7 +20661,7 @@ const DeletedMemo = (props) => {
   const handleRestoreMemoClick = async () => {
     try {
       await animateOut(true);
-      await memoService.restoreMemoById(memo2.id);
+      await memoService.restoreMemoById(memo2.id, memo2.hasId, memo2.path);
       handleDeletedMemoAction(memo2.id);
       new require$$0.Notice(t$1("RESTORE SUCCEED"));
     } catch (error) {
@@ -21348,26 +20673,6 @@ const DeletedMemo = (props) => {
       toggleConfirmDeleteBtn(false);
     }
   };
-  const allMemos = memoService.getState().memos;
-  let topParent = null;
-  if (propsMemo.linkId) {
-    let current = allMemos.find((m2) => m2.hasId === propsMemo.linkId);
-    let guard = 0;
-    while (current && current.linkId && guard < 10) {
-      current = allMemos.find((m2) => m2.hasId === current.linkId) || null;
-      guard++;
-    }
-    topParent = current;
-  }
-  const collectChildren = (parentHasId) => {
-    const direct = allMemos.filter((m2) => m2.linkId === parentHasId);
-    let result = [];
-    for (const d of direct) {
-      result = result.concat(d, collectChildren(d.hasId));
-    }
-    return result;
-  };
-  const childComments = propsMemo.hasId ? collectChildren(propsMemo.hasId) : [];
   return /* @__PURE__ */ jsxs("div", {
     ref: rootRef,
     className: `memo-wrapper ${"memos-" + memo2.id}`,
@@ -21400,31 +20705,14 @@ const DeletedMemo = (props) => {
           })
         })]
       })]
-    }), topParent ? /* @__PURE__ */ jsxs("div", {
-      className: "deleted-memo-parent",
-      children: ["\u6765\u81EA: ", topParent.content.slice(0, 40)]
-    }) : null, /* @__PURE__ */ jsx("div", {
+    }), /* @__PURE__ */ jsx("div", {
       className: "memo-content-text",
       dangerouslySetInnerHTML: {
         __html: formatMemoContent(memo2.content)
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       memo: memo2.content
-    }), childComments.length > 0 ? /* @__PURE__ */ jsxs("div", {
-      className: "deleted-memo-children",
-      children: [/* @__PURE__ */ jsxs("div", {
-        className: "deleted-memo-children-count",
-        children: ["\u5305\u542B ", childComments.length, " \u6761\u5B50\u8BC4\u8BBA"]
-      }), childComments.slice(0, 5).map((c) => /* @__PURE__ */ jsx("div", {
-        className: "deleted-memo-child",
-        dangerouslySetInnerHTML: {
-          __html: formatMemoContent(c.content.trim())
-        }
-      }, c.id)), childComments.length > 5 ? /* @__PURE__ */ jsx("div", {
-        className: "deleted-memo-children-more",
-        children: "..."
-      }) : null]
-    }) : null]
+    })]
   });
 };
 var memoTrash = "";
@@ -21673,14 +20961,14 @@ const missingIdRule = {
     return issues;
   }
 };
-const BR_REG = /<br\s*\/?>|&lt;br\s*\/?&gt;/gi;
+const BR_REG$1 = /<br\s*\/?>|&lt;br\s*\/?&gt;/gi;
 const bareBrRule = {
   id: "bare-br",
   name: "\u65E7 <br> \u6362\u884C\u7F16\u7801",
   why: "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\uFF08\u8FC1\u79FB\u529F\u80FD\u968F P1.5 \u63D0\u4F9B\uFF0C\u5C4A\u65F6\u6B64\u89C4\u5219\u4F1A\u81EA\u52A8\u5347\u7EA7\u4E3A\u53EF\u4FEE\u590D\uFF09\u3002",
   severity: "info",
   detect(ctx) {
-    const affectedLines = ctx.lines.filter((l2) => BR_REG.test(l2));
+    const affectedLines = ctx.lines.filter((l2) => BR_REG$1.test(l2));
     if (affectedLines.length === 0)
       return [];
     const issues = [];
@@ -21688,7 +20976,7 @@ const bareBrRule = {
       var _a;
       if (!ctx.inScope[idx])
         return;
-      const count = ((_a = line.match(BR_REG)) != null ? _a : []).length;
+      const count = ((_a = line.match(BR_REG$1)) != null ? _a : []).length;
       if (count > 0) {
         issues.push({
           ruleId: this.id,
@@ -21702,7 +20990,30 @@ const bareBrRule = {
     return issues;
   }
 };
-const rules = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule];
+const legacyRowRule = {
+  id: "legacy-row",
+  name: "\u65E7\u683C\u5F0F\u884C",
+  why: "\u9876\u5C42\u884C\u4E0D\u662F\u65B0\u683C\u5F0F\u7684\u7EAF\u6807\u8BC6\u5934\uFF08\u65E7\u5355\u884C\u6570\u636E/\u624B\u5199\u6DF7\u5165\uFF09\uFF0C\u8BFB\u53D6\u7AEF\u4E0D\u6E32\u67D3\u5B83\u3002\u4FEE\u590D\uFF1A\u5728\u6587\u4EF6\u5934\u90E8\u70B9\u300C\u6574\u6587\u4EF6\u8FC1\u79FB\u4E3A\u6700\u65B0\u683C\u5F0F\u300D\u7EDF\u4E00\u8F6C\u6362\uFF08\u81EA\u52A8\u5907\u4EFD\uFF0C\u8BC4\u8BBA\u5B50\u6811\u4F1A\u6298\u53E0\u8FDB\u7236\u5361\u6B63\u6587\uFF09\u3002",
+  severity: "warning",
+  detect(ctx) {
+    const issues = [];
+    ctx.lines.forEach((line, idx) => {
+      if (!ctx.inScope[idx])
+        return;
+      if (classifyMemoRow(line) !== "old-top-row")
+        return;
+      issues.push({
+        ruleId: this.id,
+        path: ctx.path,
+        line: idx + 1,
+        raw: line,
+        note: "\u65E7\u683C\u5F0F\u884C\uFF1A\u6574\u6587\u4EF6\u8FC1\u79FB\u53EF\u5C06\u5176\u8F6C\u6210\u65B0\u683C\u5F0F\u5361\u7247\u5757"
+      });
+    });
+    return issues;
+  }
+};
+const rules = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule, legacyRowRule];
 const ruleById = Object.fromEntries(rules.map((r2) => [r2.id, r2]));
 function readLines(file) {
   return file.vault.cachedRead(file).then((content) => content.split("\n"));
@@ -21812,6 +21123,132 @@ async function applyFixes(issues) {
     }
   }
   return { applied, skipped, backupDir, changedFiles, appliedLines };
+}
+const TIME_TAG_REG = /<\/?time>/gi;
+const BR_REG = /<br\s*\/?>/gi;
+const DELETED_AT_IN_LINE_REG = /\sdeletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
+const randomId6 = () => Math.random().toString(36).slice(-6);
+const indentOf = (line) => line.length - line.trimStart().length;
+function decodeLegacyContent(text) {
+  const segs = text.replace(BR_REG, "\n").split("\n");
+  while (segs.length > 0 && segs[0].trim() === "")
+    segs.shift();
+  while (segs.length > 0 && segs[segs.length - 1].trim() === "")
+    segs.pop();
+  return segs;
+}
+function convertLegacyUnit(parent, subtree, report) {
+  let rest = parent.replace(/^[-*]\s/, "");
+  let mark = "";
+  const tm = /^\[([^\]]{1})\]\s?/.exec(rest);
+  if (tm) {
+    mark = tm[1];
+    rest = rest.slice(tm[0].length);
+  }
+  rest = rest.replace(TIME_TAG_REG, "");
+  const { time, rest: contentRest } = extractMemoTime(rest);
+  if (!time)
+    return null;
+  const timeText = /^\d{1,2}:\d{2}$/.test(time) ? `${time}:00` : time;
+  let tail = contentRest;
+  const idM = /\^([A-Za-z0-9]{6})\s*$/.exec(tail);
+  const id2 = idM ? idM[1] : randomId6();
+  if (idM)
+    tail = tail.slice(0, idM.index).trimEnd();
+  let deletedAt = "";
+  const del = extractDeletedAt(tail);
+  if (del.isDeleted) {
+    deletedAt = del.deletedAt;
+    tail = del.rest;
+  }
+  const body = [];
+  if (tail.trim() !== "") {
+    for (const seg of decodeLegacyContent(tail)) {
+      body.push(seg === "" ? "" : "    " + seg);
+    }
+  }
+  let pendingBlank = 0;
+  for (const row of subtree) {
+    if (row.trim() === "") {
+      pendingBlank++;
+      continue;
+    }
+    if (DELETED_AT_IN_LINE_REG.test(row)) {
+      report.droppedComments++;
+      pendingBlank = 0;
+      continue;
+    }
+    for (let b = 0; b < pendingBlank; b++)
+      body.push("");
+    pendingBlank = 0;
+    body.push("    " + unindentContentLine(row));
+  }
+  const header = `${mark !== "" ? `- [${mark}] ` : "- "}${timeText}${deletedAt ? ` deletedAt: ${deletedAt}` : ""} ^${id2}`;
+  return [header, ...body];
+}
+function migrateContent(lines, inScope) {
+  const out = [];
+  let converted = 0;
+  let skipped = 0;
+  let droppedComments = 0;
+  const report = { droppedComments: 0 };
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const inside = !!inScope[i];
+    if (!inside || classifyMemoRow(line) !== "old-top-row") {
+      out.push(line);
+      i++;
+      continue;
+    }
+    const unitLines = [line];
+    let j = i + 1;
+    while (j < lines.length && inScope[j]) {
+      const l2 = lines[j];
+      if (l2.trim() === "" || indentOf(l2) > 0) {
+        unitLines.push(l2);
+        j++;
+        continue;
+      }
+      break;
+    }
+    report.droppedComments = 0;
+    const block = convertLegacyUnit(line, unitLines.slice(1), report);
+    if (block === null) {
+      out.push(...unitLines);
+      skipped++;
+    } else {
+      out.push(...block);
+      converted++;
+    }
+    droppedComments += report.droppedComments;
+    i = j;
+  }
+  return { out, converted, skipped, droppedComments };
+}
+async function migrateFile(file) {
+  var _a;
+  const app2 = appStore.getState().dailyNotesState.app;
+  const lines = (await file.vault.cachedRead(file)).split(/\r?\n/);
+  const inScope = computeScope(lines, (_a = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a : "");
+  const { out, converted, skipped, droppedComments } = migrateContent(lines, inScope);
+  const changed = converted > 0 || droppedComments > 0;
+  if (!changed)
+    return { converted, skipped, droppedComments, changed };
+  if (out.join("\n") === lines.join("\n"))
+    return { converted, skipped, droppedComments, changed: false };
+  const adapter = app2.vault.adapter;
+  const ts = require$$0.moment().format("YYYYMMDD-HHmmss");
+  const backupDir = require$$0.normalizePath(".rememo-backup/migrate-" + ts);
+  try {
+    await adapter.mkdir(require$$0.normalizePath(".rememo-backup"));
+  } catch {
+  }
+  await adapter.mkdir(backupDir);
+  const safeName = file.path.replace(/\//g, "__");
+  await adapter.write(require$$0.normalizePath(`${backupDir}/${safeName}`), lines.join("\n"));
+  await app2.vault.modify(file, out.join("\n"));
+  return { converted, skipped, droppedComments, changed };
 }
 var auditPage = "";
 const IGNORED_KEY = "auditIgnoredLines";
@@ -21932,6 +21369,34 @@ const AuditPage = () => {
       });
     }
   };
+  const [migratingPath, setMigratingPath] = react.exports.useState("");
+  const migrateOneFile = async (path) => {
+    var _a2;
+    const app2 = appStore.getState().dailyNotesState.app;
+    const file = app2.vault.getAbstractFileByPath(path);
+    if (!(file instanceof require$$0.TFile))
+      return;
+    setBusy(true);
+    setMigratingPath(path);
+    setMsg("");
+    try {
+      const rep = await migrateFile(file);
+      if (rep.changed) {
+        setMsg(`\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 ${rep.converted} \u4E2A\u65E7\u5355\u4F4D${rep.droppedComments > 0 ? `\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${rep.droppedComments} \u884C` : ""}` + (rep.skipped > 0 ? `\uFF0C${rep.skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002");
+      } else {
+        setMsg(rep.skipped > 0 ? `\u6CA1\u6709\u53EF\u8FC1\u79FB\u7684\u65E7\u5355\u4F4D\uFF08${rep.skipped} \u884C\u7F3A\u65F6\u95F4\u7B49\uFF0C\u9700\u4EBA\u5DE5\u5904\u7406\uFF09\u3002` : "\u8FD9\u4E2A\u6587\u4EF6\u6CA1\u6709\u65E7\u683C\u5F0F\u884C\uFF0C\u65E0\u9700\u8FC1\u79FB\u3002");
+      }
+      await scan({
+        silent: true
+      });
+      await memoService.fetchAllMemos();
+    } catch (e) {
+      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`);
+    } finally {
+      setBusy(false);
+      setMigratingPath("");
+    }
+  };
   const tree = react.exports.useMemo(() => {
     var _a2;
     if (!result)
@@ -22044,6 +21509,7 @@ const AuditPage = () => {
             var _a2;
             return ((_a2 = ruleById[i.ruleId]) == null ? void 0 : _a2.severity) === "error";
           }).length, 0);
+          const hasLegacy = file.lines.some((l2) => l2.issues.some((i) => i.ruleId === "legacy-row"));
           return /* @__PURE__ */ jsxs("section", {
             className: "audit-file",
             children: [/* @__PURE__ */ jsxs("header", {
@@ -22065,6 +21531,15 @@ const AuditPage = () => {
               }), /* @__PURE__ */ jsxs("span", {
                 className: "audit-file-count",
                 children: [file.lines.length, " \u6761 memo"]
+              }), hasLegacy && /* @__PURE__ */ jsx("button", {
+                className: "btn migrate-btn",
+                title: "\u628A\u672C\u6587\u4EF6\u7684\u65E7\u683C\u5F0F\u884C\u6574\u4F53\u8FC1\u79FB\u4E3A\u65B0\u5361\u7247\u5757\uFF08\u81EA\u52A8\u5907\u4EFD\uFF09\uFF0C\u8FC1\u79FB\u540E\u65E7\u6570\u636E\u6062\u590D\u6E32\u67D3",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  migrateOneFile(file.path);
+                },
+                disabled: busy,
+                children: migratingPath === file.path ? "\u8FC1\u79FB\u4E2D\u2026" : "\u6574\u6587\u4EF6\u8FC1\u79FB"
               })]
             }), !collapsed && /* @__PURE__ */ jsx("div", {
               className: "audit-line-list",
@@ -22202,11 +21677,6 @@ class Memos extends require$$0.ItemView {
   }
   async onFileModified(file) {
     const date = getDateFromFile_1(file, "day");
-    console.log("debounce");
-    if (globalStateService.getState().changedByMemos) {
-      globalStateService.setChangedByMemos(false);
-      return;
-    }
     if (date && this.memosComponent) {
       memoService.fetchMemosFromFile(file);
     }
@@ -22276,8 +21746,6 @@ class Memos extends require$$0.ItemView {
     this.plugin.settings.DefaultDarkBackgroundImage;
     this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
-    this.plugin.settings.ShowTaskLabel;
-    this.plugin.settings.ShowCommentOnMemos;
     UseDailyOrPeriodic = this.plugin.settings.UseDailyOrPeriodic;
     ShowLeftSideBar = this.plugin.settings.ShowLeftSideBar;
     this.memosComponent = React.createElement(StrictApp);
@@ -22321,7 +21789,6 @@ const DEFAULT_SETTINGS = {
   FocusOnEditor: true,
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
-  ShowTaskLabel: false,
   OpenMemosAutomatically: false,
   ShowTime: true,
   ShowDate: true,
@@ -22333,7 +21800,6 @@ const DEFAULT_SETTINGS = {
   DefaultLightBackgroundImage: "",
   DefaultDarkBackgroundImage: "",
   DefaultMemoComposition: "{TIME} {CONTENT}",
-  ShowCommentOnMemos: false,
   ShowLeftSideBar: false,
   TimeFormat: "HH:mm:ss"
 };
@@ -22410,12 +21876,6 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     new require$$0.Setting(containerEl).setName(t$1("Hide done tasks in Memo list")).setDesc(t$1("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
         this.plugin.settings.HideDoneTasks = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Show Tasks Label")).setDesc(t$1("Show tasks label near the time text. False by default")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.ShowTaskLabel).onChange(async (value) => {
-        this.plugin.settings.ShowTaskLabel = value;
         this.applySettingsUpdate();
       })
     );
@@ -22551,12 +22011,6 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     ).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultMemoComposition).setValue(this.plugin.settings.DefaultMemoComposition).onChange(async (value) => {
         this.plugin.settings.DefaultMemoComposition = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$1("Always Show Memo Comments")).setDesc(t$1("Always show memo comments on memos. False by default")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.ShowCommentOnMemos).onChange(async (value) => {
-        this.plugin.settings.ShowCommentOnMemos = value;
         this.applySettingsUpdate();
       })
     );

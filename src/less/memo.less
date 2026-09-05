@@ -46,42 +46,42 @@ div[data-type='memos_view'] .memo-wrapper {
         }
       }
 
-      > .memo-type-img {
-        width: auto;
+      > .memo-task-toggle {
+        // 任务卡整卡勾选框（P1b）：头部时间旁，点击切换头行 [ ]↔[x]
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
         height: 20px;
-        margin-left: 3px;
-        color: var(--memo-text-muted);
-      }
-    }
-
-    > .memo-top-right-wrapper {
-      .flex(row, flex-end, center);
-
-      > .comment-button-wrapper {
-        .flex(row, center, center);
-        font-size: 12px;
-        height: 21px;
-        margin-right: 4px;
+        margin-left: 4px;
         color: var(--memo-text-muted);
         cursor: pointer;
+        border-radius: var(--memo-radius-s);
         transition: color var(--memo-transition-fast);
 
-        > .icon-img {
+        > svg {
           width: 16px;
           height: 16px;
           fill: currentColor;
         }
 
-        > .comment-text-count {
-          font-size: 11px;
-          line-height: 20px;
-          margin-left: 2px;
-        }
-
         &:hover {
           color: var(--memo-accent);
         }
+
+        // 已完成：勾选态低调（正文同置灰），悬停仍回 accent 便于改回
+        &.done {
+          color: var(--memo-text-faint);
+
+          &:hover {
+            color: var(--memo-accent);
+          }
+        }
       }
+    }
+
+    > .memo-top-right-wrapper {
+      .flex(row, flex-end, center);
 
       > .btns-container {
         .flex(row, flex-end, center);
@@ -215,211 +215,9 @@ div[data-type='memos_view'] .memo-wrapper {
     }
   }
 
-  > .memo-comment-wrapper {
-    width: 100%;
-
-    > .memo-comment-list {
-      border-top: 1px solid var(--memo-border);
-      margin-top: 8px;
-      padding-top: 4px;
-      overflow-y: auto;
-      max-height: 300px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--memo-border) transparent;
-
-      &::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: var(--memo-border);
-        border-radius: 8px;
-      }
-
-      .memo-comment {
-        .flex(column, flex-start, flex-start);
-        position: relative;
-
-        .memo-comment-time {
-          font-size: 12px;
-          line-height: 24px;
-          color: var(--memo-text-faint);
-          flex-shrink: 0;
-          cursor: pointer;
-        }
-
-        .memo-comment-text {
-          width: 100%;
-          font-size: 12px;
-          color: var(--memo-text);
-        }
-
-        .memo-comment-actions {
-          position: absolute;
-          top: 2px;
-          right: 2px;
-          display: flex;
-          align-items: center;
-          gap: 2px;
-
-          .memo-comment-reply-btn,
-          .memo-comment-delete-btn {
-            background: none;
-            border: none;
-            color: var(--memo-text-faint);
-            font-size: 12px;
-            cursor: pointer;
-            padding: 0;
-            line-height: 0;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--memo-radius-s);
-            transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast);
-
-            > .icon-img {
-              width: 16px;
-              height: 16px;
-              display: block;
-              fill: currentColor;
-            }
-
-            &:hover {
-              background-color: var(--memo-surface-hover);
-            }
-          }
-
-          .memo-comment-reply-btn:hover {
-            color: var(--memo-accent);
-          }
-
-          .memo-comment-delete-btn:hover {
-            color: var(--memo-danger);
-          }
-        }
-      }
-
-      .memo-comment-item {
-        width: 100%;
-        // 新评论/展开时条目 pop-in
-        animation: memo-comment-in 200ms ease-out;
-
-        > .memo-comment-children {
-          width: 100%;
-          padding-left: 12px;
-          border-left: 2px solid var(--memo-border);
-          margin-top: 4px;
-        }
-      }
-    }
-
-    .memo-comment-replying {
-      font-size: 11px;
-      color: var(--memo-accent);
-      margin-top: 8px;
-      padding: 2px 4px;
-    }
-
-    > .memo-comment-inputer {
-      width: 100%;
-
-      > .memo-comment-input {
-        position: relative;
-        width: 100%;
-        margin-top: 8px;
-        padding: 0 42px 0 0;
-        box-sizing: border-box;
-        background-color: transparent;
-
-        > .memo-comment-input-textarea {
-          width: 100%;
-          border: 1px solid var(--memo-border);
-          border-radius: var(--memo-radius-m);
-          outline: none;
-          resize: none;
-          font-size: 12px;
-          line-height: 20px;
-          min-height: 20px;
-          max-height: 120px;
-          padding: 5px 10px;
-          background: transparent;
-          box-sizing: border-box;
-          color: var(--memo-text);
-          transition: border-color var(--memo-transition-fast);
-
-          &:focus {
-            border-color: var(--memo-accent);
-          }
-
-          &::placeholder {
-            color: var(--memo-text-faint);
-          }
-        }
-
-        > .memo-comment-send-btn {
-          position: absolute;
-          right: 10px;
-          bottom: 6px;
-          background: var(--memo-accent);
-          color: var(--memo-on-accent);
-          border: none;
-          border-radius: 50%;
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          padding: 0;
-          line-height: 0;
-          transition: background-color var(--memo-transition-fast), transform var(--memo-transition-fast);
-
-          > .icon-img {
-            width: 13px;
-            height: 13px;
-            margin: auto;
-            fill: currentColor;
-          }
-
-          &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-
-          &:hover:not(:disabled) {
-            background-color: var(--memo-accent-hover);
-            transform: scale(1.05);
-          }
-
-          &:active:not(:disabled) {
-            transform: scale(0.9);
-          }
-        }
-
-        > .memo-comment-cancel-btn {
-          position: absolute;
-          right: 40px;
-          bottom: 10px;
-          background: none;
-          border: none;
-          color: var(--memo-text-muted);
-          font-size: 11px;
-          cursor: pointer;
-          padding: 0;
-          line-height: 1;
-
-          &:hover {
-            color: var(--memo-accent);
-          }
-        }
-      }
-    }
-
-    .confirm-btn {
-      transform: scale(0.9);
-    }
+  // 任务卡已完成：正文置灰不划线（P1b；头行勾选框同置灰见 .memo-task-toggle.done）
+  &.TASK-DONE > .memo-content-text {
+    color: var(--memo-text-faint);
   }
 }
 

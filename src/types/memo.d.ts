@@ -26,21 +26,6 @@ export interface BaseMemo {
     path?: string;
 }
 
-export interface CreateCommentMemoParams {
-    text: string;
-    isList?: boolean;
-    ID?: string;
-    hasID?: string;
-    content?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    memoType?: string;
-    hasId?: string;
-    linkId?: string;
-    path?: string;
-    user_id?: number;
-}
-
 export interface UpdateMemoParams {
     memoId?: string;
     originalText?: string;

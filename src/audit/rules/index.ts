@@ -5,7 +5,8 @@ import { legacyTimeRule } from './legacy-time';
 import { dupIdRule } from './dup-id';
 import { missingIdRule } from './missing-id';
 import { bareBrRule } from './bare-br';
+import { legacyRowRule } from './legacy-row';
 
-export const rules: Rule[] = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule];
+export const rules: Rule[] = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule, legacyRowRule];
 
 export const ruleById: Record<string, Rule> = Object.fromEntries(rules.map((r) => [r.id, r]));

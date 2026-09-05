@@ -1,70 +1,51 @@
-import { moment, TFile } from 'obsidian';
-import { getDailyNote } from 'obsidian-daily-notes-interface';
-// import appStore from "../stores/appStore";
-import dailyNotesService from '../services/dailyNotesService';
+import { moment } from 'obsidian';
 import appStore from '../stores/appStore';
+import { contentToBodyLines, findHeaderLineIdx, openMemoFile, scanBodyEnd } from './locateMemo';
 
-function convertDailyNotes(notes: Record<string, any>): Record<string, any> {
-  return notes;
-}
-
+/**
+ * 编辑 memo 正文（P1b：只作用于新格式卡片块）。
+ * 定位头行（持久 ^id 优先，行号兜底）→ **只替换正文域**，头行（时间/任务标记/deletedAt/^id）原样不动。
+ * 旧的"按行号 replace(originalContent)"逻辑退役；UI 不再需要把 ` ^id` 拼进内容。
+ */
 export async function changeMemo(
-  memoid: string,
-  originalContent: string,
-  content: string,
-  memoType?: string,
-  path?: string,
+    memoid: string,
+    content: string,
+    memoType?: string,
+    path?: string,
+    hasId?: string,
 ): Promise<Model.Memo> {
-  const { dailyNotes } = dailyNotesService.getState();
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  const timeString = memoid.slice(0, 14);
-  const idString = parseInt(memoid.slice(14));
-  let changeDate: moment.Moment;
-  if (/^\d{14}/g.test(content)) {
-    changeDate = moment(content.slice(0, 14), 'YYYYMMDDHHmmss');
-  } else {
-    changeDate = moment(timeString, 'YYYYMMDDHHmmss');
-  }
+    const loc = await openMemoFile(memoid, path);
+    if (!loc) {
+        throw new Error('File not found');
+    }
 
-  let file: TFile;
-  if (path !== undefined) {
-    file = metadataCache.getFirstLinkpathDest('', path) as unknown as TFile;
-  } else {
-    const notes = convertDailyNotes(dailyNotes);
-    const dailyNote = getDailyNote(changeDate, notes);
-    file = dailyNote as unknown as TFile;
-  }
-  if (!file) {
-    throw new Error('File not found');
-  }
-  const fileContent = await vault.read(file);
-  const fileLines = getAllLinesFromFile(fileContent);
-  const removeEnter = content.replace(/\n/g, '<br>').replace(/(<br>)(<br>)/g, '$1 $2');
-  const originalLine = fileLines[idString];
-  const newLine = fileLines[idString].replace(originalContent, removeEnter);
-  const newFileContent = fileContent.replace(originalLine, newLine);
-  await vault.modify(file, newFileContent);
-  return {
-    id: memoid,
-    content: removeEnter,
-    user_id: 1,
-    deletedAt: '',
-    createdAt: changeDate.format('YYYY/MM/DD HH:mm:ss'),
-    updatedAt: changeDate.format('YYYY/MM/DD HH:mm:ss'),
-    memoType: memoType || 'JOURNAL',
-    hasId: memoid.slice(-6),
-    linkId: '',
-    path: file.path,
-  };
+    const hint = parseInt(memoid.slice(14));
+    const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+    if (headerIdx === -1) {
+        throw new Error('Memo header not found in file');
+    }
+
+    // 与创建端一致：只去尾部空行，正文原样（含内部空行/缩进）
+    const normalized = (content ?? '').replace(/\n+$/, '');
+    const bodyLines = contentToBodyLines(normalized);
+    const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
+
+    const before = loc.lines.slice(0, headerIdx + 1);
+    const after = loc.lines.slice(bodyEnd + 1);
+    const { vault } = appStore.getState().dailyNotesState.app;
+    await vault.modify(loc.file, [...before, ...bodyLines, ...after].join('\n'));
+
+    const date = moment(memoid.slice(0, 14), 'YYYYMMDDHHmmss');
+    return {
+        id: memoid,
+        content: normalized,
+        user_id: 1,
+        deletedAt: '',
+        createdAt: date.format('YYYY/MM/DD HH:mm:ss'),
+        updatedAt: date.format('YYYY/MM/DD HH:mm:ss'),
+        memoType: memoType || 'JOURNAL',
+        hasId: hasId || '',
+        linkId: '',
+        path: loc.file.path,
+    };
 }
-
-export function getFile(memoid: string): TFile {
-  const { dailyNotes } = dailyNotesService.getState();
-  const timeString = memoid.slice(0, 14);
-  const changeDate = moment(timeString, 'YYYYMMDDHHmmss');
-  const notes = convertDailyNotes(dailyNotes);
-  const dailyNote = getDailyNote(changeDate, notes);
-  return dailyNote as unknown as TFile;
-}
-
-const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/);

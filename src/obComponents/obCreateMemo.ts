@@ -4,49 +4,29 @@ import { getAllDailyNotes, getDailyNote } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
 import { InsertAfter } from '../memos';
 import utils from '../helpers/utils';
-import { serializeMemoLine } from '../helpers/memoLine';
+import { contentToBodyLines } from './locateMemo';
 
-interface MContent {
-    content: string;
-    posNum: number;
-}
-
-// https://stackoverflow.com/questions/3115150/how-to-escape-regular-expression-special-characters-using-javascript
-export async function escapeRegExp(text: any) {
-    return await text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-}
-
-//credit to chhoumann, original code from: https://github.com/chhoumann/quickadd/blob/7536a120701a626ef010db567cea7cf3018e6c82/src/utility.ts#L130
-export function getLinesInString(input: string) {
-    const lines: string[] = [];
-    let tempString = input;
-
-    while (tempString.contains('\n')) {
-        const lineEndIndex = tempString.indexOf('\n');
-        lines.push(tempString.slice(0, lineEndIndex));
-        tempString = tempString.slice(lineEndIndex + 1);
-    }
-
-    lines.push(tempString);
-
-    return lines;
-}
-
+/**
+ * 新建 memo（P1b：只写新格式卡片块）。
+ *
+ * 落盘文本 = 纯标识头行 `- [ ]? HH:mm:ss ^id` + 正文（content 逐行 4 空格缩进，空行留空）。
+ * 真实换行直落文件——旧的 "\n→<br> 单行编码" 管道已退役。memo.content 存与文件一致的
+ * 真实换行文本（发送首帧 = 之后 vault 重读，防文字二次变化抖动）。
+ */
 export async function waitForInsert(MemoContent: string, isTASK: boolean, insertDate?: any): Promise<Model.Memo> {
-    // const plugin = window.plugin;
-
-    const removeEnter = MemoContent.replace(/\n/g, '<br>').replace(/(<br>)(<br>)/g, '$1 $2');
     const date = insertDate ? insertDate : moment();
     const timeText = date.format('HH:mm:ss');
     // 创建时生成持久 ^id，写入文件，避免新建与重读产生重复
     const generatedId = Math.random().toString(36).slice(-6);
-    const newEvent = serializeMemoLine({ isTask: isTASK, time: timeText, content: removeEnter }) + ' ^' + generatedId;
+    const header = `${isTASK ? '- [ ] ' : '- '}${timeText} ^${generatedId}`;
+    // 只去尾部空行（防块尾空行漂移）；正文内部换行/缩进原样保留
+    const content = (MemoContent ?? '').replace(/\n+$/, '');
+    const bodyLines = contentToBodyLines(content);
+    const blockText = bodyLines.length > 0 ? [header, ...bodyLines].join('\n') : header;
     const memoType = isTASK ? 'TASK-TODO' : 'JOURNAL';
     const memo: Model.Memo = {
         id: '',
-        // 存与文件一致的 <br> 版（removeEnter），保证"发送首帧"= 文件 = 之后 vault 重读
-        // （若存原始 \n，重读后会换成 <br> 版 → 渲染路径改变，发送完成约 1-3s 后文字变一次）
-        content: removeEnter,
+        content,
         deletedAt: '',
         createdAt: date.format('YYYY/MM/DD HH:mm:ss'),
         updatedAt: date.format('YYYY/MM/DD HH:mm:ss'),
@@ -55,121 +35,84 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
         hasId: generatedId,
         linkId: '',
     };
-    await writeMemoToDailyNote(date, newEvent, memo);
+    await writeBlockToDailyNote(date, blockText, memo);
     return memo;
 }
 
-export async function writeMemoToDailyNote(date: moment.Moment, newEvent: string, memo: Model.Memo) {
-    const { vault } = appStore.getState().dailyNotesState.app === undefined ? app : appStore.getState().dailyNotesState.app;
-    let lineNum: number;
+async function writeBlockToDailyNote(date: moment.Moment, blockText: string, memo: Model.Memo) {
+    const { vault } =
+        appStore.getState().dailyNotesState.app === undefined ? app : appStore.getState().dailyNotesState.app;
+    let headerIdx: number;
     const dailyNotes = await getAllDailyNotes();
     const existingFile = getDailyNote(date, dailyNotes);
     if (!existingFile) {
         const file = await utils.createDailyNoteCheck(date);
-        const fileContents = await vault.read(file as unknown as TFile) || '';
-        const newFileContent = await insertAfterHandler(InsertAfter || '', newEvent || '', fileContents);
-        if (newFileContent.content) {
-            await vault.modify(file as unknown as TFile, newFileContent.content);
-            if (newFileContent.posNum === -1) {
-                const allLines = getAllLinesFromFile(newFileContent.content);
-                lineNum = allLines.length + 1;
-            } else {
-                lineNum = newFileContent.posNum + 1;
-            }
-        }
+        const fileContents = (await vault.read(file as unknown as TFile)) || '';
+        const inserted = insertMemoBlock(InsertAfter || '', blockText, fileContents);
+        await vault.modify(file as unknown as TFile, inserted.content);
+        headerIdx = inserted.headerIdx;
         memo.path = file.path;
     } else {
-        const fileContents = await vault.read(existingFile as unknown as TFile) || '';
-        const newFileContent = await insertAfterHandler(InsertAfter || '', newEvent || '', fileContents);
-        await vault.modify(existingFile as unknown as TFile, newFileContent.content);
-        if (newFileContent.posNum === -1) {
-            const allLines = getAllLinesFromFile(newFileContent.content);
-            lineNum = allLines.length + 1;
-        } else {
-            lineNum = newFileContent.posNum + 1;
-        }
+        const fileContents = (await vault.read(existingFile as unknown as TFile)) || '';
+        const inserted = insertMemoBlock(InsertAfter || '', blockText, fileContents);
+        await vault.modify(existingFile as unknown as TFile, inserted.content);
+        headerIdx = inserted.headerIdx;
         memo.path = existingFile.path;
     }
-    memo.id = date.format('YYYYMMDDHHmmss') + lineNum;
+    // id 数字段 = 头行 0-based 行号（读取端按行索引生成 id，双向一致）
+    memo.id = date.format('YYYYMMDDHHmmss') + headerIdx;
 }
 
-//credit to chhoumann, original code from: https://github.com/chhoumann/quickadd
-export async function insertAfterHandler(targetString: string, formatted: string, fileContent: string) {
-    // const targetString: string = plugin.settings.InsertAfter;
-    //eslint-disable-next-line
-    const targetRegex = new RegExp(`\s*${await escapeRegExp(targetString)}\s*`);
-    const fileContentLines: string[] = getLinesInString(fileContent);
+/**
+ * 把卡片块插入日记：memo 区语义沿用 InsertAfter（在其后的首个标题前插入，节尾追加）。
+ * 返回整文件新文本 + 头行 0-based 行号。
+ */
+function insertMemoBlock(targetString: string, blockText: string, fileContent: string): { content: string; headerIdx: number } {
+    const lines = fileContent.split(/\r?\n/);
+    const blockLines = blockText.split('\n');
 
-    const targetPosition = fileContentLines.findIndex((line) => targetRegex.test(line));
-    const targetNotFound = targetPosition === -1;
-    if (targetNotFound) {
-        // if (this.choice.insertAfter?.createIfNotFound) {
-        //     return await createInsertAfterIfNotFound(formatted);
-        // }
-
-        console.log('unable to find insert after line in file.');
+    // 空文件：直接落块，无前导空行
+    if (lines.length === 1 && lines[0].trim() === '') {
+        return { content: blockText, headerIdx: 0 };
     }
 
-    const nextHeaderPositionAfterTargetPosition = fileContentLines
-        .slice(targetPosition + 1)
-        .findIndex((line) => /^#+ |---/.test(line));
-    const foundNextHeader = nextHeaderPositionAfterTargetPosition !== -1;
-
-    if (foundNextHeader) {
-        let insertPosition = targetPosition;
-
-        for (let i = nextHeaderPositionAfterTargetPosition + targetPosition; i > targetPosition; i--) {
-            const lineIsNewline: boolean = /^[\s\n ]*$/.test(fileContentLines[i]);
-            if (!lineIsNewline) {
-                insertPosition = i;
-                break;
+    if (targetString !== '') {
+        const targetRe = new RegExp('\\s*' + targetString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*');
+        const targetIdx = lines.findIndex((line) => targetRe.test(line));
+        if (targetIdx !== -1) {
+            // 找 target 之后的下一标题（原语义 /^#+ |---/）
+            let nextHeading = -1;
+            for (let i = targetIdx + 1; i < lines.length; i++) {
+                if (/^#{1,} |^---/.test(lines[i])) {
+                    nextHeading = i;
+                    break;
+                }
             }
-        }
-
-        return await insertTextAfterPositionInBody(formatted, fileContent, insertPosition, foundNextHeader);
-    } else {
-        return await insertTextAfterPositionInBody(formatted, fileContent, fileContentLines.length - 1, foundNextHeader);
-    }
-    // return insertTextAfterPositionInBody(formatted, fileContent, targetPosition);
-}
-
-export async function insertTextAfterPositionInBody(
-    text: string,
-    body: string,
-    pos: number,
-    found?: boolean,
-): Promise<MContent> {
-    if (pos === -1) {
-        return {
-            content: `${body}\n${text}`,
-            posNum: -1,
-        };
-    }
-
-    const splitContent = body.split('\n');
-
-    if (found) {
-        const pre = splitContent.slice(0, pos + 1).join('\n');
-        const post = splitContent.slice(pos + 1).join('\n');
-        return {
-            content: `${pre}\n${text}\n${post}`,
-            posNum: pos,
-        };
-    } else {
-        const pre = splitContent.slice(0, pos + 1).join('\n');
-        const post = splitContent.slice(pos + 1).join('\n');
-        if (/[\s\S]*?/g.test(post)) {
-            return {
-                content: `${pre}\n${text}`,
-                posNum: pos,
-            };
-        } else {
-            return {
-                content: `${pre}${text}\n${post}`,
-                posNum: pos,
-            };
+            if (nextHeading !== -1) {
+                // 从标题向上跳过空行，插到该节最后一条非空行后；节内全空则插在 target 行后
+                let anchor = targetIdx;
+                for (let i = nextHeading - 1; i > targetIdx; i--) {
+                    if (lines[i].trim() !== '') {
+                        anchor = i;
+                        break;
+                    }
+                }
+                const out = [...lines.slice(0, anchor + 1), ...blockLines, ...lines.slice(anchor + 1)];
+                return { content: out.join('\n'), headerIdx: anchor + 1 };
+            }
+            return appendAtEnd(lines, blockLines);
         }
     }
+    return appendAtEnd(lines, blockLines);
 }
 
-const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/);
+/** 文件尾追加（保留尾换行/无尾换行两种形态；headerIdx = 追加前行数） */
+function appendAtEnd(lines: string[], blockLines: string[]): { content: string; headerIdx: number } {
+    const last = lines.length - 1;
+    if (lines[last] === '') {
+        const out = [...lines.slice(0, last), ...blockLines, ''];
+        return { content: out.join('\n'), headerIdx: last };
+    }
+    const out = [...lines, ...blockLines];
+    return { content: out.join('\n'), headerIdx: lines.length };
+}

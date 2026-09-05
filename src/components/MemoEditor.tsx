@@ -242,7 +242,8 @@ const MemoEditor: React.FC<Props> = () => {
     if (globalState.editMemoId && globalState.editMemoId !== prevGlobalStateRef.current.editMemoId) {
       const editMemo = memoService.getMemoById(globalState.editMemoId);
       if (editMemo) {
-        editorRef.current?.setContent(editMemo.content.replace(/<br>/g, '\n').replace(/ \^\S{6}$/, '') ?? '');
+        // 新格式正文即真实换行文本（旧 <br> 编码仅存量数据，渲染端解码；此处直用）
+        editorRef.current?.setContent(editMemo.content ?? '');
         editorRef.current?.focus();
       }
     }
@@ -365,14 +366,14 @@ const MemoEditor: React.FC<Props> = () => {
         // 编辑态：立即清空（无需蓄力动画）
         setEditorContentCache('');
         const prevMemo = memoService.getMemoById(editMemoId);
-        content = content + (prevMemo.hasId === '' ? '' : ' ^' + prevMemo.hasId);
-        if (prevMemo && prevMemo.content !== content) {
+        // 编辑保存 = 正文原样写回；^id 留在头行由写入端定位，不拼进正文（防旧格式 ^id 重复累积）
+        if (prevMemo && prevMemo.content !== content.replace(/\n+$/, '')) {
           const editedMemo = await memoService.updateMemo({
-            memoId:prevMemo.id,
-            originalText:prevMemo.content,
-            text:content,
-            type:prevMemo.memoType,
-            path:prevMemo.path,
+            memoId: prevMemo.id,
+            text: content,
+            type: prevMemo.memoType,
+            path: prevMemo.path,
+            hasId: prevMemo.hasId,
           });
           editedMemo.updatedAt = utils.getDateTimeString(Date.now());
           memoService.editMemo(editedMemo);

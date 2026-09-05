@@ -50,9 +50,7 @@
 
   // 正文/输入区跟随 Obsidian 正文字体；其余 UI 沿用界面字体
   .memo-content-text,
-  .memo-comment-text,
   .common-editor-inputer,
-  .memo-comment-input-textarea,
   .search-bar-inputer > .text-input {
     font-family: var(--font-text, var(--font-interface));
   }
@@ -186,18 +184,6 @@ div[data-type='memos_view'] svg.action-btn,
     transform: scale(1.02);
   }
   100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-// 评论/小条目入场：轻上浮 + 放大（文字少，缩放安全）
-@keyframes memo-comment-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.97);
-  }
-  to {
     opacity: 1;
     transform: none;
   }

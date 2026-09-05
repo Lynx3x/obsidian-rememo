@@ -46,11 +46,6 @@ export class Memos extends ItemView {
 
   private async onFileModified(file: TFile): Promise<void> {
     const date = getDateFromFile(file, 'day');
-    console.log('debounce');
-    if (globalStateService.getState().changedByMemos) {
-      globalStateService.setChangedByMemos(false);
-      return;
-    }
     if (date && this.memosComponent) {
       // 增量：只重读变化的文件，避免全量重读所有日记
       memoService.fetchMemosFromFile(file);
@@ -138,8 +133,6 @@ export class Memos extends ItemView {
     DefaultDarkBackgroundImage = this.plugin.settings.DefaultDarkBackgroundImage;
     DefaultLightBackgroundImage = this.plugin.settings.DefaultLightBackgroundImage;
     DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
-    ShowTaskLabel = this.plugin.settings.ShowTaskLabel;
-    ShowCommentOnMemos = this.plugin.settings.ShowCommentOnMemos;
     UseDailyOrPeriodic = this.plugin.settings.UseDailyOrPeriodic;
     ShowLeftSideBar = this.plugin.settings.ShowLeftSideBar;
 
@@ -177,7 +170,5 @@ export let UseVaultTags: boolean;
 export let DefaultDarkBackgroundImage: string;
 export let DefaultLightBackgroundImage: string;
 export let DefaultMemoComposition: string;
-export let ShowTaskLabel: boolean;
-export let ShowCommentOnMemos: boolean;
 export let UseDailyOrPeriodic: string;
 export let ShowLeftSideBar: boolean;

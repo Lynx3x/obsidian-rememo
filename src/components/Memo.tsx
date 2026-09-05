@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import {
   FIRST_TAG_REG,
   IMAGE_URL_REG,
@@ -13,60 +13,36 @@ import useState from 'react-usestateref';
 import { parseMarkedToHtml, renderMemoContentLines } from '../helpers/marked';
 import utils from '../helpers/utils';
 import useToggle from '../hooks/useToggle';
-import { globalStateService, memoService, resourceService } from '../services';
+import { globalStateService, memoService } from '../services';
 import showMemoCardDialog from './MemoCardDialog';
 import showShareMemoImageDialog from './ShareMemoImageDialog';
 import '../less/memo.less';
 import { Notice, Platform } from 'obsidian';
 import { showMemoInDailyNotes } from '../obComponents/obShowMemo';
 import More from '../icons/more.svg?component';
-import Comment from '../icons/comment.svg?component';
-import DeleteIcon from '../icons/delete.svg?component';
 import TaskBlank from '../icons/task-blank.svg?component';
 import Task from '../icons/task.svg?component';
 import { t } from '../translations/helper';
-import CommentInput, { CommentInputRef } from './CommentInput';
 import MemoImage from './MemoImage';
 import appContext from '../stores/appContext';
 
-// interface LinkedMemo extends FormattedMemo {
-//   dateStr: string;
-// }
+// 评论（旧缩进子树 + linkId）已随 P1b 拆除——存储层只认新格式卡片块，评论待 P3 引用卡重建。
 
 interface Props {
   memo: Model.Memo;
 }
 
-// Get Current Memos And Change it
-
 const Memo: React.FC<Props> = (props: Props) => {
-  const { globalState } = useContext(appContext);
   const {
     settingsState: { settings },
   } = useContext(appContext);
   // 从响应式设置读取，替代全局变量
-  const { DefaultEditorLocation, ShowCommentOnMemos, ShowTaskLabel, UseButtonToShowEditor } = settings;
-  // 评论功能默认开启（统一写回原笔记缩进子项）
-  const CommentOnMemos = true;
+  const { DefaultEditorLocation, UseButtonToShowEditor } = settings;
   const { memo: propsMemo } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
-  const memoCommentRef = useRef<CommentInputRef>(null);
-  const [isCommentShown, toggleComment] = useToggle(false);
-  const [isCommentListShown, toggleCommentList] = useToggle(ShowCommentOnMemos);
-  const [commentMemos, setCommentMemos, commentMemosRef] = useState<Model.Memo[]>([]);
-  // 当前回复的目标（null = 回复 memo 本身；非 null = 回复某条评论）
-  // 用 ref 避免 handleSaveBtnClick（空依赖 useCallback）闭包捕获旧值
-  const [replyTo, setReplyTo] = useState<Model.Memo | null>(null);
-  const replyToRef = useRef<Model.Memo | null>(null);
-  const setReplyToBoth = useCallback((m: Model.Memo | null) => {
-    replyToRef.current = m;
-    setReplyTo(m);
-  }, []);
-  const [, setAddRandomIDflag, RandomIDRef] = useState(false);
   // 三点菜单：点击可“钉住”，外点/Esc 关闭（CSS hover 在列表滚动时指针易离开而消失）
   const [menuOpen, setMenuOpen] = useState(false);
   const memoCardRef = useRef<HTMLDivElement>(null);
-  // const imageUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
 
   useEffect(() => {
     if (!menuOpen) {
@@ -105,210 +81,6 @@ const Memo: React.FC<Props> = (props: Props) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (!memoCommentRef.current) {
-      return;
-    }
-    if (!CommentOnMemos) {
-      return;
-    }
-
-    const fetchCommentMemos = async () => {
-      // 评论已统一在 memos 中（linkId = 父 memo 的 hasId）
-      const allCommentMemos = memoService
-        .getState()
-        .memos.filter((m) => m.linkId === propsMemo.hasId)
-        .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt));
-      setCommentMemos(allCommentMemos);
-    };
-
-    fetchCommentMemos();
-  }, [propsMemo.content, propsMemo.id]);
-
-  useEffect(() => {
-    if (!memoCommentRef.current) {
-      return;
-    }
-
-    // new TagsSuggest(app, memoCommentRef.current.element);
-
-    const handlePasteEvent = async (event: ClipboardEvent) => {
-      if (event.clipboardData && event.clipboardData.files.length > 0) {
-        event.preventDefault();
-        const file = event.clipboardData.files[0];
-        const url = await handleUploadFile(file);
-        if (url) {
-          memoCommentRef.current?.insertText(url);
-        }
-      }
-    };
-
-    const handleDropEvent = async (event: DragEvent) => {
-      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-        event.preventDefault();
-        const file = event.dataTransfer.files[0];
-        const url = await handleUploadFile(file);
-        if (url) {
-          memoCommentRef.current?.insertText(url);
-        }
-      }
-    };
-
-    const handleClickEvent = () => {
-      handleContentChange(memoCommentRef.current?.element.value ?? '');
-    };
-
-    const handleKeyDownEvent = () => {
-      setTimeout(() => {
-        handleContentChange(memoCommentRef.current?.element.value ?? '');
-      });
-    };
-
-    memoCommentRef.current.element.addEventListener('paste', handlePasteEvent);
-    memoCommentRef.current.element.addEventListener('drop', handleDropEvent);
-    memoCommentRef.current.element.addEventListener('click', handleClickEvent);
-    memoCommentRef.current.element.addEventListener('keydown', handleKeyDownEvent);
-
-    return () => {
-      memoCommentRef.current?.element.removeEventListener('paste', handlePasteEvent);
-      memoCommentRef.current?.element.removeEventListener('drop', handleDropEvent);
-    };
-  }, []);
-
-  const handleCancelBtnClick = useCallback(() => {
-    globalStateService.setCommentMemoId('');
-    memoCommentRef.current?.setContent('');
-    toggleComment(false);
-    // setEditorContentCache('');
-  }, []);
-
-  const handleContentChange = useCallback((content: string) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
-    if (tempDiv.innerText.trim() === '') {
-      content = '';
-    }
-    // setEditorContentCache(content);
-
-    setTimeout(() => {
-      memoCommentRef.current?.focus();
-    });
-  }, []);
-
-  const handleSaveBtnClick = useCallback(async (content: string) => {
-    if (content === '') {
-      new Notice(t('Content cannot be empty'));
-      return;
-    }
-
-    const { commentMemoId } = globalStateService.getState();
-    content = content.replaceAll('&nbsp;', ' ');
-    globalStateService.setChangedByMemos(true);
-    try {
-      if (commentMemoId) {
-        memoCommentRef.current?.setContent('');
-        const memo = memoService.getCommentMemoById(commentMemoId);
-
-        if (!memo) {
-          throw new Error('Memo not found');
-        }
-
-        const prevMemo = memo;
-        content = content.trim();
-
-        // console.log(m);
-
-        if (prevMemo && prevMemo.content !== content) {
-          const editedMemo = await memoService.updateMemo({
-            memoId: prevMemo.id,
-            originalText: prevMemo.content,
-            text: content,
-            type: prevMemo.memoType,
-            path: prevMemo.path
-          });
-          memoService.editCommentMemo(editedMemo);
-
-          setCommentMemos(
-            commentMemosRef.current.map((m) => {
-              // console.log(m);
-              if (m.id.slice(14) === commentMemoId.slice(14) && m.path === prevMemo.path) {
-                return editedMemo;
-              }
-              return m;
-            }),
-          );
-        }
-
-        globalStateService.setCommentMemoId('');
-        toggleComment(false);
-      } else {
-        // 新增评论：父 = 当前回复目标（replyToRef）或 memo 本身
-        const parent = replyToRef.current || propsMemo;
-        let randomId = parent.hasId || '';
-
-        // 父无持久 ^id 时生成（读取时会补写，此处兜底）
-        if (!randomId) {
-          randomId = Math.random().toString(36).slice(-6);
-          setAddRandomIDflag(true);
-        }
-
-        memoCommentRef.current?.setContent('');
-
-        // 评论统一写回原笔记（缩进子项，linkId = 父 ^id）
-        const newMemo: Model.Memo = await memoService.createCommentMemo({
-          text: content.trim(),
-          isList: true,
-          path: parent.path,
-          ID: parent.id,
-          hasID: randomId
-        });
-        memoService.pushCommentMemo(newMemo);
-        // 刷新 memo 的直接子评论（子评论由树组件递归查）
-        setCommentMemos(
-          memoService
-            .getState()
-            .memos.filter((m) => m.linkId === propsMemo.hasId)
-            .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt)),
-        );
-        setReplyToBoth(null);
-        toggleComment(false);
-        if (RandomIDRef.current) {
-          const editedMemo = await memoService.updateMemo({
-            memoId: parent.id,
-            originalText: parent.content,
-            text: parent.content + ' ^' + randomId,
-            type: parent.memoType
-          });
-          editedMemo.updatedAt = utils.getDateTimeString(Date.now());
-          memoService.editMemo(editedMemo);
-          setAddRandomIDflag(false);
-        }
-      }
-    } catch (error: any) {
-      new Notice(error.message);
-    }
-
-    // globalStateService.setChangedByMemos(false);
-    // setEditorContentCache('');
-  }, []);
-
-  const handleUploadFile = useCallback(async (file: File) => {
-    const { type } = file;
-
-    if (!type.startsWith('image')) {
-      return;
-    }
-
-    try {
-      const image = await resourceService.upload(file);
-      const url = `${image}`;
-
-      return url;
-    } catch (error: any) {
-      new Notice(error);
-    }
-  }, []);
-
   const handleShowMemoStoryDialog = () => {
     showMemoCardDialog(propsMemo);
   };
@@ -343,9 +115,20 @@ const Memo: React.FC<Props> = (props: Props) => {
     showMemoInDailyNotes(m.id, m.path || '');
   };
 
-  // const handleCreateNewNoteClick = () => {
-  //   turnIntoNote(memo.id);
-  // };
+  // 任务卡整卡勾选：切换头行 [ ]↔[x]（写完即回读，勾选框/置灰随之刷新）
+  const isTaskCard = propsMemo.memoType === 'TASK-TODO' || propsMemo.memoType === 'TASK-DONE';
+  const handleToggleTaskClick = useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      try {
+        await memoService.toggleMemoTask(propsMemo);
+      } catch (error: any) {
+        new Notice(error.message);
+      }
+    },
+    [propsMemo],
+  );
 
   // 碎纸机效果：卡片切成 N 条下落。overlay 挂到卡片外层的定位祖先（offsetParent）上，
   // 这样真正的删除/下移填充可以立刻并行发生，不会先留一个“空卡槽”再跳。
@@ -424,7 +207,7 @@ const Memo: React.FC<Props> = (props: Props) => {
     // 碎纸开始后立即真正删除 → 下方卡片 FLIP 上移填充与碎纸条并行，无“空槽停顿”
     const shredDone = animateShred();
     try {
-      await memoService.hideMemoById(propsMemo.id);
+      await memoService.hideMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
     } catch (error: any) {
       new Notice(error.message);
     }
@@ -444,25 +227,6 @@ const Memo: React.FC<Props> = (props: Props) => {
   const handleGenMemoImageBtnClick = () => {
     showShareMemoImageDialog(propsMemo);
   };
-
-  const handleMemoTypeShow = () => {
-    if (!ShowTaskLabel) {
-      return null;
-    }
-
-    if (propsMemo.memoType === 'TASK-TODO') {
-      return <TaskBlank />;
-    } else if (propsMemo.memoType === 'TASK-DONE') {
-      return <Task />;
-    }
-    return null;
-  };
-
-  // const handleMemoKeyDown = useCallback((event: React.MouseEvent, m) => {
-  //   if (event.ctrlKey || event.metaKey) {
-  //     handleSourceMemoClick(m);
-  //   }
-  // }, []);
 
   const handleMemoDoubleClick = useCallback((event: React.MouseEvent) => {
     if (event) {
@@ -488,77 +252,9 @@ const Memo: React.FC<Props> = (props: Props) => {
         targetEl.classList.remove('memo-link-text');
       }
     } else if (targetEl.className === 'todo-block') {
-      // do nth
+      // 正文内的任务行暂为静态展示（任务卡整卡切换走头行勾选框）
     }
   };
-
-  const handleCommentBlock = () => {
-    // 点 memo 的评论图标 = 回复 memo 本身，清空回复目标
-    setReplyToBoth(null);
-    if (!isCommentShown) {
-      toggleComment(true);
-    } else {
-      toggleComment(false);
-    }
-    if (!isCommentListShown) {
-      toggleCommentList(true);
-    } else if (!ShowCommentOnMemos && isCommentListShown) {
-      toggleCommentList(false);
-    }
-  };
-
-  const handleEditCommentClick = useCallback((memo: Model.Memo) => {
-    if (!CommentOnMemos) {
-      return;
-    }
-
-    globalStateService.setCommentMemoId(memo.id);
-    // console.log(Boolean(globalStateService.getState().commentMemoId));
-    // console.log(globalStateService.getState().commentMemoId);
-
-    if (!isCommentShown) {
-      toggleComment(true);
-    }
-    memoCommentRef.current?.focus();
-    memoCommentRef.current?.setContent(memo.content.trim());
-  }, []);
-
-  const showEditStatus = Boolean(globalState.commentMemoId);
-
-  // 回复某条评论：点不同评论切换目标，点同一评论关闭输入框
-  const handleReplyClick = useCallback(
-    (comment: Model.Memo) => {
-      const current = replyToRef.current;
-      if (current && current.id === comment.id) {
-        // 点同一条 → 关闭
-        setReplyToBoth(null);
-        toggleComment(false);
-      } else {
-        // 不同或没在回复 → 切换/打开
-        setReplyToBoth(comment);
-        toggleComment(true);
-        setTimeout(() => {
-          memoCommentRef.current?.focus();
-        }, 0);
-      }
-    },
-    [],
-  );
-
-  // 删除一条评论（软删，加 deletedAt 标记）
-  const handleDeleteCommentClick = useCallback(
-    async (comment: Model.Memo) => {
-      await memoService.hideMemoById(comment.id);
-      // 刷新评论列表（已删除的评论不再显示）
-      setCommentMemos(
-        memoService
-          .getState()
-          .memos.filter((m) => m.linkId === propsMemo.hasId && !m.isDeleted)
-          .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt)),
-      );
-    },
-    [propsMemo.hasId],
-  );
 
   const imageProps = {
     memo: propsMemo.content,
@@ -574,29 +270,19 @@ const Memo: React.FC<Props> = (props: Props) => {
           <span className="time-text" onClick={handleShowMemoStoryDialog}>
             {utils.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== 'HH:mm')}
           </span>
-          <div
-            className={`memo-type-img ${
-              (propsMemo.memoType === 'TASK-TODO' || propsMemo.memoType === 'TASK-DONE') && ShowTaskLabel
-                ? ''
-                : 'hidden'
-            }`}
-          >
-            {handleMemoTypeShow() ?? ''}
-          </div>
+          {isTaskCard ? (
+            <span
+              className={`memo-task-toggle ${propsMemo.memoType === 'TASK-DONE' ? 'done' : ''}`}
+              title={t(propsMemo.memoType === 'TASK-DONE' ? 'Mark as todo' : 'Mark as done')}
+              onClick={handleToggleTaskClick}
+            >
+              {propsMemo.memoType === 'TASK-DONE' ? <Task /> : <TaskBlank />}
+            </span>
+          ) : null}
         </div>
         <div className="memo-top-right-wrapper">
-          {CommentOnMemos ? (
-            <div className="comment-button-wrapper">
-              {/*<img className="comment-logo" onClick={handleCommentBlock} src={} alt="memo-comment" />*/}
-              <Comment className="icon-img" onClick={handleCommentBlock} />
-              {commentMemos.length > 0 ? <div className="comment-text-count">{commentMemos.length}</div> : null}
-            </div>
-          ) : (
-            ''
-          )}
           <div className="btns-container">
             <span className="btn more-action-btn" onClick={handleMoreMenuClick}>
-              {/*<img className="icon-img" src={more} />*/}
               <More className="icon-img" />
             </span>
             <div className="more-action-btns-wrapper" onClick={handleMoreActionClick}>
@@ -634,70 +320,6 @@ const Memo: React.FC<Props> = (props: Props) => {
         dangerouslySetInnerHTML={{ __html: formatMemoContent(propsMemo.content, propsMemo.id) }}
       ></div>
       <MemoImage {...imageProps} />
-      {/*<Only when={externalImageUrls.length > 0}>*/}
-      {/*  <div className="images-wrapper">*/}
-      {/*    {externalImageUrls.map((imgUrl, idx) => (*/}
-      {/*      <Image alt="" key={idx} className="memo-img" imgUrl={imgUrl} referrerPolicy="no-referrer" />*/}
-      {/*    ))}*/}
-      {/*  </div>*/}
-      {/*</Only>*/}
-      {/*<Only when={internalImageUrls.length > 0}>*/}
-      {/*  <div className="images-wrapper internal-embed image-embed is-loaded">*/}
-      {/*    {internalImageUrls.map((imgUrl, idx) => (*/}
-      {/*      <Image*/}
-      {/*        key={idx}*/}
-      {/*        className="memo-img"*/}
-      {/*        imgUrl={imgUrl.path}*/}
-      {/*        alt={imgUrl.altText}*/}
-      {/*        filepath={imgUrl.filepath}*/}
-      {/*      />*/}
-      {/*    ))}*/}
-      {/*  </div>*/}
-      {/*</Only>*/}
-      {CommentOnMemos ? (
-        <div className={`memo-comment-wrapper`}>
-          {commentMemos.length > 0 && isCommentListShown ? (
-            <div className={`memo-comment-list`}>
-              {commentMemos
-                .filter((m) => !m.isDeleted)
-                .map((m, idx) => (
-                <MemoComment
-                  key={m.id || idx}
-                  comment={m}
-                  allMemos={memoService.getState().memos}
-                  onContentClick={handleMemoContentClick}
-                  onEdit={handleEditCommentClick}
-                  onReply={handleReplyClick}
-                  onDelete={handleDeleteCommentClick}
-                />
-              ))}
-            </div>
-          ) : null}
-          <div className={`memo-comment-inputer ${isCommentShown ? '' : 'hidden'}`}>
-            {replyTo && replyTo.id !== propsMemo.id ? (
-              <div className="memo-comment-replying">
-                回复: {replyTo.content.slice(0, 30)}
-              </div>
-            ) : null}
-            <CommentInput
-              ref={memoCommentRef}
-              placeholder={t('Comment it...')}
-              showCancelBtn={showEditStatus}
-              onConfirmBtnClick={handleSaveBtnClick}
-              onCancelBtnClick={handleCancelBtnClick}
-            />
-          </div>
-        </div>
-      ) : (
-        ''
-      )}
-      {/* <Only when={imageUrls.length > 0}>
-        <div className="images-wrapper">
-          {imageUrls.map((imgUrl, idx) => (
-            <Image className="memo-img" key={idx} imgUrl={imgUrl} />
-          ))}
-        </div>
-      </Only> */}
     </div>
   );
 };
@@ -716,18 +338,7 @@ export function formatMemoContent(content: string, memoid?: string) {
     content = content.replace(WIKI_IMAGE_URL_REG, '').replace(MARKDOWN_URL_REG, '').replace(IMAGE_URL_REG, '');
   }
 
-  // console.log(content);
-
-  // 中英文之间加空格
-  // if (shouldSplitMemoWord) {
-  //   content = content
-  //     .replace(/([\u4e00-\u9fa5])([A-Za-z0-9?.,;[\]]+)/g, "$1 $2")
-  //     .replace(/([A-Za-z0-9?.,;[\]]+)([\u4e00-\u9fa5])/g, "$1 $2");
-  // }
-
   content = content
-    // .replace(TAG_REG, "<span class='tag-span'>#$1</span>")
-    // .replace(FIRST_TAG_REG, "<p><span class='tag-span'>#$2</span>")
     .replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>")
     .replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>")
     .replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>")
@@ -756,20 +367,6 @@ export function formatMemoContent(content: string, memoid?: string) {
 
   content = tagsCollect(content);
 
-  // .replace(TAG_REG, "<span class='tag-span'>#$1</span>")
-  // .replace(FIRST_TAG_REG, "<p><span class='tag-span'>#$2</span>")
-
-  // const contentMark = content.split('');
-
-  // if(/(.*)<a(.*)/g.test(content)){
-
-  // }
-  //   for(let i=0; i<content.length;i++){
-  //     let mark = false;
-  //     let aMark = false;
-  //     if(contentMark[i])
-  //   }
-
   const tempDivContainer = document.createElement('div');
   tempDivContainer.innerHTML = content;
   for (let i = 0; i < tempDivContainer.children.length; i++) {
@@ -786,69 +383,4 @@ export function formatMemoContent(content: string, memoid?: string) {
   return tempDivContainer.innerHTML;
 }
 
-/**
- * 递归渲染单条评论及其子评论（多级评论）。
- * 子评论 = allMemos 中 linkId === 本条评论 hasId 的项。
- */
-interface MemoCommentProps {
-  comment: Model.Memo;
-  allMemos: Model.Memo[];
-  onContentClick: (e: React.MouseEvent, m: Model.Memo) => void;
-  onEdit: (m: Model.Memo) => void;
-  onReply: (m: Model.Memo) => void;
-  onDelete: (m: Model.Memo) => void;
-}
-
-const MemoComment: React.FC<MemoCommentProps> = ({ comment, allMemos, onContentClick, onEdit, onReply, onDelete }) => {
-  const {
-    settingsState: { settings },
-  } = useContext(appContext);
-  const children = allMemos
-    .filter((m) => m.linkId === comment.hasId && !m.isDeleted)
-    .sort((a, b) => utils.getTimeStampByDate(a.createdAt) - utils.getTimeStampByDate(b.createdAt));
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div className="memo-comment-item">
-      <div
-        className="memo-comment"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <div className="memo-comment-time">{utils.getDateTimeString(comment.createdAt, settings.TimeFormat !== 'HH:mm')}</div>
-        <div
-          className="memo-comment-text"
-          onClick={(e) => onContentClick(e, comment)}
-          onDoubleClick={() => onEdit(comment)}
-          dangerouslySetInnerHTML={{
-            __html: formatMemoContent(comment.content.trim(), comment.id),
-          }}
-        ></div>
-        <div className={`memo-comment-actions ${hovered ? '' : 'hidden'}`}>
-          <button className="memo-comment-reply-btn" onClick={() => onReply(comment)} title={t('Reply')}>
-            <Comment className="icon-img" />
-          </button>
-          <button className="memo-comment-delete-btn" onClick={() => onDelete(comment)} title={t('Delete')}>
-            <DeleteIcon className="icon-img" />
-          </button>
-        </div>
-      </div>
-      {children.length > 0 ? (
-        <div className="memo-comment-children">
-          {children.map((c) => (
-            <MemoComment
-              key={c.id}
-              comment={c}
-              allMemos={allMemos}
-              onContentClick={onContentClick}
-              onEdit={onEdit}
-              onReply={onReply}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-};
-
-export default memo(Memo);
+export default Memo;

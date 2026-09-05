@@ -3,7 +3,6 @@
 // memo 正文排版（列表卡片 + daily 弹窗两处通用）
 // 颜色用 Obsidian 原生变量（可能渲染于 memos_view 之外的 modal，故不用 --memo-*）
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text,
-[data-type='memos_view'] .daily-memo-wrapper .memo-comment-text,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text {
   .flex(column, flex-start, flex-start);
   width: 100%;
@@ -102,8 +101,7 @@
 }
 
 // daily 弹窗正文宽度约束（原 400px 意图）
-[data-type='memos_view'] .daily-memo-wrapper .memo-content-text,
-[data-type='memos_view'] .daily-memo-wrapper .memo-comment-text {
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text {
   width: 400px;
 }
 

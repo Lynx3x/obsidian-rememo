@@ -8,10 +8,8 @@ export interface AppSetting {
 export interface State extends AppSetting {
   markMemoId: string;
   editMemoId: string;
-  commentMemoId: string;
   isMobileView: boolean;
   showSiderbarInMobileView: boolean;
-  changedByMemos: boolean;
 }
 
 interface SetMarkMemoIdAction {
@@ -28,24 +26,10 @@ interface SetEditMemoIdAction {
   };
 }
 
-interface SetCommentMemoIdAction {
-  type: 'SET_COMMENT_MEMO_ID';
-  payload: {
-    commentMemoId: string;
-  };
-}
-
 interface SetMobileViewAction {
   type: 'SET_MOBILE_VIEW';
   payload: {
     isMobileView: boolean;
-  };
-}
-
-interface SetChangedByMemosAction {
-  type: 'SET_CHANGED_BY_MEMOS';
-  payload: {
-    changedByMemos: boolean;
   };
 }
 
@@ -65,9 +49,7 @@ export type Actions =
   | SetMobileViewAction
   | SetShowSidebarAction
   | SetEditMemoIdAction
-  | SetCommentMemoIdAction
   | SetMarkMemoIdAction
-  | SetChangedByMemosAction
   | SetAppSettingAction;
 
 export function reducer(state: State, action: Actions) {
@@ -92,16 +74,6 @@ export function reducer(state: State, action: Actions) {
         editMemoId: action.payload.editMemoId,
       };
     }
-    case 'SET_COMMENT_MEMO_ID': {
-      if (action.payload.commentMemoId === state.commentMemoId) {
-        return state;
-      }
-
-      return {
-        ...state,
-        commentMemoId: action.payload.commentMemoId,
-      };
-    }
     case 'SET_MOBILE_VIEW': {
       if (action.payload.isMobileView === state.isMobileView) {
         return state;
@@ -110,16 +82,6 @@ export function reducer(state: State, action: Actions) {
       return {
         ...state,
         isMobileView: action.payload.isMobileView,
-      };
-    }
-    case 'SET_CHANGED_BY_MEMOS': {
-      if (action.payload.changedByMemos === state.changedByMemos) {
-        return state;
-      }
-
-      return {
-        ...state,
-        changedByMemos: action.payload.changedByMemos,
       };
     }
     case 'SET_SHOW_SIDEBAR_IN_MOBILE_VIEW': {
@@ -147,12 +109,10 @@ export function reducer(state: State, action: Actions) {
 export const defaultState: State = {
   markMemoId: '',
   editMemoId: '',
-  commentMemoId: '',
   shouldSplitMemoWord: true,
   shouldHideImageUrl: true,
   shouldUseMarkdownParser: true,
   useTinyUndoHistoryCache: false,
   isMobileView: false,
   showSiderbarInMobileView: false,
-  changedByMemos: false,
 };

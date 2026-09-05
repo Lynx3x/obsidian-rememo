@@ -5,10 +5,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { TFile } from 'obsidian';
 import { applyFixes, runAudit } from '../engine';
+import { migrateFile } from '../migrate';
 import { ruleById } from '../rules';
 import { AuditResult, Issue, RuleSeverity } from '../types';
 import { storage } from '../../helpers/storage';
 import appStore from '../../stores/appStore';
+import { memoService } from '../../services';
 import Pagination from '../../components/Pagination';
 import '../../less/audit-page.less';
 
@@ -121,6 +123,41 @@ const AuditPage: React.FC = () => {
     if (file instanceof TFile) {
       const leaf = app.workspace.getLeaf(false);
       await leaf.openFile(file, { active: true, eState: { line: Math.max(line - 1, 0) } });
+    }
+  };
+
+  // ---- 整文件迁移（旧格式行 → 新卡片块）：文件级操作，与行级修复循环分开 ----
+  const [migratingPath, setMigratingPath] = useState('');
+  const migrateOneFile = async (path: string) => {
+    const app = appStore.getState().dailyNotesState.app;
+    const file = app.vault.getAbstractFileByPath(path);
+    if (!(file instanceof TFile)) return;
+    setBusy(true);
+    setMigratingPath(path);
+    setMsg('');
+    try {
+      const rep = await migrateFile(file);
+      if (rep.changed) {
+        setMsg(
+          `迁移完成：转换 ${rep.converted} 个旧单位${rep.droppedComments > 0 ? `，丢弃已删评论 ${rep.droppedComments} 行` : ''}` +
+            (rep.skipped > 0 ? `，${rep.skipped} 个单位无法映射已原样保留` : '') +
+            '。备份在 .rememo-backup/migrate-*，旧数据已恢复为新卡片块。',
+        );
+      } else {
+        setMsg(
+          rep.skipped > 0
+            ? `没有可迁移的旧单位（${rep.skipped} 行缺时间等，需人工处理）。`
+            : '这个文件没有旧格式行，无需迁移。',
+        );
+      }
+      await scan({ silent: true });
+      // 迁移改变了整文件行结构，vault 2s debounce 会吞事件 → 显式全量回读
+      await memoService.fetchAllMemos();
+    } catch (e: any) {
+      setMsg(`迁移失败：${e?.message ?? e}`);
+    } finally {
+      setBusy(false);
+      setMigratingPath('');
     }
   };
 
@@ -239,6 +276,7 @@ const AuditPage: React.FC = () => {
                   n + l.issues.filter((i) => ruleById[i.ruleId]?.severity === 'error').length,
                 0,
               );
+              const hasLegacy = file.lines.some((l) => l.issues.some((i) => i.ruleId === 'legacy-row'));
               return (
                 <section className="audit-file" key={file.path}>
                   <header
@@ -253,6 +291,19 @@ const AuditPage: React.FC = () => {
                     </span>
                     {errCount > 0 && <span className="audit-file-err">{errCount} 处错误</span>}
                     <span className="audit-file-count">{file.lines.length} 条 memo</span>
+                    {hasLegacy && (
+                      <button
+                        className="btn migrate-btn"
+                        title="把本文件的旧格式行整体迁移为新卡片块（自动备份），迁移后旧数据恢复渲染"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          migrateOneFile(file.path);
+                        }}
+                        disabled={busy}
+                      >
+                        {migratingPath === file.path ? '迁移中…' : '整文件迁移'}
+                      </button>
+                    )}
                   </header>
 
                   {!collapsed && (

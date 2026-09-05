@@ -12,11 +12,11 @@ function readLines(file: TFile): Promise<string[]> {
 }
 
 /**
- * memo 处理区标记（复制读取器语义，见 obGetMemos.getMemosFromDailyNote）：
+ * memo 处理区标记（复制读取器语义，见 obGetMemos.parseMemosFromNote）：
  * - ProcessEntriesBelow 为空：从文件头开始处理，遇到第一个标题（/^#{1,} /）后退出
  * - 非空：从匹配 token 的行开始，遇到下一个标题退出
  */
-function computeScope(lines: string[], processBelow: string): boolean[] {
+export function computeScope(lines: string[], processBelow: string): boolean[] {
   const inScope = new Array<boolean>(lines.length).fill(false);
   const tokenRe = processBelow ? new RegExp(processBelow.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1')) : null;
   let active = !tokenRe;

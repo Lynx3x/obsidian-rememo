@@ -33,15 +33,6 @@ class GlobalStateService {
     });
   };
 
-  public setCommentMemoId = (commentMemoId: string) => {
-    appStore.dispatch({
-      type: 'SET_COMMENT_MEMO_ID',
-      payload: {
-        commentMemoId,
-      },
-    });
-  };
-
   public setMarkMemoId = (markMemoId: string) => {
     appStore.dispatch({
       type: 'SET_MARK_MEMO_ID',
@@ -56,15 +47,6 @@ class GlobalStateService {
       type: 'SET_MOBILE_VIEW',
       payload: {
         isMobileView,
-      },
-    });
-  };
-
-  public setChangedByMemos = (changedByMemos: boolean) => {
-    appStore.dispatch({
-      type: 'SET_CHANGED_BY_MEMOS',
-      payload: {
-        changedByMemos,
       },
     });
   };

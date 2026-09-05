@@ -31,8 +31,6 @@ export interface MemosSettings {
   DefaultLightBackgroundImage: string;
   DefaultDarkBackgroundImage: string;
   DefaultMemoComposition: string;
-  ShowTaskLabel: boolean;
-  ShowCommentOnMemos: boolean;
   ShowLeftSideBar: boolean;
   /** 界面时间显示格式：'HH:mm:ss'（带秒，默认）| 'HH:mm'（不带秒）。只影响渲染，不改文件数据 */
   TimeFormat: 'HH:mm:ss' | 'HH:mm';
@@ -53,7 +51,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   FocusOnEditor: true,
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
-  ShowTaskLabel: false,
   OpenMemosAutomatically: false,
   // EditorMaxHeight: '250',
   ShowTime: true,
@@ -66,7 +63,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   DefaultLightBackgroundImage: '',
   DefaultDarkBackgroundImage: '',
   DefaultMemoComposition: '{TIME} {CONTENT}',
-  ShowCommentOnMemos: false,
   ShowLeftSideBar: false,
   TimeFormat: 'HH:mm:ss',
 };
@@ -194,16 +190,6 @@ export class MemosSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
           this.plugin.settings.HideDoneTasks = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Show Tasks Label'))
-      .setDesc(t('Show tasks label near the time text. False by default'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.ShowTaskLabel).onChange(async (value) => {
-          this.plugin.settings.ShowTaskLabel = value;
           this.applySettingsUpdate();
         }),
       );
@@ -467,16 +453,6 @@ export class MemosSettingTab extends PluginSettingTab {
             this.plugin.settings.DefaultMemoComposition = value;
             this.applySettingsUpdate();
           }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Always Show Memo Comments'))
-      .setDesc(t('Always show memo comments on memos. False by default'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.ShowCommentOnMemos).onChange(async (value) => {
-          this.plugin.settings.ShowCommentOnMemos = value;
-          this.applySettingsUpdate();
-        }),
       );
 
     this.containerEl.createEl('h1', { text: t('Say Thank You') });

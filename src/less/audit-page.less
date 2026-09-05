@@ -226,6 +226,20 @@
     color: var(--memo-text-faint);
     flex-shrink: 0;
   }
+
+  // 整文件迁移按钮（旧格式行 → 新卡片块），accent 语义 = 主操作
+  .migrate-btn {
+    height: 24px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: var(--memo-radius-s);
+    .btn-accent();
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
 // ---- memo 行条目 ----

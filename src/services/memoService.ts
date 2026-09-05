@@ -1,12 +1,12 @@
 import { FIRST_TAG_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
 import { waitForInsert } from '../obComponents/obCreateMemo';
 import { changeMemo } from '../obComponents/obUpdateMemo';
-import { commentMemo } from '../obComponents/obCommentMemo';
+import { deleteMemo, obHideMemo, restoreMemo } from '../obComponents/obHideMemo';
+import { toggleMemoTask } from '../obComponents/obToggleMemoTask';
 import { getMemos, getMemosFromDailyNote } from '../obComponents/obGetMemos';
-import { deleteMemoFromLine, obHideMemo, restoreMemoFromLine } from '../obComponents/obHideMemo';
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
-import type { CreateCommentMemoParams, UpdateMemoParams } from '../types/memo';
+import type { UpdateMemoParams } from '../types/memo';
 import { moment } from 'obsidian';
 import type { TFile } from 'obsidian';
 
@@ -49,7 +49,7 @@ class MemoService {
      */
     public async fetchMemosFromFile(file: TFile): Promise<void> {
         const memos: Model.Memo[] = [];
-        await getMemosFromDailyNote(file, memos, []);
+        await getMemosFromDailyNote(file, memos);
         const { memoState } = appStore.getState();
         // 移除该文件旧的 memos，加上新读的（reducer 会去重+按时间排序）
         const others = memoState.memos.filter((m) => m.path !== file.path);
@@ -95,54 +95,49 @@ class MemoService {
     }
 
     /**
-     * 根据ID查找评论备忘录（评论已统一在 memos 中）
+     * 隐藏（软删除）指定备忘录：头行加 deletedAt 标记，写后即时回读刷新。
      */
-    public getCommentMemoById(id: string): Model.Memo | null {
-        return this.getState().memos.find((m: Model.Memo) => m.id === id && m.linkId) || null;
-    }
-
-    /**
-     * 隐藏（软删除）指定备忘录，连同其评论子树一起删除
-     */
-    public async hideMemoById(id: string): Promise<void> {
-        // 文件加 deletedAt 标记，评论子树不标记（父隐藏即子树隐藏）
-        const file = await obHideMemo(id);
+    public async hideMemoById(id: string, hasId?: string, path?: string): Promise<void> {
+        const file = await obHideMemo(id, hasId, path);
         if (file) {
             await this.fetchMemosFromFile(file);
         }
     }
 
     /**
-     * 恢复已删除的备忘录（去掉 deletedAt 标记）
+     * 恢复已删除的备忘录（去掉头行 deletedAt 标记）
      */
-    public async restoreMemoById(id: string): Promise<void> {
-        const file = await restoreMemoFromLine(id);
+    public async restoreMemoById(id: string, hasId?: string, path?: string): Promise<void> {
+        const file = await restoreMemo(id, hasId, path);
         if (file) {
             await this.fetchMemosFromFile(file);
         }
     }
 
     /**
-     * 永久删除备忘录（从日记删除父行及其评论子树）
+     * 永久删除备忘录（从头行删整个卡片块）
      */
-    public async deleteMemoById(id: string): Promise<void> {
-        await deleteMemoFromLine(id);
+    public async deleteMemoById(id: string, hasId?: string, path?: string): Promise<void> {
+        const file = await deleteMemo(id, hasId, path);
+        if (file) {
+            await this.fetchMemosFromFile(file);
+        }
+    }
+
+    /**
+     * 任务卡整卡勾选切换（写回头行 [ ]↔[x]）
+     */
+    public async toggleMemoTask(memo: Model.Memo): Promise<void> {
+        const file = await toggleMemoTask(memo.id, memo.hasId, memo.path);
+        if (file) {
+            await this.fetchMemosFromFile(file);
+        }
     }
 
     /**
      * 编辑备忘录内容
      */
     public editMemo(memo: Model.Memo): void {
-        appStore.dispatch({
-            type: 'EDIT_MEMO',
-            payload: memo
-        });
-    }
-
-    /**
-     * 编辑评论备忘录内容（评论已统一在 memos 中）
-     */
-    public editCommentMemo(memo: Model.Memo): void {
         appStore.dispatch({
             type: 'EDIT_MEMO',
             payload: memo
@@ -195,26 +190,12 @@ class MemoService {
     }
 
     /**
-     * 获取指定备忘录的所有评论（评论的 linkId = 父 memo 的 hasId）
-     */
-    public async getCommentMemos(memoId: string): Promise<Model.Memo[]> {
-        return this.getState().memos.filter((m: Model.Memo) => m.linkId === memoId);
-    }
-
-    /**
      * 创建新的备忘录
      * date 可选：指定写入目标日期（moment，含时分；缺省写"现在/今天"）。
      * 为兼容 waitForInsert 需传 moment（含 .format），非 Date。
      */
     public async createMemo(text: string, isTask: boolean, date?: moment.Moment): Promise<Model.Memo> {
         return await waitForInsert(text, isTask, date);
-    }
-
-    /**
-     * 创建新的评论备忘录
-     */
-    public async createCommentMemo(params: CreateCommentMemoParams): Promise<Model.Memo> {
-        return await commentMemo(params.text, params.isList, params.path, params.ID, params.hasID);
     }
 
     /**
@@ -230,10 +211,10 @@ class MemoService {
     public async updateMemo(params: UpdateMemoParams): Promise<Model.Memo> {
         return await changeMemo(
             params.memoId,
-            params.originalText,
             params.text,
             params.type,
-            params.path
+            params.path,
+            params.hasId
         );
     }
 

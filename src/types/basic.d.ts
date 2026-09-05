@@ -11,8 +11,3 @@ type FunctionType = (...args: unknown[]) => unknown;
 interface KVObject<T = any> {
   [key: string]: T;
 }
-
-interface allKindsofMemos {
-  memos: Model.Memo[];
-  commentMemos: Model.Memo[];
-}
