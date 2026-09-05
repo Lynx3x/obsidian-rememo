@@ -57,7 +57,7 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
   }, [memo]);
 
   return (
-    <div className="random-memo-container">
+    <>
       <div className="dialog-header-container">
         <p className="title-text">
           <Casino className="icon-img" />
@@ -69,17 +69,19 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
       </div>
       {memo ? (
         <>
-          <div className="date-text">
-            {utils.getDateString(memo.createdAt)} · {utils.getDateTimeString(memo.createdAt, showSeconds)}
+          <div className="dialog-content-container">
+            <div className="date-text">
+              {utils.getDateString(memo.createdAt)} · {utils.getDateTimeString(memo.createdAt, showSeconds)}
+            </div>
+            <div className="memo-container">
+              <div
+                className="memo-content-text"
+                dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}
+              ></div>
+              <MemoImage memo={memo.content} />
+            </div>
           </div>
-          <div className="memo-container">
-            <div
-              className="memo-content-text"
-              dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}
-            ></div>
-            <MemoImage memo={memo.content} />
-          </div>
-          <div className="btns-container">
+          <div className="dialog-footer-container">
             <button className="btn random-btn" onClick={pickRandom}>
               <Casino className="icon-img" />
               {t('Draw another')}
@@ -91,7 +93,7 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
           </div>
         </>
       ) : null}
-    </div>
+    </>
   );
 };
 

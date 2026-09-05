@@ -14,38 +14,33 @@
   }
 }
 
-// ADR-0004 随机访问浮窗（只读：日期行 + 正文 + 再抽 / 打开当天日记）
+// ADR-0004 随机访问浮窗（只读：日期行 + 正文 + 再抽 / 打开当天日记）。
+// 头部/底部按钮走 dialog.less 通用 .dialog-header-container/.dialog-footer-container 结构
+// （header/content/footer 必须是 .dialog-container 的直接子级，通用规则才命中）
 .dialog-wrapper.random-memo-dialog {
   > .dialog-container {
     width: 420px;
-    padding: 0;
 
-    > .random-memo-container {
-      .flex(column, flex-start, stretch);
-      width: 100%;
+    > .dialog-header-container {
+      margin-bottom: 4px;
 
-      // 头部走 dialog.less 通用 .dialog-header-container（含 close 按钮规范），仅收间距
-      > .dialog-header-container {
-        margin-bottom: 2px;
-        padding: 10px 16px 0;
+      > .title-text {
+        .flex(row, center, center);
+        font-size: 15px;
+        font-weight: bold;
+        color: var(--memo-text);
 
-        > .title-text {
-          .flex(row, center, center);
-          font-size: 15px;
-          font-weight: bold;
-          color: var(--memo-text);
-
-          > .icon-img {
-            width: 18px;
-            height: auto;
-            margin-right: 8px;
-          }
+        > .icon-img {
+          width: 18px;
+          height: auto;
+          margin-right: 8px;
         }
       }
+    }
 
+    > .dialog-content-container {
       > .date-text {
         width: 100%;
-        padding: 2px 16px 6px;
         font-size: 12px;
         color: var(--memo-text-muted);
         .mono-font-family();
@@ -55,7 +50,7 @@
         .flex(column, flex-start, flex-start);
         width: 100%;
         max-height: 44vh;
-        padding: 4px 16px 14px;
+        margin-top: 4px;
         overflow-y: auto;
         .pretty-scroll-bar(0, 6px);
 
@@ -83,44 +78,40 @@
           margin-top: 2px;
         }
       }
+    }
 
-      > .btns-container {
-        .flex(row, flex-end, center);
-        gap: 10px;
-        width: 100%;
-        padding: 12px 16px 14px;
-        border-top: 1px solid var(--memo-border);
+    > .dialog-footer-container {
+      gap: 10px;
 
-        > .btn {
-          .flex(row, center, center);
-          height: 32px;
-          padding: 0 16px;
-          border-radius: var(--memo-radius-m);
-          font-size: 13px;
-          cursor: pointer;
-          transition: background-color var(--memo-transition-fast);
+      > .btn {
+        .flex(row, center, center);
+        height: 32px;
+        padding: 0 16px;
+        border-radius: var(--memo-radius-m);
+        font-size: 13px;
+        cursor: pointer;
+        transition: background-color var(--memo-transition-fast);
 
-          > .icon-img {
-            width: 16px;
-            height: auto;
-            margin-right: 6px;
-          }
+        > .icon-img {
+          width: 16px;
+          height: auto;
+          margin-right: 6px;
         }
+      }
 
-        > .random-btn {
-          color: var(--memo-text);
-          background-color: transparent;
-          border: 1px solid var(--memo-border);
-          background-image: none;
+      > .random-btn {
+        color: var(--memo-text);
+        background-color: transparent;
+        border: 1px solid var(--memo-border);
+        background-image: none;
 
-          &:hover {
-            background-color: var(--memo-surface-hover);
-          }
+        &:hover {
+          background-color: var(--memo-surface-hover);
         }
+      }
 
-        > .diary-btn {
-          .btn-accent();
-        }
+      > .diary-btn {
+        .btn-accent();
       }
     }
   }

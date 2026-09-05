@@ -14852,8 +14852,7 @@ const RandomMemoDialog = ({
       new require$$0.Notice("MEMO Not Found");
     }
   }, [memo2]);
-  return /* @__PURE__ */ jsxs("div", {
-    className: "random-memo-container",
+  return /* @__PURE__ */ jsxs(Fragment, {
     children: [/* @__PURE__ */ jsxs("div", {
       className: "dialog-header-container",
       children: [/* @__PURE__ */ jsxs("p", {
@@ -14870,20 +14869,23 @@ const RandomMemoDialog = ({
       })]
     }), memo2 ? /* @__PURE__ */ jsxs(Fragment, {
       children: [/* @__PURE__ */ jsxs("div", {
-        className: "date-text",
-        children: [utils$1.getDateString(memo2.createdAt), " \xB7 ", utils$1.getDateTimeString(memo2.createdAt, showSeconds)]
-      }), /* @__PURE__ */ jsxs("div", {
-        className: "memo-container",
-        children: [/* @__PURE__ */ jsx("div", {
-          className: "memo-content-text",
-          dangerouslySetInnerHTML: {
-            __html: formatMemoContent(memo2.content)
-          }
-        }), /* @__PURE__ */ jsx(MemoImage, {
-          memo: memo2.content
+        className: "dialog-content-container",
+        children: [/* @__PURE__ */ jsxs("div", {
+          className: "date-text",
+          children: [utils$1.getDateString(memo2.createdAt), " \xB7 ", utils$1.getDateTimeString(memo2.createdAt, showSeconds)]
+        }), /* @__PURE__ */ jsxs("div", {
+          className: "memo-container",
+          children: [/* @__PURE__ */ jsx("div", {
+            className: "memo-content-text",
+            dangerouslySetInnerHTML: {
+              __html: formatMemoContent(memo2.content)
+            }
+          }), /* @__PURE__ */ jsx(MemoImage, {
+            memo: memo2.content
+          })]
         })]
       }), /* @__PURE__ */ jsxs("div", {
-        className: "btns-container",
+        className: "dialog-footer-container",
         children: [/* @__PURE__ */ jsxs("button", {
           className: "btn random-btn",
           onClick: pickRandom,

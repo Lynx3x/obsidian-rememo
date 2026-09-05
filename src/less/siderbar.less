@@ -5,7 +5,8 @@
   .flex(column, flex-start, flex-start);
   width: 240px;
   height: 100%;
-  padding: 16px 0;
+  // 显式自涂画布底色：sticky 导航的遮底与滚动内容同色（nav 遮罩才不可见）
+  background-color: var(--memo-canvas);
   overflow-x: hidden;
   overflow-y: auto;
   flex-shrink: 0;
@@ -36,6 +37,8 @@
   top: 0;
   width: 100%;
   padding: 2px 8px 8px;
+  // 滚动遮底：与侧栏 wrapper 自涂同色（var(--memo-canvas)），滚动中不叠字也无可见色块
+  background-color: var(--memo-canvas);
   z-index: 1;
 
   > .memos-nav-item {
