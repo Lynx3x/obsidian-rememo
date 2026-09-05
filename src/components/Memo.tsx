@@ -5,10 +5,11 @@ import {
   LINK_REG,
   MARKDOWN_URL_REG,
   MD_LINK_REG,
-  MEMO_LINK_REG,
   TAG_REG,
   WIKI_IMAGE_URL_REG,
 } from '../helpers/consts';
+import { stripMemoLinks } from '../helpers/memoLink';
+import MemoRefBar from './MemoRefBar';
 import useState from 'react-usestateref';
 import { parseMarkedToHtml, renderMemoContentLines } from '../helpers/marked';
 import utils from '../helpers/utils';
@@ -252,7 +253,7 @@ const Memo: React.FC<Props> = (props: Props) => {
 
     if (targetEl.className === 'memo-link-text') {
       const memoId = targetEl.dataset?.value;
-      const memoTemp = memoService.getMemoById(memoId ?? '');
+      const memoTemp = memoService.getMemoByLinkTarget(memoId ?? '');
 
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
@@ -338,12 +339,16 @@ const Memo: React.FC<Props> = (props: Props) => {
         dangerouslySetInnerHTML={{ __html: formatMemoContent(propsMemo.content, propsMemo.id) }}
       ></div>
       <MemoImage {...imageProps} />
+      <MemoRefBar content={propsMemo.content} currentPath={propsMemo.path} onOpenMemo={(tm) => showMemoCardDialog(tm)} />
     </div>
   );
 };
 
 export function formatMemoContent(content: string, memoid?: string) {
   const { shouldUseMarkdownParser, shouldHideImageUrl } = globalStateService.getState();
+
+  // P3 引用标记（MEMO_LINK）不渲染在正文：整串剥离，引用由卡底"引用自"条呈现（见 Memo.tsx 渲染）
+  content = stripMemoLinks(content);
 
   // P1 行式渲染：<br> 旧编码归一 → 段落/列表(嵌套)/任务/代码块结构（内部转义）
   content = renderMemoContentLines(content);
@@ -359,7 +364,6 @@ export function formatMemoContent(content: string, memoid?: string) {
   content = content
     .replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>")
     .replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>")
-    .replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>")
     .replace(/\^\S{6}/g, '');
 
   const tagsCollect = (content: string) => {

@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { TFile } from 'obsidian';
 import { applyFixes, runAudit } from '../engine';
-import { migrateFile } from '../migrate';
+import { migrateFiles } from '../migrate';
 import { ruleById } from '../rules';
 import { AuditResult, Issue, RuleSeverity } from '../types';
 import { storage } from '../../helpers/storage';
@@ -136,11 +136,14 @@ const AuditPage: React.FC = () => {
     setMigratingPath(path);
     setMsg('');
     try {
-      const rep = await migrateFile(file);
-      if (rep.changed) {
+      const rep = await migrateFiles([file]);
+      if (rep.files > 0) {
         setMsg(
-          `迁移完成：转换 ${rep.converted} 个旧单位${rep.droppedComments > 0 ? `，丢弃已删评论 ${rep.droppedComments} 行` : ''}` +
+          `迁移完成：转换 ${rep.converted} 个旧单位` +
+            (rep.crossMoved > 0 ? `，${rep.crossMoved} 条跨天评论已落到对应日记` : '') +
+            (rep.droppedComments > 0 ? `，丢弃已删评论 ${rep.droppedComments} 行` : '') +
             (rep.skipped > 0 ? `，${rep.skipped} 个单位无法映射已原样保留` : '') +
+            (rep.failed.length > 0 ? `，失败：${rep.failed.join('、')}` : '') +
             '。备份在 .rememo-backup/migrate-*，旧数据已恢复为新卡片块。',
         );
       } else {
@@ -175,32 +178,17 @@ const AuditPage: React.FC = () => {
     if (paths.length === 0) return;
     setBusy(true);
     setMsg('');
-    let files = 0;
-    let converted = 0;
-    let skipped = 0;
-    let dropped = 0;
-    const failed: string[] = [];
     try {
-      for (const path of paths) {
-        const file = app.vault.getAbstractFileByPath(path);
-        if (!(file instanceof TFile)) continue;
-        try {
-          const rep = await migrateFile(file);
-          if (rep.changed) {
-            files++;
-            converted += rep.converted;
-            skipped += rep.skipped;
-            dropped += rep.droppedComments;
-          }
-        } catch (e: any) {
-          failed.push(shortName(path));
-        }
-      }
+      const fileList = paths
+        .map((p) => app.vault.getAbstractFileByPath(p))
+        .filter((f): f is TFile => f instanceof TFile);
+      const rep = await migrateFiles(fileList);
       setMsg(
-        `全部迁移完成：${files} 个文件 · 转换 ${converted} 个旧单位` +
-          (dropped > 0 ? ` · 丢弃已删评论 ${dropped} 行` : '') +
-          (skipped > 0 ? ` · ${skipped} 个单位无法映射已原样保留` : '') +
-          (failed.length > 0 ? ` · 失败：${failed.join('、')}` : '') +
+        `全部迁移完成：${rep.files} 个文件 · 转换 ${rep.converted} 个旧单位` +
+          (rep.crossMoved > 0 ? ` · ${rep.crossMoved} 条跨天评论已落到对应日记` : '') +
+          (rep.droppedComments > 0 ? ` · 丢弃已删评论 ${rep.droppedComments} 行` : '') +
+          (rep.skipped > 0 ? ` · ${rep.skipped} 个单位无法映射已原样保留` : '') +
+          (rep.failed.length > 0 ? ` · 失败：${rep.failed.join('、')}` : '') +
           '。备份在 .rememo-backup/migrate-*。',
       );
       await scan({ silent: true });

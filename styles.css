@@ -1454,6 +1454,35 @@ div[data-type='memos_view'] svg.action-btn,
     scroll-behavior: auto !important;
   }
 }
+[data-type='memos_view'] .memo-wrapper .memo-ref-bar,
+.dialog-wrapper .memo-card-container .memo-ref-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  margin-top: 6px;
+}
+[data-type='memos_view'] .memo-wrapper .memo-ref-bar > .memo-ref-item,
+.dialog-wrapper .memo-card-container .memo-ref-bar > .memo-ref-item {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--memo-text-muted);
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-type='memos_view'] .memo-wrapper .memo-ref-bar > .memo-ref-item:hover,
+.dialog-wrapper .memo-card-container .memo-ref-bar > .memo-ref-item:hover {
+  color: var(--memo-accent);
+}
+[data-type='memos_view'] .memo-wrapper .memo-ref-bar > .memo-ref-item.missing,
+.dialog-wrapper .memo-card-container .memo-ref-bar > .memo-ref-item.missing {
+  color: var(--memo-text-faint);
+  cursor: default;
+}
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text {
   display: flex;

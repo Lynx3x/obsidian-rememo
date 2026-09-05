@@ -1,5 +1,36 @@
 @import './mixin.less';
 
+// P3 引用条（卡底"引用自"列表；主列表/回收站/daily wrapper 与弹窗 card 内通用）
+[data-type='memos_view'] .memo-wrapper .memo-ref-bar,
+.dialog-wrapper .memo-card-container .memo-ref-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  margin-top: 6px;
+
+  > .memo-ref-item {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--memo-text-muted);
+    cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--memo-accent);
+    }
+
+    &.missing {
+      color: var(--memo-text-faint);
+      cursor: default;
+    }
+  }
+}
+
 // memo 正文排版（列表卡片 + daily 弹窗两处通用）
 // 颜色用 Obsidian 原生变量（可能渲染于 memos_view 之外的 modal，故不用 --memo-*）
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text,

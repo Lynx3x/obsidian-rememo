@@ -9465,6 +9465,30 @@ class LocationService {
   }
 }
 const locationService = new LocationService();
+const NEW_TARGET_REG = /^([^#]+\.md)#\^([A-Za-z0-9]{6})$/;
+function parseLinkTarget(target) {
+  const t2 = (target != null ? target : "").trim();
+  if (!t2)
+    return null;
+  const m2 = NEW_TARGET_REG.exec(t2);
+  if (m2)
+    return { fileName: m2[1], id: m2[2], isLegacy: false };
+  return { id: t2, isLegacy: true };
+}
+function extractLinkTargets(content2) {
+  const set = /* @__PURE__ */ new Set();
+  for (const m2 of content2.matchAll(MEMO_LINK_REG)) {
+    if (m2[2])
+      set.add(m2[2]);
+  }
+  return [...set];
+}
+function stripMemoLinks(content2) {
+  return content2.replace(MEMO_LINK_REG, "");
+}
+function refPreview(content2, max2 = 30) {
+  return stripMemoLinks(content2).replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim().slice(0, max2);
+}
 async function openMemoFile(memoId, path) {
   const { vault } = appStore.getState().dailyNotesState.app;
   let file = null;
@@ -10036,6 +10060,17 @@ class MemoService {
   getMemoById(id2) {
     return this.getState().memos.find((m2) => m2.id === id2) || null;
   }
+  getMemoByLinkTarget(target) {
+    const parsed = parseLinkTarget(target);
+    if (!parsed)
+      return null;
+    if (!parsed.isLegacy && parsed.fileName) {
+      return this.getState().memos.find(
+        (m2) => m2.hasId === parsed.id && (m2.path === parsed.fileName || m2.path.endsWith("/" + parsed.fileName))
+      ) || null;
+    }
+    return this.getMemoById(parsed.id) || null;
+  }
   async hideMemoById(id2, hasId, path) {
     const file = await obHideMemo(id2, hasId, path);
     if (file) {
@@ -10097,8 +10132,13 @@ class MemoService {
       payload: { memos: [] }
     });
   }
-  async getLinkedMemos(memoId) {
-    return this.getState().memos.filter((m2) => m2.content.includes(memoId));
+  async getLinkedMemos(memo2) {
+    var _a2;
+    const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
+    const targets = memo2.hasId ? [`${fileName}#^${memo2.hasId}`] : [];
+    return this.getState().memos.filter(
+      (m2) => m2.id !== memo2.id && (targets.some((t2) => m2.content.includes(t2)) || m2.content.includes(memo2.id))
+    );
   }
   async createMemo(text, isTask, date) {
     return await waitForInsert(text, isTask, date);
@@ -13189,6 +13229,38 @@ function parseMemoImages(content2, app2) {
   ];
   return { external, internal, all };
 }
+const MemoRefBar = ({
+  content: content2,
+  currentPath,
+  onOpenMemo
+}) => {
+  const refTargets = extractLinkTargets(content2);
+  if (refTargets.length === 0)
+    return null;
+  return /* @__PURE__ */ jsx("div", {
+    className: "memo-ref-bar",
+    children: refTargets.map((target) => {
+      var _a2, _b;
+      const tm = memoService.getMemoByLinkTarget(target);
+      if (!tm) {
+        return /* @__PURE__ */ jsx("span", {
+          className: "memo-ref-item missing",
+          children: "\u2197 \u5F15\u7528\u76EE\u6807\u5DF2\u5220\u9664"
+        }, target);
+      }
+      const sameDay = tm.path === currentPath;
+      const timePart = ((_a2 = tm.createdAt) != null ? _a2 : "").slice(11, 16);
+      const datePart = sameDay ? "" : `${((_b = tm.createdAt) != null ? _b : "").slice(5, 10)} `;
+      const preview = refPreview(tm.content, 30);
+      return /* @__PURE__ */ jsxs("span", {
+        className: "memo-ref-item",
+        title: preview || timePart,
+        onClick: () => onOpenMemo(tm),
+        children: ["\u2197 ", datePart, timePart, "\xB7 ", preview]
+      }, target);
+    })
+  });
+};
 var react_1 = react.exports;
 var isFunction = function(setStateAction) {
   return typeof setStateAction === "function";
@@ -13468,7 +13540,7 @@ const MemoCardDialog = (props) => {
         for (const matchRes of matchedArr) {
           if (matchRes && matchRes.length === 3) {
             const id2 = matchRes[2];
-            const memoTemp = memoService.getMemoById(id2);
+            const memoTemp = memoService.getMemoByLinkTarget(id2);
             if (memoTemp) {
               linkMemos2.push({
                 ...memoTemp,
@@ -13479,7 +13551,7 @@ const MemoCardDialog = (props) => {
           }
         }
         setLinkMemos([...linkMemos2]);
-        const linkedMemos2 = await memoService.getLinkedMemos(memo2.id);
+        const linkedMemos2 = await memoService.getLinkedMemos(memo2);
         setLinkedMemos(linkedMemos2.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).map((m2) => ({
           ...m2,
           createdAtStr: utils$1.getDateTimeString(m2.createdAt, showSeconds),
@@ -13495,7 +13567,7 @@ const MemoCardDialog = (props) => {
     const targetEl = e.target;
     if (targetEl.className === "memo-link-text") {
       const nextMemoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
-      const memoTemp = memoService.getMemoById(nextMemoId != null ? nextMemoId : "");
+      const memoTemp = memoService.getMemoByLinkTarget(nextMemoId != null ? nextMemoId : "");
       if (memoTemp) {
         const nextMemo = {
           ...memoTemp,
@@ -14169,7 +14241,7 @@ const Memo = (props) => {
     }
     if (targetEl.className === "memo-link-text") {
       const memoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
-      const memoTemp = memoService.getMemoById(memoId != null ? memoId : "");
+      const memoTemp = memoService.getMemoByLinkTarget(memoId != null ? memoId : "");
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
       } else {
@@ -14260,6 +14332,10 @@ const Memo = (props) => {
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       ...imageProps
+    }), /* @__PURE__ */ jsx(MemoRefBar, {
+      content: propsMemo.content,
+      currentPath: propsMemo.path,
+      onOpenMemo: (tm) => showMemoCardDialog(tm)
     })]
   });
 };
@@ -14268,6 +14344,7 @@ function formatMemoContent(content2, memoid) {
     shouldUseMarkdownParser,
     shouldHideImageUrl
   } = globalStateService.getState();
+  content2 = stripMemoLinks(content2);
   content2 = renderMemoContentLines(content2);
   if (shouldUseMarkdownParser) {
     content2 = parseMarkedToHtml(content2, memoid);
@@ -14275,7 +14352,7 @@ function formatMemoContent(content2, memoid) {
   if (shouldHideImageUrl) {
     content2 = content2.replace(WIKI_IMAGE_URL_REG, "").replace(MARKDOWN_URL_REG, "").replace(IMAGE_URL_REG, "");
   }
-  content2 = content2.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>").replace(/\^\S{6}/g, "");
+  content2 = content2.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(/\^\S{6}/g, "");
   const tagsCollect = (content22) => {
     let tags2 = [...content22.matchAll(TAG_REG)];
     tags2 = [...tags2, ...content22.matchAll(FIRST_TAG_REG)];
@@ -33542,6 +33619,10 @@ const DeletedMemo = (props) => {
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       memo: memo2.content
+    }), /* @__PURE__ */ jsx(MemoRefBar, {
+      content: memo2.content,
+      currentPath: memo2.path,
+      onOpenMemo: (tm) => showMemoCardDialog(tm)
     })]
   });
 };
@@ -33959,6 +34040,8 @@ async function applyFixes(issues) {
 const TIME_TAG_REG = /<\/?time>/gi;
 const BR_REG = /<br\s*\/?>/gi;
 const DELETED_AT_IN_LINE_REG = /\sdeletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
+const COMMENT_ROW_REG = /^ {4}- (?:\[[ xX]\] )?\d{14}/;
+const FILE_DATE_REG = /(\d{4})-(\d{2})-(\d{2})\.md$/;
 const randomId6 = () => Math.random().toString(36).slice(-6);
 const indentOf = (line) => line.length - line.trimStart().length;
 function decodeLegacyContent(text) {
@@ -33969,7 +34052,7 @@ function decodeLegacyContent(text) {
     segs.pop();
   return segs;
 }
-function convertLegacyUnit(parent, subtree, report) {
+function convertLegacyUnit(parent, subtree, fileDate, parentPath, parentFileName, report, cross) {
   let rest = parent.replace(/^[-*]\s/, "");
   let mark = "";
   const tm = /^\[([^\]]{1})\]\s?/.exec(rest);
@@ -33984,7 +34067,7 @@ function convertLegacyUnit(parent, subtree, report) {
   const timeText = /^\d{1,2}:\d{2}$/.test(time) ? `${time}:00` : time;
   let tail = contentRest;
   const idM = /\^([A-Za-z0-9]{6})\s*$/.exec(tail);
-  const id2 = idM ? idM[1] : randomId6();
+  const parentId = idM ? idM[1] : randomId6();
   if (idM)
     tail = tail.slice(0, idM.index).trimEnd();
   let deletedAt = "";
@@ -33993,13 +34076,19 @@ function convertLegacyUnit(parent, subtree, report) {
     deletedAt = del.deletedAt;
     tail = del.rest;
   }
-  const body = [];
+  const parentBody = [];
   if (tail.trim() !== "") {
     for (const seg of decodeLegacyContent(tail)) {
-      body.push(seg === "" ? "" : "    " + seg);
+      parentBody.push(seg === "" ? "" : "    " + seg);
     }
   }
+  const parentLabel = (decodeLegacyContent(tail).join(" ").trim() || timeText).slice(0, 24);
   let pendingBlank = 0;
+  const flushBlank = () => {
+    for (let b = 0; b < pendingBlank; b++)
+      parentBody.push("");
+    pendingBlank = 0;
+  };
   for (const row of subtree) {
     if (row.trim() === "") {
       pendingBlank++;
@@ -34010,77 +34099,209 @@ function convertLegacyUnit(parent, subtree, report) {
       pendingBlank = 0;
       continue;
     }
-    for (let b = 0; b < pendingBlank; b++)
-      body.push("");
-    pendingBlank = 0;
-    body.push("    " + unindentContentLine(row));
-  }
-  const header = `${mark !== "" ? `- [${mark}] ` : "- "}${timeText}${deletedAt ? ` deletedAt: ${deletedAt}` : ""} ^${id2}`;
-  return [header, ...body];
-}
-function migrateContent(lines, inScope) {
-  const out = [];
-  let converted = 0;
-  let skipped = 0;
-  let droppedComments = 0;
-  const report = { droppedComments: 0 };
-  let i2 = 0;
-  while (i2 < lines.length) {
-    const line = lines[i2];
-    const inside = !!inScope[i2];
-    if (!inside || classifyMemoRow(line) !== "old-top-row") {
-      out.push(line);
-      i2++;
+    const cm = COMMENT_ROW_REG.exec(row);
+    if (cm) {
+      flushBlank();
+      const cRest = row.replace(COMMENT_ROW_REG, "").trimStart();
+      const cTime = row.trimStart().replace(/^- (?:\[[ xX]\] )?/, "").slice(0, 14);
+      const dateStr = `${cTime.slice(0, 4)}-${cTime.slice(4, 6)}-${cTime.slice(6, 8)}`;
+      const timeStr = `${cTime.slice(8, 10)}:${cTime.slice(10, 12)}:${cTime.slice(12, 14)}`;
+      const block = [
+        `- ${timeStr} ^${randomId6()}`,
+        `    [@${parentLabel}](${parentFileName}#^${parentId})`,
+        ...decodeLegacyContent(cRest).map((seg) => seg === "" ? "" : "    " + seg)
+      ];
+      if (dateStr === fileDate) {
+        parentBody.push("", ...block);
+      } else {
+        cross.push({ date: dateStr, block, parentPath, parentFileName });
+      }
       continue;
     }
-    const unitLines = [line];
-    let j = i2 + 1;
-    while (j < lines.length && inScope[j]) {
-      const l2 = lines[j];
-      if (l2.trim() === "" || indentOf(l2) > 0) {
-        unitLines.push(l2);
-        j++;
+    flushBlank();
+    parentBody.push("    " + unindentContentLine(row));
+  }
+  flushBlank();
+  const header = `${mark !== "" ? `- [${mark}] ` : "- "}${timeText}${deletedAt ? ` deletedAt: ${deletedAt}` : ""} ^${parentId}`;
+  return [header, ...parentBody];
+}
+function insertAtScopeEnd(lines, blocks, processBelow) {
+  const scope = computeScope(lines, processBelow);
+  const idx = scope.lastIndexOf(true);
+  if (idx < 0)
+    return null;
+  let insertAt = idx + 1;
+  while (insertAt < lines.length && lines[insertAt].trim() === "")
+    insertAt++;
+  const flat = [];
+  for (const b of blocks) {
+    if (flat.length > 0)
+      flat.push("");
+    flat.push(...b);
+  }
+  const next = [...lines];
+  const needLead = insertAt > 0 && next[insertAt - 1] !== "";
+  if (needLead)
+    next.splice(insertAt, 0, "", ...flat);
+  else
+    next.splice(insertAt, 0, ...flat);
+  return next;
+}
+async function migrateFiles(files) {
+  var _a2, _b, _c, _d, _e, _f, _g;
+  const app2 = appStore.getState().dailyNotesState.app;
+  const processBelow = (_a2 = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a2 : "";
+  const report = { files: 0, converted: 0, skipped: 0, droppedComments: 0, crossMoved: 0, failed: [] };
+  if (files.length === 0)
+    return report;
+  const plans = [];
+  for (const file of files) {
+    try {
+      const lines = (await file.vault.cachedRead(file)).split(/\r?\n/);
+      const inScope = computeScope(lines, processBelow);
+      const fd2 = FILE_DATE_REG.exec(file.name);
+      const fileDate = fd2 ? `${fd2[1]}-${fd2[2]}-${fd2[3]}` : "";
+      const out = [];
+      let converted = 0;
+      let skipped = 0;
+      let droppedComments = 0;
+      const cross = [];
+      let i2 = 0;
+      while (i2 < lines.length) {
+        const line = lines[i2];
+        if (!inScope[i2] || classifyMemoRow(line) !== "old-top-row") {
+          out.push(line);
+          i2++;
+          continue;
+        }
+        const unitLines = [line];
+        let j = i2 + 1;
+        while (j < lines.length && inScope[j]) {
+          const l2 = lines[j];
+          if (l2.trim() === "" || indentOf(l2) > 0) {
+            unitLines.push(l2);
+            j++;
+            continue;
+          }
+          break;
+        }
+        const rpt = { droppedComments: 0 };
+        const block = convertLegacyUnit(line, unitLines.slice(1), fileDate, file.path, file.name, rpt, cross);
+        if (block === null) {
+          out.push(...unitLines);
+          skipped++;
+        } else {
+          out.push(...block);
+          converted++;
+        }
+        droppedComments += rpt.droppedComments;
+        i2 = j;
+      }
+      plans.push({ path: file.path, out, converted, skipped, droppedComments, cross });
+      report.converted += converted;
+      report.skipped += skipped;
+      report.droppedComments += droppedComments;
+    } catch {
+      report.failed.push(file.name);
+    }
+  }
+  const planByPath = new Map(plans.map((p2) => [p2.path, p2]));
+  const fileByName = new Map(app2.vault.getFiles().filter((f2) => f2.extension === "md").map((f2) => [f2.name, f2]));
+  const dirPrefix = (p2) => p2.includes("/") ? p2.slice(0, p2.lastIndexOf("/") + 1) : "";
+  const appendWrites = /* @__PURE__ */ new Map();
+  for (const plan of plans) {
+    if (plan.cross.length === 0)
+      continue;
+    const fallback = [];
+    const targetBlocks = /* @__PURE__ */ new Map();
+    for (const c of plan.cross) {
+      const targetPath = `${dirPrefix(plan.path)}${c.date}.md`;
+      const target = fileByName.get(`${c.date}.md`);
+      const sameDir = !plan.path.includes("/") || dirPrefix(targetPath) === dirPrefix(plan.path);
+      if (target && sameDir && target.path === targetPath) {
+        const list = (_b = targetBlocks.get(targetPath)) != null ? _b : [];
+        list.push(c.block);
+        targetBlocks.set(targetPath, list);
+      } else {
+        fallback.push(c.block);
+      }
+    }
+    for (const [tPath, blocks] of targetBlocks) {
+      const t2 = fileByName.get((_c = tPath.split("/").pop()) != null ? _c : "");
+      if (!t2 || t2.path !== tPath) {
+        fallback.push(...blocks);
         continue;
       }
-      break;
+      const tLines = (await t2.vault.cachedRead(t2)).split(/\r?\n/);
+      const scope = computeScope(tLines, processBelow);
+      if (scope.lastIndexOf(true) < 0) {
+        fallback.push(...blocks);
+        continue;
+      }
+      const p2 = planByPath.get(tPath);
+      if (p2) {
+        const merged = insertAtScopeEnd(p2.out, blocks, processBelow);
+        if (merged)
+          p2.out = merged;
+        else
+          fallback.push(...blocks);
+      } else {
+        const list = (_d = appendWrites.get(tPath)) != null ? _d : [];
+        list.push(...blocks);
+        appendWrites.set(tPath, list);
+      }
+      report.crossMoved += blocks.length;
     }
-    report.droppedComments = 0;
-    const block = convertLegacyUnit(line, unitLines.slice(1), report);
-    if (block === null) {
-      out.push(...unitLines);
-      skipped++;
-    } else {
-      out.push(...block);
-      converted++;
+    if (fallback.length > 0) {
+      const merged = insertAtScopeEnd(plan.out, fallback, processBelow);
+      if (merged)
+        plan.out = merged;
     }
-    droppedComments += report.droppedComments;
-    i2 = j;
   }
-  return { out, converted, skipped, droppedComments };
-}
-async function migrateFile(file) {
-  var _a2;
-  const app2 = appStore.getState().dailyNotesState.app;
-  const lines = (await file.vault.cachedRead(file)).split(/\r?\n/);
-  const inScope = computeScope(lines, (_a2 = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a2 : "");
-  const { out, converted, skipped, droppedComments } = migrateContent(lines, inScope);
-  const changed = converted > 0 || droppedComments > 0;
-  if (!changed)
-    return { converted, skipped, droppedComments, changed };
-  if (out.join("\n") === lines.join("\n"))
-    return { converted, skipped, droppedComments, changed: false };
-  const adapter = app2.vault.adapter;
-  const ts = require$$0.moment().format("YYYYMMDD-HHmmss");
-  const backupDir = require$$0.normalizePath(".rememo-backup/migrate-" + ts);
-  try {
-    await adapter.mkdir(require$$0.normalizePath(".rememo-backup"));
-  } catch {
+  const changed = plans.filter((p2) => p2.converted > 0 || p2.droppedComments > 0);
+  const writeTasks = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (const plan of changed) {
+    seen.add(plan.path);
+    const f2 = (_f = fileByName.get((_e = plan.path.split("/").pop()) != null ? _e : "")) != null ? _f : app2.vault.getAbstractFileByPath(plan.path);
+    if (f2 instanceof require$$0.TFile && f2.path === plan.path)
+      writeTasks.push({ file: f2, lines: plan.out });
   }
-  await adapter.mkdir(backupDir);
-  const safeName = file.path.replace(/\//g, "__");
-  await adapter.write(require$$0.normalizePath(`${backupDir}/${safeName}`), lines.join("\n"));
-  await app2.vault.modify(file, out.join("\n"));
-  return { converted, skipped, droppedComments, changed };
+  for (const [tPath, blocks] of appendWrites) {
+    if (seen.has(tPath))
+      continue;
+    const f2 = fileByName.get((_g = tPath.split("/").pop()) != null ? _g : "");
+    if (!(f2 instanceof require$$0.TFile) || f2.path !== tPath)
+      continue;
+    const original = (await f2.vault.cachedRead(f2)).split(/\r?\n/);
+    const merged = insertAtScopeEnd(original, blocks, processBelow);
+    if (merged) {
+      seen.add(tPath);
+      writeTasks.push({ file: f2, lines: merged });
+    }
+  }
+  if (writeTasks.length > 0) {
+    const adapter = app2.vault.adapter;
+    const ts = require$$0.moment().format("YYYYMMDD-HHmmss");
+    const backupDir = require$$0.normalizePath(".rememo-backup/migrate-" + ts);
+    try {
+      await adapter.mkdir(require$$0.normalizePath(".rememo-backup"));
+    } catch {
+    }
+    await adapter.mkdir(backupDir);
+    for (const task of writeTasks) {
+      try {
+        const original = (await task.file.vault.cachedRead(task.file)).split(/\r?\n/);
+        const safeName = task.file.path.replace(/\//g, "__");
+        await adapter.write(require$$0.normalizePath(`${backupDir}/${safeName}`), original.join("\n"));
+        await task.file.vault.modify(task.file, task.lines.join("\n"));
+      } catch {
+        report.failed.push(task.file.name);
+      }
+    }
+  }
+  report.files = writeTasks.length;
+  return report;
 }
 var auditPage = "";
 const IGNORED_KEY = "auditIgnoredLines";
@@ -34212,9 +34433,9 @@ const AuditPage = () => {
     setMigratingPath(path);
     setMsg("");
     try {
-      const rep = await migrateFile(file);
-      if (rep.changed) {
-        setMsg(`\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 ${rep.converted} \u4E2A\u65E7\u5355\u4F4D${rep.droppedComments > 0 ? `\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${rep.droppedComments} \u884C` : ""}` + (rep.skipped > 0 ? `\uFF0C${rep.skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002");
+      const rep = await migrateFiles([file]);
+      if (rep.files > 0) {
+        setMsg(`\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 ${rep.converted} \u4E2A\u65E7\u5355\u4F4D` + (rep.crossMoved > 0 ? `\uFF0C${rep.crossMoved} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0` : "") + (rep.droppedComments > 0 ? `\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${rep.droppedComments} \u884C` : "") + (rep.skipped > 0 ? `\uFF0C${rep.skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + (rep.failed.length > 0 ? `\uFF0C\u5931\u8D25\uFF1A${rep.failed.join("\u3001")}` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002");
       } else {
         setMsg(rep.skipped > 0 ? `\u6CA1\u6709\u53EF\u8FC1\u79FB\u7684\u65E7\u5355\u4F4D\uFF08${rep.skipped} \u884C\u7F3A\u65F6\u95F4\u7B49\uFF0C\u9700\u4EBA\u5DE5\u5904\u7406\uFF09\u3002` : "\u8FD9\u4E2A\u6587\u4EF6\u6CA1\u6709\u65E7\u683C\u5F0F\u884C\uFF0C\u65E0\u9700\u8FC1\u79FB\u3002");
       }
@@ -34239,29 +34460,10 @@ const AuditPage = () => {
       return;
     setBusy(true);
     setMsg("");
-    let files = 0;
-    let converted = 0;
-    let skipped = 0;
-    let dropped = 0;
-    const failed = [];
     try {
-      for (const path of paths) {
-        const file = app2.vault.getAbstractFileByPath(path);
-        if (!(file instanceof require$$0.TFile))
-          continue;
-        try {
-          const rep = await migrateFile(file);
-          if (rep.changed) {
-            files++;
-            converted += rep.converted;
-            skipped += rep.skipped;
-            dropped += rep.droppedComments;
-          }
-        } catch (e) {
-          failed.push(shortName(path));
-        }
-      }
-      setMsg(`\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A${files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 ${converted} \u4E2A\u65E7\u5355\u4F4D` + (dropped > 0 ? ` \xB7 \u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${dropped} \u884C` : "") + (skipped > 0 ? ` \xB7 ${skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + (failed.length > 0 ? ` \xB7 \u5931\u8D25\uFF1A${failed.join("\u3001")}` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002");
+      const fileList = paths.map((p2) => app2.vault.getAbstractFileByPath(p2)).filter((f2) => f2 instanceof require$$0.TFile);
+      const rep = await migrateFiles(fileList);
+      setMsg(`\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A${rep.files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 ${rep.converted} \u4E2A\u65E7\u5355\u4F4D` + (rep.crossMoved > 0 ? ` \xB7 ${rep.crossMoved} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0` : "") + (rep.droppedComments > 0 ? ` \xB7 \u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${rep.droppedComments} \u884C` : "") + (rep.skipped > 0 ? ` \xB7 ${rep.skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + (rep.failed.length > 0 ? ` \xB7 \u5931\u8D25\uFF1A${rep.failed.join("\u3001")}` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002");
       await scan({
         silent: true
       });

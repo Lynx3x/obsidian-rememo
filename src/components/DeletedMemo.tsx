@@ -3,6 +3,8 @@ import useToggle from '../hooks/useToggle';
 import appStore from '../stores/appStore';
 import { memoService } from '../services';
 import { formatMemoContent } from './Memo';
+import MemoRefBar from './MemoRefBar';
+import showMemoCardDialog from './MemoCardDialog';
 import '../less/memo.less';
 import React, { useRef } from 'react';
 import { moment, Notice } from 'obsidian';
@@ -134,6 +136,11 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
       </div>
       <div className="memo-content-text" dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}></div>
       <MemoImage memo={memo.content} />
+      <MemoRefBar
+        content={memo.content}
+        currentPath={memo.path}
+        onOpenMemo={(tm) => showMemoCardDialog(tm)}
+      />
     </div>
   );
 };

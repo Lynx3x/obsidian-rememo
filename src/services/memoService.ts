@@ -1,4 +1,5 @@
 import { FIRST_TAG_REG, NOP_FIRST_TAG_REG, TAG_REG } from '../helpers/consts';
+import { parseLinkTarget } from '../helpers/memoLink';
 import { waitForInsert } from '../obComponents/obCreateMemo';
 import { changeMemo } from '../obComponents/obUpdateMemo';
 import { deleteMemo, obHideMemo, restoreMemo } from '../obComponents/obHideMemo';
@@ -92,6 +93,25 @@ class MemoService {
      */
     public getMemoById(id: string): Model.Memo | null {
         return this.getState().memos.find((m: Model.Memo) => m.id === id) || null;
+    }
+
+    /**
+     * 解析 MEMO_LINK 目标定位 memo（P3 引用模型，ADR-0003）：
+     * 新式 `[@标签](文件名#^id)` 按 path+hasId 找；旧式内存 id 走 getMemoById。
+     */
+    public getMemoByLinkTarget(target: string): Model.Memo | null {
+        const parsed = parseLinkTarget(target);
+        if (!parsed) return null;
+        if (!parsed.isLegacy && parsed.fileName) {
+            return (
+                this.getState().memos.find(
+                    (m: Model.Memo) =>
+                        m.hasId === parsed.id &&
+                        (m.path === parsed.fileName || m.path.endsWith('/' + parsed.fileName)),
+                ) || null
+            );
+        }
+        return this.getMemoById(parsed.id) || null;
     }
 
     /**
@@ -193,10 +213,15 @@ class MemoService {
     }
 
     /**
-     * 获取链接到指定备忘录的所有备忘录
+     * 获取引用（MEMO_LINK 指向）指定 memo 的所有 memo（P3：新式 `文件名#^id` 目标串 + 旧式内存 id 双匹配）
      */
-    public async getLinkedMemos(memoId: string): Promise<Model.Memo[]> {
-        return this.getState().memos.filter((m: Model.Memo) => m.content.includes(memoId));
+    public async getLinkedMemos(memo: Model.Memo): Promise<Model.Memo[]> {
+        const fileName = memo.path.split('/').pop() ?? memo.path;
+        const targets = memo.hasId ? [`${fileName}#^${memo.hasId}`] : [];
+        return this.getState().memos.filter(
+            (m: Model.Memo) =>
+                m.id !== memo.id && (targets.some((t) => m.content.includes(t)) || m.content.includes(memo.id)),
+        );
     }
 
     /**

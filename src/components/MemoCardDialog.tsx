@@ -41,7 +41,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
         for (const matchRes of matchedArr) {
           if (matchRes && matchRes.length === 3) {
             const id = matchRes[2];
-            const memoTemp = memoService.getMemoById(id);
+            const memoTemp = memoService.getMemoByLinkTarget(id);
             if (memoTemp) {
               linkMemos.push({
                 ...memoTemp,
@@ -53,7 +53,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
         }
         setLinkMemos([...linkMemos]);
 
-        const linkedMemos = await memoService.getLinkedMemos(memo.id);
+        const linkedMemos = await memoService.getLinkedMemos(memo);
         setLinkedMemos(
           linkedMemos
             .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt))
@@ -76,7 +76,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
 
     if (targetEl.className === 'memo-link-text') {
       const nextMemoId = targetEl.dataset?.value;
-      const memoTemp = memoService.getMemoById(nextMemoId ?? '');
+      const memoTemp = memoService.getMemoByLinkTarget(nextMemoId ?? '');
 
       if (memoTemp) {
         const nextMemo = {
