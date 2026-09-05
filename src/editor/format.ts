@@ -27,14 +27,31 @@ function wrapToggle(view: EditorView, open: string, close = open): boolean {
   return true;
 }
 
+export type MemoFormatKind = 'b' | 'i' | 'e';
+
+const FORMAT_TOKENS: Record<MemoFormatKind, [string, string]> = {
+  b: ['**', '**'],
+  i: ['*', '*'],
+  e: ['`', '`'],
+};
+
+/**
+ * 行内格式动作（b=粗 **、i=斜 *、e=行内码 `）。
+ * 独立导出：window capture 兜底（capture.ts）与 cm keymap 共用同一语义。
+ */
+export function runFormatAction(view: EditorView, kind: MemoFormatKind): boolean {
+  const [open, close] = FORMAT_TOKENS[kind];
+  return wrapToggle(view, open, close);
+}
+
 /** 行内格式快捷键扩展 */
 export function memoFormatKeymap(): Extension[] {
   return [
     Prec.high(
       keymap.of([
-        { key: 'Mod-b', run: (v) => wrapToggle(v, '**') },
-        { key: 'Mod-i', run: (v) => wrapToggle(v, '*') },
-        { key: 'Mod-e', run: (v) => wrapToggle(v, '`') },
+        { key: 'Mod-b', run: (v) => runFormatAction(v, 'b') },
+        { key: 'Mod-i', run: (v) => runFormatAction(v, 'i') },
+        { key: 'Mod-e', run: (v) => runFormatAction(v, 'e') },
       ]),
     ),
   ];

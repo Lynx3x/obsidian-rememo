@@ -16,6 +16,11 @@ import { getSuggestions } from '../obComponents/obFileSuggester';
 const isTagChar = (ch: string): boolean => ch !== '' && /[\p{L}\p{N}_/.-]/u.test(ch);
 const isSpace = (ch: string): boolean => ch === undefined || /\s/.test(ch);
 
+// 联想空结果诊断（#/[[ 语境下无数据才打一行，普通输入不吵；排查 P2 弹层问题用）
+function dbgNoResult(kind: string, token: string, extra?: unknown): void {
+  console.debug(`[rememo-suggest] ${kind} 无结果`, { token, ...(extra as object) });
+}
+
 // ---- # 标签联想 ----
 function tagCompletion(ctx: CompletionContext): CompletionResult | null {
   const { state, pos } = ctx;
@@ -36,7 +41,11 @@ function tagCompletion(ctx: CompletionContext): CompletionResult | null {
     label: name,
     apply: '#' + name,
   }));
-  if (options.length === 0) return null;
+  if (options.length === 0) {
+    // 只在 token 非空（已敲词根）时诊断——刚打 '#' 列全部且库无标签属正常
+    if (token.length > 0) dbgNoResult('#标签', token);
+    return null;
+  }
   return { from: hash, options, filter: false };
 }
 
@@ -65,7 +74,11 @@ function fileCompletion(ctx: CompletionContext): CompletionResult | null {
   // token 语义与旧 rta 一致：喂 getSuggestions 一个带单 '[' 的串（函数内部再剥）
   const tokenWithBracket = state.sliceDoc(from + 1, pos);
   const suggestions = getSuggestions(tokenWithBracket).slice(0, 10);
-  if (suggestions.length === 0) return null;
+  if (suggestions.length === 0) {
+    // token 非空（已敲文件名）仍无 → 数据源疑点才诊断
+    if (tokenWithBracket.length > 1) dbgNoResult('[[文件', tokenWithBracket);
+    return null;
+  }
 
   const options = suggestions.map(({ name, file }) => {
     const dir = file.parent && file.parent.path !== '/' ? file.parent.path : '';

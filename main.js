@@ -12446,7 +12446,7 @@ function Portal({ children, animation, styles: styles2, className, on, portal, c
     }, animationDuration);
   });
   react.exports.useEffect(() => subscribe(ACTION_CLOSE, handleClose), [subscribe, handleClose]);
-  const handleEnter = useEventCallback((node) => {
+  const handleEnter2 = useEventCallback((node) => {
     var _a2, _b, _c;
     node.scrollTop;
     setVisible(true);
@@ -12470,11 +12470,11 @@ function Portal({ children, animation, styles: styles2, className, on, portal, c
   });
   const handleRef = react.exports.useCallback((node) => {
     if (node) {
-      handleEnter(node);
+      handleEnter2(node);
     } else {
       handleCleanup();
     }
-  }, [handleEnter, handleCleanup]);
+  }, [handleEnter2, handleCleanup]);
   return mounted ? reactDom.exports.createPortal(react.exports.createElement(LightboxRoot, { ref: handleRef, className: clsx(className, cssClass(cssPrefix$1()), cssClass(CLASS_NO_SCROLL_PADDING), visible && cssClass(cssPrefix$1("open"))), role: "presentation", "aria-live": "polite", style: {
     ...animation.fade !== LightboxDefaultProps.animation.fade ? { [cssVar("fade_animation_duration")]: `${animationDuration}ms` } : null,
     ...animation.easing.fade !== LightboxDefaultProps.animation.easing.fade ? { [cssVar("fade_animation_timing_function")]: animation.easing.fade } : null,
@@ -31828,30 +31828,26 @@ const insertSingleNewline = (view) => {
   });
   return true;
 };
+function handleEnter(view, opts) {
+  if (opts.isEnterToSend()) {
+    opts.send();
+    return true;
+  }
+  return continueList(view);
+}
+function handleModEnter(view, opts) {
+  if (opts.isEnterToSend()) {
+    return insertSingleNewline(view);
+  }
+  opts.send();
+  return true;
+}
 function memoInputKeymap(opts) {
   return [
     Prec.high(
       keymap.of([
-        {
-          key: "Enter",
-          run: (view) => {
-            if (opts.isEnterToSend()) {
-              opts.send();
-              return true;
-            }
-            return continueList(view);
-          }
-        },
-        {
-          key: "Mod-Enter",
-          run: (view) => {
-            if (opts.isEnterToSend()) {
-              return insertSingleNewline(view);
-            }
-            opts.send();
-            return true;
-          }
-        }
+        { key: "Enter", run: (view) => handleEnter(view, opts) },
+        { key: "Mod-Enter", run: (view) => handleModEnter(view, opts) }
       ])
     )
   ];
@@ -31876,16 +31872,78 @@ function wrapToggle(view, open, close = open) {
   });
   return true;
 }
+const FORMAT_TOKENS = {
+  b: ["**", "**"],
+  i: ["*", "*"],
+  e: ["`", "`"]
+};
+function runFormatAction(view, kind) {
+  const [open, close] = FORMAT_TOKENS[kind];
+  return wrapToggle(view, open, close);
+}
 function memoFormatKeymap() {
   return [
     Prec.high(
       keymap.of([
-        { key: "Mod-b", run: (v2) => wrapToggle(v2, "**") },
-        { key: "Mod-i", run: (v2) => wrapToggle(v2, "*") },
-        { key: "Mod-e", run: (v2) => wrapToggle(v2, "`") }
+        { key: "Mod-b", run: (v2) => runFormatAction(v2, "b") },
+        { key: "Mod-i", run: (v2) => runFormatAction(v2, "i") },
+        { key: "Mod-e", run: (v2) => runFormatAction(v2, "e") }
       ])
     )
   ];
+}
+const holders = /* @__PURE__ */ new Set();
+let installed = false;
+function onWindowKeydown(e) {
+  if (e.isComposing)
+    return;
+  const target = e.target instanceof Node ? e.target : null;
+  if (!target)
+    return;
+  let holder;
+  for (const h2 of holders) {
+    if (h2.view.dom.contains(target)) {
+      holder = h2;
+      break;
+    }
+  }
+  if (!holder)
+    return;
+  for (const b of holder.binds) {
+    if (b.match(e)) {
+      if (e.defaultPrevented) {
+        console.debug("[rememo-kb] \u6309\u952E\u5DF2\u88AB Obsidian \u62A2\u5148\u5904\u7406\uFF08\u53EF\u80FD\u4F5C\u7528\u4E8E\u4E3B\u7F16\u8F91\u5668\uFF09", {
+          key: e.key,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey
+        });
+      }
+      b.run(holder.view);
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return;
+    }
+  }
+}
+function attachKeyCapture(view, binds) {
+  holders.add({ view, binds });
+  if (!installed) {
+    window.addEventListener("keydown", onWindowKeydown, true);
+    installed = true;
+  }
+  return () => {
+    for (const h2 of holders) {
+      if (h2.view === view) {
+        holders.delete(h2);
+        break;
+      }
+    }
+    if (!holders.size && installed) {
+      window.removeEventListener("keydown", onWindowKeydown, true);
+      installed = false;
+    }
+  };
 }
 const etTags = () => {
   const { app: app2 } = dailyNotesService.getState();
@@ -31950,6 +32008,9 @@ const getSuggestions = (inputStr) => {
 };
 const isTagChar = (ch2) => ch2 !== "" && /[\p{L}\p{N}_/.-]/u.test(ch2);
 const isSpace = (ch2) => ch2 === void 0 || /\s/.test(ch2);
+function dbgNoResult(kind, token, extra) {
+  console.debug(`[rememo-suggest] ${kind} \u65E0\u7ED3\u679C`, { token, ...extra });
+}
 function tagCompletion(ctx) {
   const { state, pos } = ctx;
   const line = state.doc.lineAt(pos);
@@ -31968,8 +32029,11 @@ function tagCompletion(ctx) {
     label: name2,
     apply: "#" + name2
   }));
-  if (options.length === 0)
+  if (options.length === 0) {
+    if (token.length > 0)
+      dbgNoResult("#\u6807\u7B7E", token);
     return null;
+  }
   return { from: hash2, options, filter: false };
 }
 function fileCompletion(ctx) {
@@ -31997,8 +32061,11 @@ function fileCompletion(ctx) {
   const from = s;
   const tokenWithBracket = state.sliceDoc(from + 1, pos);
   const suggestions = getSuggestions(tokenWithBracket).slice(0, 10);
-  if (suggestions.length === 0)
+  if (suggestions.length === 0) {
+    if (tokenWithBracket.length > 1)
+      dbgNoResult("[[\u6587\u4EF6", tokenWithBracket);
     return null;
+  }
   const options = suggestions.map(({ name: name2, file }) => {
     const dir = file.parent && file.parent.path !== "/" ? file.parent.path : "";
     return {
@@ -32219,7 +32286,37 @@ const Editor = react.exports.forwardRef((props, ref) => {
     });
     viewRef.current = view;
     cbRef.current.get = () => view.state.doc.toString();
+    const kbOpts = () => ({
+      send: () => {
+        var _a2, _b, _c;
+        return cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
+      },
+      isEnterToSend: () => cbRef.current.enterToSend
+    });
+    const isMod = (e) => (e.ctrlKey || e.metaKey) && !e.altKey;
+    const detachCapture = attachKeyCapture(view, [{
+      match: (e) => !e.shiftKey && e.key === "Enter" && isMod(e),
+      run: (v2) => {
+        handleModEnter(v2, kbOpts());
+      }
+    }, {
+      match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === "b",
+      run: (v2) => {
+        runFormatAction(v2, "b");
+      }
+    }, {
+      match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === "i",
+      run: (v2) => {
+        runFormatAction(v2, "i");
+      }
+    }, {
+      match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === "e",
+      run: (v2) => {
+        runFormatAction(v2, "e");
+      }
+    }]);
     return () => {
+      detachCapture();
       view.destroy();
       viewRef.current = null;
       cbRef.current.get = void 0;

@@ -3,8 +3,9 @@ import { Compartment, EditorState } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { memoInputKeymap } from '../../editor/keys';
-import { memoFormatKeymap } from '../../editor/format';
+import { handleModEnter, memoInputKeymap, type MemoKeymapOptions } from '../../editor/keys';
+import { memoFormatKeymap, runFormatAction } from '../../editor/format';
+import { attachKeyCapture } from '../../editor/capture';
 import { memoAutocomplete } from '../../editor/suggest';
 import { memoInputHighlight } from '../../editor/highlight';
 import '../../less/editor.less';
@@ -111,7 +112,8 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
         isEnterToSend: () => cbRef.current.enterToSend,
       }),
       keymap.of([...defaultKeymap, ...historyKeymap]),
-      // Ctrl/Cmd+Enter 在 DOM 层拦截（keymap 兜底同义分支），保证发送键可靠生效
+      // Ctrl/Cmd+Enter 最后防线：正常情况下事件会被 window 层 capture 兜底
+      // （capture.ts）吞掉到不了这里；万一 capture 漏放行，DOM 层再拦一次发送
       EditorView.domEventHandlers({
         keydown: (event, view) => {
           if (event.key !== 'Enter' || !(event.ctrlKey || event.metaKey)) {
@@ -151,7 +153,42 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     viewRef.current = view;
     cbRef.current.get = () => view.state.doc.toString();
 
+    // window capture 兜底（Obsidian 全局键会吞掉 Mod 组合，见 capture.ts）：
+    // 与 cm keymap 同一语义（keys/format 共用函数），聚焦本编辑器时命中即拦截
+    const kbOpts = (): MemoKeymapOptions => ({
+      send: () => cbRef.current.confirm(cbRef.current.get?.() ?? ''),
+      isEnterToSend: () => cbRef.current.enterToSend,
+    });
+    const isMod = (e: KeyboardEvent) => (e.ctrlKey || e.metaKey) && !e.altKey;
+    const detachCapture = attachKeyCapture(view, [
+      {
+        match: (e) => !e.shiftKey && e.key === 'Enter' && isMod(e),
+        run: (v) => {
+          handleModEnter(v, kbOpts());
+        },
+      },
+      {
+        match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === 'b',
+        run: (v) => {
+          runFormatAction(v, 'b');
+        },
+      },
+      {
+        match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === 'i',
+        run: (v) => {
+          runFormatAction(v, 'i');
+        },
+      },
+      {
+        match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === 'e',
+        run: (v) => {
+          runFormatAction(v, 'e');
+        },
+      },
+    ]);
+
     return () => {
+      detachCapture();
       view.destroy();
       viewRef.current = null;
       cbRef.current.get = undefined;

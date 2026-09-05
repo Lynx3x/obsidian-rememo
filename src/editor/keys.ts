@@ -76,32 +76,35 @@ export interface MemoKeymapOptions {
 }
 
 /**
+ * Enter 主键：EnterToSend 模式=发送；否则=列表续行（非列表行返回 false 交默认换行）。
+ * 独立导出：window capture 兜底（capture.ts）与 cm keymap 共用同一语义。
+ */
+export function handleEnter(view: EditorView, opts: MemoKeymapOptions): boolean {
+  if (opts.isEnterToSend()) {
+    opts.send();
+    return true;
+  }
+  return continueList(view);
+}
+
+/** Mod-Enter：EnterToSend 模式=单个换行；否则=发送。同上供 capture/keymap 共用。 */
+export function handleModEnter(view: EditorView, opts: MemoKeymapOptions): boolean {
+  if (opts.isEnterToSend()) {
+    return insertSingleNewline(view); // 换行模式：Ctrl+Enter = 单个换行
+  }
+  opts.send();
+  return true;
+}
+
+/**
  * memo 输入 keymap（Prec.high，先于 defaultKeymap 处理两个主键）。
  */
 export function memoInputKeymap(opts: MemoKeymapOptions): Extension[] {
   return [
     Prec.high(
       keymap.of([
-        {
-          key: 'Enter',
-          run: (view) => {
-            if (opts.isEnterToSend()) {
-              opts.send();
-              return true;
-            }
-            return continueList(view); // 非列表行返回 false → 默认 insertNewline
-          },
-        },
-        {
-          key: 'Mod-Enter',
-          run: (view) => {
-            if (opts.isEnterToSend()) {
-              return insertSingleNewline(view); // 换行模式：Ctrl+Enter = 单个换行
-            }
-            opts.send();
-            return true;
-          },
-        },
+        { key: 'Enter', run: (view) => handleEnter(view, opts) },
+        { key: 'Mod-Enter', run: (view) => handleModEnter(view, opts) },
       ]),
     ),
   ];
