@@ -8,21 +8,30 @@ importers:
 
   .:
     dependencies:
+      '@codemirror/autocomplete':
+        specifier: ^6.20.3
+        version: 6.20.3
+      '@codemirror/commands':
+        specifier: ^6.11.0
+        version: 6.11.0
+      '@codemirror/state':
+        specifier: ^6.7.4
+        version: 6.7.4
+      '@codemirror/view':
+        specifier: ^6.43.11
+        version: 6.43.11
       obsidian:
         specifier: 0.16.3
-        version: 0.16.3(@codemirror/state@6.7.0)(@codemirror/view@6.43.5)
+        version: 0.16.3(@codemirror/state@6.7.4)(@codemirror/view@6.43.11)
       obsidian-daily-notes-interface:
         specifier: ^0.9.4
-        version: 0.9.4(@codemirror/state@6.7.0)(@codemirror/view@6.43.5)
+        version: 0.9.4(@codemirror/state@6.7.4)(@codemirror/view@6.43.11)
       react:
         specifier: ^17.0.2
         version: 17.0.2
       react-dom:
         specifier: ^17.0.2
         version: 17.0.2(react@17.0.2)
-      tiny-undo:
-        specifier: ^0.0.10
-        version: 0.0.10
       yet-another-react-lightbox:
         specifier: ^3.21.7
         version: 3.21.7(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -45,9 +54,6 @@ importers:
       '@types/recompose':
         specifier: ^0.30.10
         version: 0.30.10
-      '@types/webscopeio__react-textarea-autocomplete':
-        specifier: ^4.7.2
-        version: 4.7.2
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.12.1
         version: 5.12.1(@typescript-eslint/parser@5.12.1(eslint@8.10.0)(typescript@4.5.5))(eslint@8.10.0)(typescript@4.5.5)
@@ -57,9 +63,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^1.2.0
         version: 1.2.0
-      '@webscopeio/react-textarea-autocomplete':
-        specifier: ^4.9.1
-        version: 4.9.1(prop-types@15.8.1)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       babel:
         specifier: ^6.23.0
         version: 6.23.0
@@ -240,11 +243,20 @@ packages:
     resolution: {integrity: sha512-zo3MIHGOkPOfoRXitsgHLjEXmlDaD/5KU1Uzuc9GNiZPhSqVxVRtxuPaSBZDsYZ9qV88AjtMtWW7ww98loJ9KA==}
     engines: {node: '>=6.9.0'}
 
-  '@codemirror/state@6.7.0':
-    resolution: {integrity: sha512-Zbl9NyscLMZkfXPQnNAIIAFftidrA1UbcJEIMp24C0Bukc2I5T8wJS0wsXYsnDOqCFJUeJ1BITGNs5CqPDSmSg==}
+  '@codemirror/autocomplete@6.20.3':
+    resolution: {integrity: sha512-tlosUqb+3BbxCxZdu4tKeRghPFC+QM7q4X5YhKV2eCmPG+1r2F3f4AaSz5sCrFqUtX4Jh20VFTKecl16MgiV9g==}
 
-  '@codemirror/view@6.43.5':
-    resolution: {integrity: sha512-7uT/vUgH6dfXWn3WqOe23KneILMvGy5wQjNMEcRXLKzziJ9NOktpW6tGoyQpwVkBgE5Gj6hKkCcsddbnkaWrOQ==}
+  '@codemirror/commands@6.11.0':
+    resolution: {integrity: sha512-/K4Rl5BN0OtTiPWmJCdqODu38XnDMsDxKY5rgrPnCkutPTJf2wVbkoixLfealF5Kwse/s8P8M5jAiURiwSwnFA==}
+
+  '@codemirror/language@6.12.4':
+    resolution: {integrity: sha512-1q4PaT+o6PbgpkJt4Q8Fv5XJxTy4FUZ4MWETtyiDw3J0Pyr9E2vqcKL+k9wcvjNTIsauxvE7OfmWj3FRPHQ76A==}
+
+  '@codemirror/state@6.7.4':
+    resolution: {integrity: sha512-QhQIVRY+xHZDxwOSFrJ1eUMapJBUID3IdeAjf7dHO7zBUzSkyooHiodnalz5MG3iHzwixKMlAAyn7244y537EA==}
+
+  '@codemirror/view@6.43.11':
+    resolution: {integrity: sha512-2+esucbQX6wB2JYi1eDvdCPFTA31BN8oSy6xCmk3G6CloV11yOvEjYk+gH7kLrP0MuHG94E8WDhjs5oMiu3+Wg==}
 
   '@esbuild/linux-loong64@0.14.54':
     resolution: {integrity: sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw==}
@@ -291,6 +303,15 @@ packages:
 
   '@jukben/emoji-search@2.0.1':
     resolution: {integrity: sha512-jXVcJGTBl+uOsGld+6J+hcHlRt3Vhm9ffvkrb1IeSVXuFCuyklY2XPI2wvSHG1uMGXfgmKbuUe1MCh1ZV3CXNg==}
+
+  '@lezer/common@1.5.2':
+    resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
+
+  '@lezer/highlight@1.2.3':
+    resolution: {integrity: sha512-qXdH7UqTvGfdVBINrgKhDsVTJTxactNNxLk7+UMwZhU13lMHaOBlJe9Vqp907ya56Y3+ed2tlqzys7jDkTmW0g==}
+
+  '@lezer/lr@1.4.10':
+    resolution: {integrity: sha512-rnCpTIBafOx4mRp43xOxDJbFipJm/c0cia/V5TiGlhmMa+wsSdoGmUN3w5Bqrks/09Q/D4tNAmWaT8p6NRi77A==}
 
   '@marijn/find-cluster-break@1.0.4':
     resolution: {integrity: sha512-Wy0V7+SGUjnF9/TkiM1hKVDPj7jKXduPNboMVtHTA8dySMURWqfg/JZ9E2Sq8JgSJmkl7k7Qe9FLeMSrSraWmQ==}
@@ -402,9 +423,6 @@ packages:
   '@types/tern@0.23.4':
     resolution: {integrity: sha512-JAUw1iXGO1qaWwEOzxTKJZ/5JxVeON9kvGZ/osgZaJImBnyjyn0cjovPsf6FNLmyGY8Vw9DoXZCMlfMkMwHRWg==}
 
-  '@types/webscopeio__react-textarea-autocomplete@4.7.2':
-    resolution: {integrity: sha512-e1DZGD+eH19BnllTWCGXAdrMa2kI53wEMuhn/d+wUmnu8//ZI6BiuK/EPdw07fI4+tlyo5qdPZdXdpkoXHJVOw==}
-
   '@typescript-eslint/eslint-plugin@5.12.1':
     resolution: {integrity: sha512-M499lqa8rnNK7mUv74lSFFttuUsubIRdAbHcVaP93oFcKkEmHmLqy2n7jM9C8DVmFMYK61ExrZU6dLYhQZmUpw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -466,13 +484,6 @@ packages:
   '@vitejs/plugin-react@1.2.0':
     resolution: {integrity: sha512-Rywwt0IXXg6yQ0hv3cMT3mtdDcGIw31mGaa+MMMAT651LhoXLF2yFy4LrakiTs7UKs7RPBo9eNgaS8pgl2A6Qw==}
     engines: {node: '>=12.0.0'}
-
-  '@webscopeio/react-textarea-autocomplete@4.9.1':
-    resolution: {integrity: sha512-g5cnRRXQQBGH5Km/0eSq8xFlnHZeG2WVRr+uu/3PKbHcgvNUIHKEy2tjOA9m4MK8KFzbFtfnj2MqdPf9R+5/Cw==}
-    peerDependencies:
-      prop-types: ^15.0.0
-      react: ^16.0.0 || ^17
-      react-dom: ^16.0.0 || ^17
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -637,9 +648,6 @@ packages:
 
   csstype@3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
-
-  custom-event@1.0.1:
-    resolution: {integrity: sha512-GAj5FOq0Hd+RsCGVJxZuKaIDXDf3h6GQoNEjFgbLLI/trgtavwUbSnZ5pVfg27DVCaWjIohryS0JFwIJyT2cMg==}
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -1661,12 +1669,6 @@ packages:
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
 
-  textarea-caret@3.0.2:
-    resolution: {integrity: sha512-gRzeti2YS4did7UJnPQ47wrjD+vp+CJIe9zbsu0bJ987d8QVLvLNG9757rqiQTIy4hGIeFauTTJt5Xkn51UkXg==}
-
-  tiny-undo@0.0.10:
-    resolution: {integrity: sha512-8yeK+AS7Wcu9lqiU+Ir0/AdgbMxnJcX0QasYQ3iVP12SOFuHxC9HhTc3M90QlzHG6nBAwAtTnAU6+RuIHUZtbg==}
-
   to-fast-properties@2.0.0:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
@@ -1968,13 +1970,36 @@ snapshots:
       '@babel/helper-validator-identifier': 7.22.5
       to-fast-properties: 2.0.0
 
-  '@codemirror/state@6.7.0':
+  '@codemirror/autocomplete@6.20.3':
+    dependencies:
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.4
+      '@codemirror/view': 6.43.11
+      '@lezer/common': 1.5.2
+
+  '@codemirror/commands@6.11.0':
+    dependencies:
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.4
+      '@codemirror/view': 6.43.11
+      '@lezer/common': 1.5.2
+
+  '@codemirror/language@6.12.4':
+    dependencies:
+      '@codemirror/state': 6.7.4
+      '@codemirror/view': 6.43.11
+      '@lezer/common': 1.5.2
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.10
+      style-mod: 4.1.2
+
+  '@codemirror/state@6.7.4':
     dependencies:
       '@marijn/find-cluster-break': 1.0.4
 
-  '@codemirror/view@6.43.5':
+  '@codemirror/view@6.43.11':
     dependencies:
-      '@codemirror/state': 6.7.0
+      '@codemirror/state': 6.7.4
       crelt: 1.0.7
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
@@ -2037,6 +2062,16 @@ snapshots:
       '@babel/runtime': 7.5.5
       emojilib: 2.4.0
       match-sorter: 4.0.0
+
+  '@lezer/common@1.5.2': {}
+
+  '@lezer/highlight@1.2.3':
+    dependencies:
+      '@lezer/common': 1.5.2
+
+  '@lezer/lr@1.4.10':
+    dependencies:
+      '@lezer/common': 1.5.2
 
   '@marijn/find-cluster-break@1.0.4': {}
 
@@ -2151,10 +2186,6 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.1
 
-  '@types/webscopeio__react-textarea-autocomplete@4.7.2':
-    dependencies:
-      '@types/react': 17.0.39
-
   '@typescript-eslint/eslint-plugin@5.12.1(@typescript-eslint/parser@5.12.1(eslint@8.10.0)(typescript@4.5.5))(eslint@8.10.0)(typescript@4.5.5)':
     dependencies:
       '@typescript-eslint/parser': 5.12.1(eslint@8.10.0)(typescript@4.5.5)
@@ -2247,14 +2278,6 @@ snapshots:
       resolve: 1.22.2
     transitivePeerDependencies:
       - supports-color
-
-  '@webscopeio/react-textarea-autocomplete@4.9.1(prop-types@15.8.1)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
-    dependencies:
-      custom-event: 1.0.1
-      prop-types: 15.8.1
-      react: 17.0.2
-      react-dom: 17.0.2(react@17.0.2)
-      textarea-caret: 3.0.2
 
   acorn-jsx@5.3.2(acorn@8.8.2):
     dependencies:
@@ -2431,8 +2454,6 @@ snapshots:
       css-tree: 1.1.3
 
   csstype@3.1.2: {}
-
-  custom-event@1.0.1: {}
 
   debug@3.2.7:
     dependencies:
@@ -3180,25 +3201,25 @@ snapshots:
       define-properties: 1.2.0
       es-abstract: 1.21.2
 
-  obsidian-daily-notes-interface@0.9.4(@codemirror/state@6.7.0)(@codemirror/view@6.43.5):
+  obsidian-daily-notes-interface@0.9.4(@codemirror/state@6.7.4)(@codemirror/view@6.43.11):
     dependencies:
-      obsidian: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc(@codemirror/state@6.7.0)(@codemirror/view@6.43.5)
+      obsidian: https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc(@codemirror/state@6.7.4)(@codemirror/view@6.43.11)
       tslib: 2.1.0
     transitivePeerDependencies:
       - '@codemirror/state'
       - '@codemirror/view'
 
-  obsidian@0.16.3(@codemirror/state@6.7.0)(@codemirror/view@6.43.5):
+  obsidian@0.16.3(@codemirror/state@6.7.4)(@codemirror/view@6.43.11):
     dependencies:
-      '@codemirror/state': 6.7.0
-      '@codemirror/view': 6.43.5
+      '@codemirror/state': 6.7.4
+      '@codemirror/view': 6.43.11
       '@types/codemirror': 0.0.108
       moment: 2.29.4
 
-  obsidian@https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc(@codemirror/state@6.7.0)(@codemirror/view@6.43.5):
+  obsidian@https://codeload.github.com/obsidianmd/obsidian-api/tar.gz/cc1744324150c632416857c98964f87b1574a5fc(@codemirror/state@6.7.4)(@codemirror/view@6.43.11):
     dependencies:
-      '@codemirror/state': 6.7.0
-      '@codemirror/view': 6.43.5
+      '@codemirror/state': 6.7.4
+      '@codemirror/view': 6.43.11
       '@types/codemirror': 5.60.8
       moment: 2.30.1
 
@@ -3485,10 +3506,6 @@ snapshots:
   tabbable@6.2.0: {}
 
   text-table@0.2.0: {}
-
-  textarea-caret@3.0.2: {}
-
-  tiny-undo@0.0.10: {}
 
   to-fast-properties@2.0.0: {}
 

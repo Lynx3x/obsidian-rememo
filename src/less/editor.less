@@ -1,6 +1,9 @@
 @import './mixin.less';
 @import './theme.less';
 
+// memo 输入区（P2 起为 CodeMirror 6：.cm-host 宿主 + .cm-editor 内部层）。
+// 工具条（tools/btns）结构未变，样式保留。
+
 div[data-type='memos_view'] .common-editor-wrapper {
   .flex(column, flex-start, flex-start);
   position: relative;
@@ -8,31 +11,130 @@ div[data-type='memos_view'] .common-editor-wrapper {
   height: auto;
   background-color: transparent;
 
-  // 输入区不可拖动缩放（Obsidian 可能给 textarea 默认 resize）
-  textarea {
-    resize: none !important;
-  }
-
-  > .common-editor-inputer {
-    display: inline-block;
+  // ---- cm6 输入区 ----
+  > .cm-host {
     width: 100%;
-    min-height: 24px;
-    max-height: 300px;
-    font-size: 15px;
-    line-height: 24px;
-    resize: none;
-    overflow-x: hidden;
-    background-color: transparent;
-    z-index: 1;
     margin-bottom: 4px;
-    white-space: pre-wrap;
-    color: var(--memo-text);
-    caret-color: var(--memo-accent);
-    .hide-scroll-bar();
 
-    &::placeholder {
-      padding-left: 2px;
+    > .cm-editor {
+      width: 100%;
+      font-size: 15px;
+      color: var(--memo-text);
+      background-color: transparent;
+      // Obsidian 会给 textarea/输入元素盖白底与渐变——cm 层显式清掉
+      background-image: none;
+    }
+
+    .cm-scroller {
+      max-height: 40vh;
+      min-height: 48px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      .hide-scroll-bar();
+    }
+
+    .cm-content {
+      padding: 0 2px;
+      caret-color: var(--memo-accent);
+      // 空内容时也保持可点高度
+      min-height: 24px;
+    }
+
+    .cm-line {
+      padding: 0;
+      line-height: 24px;
+    }
+
+    // 行内轻量高亮（highlight.ts decoration class，纯视觉不改文本）
+    .cm-hl-code {
+      font-family: var(--font-monospace, var(--font-interface));
+      padding: 0 3px;
+      border-radius: var(--memo-radius-s);
+      background-color: var(--memo-surface-hover);
+    }
+
+    .cm-hl-bold {
+      font-weight: bold;
+    }
+
+    .cm-hl-italic {
+      font-style: italic;
+    }
+
+    .cm-hl-tag {
+      color: var(--memo-accent);
+    }
+
+    .cm-hl-link {
+      color: var(--memo-link, var(--memo-accent));
+    }
+
+    .cm-placeholder {
       color: var(--memo-text-faint);
+      font-family: inherit;
+    }
+
+    // 联想弹层（cm6 tooltip），观感对齐旧 rta 弹层
+    .cm-tooltip.cm-tooltip-autocomplete {
+      background-color: var(--memo-bg);
+      border: 1px solid var(--memo-border);
+      border-radius: var(--memo-radius-m);
+      box-shadow: var(--memo-shadow-l);
+      overflow: hidden;
+    }
+
+    .cm-tooltip-autocomplete ul {
+      margin: 0;
+      max-height: 250px;
+      font-family: inherit;
+    }
+
+    .cm-tooltip-autocomplete ul li {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      line-height: 20px;
+      font-size: 13px;
+      color: var(--memo-text);
+      cursor: pointer;
+
+      // theme.less 会给作用域内 li::before 注入 '•'，这里要覆盖掉
+      &::before {
+        content: none;
+      }
+
+      &[aria-selected] {
+        color: var(--memo-accent);
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+      }
+
+      .cm-completionLabel {
+        font-family: inherit;
+      }
+    }
+
+    // 文件联想条目：文件名 + 右淡色目录消歧
+    .cm-sug-file {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+      font-family: inherit;
+
+      .cm-sug-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .cm-sug-path {
+        font-size: 11px;
+        color: var(--memo-text-faint);
+        flex-shrink: 0;
+        font-family: inherit;
+      }
     }
   }
 
@@ -136,6 +238,11 @@ div[data-type='memos_view'] .common-editor-wrapper {
       }
     }
   }
+}
+
+// 移动端输入区高度上限（旧 rta mobile 140px 语义）
+div[data-type='memos_view'].mobile-view .common-editor-wrapper .cm-scroller {
+  max-height: 140px;
 }
 
 div[data-type='memos_view'] .scroll::-webkit-scrollbar {

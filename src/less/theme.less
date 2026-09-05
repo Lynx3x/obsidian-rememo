@@ -50,7 +50,7 @@
 
   // 正文/输入区跟随 Obsidian 正文字体；其余 UI 沿用界面字体
   .memo-content-text,
-  .common-editor-inputer,
+  .cm-editor,
   .search-bar-inputer > .text-input {
     font-family: var(--font-text, var(--font-interface));
   }
@@ -93,7 +93,7 @@
     box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
   }
 
-  li:not(.rta__item) {
+  li {
     list-style-type: none;
 
     &::before {

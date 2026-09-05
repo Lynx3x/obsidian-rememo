@@ -1,401 +1,217 @@
-import React, { forwardRef, ReactNode, useCallback, useContext, useEffect, useImperativeHandle, useRef } from 'react';
-import TinyUndo from 'tiny-undo';
-import appContext from '../../stores/appContext';
-import { storage } from '../../helpers/storage';
-import useRefresh from '../../hooks/useRefresh';
-import Only from '../common/OnlyWhen';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Compartment, EditorState } from '@codemirror/state';
+import type { Extension } from '@codemirror/state';
+import { EditorView, keymap, placeholder } from '@codemirror/view';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { memoInputKeymap } from '../../editor/keys';
+import { memoAutocomplete } from '../../editor/suggest';
+import { memoInputHighlight } from '../../editor/highlight';
 import '../../less/editor.less';
-import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
-import { usedTags } from '../../obComponents/obTagSuggester';
-import '../../less/suggest.less';
 import { FocusOnEditor } from '../../memos';
 import SendIcon from '../../icons/send.svg?component';
-import { getSuggestions } from '../../obComponents/obFileSuggester';
-import { TFile } from 'obsidian';
-import appStore from '../../stores/appStore';
 import { t } from '../../translations/helper';
-import useState from 'react-usestateref';
-import { MEMOS_VIEW_TYPE } from '../../constants';
+import Only from '../common/OnlyWhen';
 
-type ItemProps = {
-  entity: {
-    char: string;
-    name: string;
-    file?: TFile;
-  };
-};
-
-type LoadingProps = {
-  data: Array<{ name: string; char: string }>;
-};
+/**
+ * memo 主输入（P2：CodeMirror 6 迷你 EditorView，替代 rta textarea）。
+ * 外层壳（.common-editor-wrapper + tools）与 props 契约保持，内层全换：
+ *  - 列表/任务回车续行、Ctrl/Cmd+Enter 发送（keys.ts）
+ *  - `#` 标签 / `[[` 文件联想（suggest.ts，复用 obTag/FileSuggester 数据源）
+ *  - 轻量行内高亮（highlight.ts）+ 原生 history（commands）
+ *  - 高度自适应走 CSS；readOnly 用 Compartment 动态开关
+ * rta 弹层与 tiny-undo 已退役。
+ */
 
 export interface EditorRefActions {
-  element: HTMLTextAreaElement;
+  /** cm 编辑器容器 DOM（.cm-editor），供外部挂 paste/drop、blur 等 */
+  element: HTMLElement;
+  /** 可聚焦的内容 DOM（.cm-content） */
+  contentEl: HTMLElement;
   focus: FunctionType;
   insertText: (text: string) => void;
   setContent: (text: string) => void;
   getContent: () => string;
-  /** 清空输入框（value + 内容缓存 + 撤销历史），刷新视图 */
+  /** 清空输入（重建 state 同时清空 undo 历史——发送后不该能撤销回旧文） */
   clear: () => void;
   /** 锁定/解锁输入（readOnly），用于"发送后发射前"不让用户继续改内容 */
   setEditable: (editable: boolean) => void;
+  /** 工具按钮：# 标签切换（光标前有 '#' 则删、无则插） */
+  toggleHashAtCursor: () => void;
 }
 
 interface EditorProps {
   className: string;
-  inputerType: string;
   initialContent: string;
   placeholder: string;
   showConfirmBtn: boolean;
   showCancelBtn: boolean;
-  tools?: ReactNode;
+  tools?: React.ReactNode;
   onConfirmBtnClick: (content: string) => void;
   onCancelBtnClick: () => void;
   onContentChange: (content: string) => void;
 }
 
-// eslint-disable-next-line
-const TItem = ({ entity: { name, char, file } }: ItemProps) => {
-  // # 标签联想：保持原样单行
-  if (!file) {
-    return <div className="rta-sug-tag">{char}</div>;
-  }
-  // [[ 文件联想：md 显示 basename（无扩展名），图片带扩展名；右侧淡色短路径便于消歧
-  const dir = file.parent?.path && file.parent.path !== '/' ? file.parent.path : '';
-  return (
-    <div className="rta-sug-file">
-      <span className="rta-sug-name">{file.extension === 'md' ? file.basename : file.name}</span>
-      {dir ? <span className="rta-sug-path">{dir}</span> : null}
-    </div>
-  );
-};
-//eslint-disable-next-line
-const Loading = ({ data }: LoadingProps) => {
-  return <div>Loading</div>;
-};
-
-export let editorInput: HTMLTextAreaElement;
-let actualToken: string;
-
 // eslint-disable-next-line react/display-name
 const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRefActions>) => {
   const {
-    globalState: { useTinyUndoHistoryCache },
-  } = useContext(appContext);
-  const {
     className,
-    inputerType,
     initialContent,
-    placeholder,
+    placeholder: placeholderText,
     showConfirmBtn,
     showCancelBtn,
     onConfirmBtnClick: handleConfirmBtnClickCallback,
     onCancelBtnClick: handleCancelBtnClickCallback,
     onContentChange: handleContentChangeCallback,
   } = props;
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const tinyUndoRef = useRef<TinyUndo | null>(null);
-  const refresh = useRefresh();
-  // const [value, setValue] = useState("")
 
-  const [, setHeight, currentHeightRef] = useState(0);
-  // const [showDatePicker, toggleShowDatePicker] = useToggle(false);
+  const mountRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const roCompartmentRef = useRef(new Compartment());
+  const extRef = useRef<Extension[]>([]);
+  // 动态回调经 ref 转发（扩展实例只建一次）
+  const cbRef = useRef<{
+    confirm: (content: string) => void;
+    change: (content: string) => void;
+    placeholder: string;
+    get?: () => string;
+  }>({
+    confirm: handleConfirmBtnClickCallback,
+    change: handleContentChangeCallback,
+    placeholder: placeholderText,
+  });
+  cbRef.current.confirm = handleConfirmBtnClickCallback;
+  cbRef.current.change = handleContentChangeCallback;
+  cbRef.current.placeholder = placeholderText;
 
-  useEffect(() => {
-    const leaves = app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-    let memosHeight;
-    let leafView;
-
-    if (leaves.length > 0) {
-      const leaf = leaves[0];
-      leafView = leaf.view.containerEl;
-      memosHeight = leafView.offsetHeight;
-    } else {
-      leafView = document;
-      memosHeight = window.outerHeight;
-    }
-
-    setHeight(memosHeight);
-  }, []);
+  // 发送键可用态（仅空内容时禁用确认钮，与旧 textarea disabled 语义一致）
+  const [hasContent, setHasContent] = useState(() => initialContent.length > 0);
 
   useEffect(() => {
-    if (!editorRef.current) {
+    const parent = mountRef.current;
+    if (!parent || parent.querySelector('.cm-editor')) {
       return;
     }
+    const buildExtensions = (): Extension[] => [
+      EditorView.lineWrapping,
+      history(),
+      placeholder(cbRef.current.placeholder),
+      memoInputHighlight,
+      memoAutocomplete(),
+      memoInputKeymap(() => cbRef.current.confirm(cbRef.current.get?.() ?? '')),
+      keymap.of([...defaultKeymap, ...historyKeymap]),
+      roCompartmentRef.current.of([]),
+      EditorView.updateListener.of((u) => {
+        if (u.docChanged) {
+          const text = u.state.doc.toString();
+          setHasContent(text.length > 0);
+          cbRef.current.change(text);
+        }
+      }),
+    ];
+    const createState = (doc: string): EditorState =>
+      EditorState.create({ doc, extensions: buildExtensions() });
 
-    if (initialContent) {
-      editorRef.current.value = initialContent;
-      refresh();
-    }
+    extRef.current = buildExtensions();
+    const view = new EditorView({
+      state: createState(initialContent ?? ''),
+      parent,
+    });
+    viewRef.current = view;
+    cbRef.current.get = () => view.state.doc.toString();
+
+    return () => {
+      view.destroy();
+      viewRef.current = null;
+      cbRef.current.get = undefined;
+    };
+    // 只在挂载时建一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (useTinyUndoHistoryCache) {
-      if (!editorRef.current) {
-        return;
-      }
-
-      const { tinyUndoActionsCache, tinyUndoIndexCache } = storage.get(['tinyUndoActionsCache', 'tinyUndoIndexCache']);
-
-      tinyUndoRef.current = new TinyUndo(editorRef.current, {
-        interval: 5000,
-        initialActions: tinyUndoActionsCache,
-        initialIndex: tinyUndoIndexCache,
-      });
-
-      tinyUndoRef.current.subscribe((actions, index) => {
-        storage.set({
-          tinyUndoActionsCache: actions,
-          tinyUndoIndexCache: index,
-        });
-      });
-
-      return () => {
-        tinyUndoRef.current?.destroy();
-      };
-    } else {
-      tinyUndoRef.current?.destroy();
-      tinyUndoRef.current = null;
-      storage.remove(['tinyUndoActionsCache', 'tinyUndoIndexCache']);
-    }
-  }, [useTinyUndoHistoryCache]);
-
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.style.height = 'auto';
-      editorRef.current.style.height = (editorRef.current.scrollHeight ?? 0) + 'px';
-    }
-  }, [editorRef.current?.value]);
 
   useImperativeHandle(
     ref,
     () => ({
-      element: editorRef.current as HTMLTextAreaElement,
+      get element(): HTMLElement {
+        return viewRef.current?.dom ?? mountRef.current ?? document.createElement('div');
+      },
+      get contentEl(): HTMLElement {
+        return (viewRef.current?.contentDOM as HTMLElement) ?? document.createElement('div');
+      },
       focus: () => {
         if (FocusOnEditor) {
-          editorRef.current?.focus();
+          viewRef.current?.focus();
         }
       },
       insertText: (rawText: string) => {
-        if (!editorRef.current) {
-          return;
-        }
-
-        const prevValue = editorRef.current.value;
-        editorRef.current.value =
-          prevValue.slice(0, editorRef.current.selectionStart) +
-          rawText +
-          prevValue.slice(editorRef.current.selectionStart);
-        handleContentChangeCallback(editorRef.current.value);
-        refresh();
+        const view = viewRef.current;
+        if (!view) return;
+        const sel = view.state.selection.main;
+        view.dispatch({
+          changes: { from: sel.from, to: sel.from, insert: rawText },
+          selection: { anchor: sel.from + rawText.length },
+        });
+        view.focus();
       },
       setContent: (text: string) => {
-        if (editorRef.current) {
-          editorRef.current.value = text;
-          handleContentChangeCallback(editorRef.current.value);
-          refresh();
-        }
+        const view = viewRef.current;
+        if (!view) return;
+        if (text === view.state.doc.toString()) return;
+        view.dispatch({
+          changes: { from: 0, to: view.state.doc.length, insert: text ?? '' },
+          selection: { anchor: text?.length ?? 0 },
+        });
       },
       getContent: (): string => {
-        return editorRef.current?.value ?? '';
+        return viewRef.current?.state.doc.toString() ?? '';
       },
       clear: () => {
-        if (!editorRef.current) {
-          return;
-        }
-        editorRef.current.value = '';
-        handleContentChangeCallback('');
-        refresh();
-        tinyUndoRef.current?.resetState();
+        const view = viewRef.current;
+        if (!view) return;
+        // 重建 state：同时清掉 undo 历史（发送后 Ctrl+Z 不应复活旧文）
+        view.setState(EditorState.create({ doc: '', extensions: extRef.current }));
+        setHasContent(false);
       },
       setEditable: (editable: boolean) => {
-        if (editorRef.current) {
-          editorRef.current.readOnly = !editable;
+        const view = viewRef.current;
+        if (!view) return;
+        view.dispatch({
+          effects: roCompartmentRef.current.reconfigure(
+            editable ? [] : EditorState.readOnly.of(true),
+          ),
+        });
+      },
+      toggleHashAtCursor: () => {
+        const view = viewRef.current;
+        if (!view) return;
+        const head = view.state.selection.main.head;
+        const prev = head > 0 ? view.state.doc.sliceString(head - 1, head) : '';
+        if (prev === '#') {
+          view.dispatch({ changes: { from: head - 1, to: head, insert: '' } });
+        } else {
+          view.dispatch({
+            changes: { from: head, to: head, insert: '#' },
+            selection: { anchor: head + 1 },
+          });
         }
+        view.focus();
       },
     }),
     [],
   );
 
-  const handleInsertTrigger = (event: { currentTrigger: string; item: any }) => {
-    if (!editorRef.current) {
-      return;
-    }
-
-    const { fileManager } = appStore.getState().dailyNotesState.app;
-
-    if (event.currentTrigger === '#') {
-      const prevValue = editorRef.current.value;
-      let removeCharNum;
-      if (actualToken !== null && actualToken !== undefined) {
-        removeCharNum = actualToken.length;
-      } else {
-        removeCharNum = 0;
-      }
-      let behindCharNum = editorRef.current.selectionStart;
-      for (let i = 0; i < prevValue.length; i++) {
-        if (!/\s/g.test(prevValue[behindCharNum])) {
-          behindCharNum++;
-        }
-      }
-
-      editorRef.current.value =
-        //eslint-disable-next-line
-        prevValue.slice(0, editorRef.current.selectionStart - removeCharNum) +
-        event.item.char +
-        prevValue.slice(behindCharNum);
-      handleContentChangeCallback(editorRef.current.value);
-      refresh();
-    } else if (event.currentTrigger === '[[') {
-      const filePath = fileManager.generateMarkdownLink(event.item.file, event.item.file.path, '', '');
-
-      const prevValue = editorRef.current.value;
-      let removeCharNum;
-      if (actualToken !== null && actualToken !== undefined) {
-        if (filePath.contains('[[')) {
-          removeCharNum = actualToken.length + 1;
-        } else if (event.item.file.extension !== 'md') {
-          removeCharNum = actualToken.length + 1;
-        } else {
-          removeCharNum = actualToken.length + 2;
-        }
-      } else {
-        removeCharNum = 2;
-      }
-      let behindCharNum = editorRef.current.selectionStart;
-      for (let i = 0; i < prevValue.length; i++) {
-        if (!/\s/g.test(prevValue[behindCharNum])) {
-          behindCharNum++;
-        }
-      }
-
-      editorRef.current.value =
-        //eslint-disable-next-line
-        prevValue.slice(0, editorRef.current.selectionStart - removeCharNum) +
-        filePath +
-        prevValue.slice(behindCharNum);
-      handleContentChangeCallback(editorRef.current.value);
-      refresh();
-    }
+  const handleCommonConfirmBtnClick = () => {
+    // 发送前与旧实现一致：以编辑器当前文档为准（编辑器为唯一真相源，缓存由 change 回调维护）
+    const content = viewRef.current?.state.doc.toString() ?? '';
+    handleConfirmBtnClickCallback(content);
   };
 
-  const handleEditorInput = useCallback(() => {
-    handleContentChangeCallback(editorRef.current?.value ?? '');
-    refresh();
-  }, []);
-
-  const handleEditorKeyDown = useCallback((event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    event.stopPropagation();
-
-    if (event.code === 'Enter') {
-      if (event.metaKey || event.ctrlKey) {
-        handleCommonConfirmBtnClick();
-      }
-    }
-    refresh();
-  }, []);
-
-  const handleCommonConfirmBtnClick = useCallback(() => {
-    if (!editorRef.current) {
-      return;
-    }
-
-    if (inputerType === 'memo') {
-      editorRef.current.value = getEditorContentCache();
-    }
-
-    handleConfirmBtnClickCallback(editorRef.current.value);
-    // 清空/撤销时机由父组件（MemoEditor）在"发射"那一刻调 clear() 决定，
-    // 这样"发送→压缩"期间文字仍保留，且可用 setEditable 锁定输入。
-    refresh();
-  }, []);
-
-  const handleCommonCancelBtnClick = useCallback(() => {
+  const handleCommonCancelBtnClick = () => {
     handleCancelBtnClickCallback();
-  }, []);
-
-  const getEditorContentCache = (): string => {
-    return storage.get(['editorContentCache']).editorContentCache ?? '';
-  };
-
-  const getEditorContent = (): string => {
-    if (!editorRef.current) {
-      return;
-    }
-
-    editorRef.current.value = getEditorContentCache();
-    // if( FocusOnEditor ){
-    //   editorRef.current?.focus();
-    // }
-
-    return editorRef.current.value;
   };
 
   return (
     <div className={'common-editor-wrapper ' + className}>
-      {inputerType === 'memo' ? (
-        <ReactTextareaAutocomplete
-          className="common-editor-inputer scroll"
-          loadingComponent={Loading}
-          placeholder={placeholder}
-          movePopupAsYouType={true}
-          value={getEditorContent()}
-          innerRef={(textarea) => {
-            editorRef.current = textarea;
-          }}
-          onInput={handleEditorInput}
-          onKeyDown={handleEditorKeyDown}
-          style={{
-            minHeight: 48,
-            maxHeight: `${currentHeightRef.current > 400 ? currentHeightRef.current - 400 : 100}px`,
-          }}
-          dropdownStyle={{
-            minWidth: 180,
-            maxHeight: 250,
-            overflowY: 'auto',
-          }}
-          minChar={0}
-          onItemSelected={handleInsertTrigger}
-          scrollToItem={true}
-          trigger={{
-            '#': {
-              dataProvider: (token) => {
-                actualToken = token;
-                return usedTags(token).map(({ name, char }) => ({ name, char }));
-              },
-              //eslint-disable-next-line
-              component: TItem,
-              afterWhitespace: true,
-              output: (item) => item.char,
-            },
-            '[[': {
-              dataProvider: (token) => {
-                actualToken = token;
-                return getSuggestions(token)
-                  .slice(0, 10)
-                  .map(({ name, char, file }) => ({ name, char, file }));
-              },
-              //eslint-disable-next-line
-              component: TItem,
-              afterWhitespace: true,
-              output: (item: string) => item.char,
-            },
-          }}
-        />
-      ) : (
-        <textarea
-          style={{
-            minHeight: 48,
-          }}
-          className="common-editor-inputer scroll"
-          rows={1}
-          placeholder={placeholder}
-          ref={editorRef}
-          onInput={handleEditorInput}
-          onKeyDown={handleEditorKeyDown}
-        ></textarea>
-      )}
-
+      <div className="cm-host" ref={mountRef} />
       <div className="common-tools-wrapper">
         <div className="common-tools-container">
           <Only when={props.tools !== undefined}>{props.tools}</Only>
@@ -409,7 +225,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           <Only when={showConfirmBtn}>
             <button
               className="action-btn confirm-btn"
-              disabled={!editorRef.current?.value}
+              disabled={!hasContent}
               onClick={handleCommonConfirmBtnClick}
               title="Send"
             >

@@ -251,12 +251,13 @@ const MemoEditor: React.FC<Props> = () => {
     prevGlobalStateRef.current = globalState;
   }, [globalState.markMemoId, globalState.editMemoId]);
 
+  // 粘贴/拖放图片上传：挂在 cm 内容 DOM 上（内容变化缓存同步已由 cm updateListener
+  // → onContentChange 承担，不再需要 click/keydown 轮询——旧实现还因此泄漏监听）
   useEffect(() => {
-    if (!editorRef.current) {
+    const el = editorRef.current?.contentEl;
+    if (!el) {
       return;
     }
-
-    // new TagsSuggest(app, editorRef.current.element);
 
     const handlePasteEvent = async (event: ClipboardEvent) => {
       if (event.clipboardData && event.clipboardData.files.length > 0) {
@@ -280,26 +281,15 @@ const MemoEditor: React.FC<Props> = () => {
       }
     };
 
-    const handleClickEvent = () => {
-      handleContentChange(editorRef.current?.element.value ?? '');
-    };
-
-    const handleKeyDownEvent = () => {
-      setTimeout(() => {
-        handleContentChange(editorRef.current?.element.value ?? '');
-      });
-    };
-
-    editorRef.current.element.addEventListener('paste', handlePasteEvent);
-    editorRef.current.element.addEventListener('drop', handleDropEvent);
-    editorRef.current.element.addEventListener('click', handleClickEvent);
-    editorRef.current.element.addEventListener('keydown', handleKeyDownEvent);
+    el.addEventListener('paste', handlePasteEvent);
+    el.addEventListener('drop', handleDropEvent);
 
     return () => {
-      editorRef.current?.element.removeEventListener('paste', handlePasteEvent);
-      editorRef.current?.element.removeEventListener('drop', handleDropEvent);
+      el.removeEventListener('paste', handlePasteEvent);
+      el.removeEventListener('drop', handleDropEvent);
     };
-  }, [editorRef.current]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUploadFile = useCallback(async (file: File) => {
     const { type } = file;
@@ -412,7 +402,7 @@ const MemoEditor: React.FC<Props> = () => {
     skipNextFocusRef.current = true;
     editorRef.current?.setContent('');
     setEditorContentCache('');
-    editorRef.current?.element?.blur();
+    editorRef.current?.contentEl?.blur();
   }, []);
 
   const handleContentChange = useCallback((content: string) => {
@@ -469,28 +459,8 @@ const MemoEditor: React.FC<Props> = () => {
   };
 
   const handleTagTextBtnClick = useCallback(() => {
-    if (!editorRef.current) {
-      return;
-    }
-
-    const currentValue = editorRef.current.getContent();
-    const selectionStart = editorRef.current.element.selectionStart;
-    const prevString = currentValue.slice(0, selectionStart);
-    const nextString = currentValue.slice(selectionStart);
-
-    let nextValue = prevString + '# ' + nextString;
-    let cursorIndex = prevString.length + 1;
-
-    if (prevString.endsWith('#') && nextString.startsWith(' ')) {
-      nextValue = prevString.slice(0, prevString.length - 1) + nextString.slice(1);
-      cursorIndex = prevString.length - 1;
-    }
-
-    editorRef.current.element.value = nextValue;
-    editorRef.current.element.setSelectionRange(cursorIndex, cursorIndex);
-
-    editorRef.current.focus();
-    handleContentChange(editorRef.current.element.value);
+    // # 标签按钮：光标处切换插/删一个 '#'
+    editorRef.current?.toggleHashAtCursor();
   }, []);
 
   const handleUploadFileBtnClick = useCallback(() => {
@@ -526,7 +496,6 @@ const MemoEditor: React.FC<Props> = () => {
   const editorConfig = useMemo(
     () => ({
       className: 'memo-editor',
-      inputerType: 'memo',
       initialContent: getEditorContentCache(),
       placeholder: t('What do you think now...'),
       showConfirmBtn: true,

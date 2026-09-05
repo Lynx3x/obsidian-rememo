@@ -81,8 +81,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -129,12 +129,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -326,8 +326,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -374,12 +374,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -1315,8 +1315,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -1363,12 +1363,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -3480,8 +3480,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -3528,12 +3528,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -3778,8 +3778,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -3826,12 +3826,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -3927,46 +3927,122 @@ div[data-type='memos_view'] .common-editor-wrapper {
   height: auto;
   background-color: transparent;
 }
-div[data-type='memos_view'] .common-editor-wrapper textarea {
-  resize: none !important;
-}
-div[data-type='memos_view'] .common-editor-wrapper > .common-editor-inputer {
-  display: inline-block;
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host {
   width: 100%;
-  min-height: 24px;
-  max-height: 300px;
-  font-size: 15px;
-  line-height: 24px;
-  resize: none;
-  overflow-x: hidden;
-  background-color: transparent;
-  z-index: 1;
   margin-bottom: 4px;
-  white-space: pre-wrap;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host > .cm-editor {
+  width: 100%;
+  font-size: 15px;
   color: var(--memo-text);
-  caret-color: var(--memo-accent);
+  background-color: transparent;
+  background-image: none;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-scroller {
+  max-height: 40vh;
+  min-height: 48px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: none;
 }
-div[data-type='memos_view'] .common-editor-wrapper > .common-editor-inputer::-webkit-scrollbar {
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-scroller::-webkit-scrollbar {
   width: 0;
   height: 0;
   cursor: pointer;
 }
-div[data-type='memos_view'] .common-editor-wrapper > .common-editor-inputer::-webkit-scrollbar-thumb {
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-scroller::-webkit-scrollbar-thumb {
   width: 0;
   height: 0;
   border-radius: 8px;
   background-color: var(--memo-border, #d5d5d5);
 }
-div[data-type='memos_view'] .common-editor-wrapper > .common-editor-inputer::-webkit-scrollbar-thumb:hover {
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-scroller::-webkit-scrollbar-thumb:hover {
   background-color: var(--memo-border-strong, #ccc);
 }
-div[data-type='memos_view'] .common-editor-wrapper > .common-editor-inputer::-webkit-scrollbar {
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-scroller::-webkit-scrollbar {
   display: none;
 }
-div[data-type='memos_view'] .common-editor-wrapper > .common-editor-inputer::placeholder {
-  padding-left: 2px;
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-content {
+  padding: 0 2px;
+  caret-color: var(--memo-accent);
+  min-height: 24px;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-line {
+  padding: 0;
+  line-height: 24px;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-code {
+  font-family: var(--font-monospace, var(--font-interface));
+  padding: 0 3px;
+  border-radius: var(--memo-radius-s);
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-bold {
+  font-weight: bold;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-italic {
+  font-style: italic;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-tag {
+  color: var(--memo-accent);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-hl-link {
+  color: var(--memo-link, var(--memo-accent));
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-placeholder {
   color: var(--memo-text-faint);
+  font-family: inherit;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip.cm-tooltip-autocomplete {
+  background-color: var(--memo-bg);
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-m);
+  box-shadow: var(--memo-shadow-l);
+  overflow: hidden;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autocomplete ul {
+  margin: 0;
+  max-height: 250px;
+  font-family: inherit;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autocomplete ul li {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  line-height: 20px;
+  font-size: 13px;
+  color: var(--memo-text);
+  cursor: pointer;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autocomplete ul li::before {
+  content: none;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autocomplete ul li[aria-selected] {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-tooltip-autocomplete ul li .cm-completionLabel {
+  font-family: inherit;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-sug-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+  font-family: inherit;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-sug-file .cm-sug-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-sug-file .cm-sug-path {
+  font-size: 11px;
+  color: var(--memo-text-faint);
+  flex-shrink: 0;
+  font-family: inherit;
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper {
   display: flex;
@@ -4059,159 +4135,14 @@ div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .bt
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container > .confirm-btn > .icon-text {
   margin-left: 4px;
 }
+div[data-type='memos_view'].mobile-view .common-editor-wrapper .cm-scroller {
+  max-height: 140px;
+}
 div[data-type='memos_view'] .scroll::-webkit-scrollbar {
   display: none;
 }
 div[data-type='memos_view'] .memo-editor-wrapper .confirm-btn {
   margin-right: unset;
-}
-.mono-font-family {
-  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
-}
-.hide-scroll-bar {
-  scrollbar-width: none;
-}
-.hide-scroll-bar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  cursor: pointer;
-}
-.hide-scroll-bar::-webkit-scrollbar-thumb {
-  width: 0;
-  height: 0;
-  border-radius: 8px;
-  background-color: var(--memo-border, #d5d5d5);
-}
-.hide-scroll-bar::-webkit-scrollbar-thumb:hover {
-  background-color: var(--memo-border-strong, #ccc);
-}
-.hide-scroll-bar::-webkit-scrollbar {
-  display: none;
-}
-.rta {
-  position: relative;
-  font-size: 15px;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-}
-.rta > ::-webkit-scrollbar {
-  width: 2px;
-  height: 16px;
-  background-color: var(--memo-surface-hover);
-}
-.rta > ::-webkit-scrollbar-track {
-  background-color: var(--memo-surface-hover);
-}
-.rta ::-webkit-scrollbar-thumb {
-  background-color: var(--memo-border-strong);
-}
-.rta ::-webkit-scrollbar-track-piece {
-  background-color: transparent;
-}
-.rta__loader.rta__loader--empty-suggestion-data {
-  display: none;
-  border-radius: var(--memo-radius-s);
-  box-shadow: 0 0 5px rgba(27, 31, 35, 0.1);
-  padding: 5px;
-}
-.rta--loading .rta__loader.rta__loader--suggestion-data {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: color-mix(in srgb, var(--memo-bg) 80%, transparent);
-}
-.rta--loading .rta__loader.rta__loader--suggestion-data > * {
-  display: none;
-  position: relative;
-  top: 50%;
-}
-.rta__textarea {
-  width: 100%;
-  height: 100%;
-  font-size: 1em;
-}
-.rta__autocomplete {
-  position: absolute;
-  display: block;
-  margin-top: 1em;
-}
-.rta__autocomplete--top {
-  margin-top: 0;
-  margin-bottom: 1em;
-}
-.rta__list {
-  margin: 0;
-  padding: 0;
-  background: var(--memo-bg);
-  border: 1px solid var(--memo-border);
-  border-radius: var(--memo-radius-m);
-  box-shadow: var(--memo-shadow-s);
-  list-style: none;
-  overflow: hidden;
-}
-.rta__entity {
-  color: var(--memo-text);
-  background: var(--memo-bg);
-  width: 100%;
-  text-align: left;
-  outline: none;
-}
-.rta__entity:hover {
-  cursor: pointer;
-}
-.rta__item {
-  text-overflow: ellipsis;
-  line-height: 30px;
-}
-.rta__item:not(:last-child) {
-  border-bottom: 1px solid var(--memo-border);
-}
-.rta__entity > * {
-  padding-left: 4px;
-  padding-right: 4px;
-}
-.rta-sug-file {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  gap: 8px;
-}
-.rta-sug-file .rta-sug-name {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 13px;
-  color: var(--memo-text);
-}
-.rta-sug-file .rta-sug-path {
-  flex-shrink: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 11px;
-  color: var(--memo-text-faint);
-}
-.rta__entity--selected .rta-sug-path {
-  color: var(--memo-on-accent);
-  opacity: 0.75;
-}
-.rta__entity--selected {
-  color: var(--memo-on-accent);
-  text-decoration: none;
-  background: var(--memo-accent);
-}
-div[data-type='memos_view'].mobile-view .rta__textarea {
-  max-height: 140px;
-  overflow-y: scroll;
 }
 .mono-font-family {
   font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
@@ -4265,8 +4196,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -4313,12 +4244,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -4497,8 +4428,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -4545,12 +4476,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -4840,8 +4771,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -4888,12 +4819,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -5173,8 +5104,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -5221,12 +5152,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -5440,8 +5371,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -5488,12 +5419,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -5696,8 +5627,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -5744,12 +5675,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;
@@ -6023,8 +5954,8 @@ div[data-type='memos_view'],
 }
 div[data-type='memos_view'] .memo-content-text,
 .dialog-wrapper .memo-content-text,
-div[data-type='memos_view'] .common-editor-inputer,
-.dialog-wrapper .common-editor-inputer,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
 div[data-type='memos_view'] .search-bar-inputer > .text-input,
 .dialog-wrapper .search-bar-inputer > .text-input {
   font-family: var(--font-text, var(--font-interface));
@@ -6071,12 +6002,12 @@ div[data-type='memos_view'] input:-webkit-autofill:active,
 .dialog-wrapper input:-webkit-autofill:active {
   box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
 }
-div[data-type='memos_view'] li:not(.rta__item),
-.dialog-wrapper li:not(.rta__item) {
+div[data-type='memos_view'] li,
+.dialog-wrapper li {
   list-style-type: none;
 }
-div[data-type='memos_view'] li:not(.rta__item)::before,
-.dialog-wrapper li:not(.rta__item)::before {
+div[data-type='memos_view'] li::before,
+.dialog-wrapper li::before {
   content: '•';
   font-weight: bold;
   margin-right: 4px;

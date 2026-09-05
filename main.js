@@ -5,7 +5,6 @@ function _interopDefaultLegacy(e) {
 }
 var require$$0__default = /* @__PURE__ */ _interopDefaultLegacy(require$$0);
 const MEMOS_VIEW_TYPE = "memos_view";
-var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 var react = { exports: {} };
 var react_production_min = {};
 /*
@@ -33,8 +32,8 @@ function shouldUseNative() {
       return false;
     }
     var test2 = {};
-    for (var i = 0; i < 10; i++) {
-      test2["_" + String.fromCharCode(i)] = i;
+    for (var i2 = 0; i2 < 10; i2++) {
+      test2["_" + String.fromCharCode(i2)] = i2;
     }
     var order2 = Object.getOwnPropertyNames(test2).map(function(n2) {
       return test2[n2];
@@ -67,9 +66,9 @@ var objectAssign = shouldUseNative() ? Object.assign : function(target, source) 
     }
     if (getOwnPropertySymbols) {
       symbols = getOwnPropertySymbols(from);
-      for (var i = 0; i < symbols.length; i++) {
-        if (propIsEnumerable.call(from, symbols[i])) {
-          to[symbols[i]] = from[symbols[i]];
+      for (var i2 = 0; i2 < symbols.length; i2++) {
+        if (propIsEnumerable.call(from, symbols[i2])) {
+          to[symbols[i2]] = from[symbols[i2]];
         }
       }
     }
@@ -88,7 +87,7 @@ var l = objectAssign, n$1 = 60103, p$1 = 60106;
 react_production_min.Fragment = 60107;
 react_production_min.StrictMode = 60108;
 react_production_min.Profiler = 60114;
-var q$1 = 60109, r$1 = 60110, t$2 = 60112;
+var q$1 = 60109, r$1 = 60110, t$3 = 60112;
 react_production_min.Suspense = 60113;
 var u = 60115, v = 60116;
 if ("function" === typeof Symbol && Symbol.for) {
@@ -100,7 +99,7 @@ if ("function" === typeof Symbol && Symbol.for) {
   react_production_min.Profiler = w("react.profiler");
   q$1 = w("react.provider");
   r$1 = w("react.context");
-  t$2 = w("react.forward_ref");
+  t$3 = w("react.forward_ref");
   react_production_min.Suspense = w("react.suspense");
   u = w("react.memo");
   v = w("react.lazy");
@@ -123,24 +122,24 @@ var A = { isMounted: function() {
 }, enqueueReplaceState: function() {
 }, enqueueSetState: function() {
 } }, B$1 = {};
-function C(a, b, c) {
+function C$1(a, b, c) {
   this.props = a;
   this.context = b;
   this.refs = B$1;
   this.updater = c || A;
 }
-C.prototype.isReactComponent = {};
-C.prototype.setState = function(a, b) {
+C$1.prototype.isReactComponent = {};
+C$1.prototype.setState = function(a, b) {
   if ("object" !== typeof a && "function" !== typeof a && null != a)
     throw Error(z(85));
   this.updater.enqueueSetState(this, a, b, "setState");
 };
-C.prototype.forceUpdate = function(a) {
+C$1.prototype.forceUpdate = function(a) {
   this.updater.enqueueForceUpdate(this, a, "forceUpdate");
 };
 function D$1() {
 }
-D$1.prototype = C.prototype;
+D$1.prototype = C$1.prototype;
 function E$1(a, b, c) {
   this.props = a;
   this.context = b;
@@ -149,7 +148,7 @@ function E$1(a, b, c) {
 }
 var F$1 = E$1.prototype = new D$1();
 F$1.constructor = E$1;
-l(F$1, C.prototype);
+l(F$1, C$1.prototype);
 F$1.isPureReactComponent = true;
 var G$1 = { current: null }, H$1 = Object.prototype.hasOwnProperty, I$1 = { key: true, ref: true, __self: true, __source: true };
 function J(a, b, c) {
@@ -277,7 +276,7 @@ react_production_min.Children = { map: P$1, forEach: function(a, b, c) {
     throw Error(z(143));
   return a;
 } };
-react_production_min.Component = C;
+react_production_min.Component = C$1;
 react_production_min.PureComponent = E$1;
 react_production_min.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = T$1;
 react_production_min.cloneElement = function(a, b, c) {
@@ -326,7 +325,7 @@ react_production_min.createRef = function() {
   return { current: null };
 };
 react_production_min.forwardRef = function(a) {
-  return { $$typeof: t$2, render: a };
+  return { $$typeof: t$3, render: a };
 };
 react_production_min.isValidElement = L;
 react_production_min.lazy = function(a) {
@@ -2136,7 +2135,7 @@ function he(a) {
   a = a.detail;
   return "object" === typeof a && "data" in a ? a.data : null;
 }
-var ie = false;
+var ie$2 = false;
 function je(a, b) {
   switch (a) {
     case "compositionend":
@@ -2153,8 +2152,8 @@ function je(a, b) {
   }
 }
 function ke(a, b) {
-  if (ie)
-    return "compositionend" === a || !ae && ge(a, b) ? (a = nd(), md = ld = kd = null, ie = false, a) : null;
+  if (ie$2)
+    return "compositionend" === a || !ae && ge(a, b) ? (a = nd(), md = ld = kd = null, ie$2 = false, a) : null;
   switch (a) {
     case "paste":
       return null;
@@ -2666,8 +2665,8 @@ function jd(a, b, c, d, e) {
           L2 = void 0;
         }
       else
-        ie ? ge(a, c) && (L2 = "onCompositionEnd") : "keydown" === a && 229 === c.keyCode && (L2 = "onCompositionStart");
-      L2 && (de$1 && "ko" !== c.locale && (ie || "onCompositionStart" !== L2 ? "onCompositionEnd" === L2 && ie && (Q2 = nd()) : (kd = e2, ld = "value" in kd ? kd.value : kd.textContent, ie = true)), K2 = oe(d2, L2), 0 < K2.length && (L2 = new Ld(L2, a, null, c, e2), g3.push({ event: L2, listeners: K2 }), Q2 ? L2.data = Q2 : (Q2 = he(c), null !== Q2 && (L2.data = Q2))));
+        ie$2 ? ge(a, c) && (L2 = "onCompositionEnd") : "keydown" === a && 229 === c.keyCode && (L2 = "onCompositionStart");
+      L2 && (de$1 && "ko" !== c.locale && (ie$2 || "onCompositionStart" !== L2 ? "onCompositionEnd" === L2 && ie$2 && (Q2 = nd()) : (kd = e2, ld = "value" in kd ? kd.value : kd.textContent, ie$2 = true)), K2 = oe(d2, L2), 0 < K2.length && (L2 = new Ld(L2, a, null, c, e2), g3.push({ event: L2, listeners: K2 }), Q2 ? L2.data = Q2 : (Q2 = he(c), null !== Q2 && (L2.data = Q2))));
       if (Q2 = ce ? je(a, c) : ke(a, c))
         d2 = oe(d2, "onBeforeInput"), 0 < d2.length && (e2 = new Ld(
           "onBeforeInput",
@@ -6589,7 +6588,7 @@ function lk(a, b, c, d) {
   Jg(e, g2, f2);
   return g2;
 }
-function mk(a) {
+function mk$1(a) {
   a = a.current;
   if (!a.child)
     return null;
@@ -6658,7 +6657,7 @@ function tk(a, b, c, d, e) {
     if ("function" === typeof e) {
       var h2 = e;
       e = function() {
-        var a2 = mk(g2);
+        var a2 = mk$1(g2);
         h2.call(a2);
       };
     }
@@ -6669,7 +6668,7 @@ function tk(a, b, c, d, e) {
     if ("function" === typeof e) {
       var k = e;
       e = function() {
-        var a2 = mk(g2);
+        var a2 = mk$1(g2);
         k.call(a2);
       };
     }
@@ -6677,7 +6676,7 @@ function tk(a, b, c, d, e) {
       lk(b, g2, a, e);
     });
   }
-  return mk(g2);
+  return mk$1(g2);
 }
 ec = function(a) {
   if (13 === a.tag) {
@@ -7014,7 +7013,6 @@ const defaultState$6 = {
   shouldSplitMemoWord: true,
   shouldHideImageUrl: true,
   shouldUseMarkdownParser: true,
-  useTinyUndoHistoryCache: false,
   isMobileView: false,
   showSiderbarInMobileView: false
 };
@@ -7137,16 +7135,16 @@ const DEFAULT_MONTHLY_NOTE_FORMAT = "YYYY-MM";
 const DEFAULT_QUARTERLY_NOTE_FORMAT = "YYYY-[Q]Q";
 const DEFAULT_YEARLY_NOTE_FORMAT = "YYYY";
 function shouldUsePeriodicNotesSettings(periodicity) {
-  var _a, _b;
+  var _a2, _b;
   const periodicNotes = window.app.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a = periodicNotes.settings) == null ? void 0 : _a[periodicity]) == null ? void 0 : _b.enabled);
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2[periodicity]) == null ? void 0 : _b.enabled);
 }
 function getDailyNoteSettings() {
-  var _a, _b, _c, _d;
+  var _a2, _b, _c, _d;
   try {
     const { internalPlugins, plugins } = window.app;
     if (shouldUsePeriodicNotesSettings("daily")) {
-      const { format: format2, folder: folder2, template: template2 } = ((_b = (_a = plugins.getPlugin("periodic-notes")) == null ? void 0 : _a.settings) == null ? void 0 : _b.daily) || {};
+      const { format: format2, folder: folder2, template: template2 } = ((_b = (_a2 = plugins.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.daily) || {};
       return {
         format: format2 || DEFAULT_DAILY_NOTE_FORMAT,
         folder: (folder2 == null ? void 0 : folder2.trim()) || "",
@@ -7164,10 +7162,10 @@ function getDailyNoteSettings() {
   }
 }
 function getWeeklyNoteSettings() {
-  var _a, _b, _c, _d, _e, _f, _g;
+  var _a2, _b, _c, _d, _e, _f, _g;
   try {
     const pluginManager = window.app.plugins;
-    const calendarSettings = (_a = pluginManager.getPlugin("calendar")) == null ? void 0 : _a.options;
+    const calendarSettings = (_a2 = pluginManager.getPlugin("calendar")) == null ? void 0 : _a2.options;
     const periodicNotesSettings = (_c = (_b = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _b.settings) == null ? void 0 : _c.weekly;
     if (shouldUsePeriodicNotesSettings("weekly")) {
       return {
@@ -7187,10 +7185,10 @@ function getWeeklyNoteSettings() {
   }
 }
 function getMonthlyNoteSettings() {
-  var _a, _b, _c, _d;
+  var _a2, _b, _c, _d;
   const pluginManager = window.app.plugins;
   try {
-    const settings = shouldUsePeriodicNotesSettings("monthly") && ((_b = (_a = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a.settings) == null ? void 0 : _b.monthly) || {};
+    const settings = shouldUsePeriodicNotesSettings("monthly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.monthly) || {};
     return {
       format: settings.format || DEFAULT_MONTHLY_NOTE_FORMAT,
       folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
@@ -7201,10 +7199,10 @@ function getMonthlyNoteSettings() {
   }
 }
 function getQuarterlyNoteSettings() {
-  var _a, _b, _c, _d;
+  var _a2, _b, _c, _d;
   const pluginManager = window.app.plugins;
   try {
-    const settings = shouldUsePeriodicNotesSettings("quarterly") && ((_b = (_a = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a.settings) == null ? void 0 : _b.quarterly) || {};
+    const settings = shouldUsePeriodicNotesSettings("quarterly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.quarterly) || {};
     return {
       format: settings.format || DEFAULT_QUARTERLY_NOTE_FORMAT,
       folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
@@ -7215,10 +7213,10 @@ function getQuarterlyNoteSettings() {
   }
 }
 function getYearlyNoteSettings() {
-  var _a, _b, _c, _d;
+  var _a2, _b, _c, _d;
   const pluginManager = window.app.plugins;
   try {
-    const settings = shouldUsePeriodicNotesSettings("yearly") && ((_b = (_a = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a.settings) == null ? void 0 : _b.yearly) || {};
+    const settings = shouldUsePeriodicNotesSettings("yearly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.yearly) || {};
     return {
       format: settings.format || DEFAULT_YEARLY_NOTE_FORMAT,
       folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
@@ -7230,12 +7228,12 @@ function getYearlyNoteSettings() {
 }
 function join(...partSegments) {
   let parts = [];
-  for (let i = 0, l2 = partSegments.length; i < l2; i++) {
-    parts = parts.concat(partSegments[i].split("/"));
+  for (let i2 = 0, l2 = partSegments.length; i2 < l2; i2++) {
+    parts = parts.concat(partSegments[i2].split("/"));
   }
   const newParts = [];
-  for (let i = 0, l2 = parts.length; i < l2; i++) {
-    const part = parts[i];
+  for (let i2 = 0, l2 = parts.length; i2 < l2; i2++) {
+    const part = parts[i2];
     if (!part || part === ".")
       continue;
     else
@@ -7246,10 +7244,10 @@ function join(...partSegments) {
   return newParts.join("/");
 }
 function basename(fullPath) {
-  let base = fullPath.substring(fullPath.lastIndexOf("/") + 1);
-  if (base.lastIndexOf(".") != -1)
-    base = base.substring(0, base.lastIndexOf("."));
-  return base;
+  let base2 = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+  if (base2.lastIndexOf(".") != -1)
+    base2 = base2.substring(0, base2.lastIndexOf("."));
+  return base2;
 }
 async function ensureFolderExists(path) {
   const dirs = path.replace(/\\/g, "/").split("/");
@@ -7367,8 +7365,8 @@ async function createDailyNote(date) {
   }
 }
 function getDailyNote(date, dailyNotes) {
-  var _a;
-  return (_a = dailyNotes[getDateUID(date, "day")]) != null ? _a : null;
+  var _a2;
+  return (_a2 = dailyNotes[getDateUID(date, "day")]) != null ? _a2 : null;
 }
 function getAllDailyNotes() {
   const { vault } = window.app;
@@ -7445,8 +7443,8 @@ async function createWeeklyNote(date) {
   }
 }
 function getWeeklyNote(date, weeklyNotes) {
-  var _a;
-  return (_a = weeklyNotes[getDateUID(date, "week")]) != null ? _a : null;
+  var _a2;
+  return (_a2 = weeklyNotes[getDateUID(date, "week")]) != null ? _a2 : null;
 }
 function getAllWeeklyNotes() {
   const weeklyNotes = {};
@@ -7502,8 +7500,8 @@ async function createMonthlyNote(date) {
   }
 }
 function getMonthlyNote(date, monthlyNotes) {
-  var _a;
-  return (_a = monthlyNotes[getDateUID(date, "month")]) != null ? _a : null;
+  var _a2;
+  return (_a2 = monthlyNotes[getDateUID(date, "month")]) != null ? _a2 : null;
 }
 function getAllMonthlyNotes() {
   const monthlyNotes = {};
@@ -7559,8 +7557,8 @@ async function createQuarterlyNote(date) {
   }
 }
 function getQuarterlyNote(date, quarterly) {
-  var _a;
-  return (_a = quarterly[getDateUID(date, "quarter")]) != null ? _a : null;
+  var _a2;
+  return (_a2 = quarterly[getDateUID(date, "quarter")]) != null ? _a2 : null;
 }
 function getAllQuarterlyNotes() {
   const quarterly = {};
@@ -7616,8 +7614,8 @@ async function createYearlyNote(date) {
   }
 }
 function getYearlyNote(date, yearlyNotes) {
-  var _a;
-  return (_a = yearlyNotes[getDateUID(date, "year")]) != null ? _a : null;
+  var _a2;
+  return (_a2 = yearlyNotes[getDateUID(date, "year")]) != null ? _a2 : null;
 }
 function getAllYearlyNotes() {
   const yearlyNotes = {};
@@ -7642,41 +7640,41 @@ function getAllYearlyNotes() {
   return yearlyNotes;
 }
 function appHasDailyNotesPluginLoaded() {
-  var _a, _b;
+  var _a2, _b;
   const { app: app2 } = window;
   const dailyNotesPlugin = app2.internalPlugins.plugins["daily-notes"];
   if (dailyNotesPlugin && dailyNotesPlugin.enabled) {
     return true;
   }
   const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a = periodicNotes.settings) == null ? void 0 : _a.daily) == null ? void 0 : _b.enabled);
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.daily) == null ? void 0 : _b.enabled);
 }
 function appHasWeeklyNotesPluginLoaded() {
-  var _a, _b;
+  var _a2, _b;
   const { app: app2 } = window;
   if (app2.plugins.getPlugin("calendar")) {
     return true;
   }
   const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a = periodicNotes.settings) == null ? void 0 : _a.weekly) == null ? void 0 : _b.enabled);
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.weekly) == null ? void 0 : _b.enabled);
 }
 function appHasMonthlyNotesPluginLoaded() {
-  var _a, _b;
+  var _a2, _b;
   const { app: app2 } = window;
   const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a = periodicNotes.settings) == null ? void 0 : _a.monthly) == null ? void 0 : _b.enabled);
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.monthly) == null ? void 0 : _b.enabled);
 }
 function appHasQuarterlyNotesPluginLoaded() {
-  var _a, _b;
+  var _a2, _b;
   const { app: app2 } = window;
   const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a = periodicNotes.settings) == null ? void 0 : _a.quarterly) == null ? void 0 : _b.enabled);
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.quarterly) == null ? void 0 : _b.enabled);
 }
 function appHasYearlyNotesPluginLoaded() {
-  var _a, _b;
+  var _a2, _b;
   const { app: app2 } = window;
   const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a = periodicNotes.settings) == null ? void 0 : _a.yearly) == null ? void 0 : _b.enabled);
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.yearly) == null ? void 0 : _b.enabled);
 }
 function getPeriodicNoteSettings(granularity) {
   const getSettings = {
@@ -8650,7 +8648,7 @@ const localeMap = {
   "zh-tw": zhTW
 };
 const locale = localeMap[require$$0.moment.locale()];
-function t$1(str) {
+function t$2(str) {
   return locale && locale[str] || en[str];
 }
 var utils;
@@ -8877,7 +8875,7 @@ var utils;
   }
   utils2.getImageSize = getImageSize;
   async function createDailyNoteCheck(date) {
-    var _a;
+    var _a2;
     let file;
     switch (UseDailyOrPeriodic) {
       case "Daily":
@@ -8885,7 +8883,7 @@ var utils;
         file = await createDailyNote_1(date);
         break;
       case "Periodic":
-        file = await ((_a = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _a.createDailyNote("day", date));
+        file = await ((_a2 = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _a2.createDailyNote("day", date));
         break;
     }
     return file;
@@ -8893,10 +8891,10 @@ var utils;
   utils2.createDailyNoteCheck = createDailyNoteCheck;
 })(utils || (utils = {}));
 function getDailyNoteFormat() {
-  var _a, _b, _c, _d, _e, _f;
+  var _a2, _b, _c, _d, _e, _f;
   let dailyNoteFormat = "";
   let dailyNoteTempForPeriodicNotes = "";
-  const folderFromPeriodicNotesNew = (_c = (_b = (_a = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _a.calendarSetManager) == null ? void 0 : _b.getActiveConfig("day")) == null ? void 0 : _c.folder;
+  const folderFromPeriodicNotesNew = (_c = (_b = (_a2 = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _a2.calendarSetManager) == null ? void 0 : _b.getActiveConfig("day")) == null ? void 0 : _c.folder;
   const folderFromPeriodicNotes = (_f = (_e = (_d = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _d.settings) == null ? void 0 : _e.daily) == null ? void 0 : _f.format;
   if (folderFromPeriodicNotesNew === void 0) {
     dailyNoteTempForPeriodicNotes = folderFromPeriodicNotes;
@@ -8915,15 +8913,15 @@ function getDailyNoteFormat() {
       break;
   }
   if (dailyNoteFormat === "" || dailyNoteFormat === void 0) {
-    new require$$0.Notice(t$1("You didn't set format for daily notes in both periodic-notes and daily-notes plugins."));
+    new require$$0.Notice(t$2("You didn't set format for daily notes in both periodic-notes and daily-notes plugins."));
   }
   return dailyNoteFormat;
 }
 function getDailyNotePath() {
-  var _a, _b, _c, _d, _e, _f;
+  var _a2, _b, _c, _d, _e, _f;
   let dailyNotePath = "";
   let dailyNoteTempForPeriodicNotes = "";
-  const folderFromPeriodicNotesNew = (_c = (_b = (_a = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _a.calendarSetManager) == null ? void 0 : _b.getActiveConfig("day")) == null ? void 0 : _c.folder;
+  const folderFromPeriodicNotesNew = (_c = (_b = (_a2 = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _a2.calendarSetManager) == null ? void 0 : _b.getActiveConfig("day")) == null ? void 0 : _c.folder;
   const folderFromPeriodicNotes = (_f = (_e = (_d = window.app.plugins.getPlugin("periodic-notes")) == null ? void 0 : _d.settings) == null ? void 0 : _e.daily) == null ? void 0 : _f.folder;
   if (folderFromPeriodicNotesNew === void 0) {
     dailyNoteTempForPeriodicNotes = folderFromPeriodicNotes;
@@ -8942,7 +8940,7 @@ function getDailyNotePath() {
       break;
   }
   if (dailyNotePath === "" || dailyNotePath === void 0) {
-    new require$$0.Notice(t$1("You didn't set folder for daily notes in both periodic-notes and daily-notes plugins."));
+    new require$$0.Notice(t$2("You didn't set folder for daily notes in both periodic-notes and daily-notes plugins."));
   }
   return dailyNotePath;
 }
@@ -9035,8 +9033,8 @@ function reducer$4(state, action) {
     case "SET_QUERIES": {
       const queries = utils$1.dedupeObjectWithId(
         action.payload.queries.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).sort((a, b) => {
-          var _a, _b;
-          return utils$1.getTimeStampByDate((_a = b.pinnedAt) != null ? _a : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
+          var _a2, _b;
+          return utils$1.getTimeStampByDate((_a2 = b.pinnedAt) != null ? _a2 : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
         })
       );
       return {
@@ -9151,7 +9149,7 @@ const appContext = react.exports.createContext(appStore.getState());
     };
   }
 })();
-var global$1 = "";
+var global = "";
 const SHOW_SIDERBAR_MOBILE_CLASSNAME = "mobile-show-sidebar";
 const ANIMATION_DURATION = 200;
 const DAILY_TIMESTAMP = 3600 * 24 * 1e3;
@@ -9224,7 +9222,7 @@ var storage;
     }
   }
   storage2.set = set;
-  function remove(keys) {
+  function remove2(keys) {
     for (const key of keys) {
       try {
         localStorage.removeItem(key);
@@ -9233,20 +9231,28 @@ var storage;
       }
     }
   }
-  storage2.remove = remove;
+  storage2.remove = remove2;
+  function removeRaw(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error("Remove storage failed in ", key, error);
+    }
+  }
+  storage2.removeRaw = removeRaw;
   function emitStorageChangedEvent() {
-    var _a;
+    var _a2;
     const iframeEl = document.createElement("iframe");
     iframeEl.style.display = "none";
     document.body.appendChild(iframeEl);
-    (_a = iframeEl.contentWindow) == null ? void 0 : _a.localStorage.setItem("t", Date.now().toString());
+    (_a2 = iframeEl.contentWindow) == null ? void 0 : _a2.localStorage.setItem("t", Date.now().toString());
     iframeEl.remove();
   }
   storage2.emitStorageChangedEvent = emitStorageChangedEvent;
 })(storage || (storage = {}));
 class GlobalStateService {
   constructor() {
-    var _a, _b, _c, _d;
+    var _a2, _b, _c;
     this.getState = () => {
       return appStore.getState().globalState;
     };
@@ -9292,15 +9298,16 @@ class GlobalStateService {
     const cachedSetting = storage.get([
       "shouldSplitMemoWord",
       "shouldHideImageUrl",
-      "shouldUseMarkdownParser",
-      "useTinyUndoHistoryCache"
+      "shouldUseMarkdownParser"
     ]);
     const defaultAppSetting = {
-      shouldSplitMemoWord: (_a = cachedSetting.shouldSplitMemoWord) != null ? _a : true,
+      shouldSplitMemoWord: (_a2 = cachedSetting.shouldSplitMemoWord) != null ? _a2 : true,
       shouldHideImageUrl: (_b = cachedSetting.shouldHideImageUrl) != null ? _b : true,
-      shouldUseMarkdownParser: (_c = cachedSetting.shouldUseMarkdownParser) != null ? _c : true,
-      useTinyUndoHistoryCache: (_d = cachedSetting.useTinyUndoHistoryCache) != null ? _d : false
+      shouldUseMarkdownParser: (_c = cachedSetting.shouldUseMarkdownParser) != null ? _c : true
     };
+    storage.removeRaw("useTinyUndoHistoryCache");
+    storage.removeRaw("tinyUndoActionsCache");
+    storage.removeRaw("tinyUndoIndexCache");
     this.setAppSetting(defaultAppSetting);
   }
 }
@@ -9308,7 +9315,7 @@ const globalStateService = new GlobalStateService();
 class LocationService {
   constructor() {
     this.updateStateWithLocation = () => {
-      var _a, _b, _c, _d, _e, _f;
+      var _a2, _b, _c, _d, _e, _f;
       const { pathname, search, hash: hash2 } = window.location;
       const urlParams = new URLSearchParams(search);
       const state = {
@@ -9322,7 +9329,7 @@ class LocationService {
           filter: ""
         }
       };
-      state.query.tag = (_a = urlParams.get("tag")) != null ? _a : "";
+      state.query.tag = (_a2 = urlParams.get("tag")) != null ? _a2 : "";
       state.query.type = (_b = urlParams.get("type")) != null ? _b : "";
       state.query.text = (_c = urlParams.get("text")) != null ? _c : "";
       state.query.filter = (_d = urlParams.get("filter")) != null ? _d : "";
@@ -9470,21 +9477,21 @@ async function openMemoFile(memoId, path) {
   }
   if (!file)
     return null;
-  const content = await vault.read(file);
-  return { file, lines: content.split(/\r?\n/) };
+  const content2 = await vault.read(file);
+  return { file, lines: content2.split(/\r?\n/) };
 }
 function findHeaderLineIdx(lines, hasId, lineHint = 0) {
   if (hasId) {
     const want = "^" + hasId;
     let best = -1;
     let bestDist = Infinity;
-    for (let i = 0; i < lines.length; i++) {
-      const l2 = lines[i];
+    for (let i2 = 0; i2 < lines.length; i2++) {
+      const l2 = lines[i2];
       if (/^[-*]\s.*\^[A-Za-z0-9]{6}\s*$/.test(l2) && l2.trimEnd().endsWith(want)) {
-        const d = Math.abs(i - lineHint);
+        const d = Math.abs(i2 - lineHint);
         if (d < bestDist) {
           bestDist = d;
-          best = i;
+          best = i2;
         }
       }
     }
@@ -9497,36 +9504,36 @@ function findHeaderLineIdx(lines, hasId, lineHint = 0) {
   return -1;
 }
 function scanBodyEnd(lines, headerIdx) {
-  let last = headerIdx;
-  for (let i = headerIdx + 1; i < lines.length; i++) {
-    const l2 = lines[i];
+  let last2 = headerIdx;
+  for (let i2 = headerIdx + 1; i2 < lines.length; i2++) {
+    const l2 = lines[i2];
     if (l2.trim() === "")
       continue;
     if (l2.length - l2.trimStart().length >= 4) {
-      last = i;
+      last2 = i2;
       continue;
     }
     break;
   }
-  return last;
+  return last2;
 }
-function contentToBodyLines(content) {
-  if (content === "")
+function contentToBodyLines(content2) {
+  if (content2 === "")
     return [];
-  return content.split("\n").map((l2) => l2 === "" ? "" : "    " + l2);
+  return content2.split("\n").map((l2) => l2 === "" ? "" : "    " + l2);
 }
 async function waitForInsert(MemoContent, isTASK, insertDate) {
   const date = insertDate ? insertDate : require$$0.moment();
   const timeText = date.format("HH:mm:ss");
   const generatedId = Math.random().toString(36).slice(-6);
   const header = `${isTASK ? "- [ ] " : "- "}${timeText} ^${generatedId}`;
-  const content = (MemoContent != null ? MemoContent : "").replace(/\n+$/, "");
-  const bodyLines = contentToBodyLines(content);
+  const content2 = (MemoContent != null ? MemoContent : "").replace(/\n+$/, "");
+  const bodyLines = contentToBodyLines(content2);
   const blockText = bodyLines.length > 0 ? [header, ...bodyLines].join("\n") : header;
   const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
   const memo2 = {
     id: "",
-    content,
+    content: content2,
     deletedAt: "",
     createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
     updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
@@ -9570,17 +9577,17 @@ function insertMemoBlock(targetString, blockText, fileContent) {
     const targetIdx = lines.findIndex((line) => targetRe.test(line));
     if (targetIdx !== -1) {
       let nextHeading = -1;
-      for (let i = targetIdx + 1; i < lines.length; i++) {
-        if (/^#{1,} |^---/.test(lines[i])) {
-          nextHeading = i;
+      for (let i2 = targetIdx + 1; i2 < lines.length; i2++) {
+        if (/^#{1,} |^---/.test(lines[i2])) {
+          nextHeading = i2;
           break;
         }
       }
       if (nextHeading !== -1) {
         let anchor = targetIdx;
-        for (let i = nextHeading - 1; i > targetIdx; i--) {
-          if (lines[i].trim() !== "") {
-            anchor = i;
+        for (let i2 = nextHeading - 1; i2 > targetIdx; i2--) {
+          if (lines[i2].trim() !== "") {
+            anchor = i2;
             break;
           }
         }
@@ -9593,15 +9600,15 @@ function insertMemoBlock(targetString, blockText, fileContent) {
   return appendAtEnd(lines, blockLines);
 }
 function appendAtEnd(lines, blockLines) {
-  const last = lines.length - 1;
-  if (lines[last] === "") {
-    const out2 = [...lines.slice(0, last), ...blockLines, ""];
-    return { content: out2.join("\n"), headerIdx: last };
+  const last2 = lines.length - 1;
+  if (lines[last2] === "") {
+    const out2 = [...lines.slice(0, last2), ...blockLines, ""];
+    return { content: out2.join("\n"), headerIdx: last2 };
   }
   const out = [...lines, ...blockLines];
   return { content: out.join("\n"), headerIdx: lines.length };
 }
-async function changeMemo(memoid, content, memoType, path, hasId) {
+async function changeMemo(memoid, content2, memoType, path, hasId) {
   const loc = await openMemoFile(memoid, path);
   if (!loc) {
     throw new Error("File not found");
@@ -9611,7 +9618,7 @@ async function changeMemo(memoid, content, memoType, path, hasId) {
   if (headerIdx === -1) {
     throw new Error("Memo header not found in file");
   }
-  const normalized = (content != null ? content : "").replace(/\n+$/, "");
+  const normalized = (content2 != null ? content2 : "").replace(/\n+$/, "");
   const bodyLines = contentToBodyLines(normalized);
   const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
   const before = loc.lines.slice(0, headerIdx + 1);
@@ -9748,19 +9755,19 @@ async function toggleMemoTaskType(memoid, hasId, path) {
   await vault.modify(loc.file, loc.lines.join("\n"));
   return loc.file;
 }
-function extractDeletedAt(content) {
-  const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content);
+function extractDeletedAt(content2) {
+  const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content2);
   if (m2) {
     const value = m2[1].trim();
     if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
       return {
         isDeleted: true,
         deletedAt: value,
-        rest: content.slice(0, m2.index).trimEnd()
+        rest: content2.slice(0, m2.index).trimEnd()
       };
     }
   }
-  return { isDeleted: false, deletedAt: "", rest: content };
+  return { isDeleted: false, deletedAt: "", rest: content2 };
 }
 function extractMemoTaskTypeFromLine(line) {
   const match = /^[\s-*]*\[(.{1})\]/.exec(line);
@@ -9858,10 +9865,10 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
       if (!isNaN(s))
         memoDate.seconds(s);
     }
-    const content = current.body.join("\n");
+    const content2 = current.body.join("\n");
     allMemos.push({
       id: memoDate.format("YYYYMMDDHHmmss") + current.idx,
-      content,
+      content: content2,
       user_id: 1,
       createdAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
       updatedAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
@@ -9877,20 +9884,20 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
     current = null;
     pendingBlanks = 0;
   };
-  const parseHeader = (line, i) => {
+  const parseHeader = (line, i2) => {
     const memoType = /^[-*]\s\[(.{1})\]\s?/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
     const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s?)?/, "");
     const { time, rest } = extractMemoTime(stripped);
-    let content = rest;
+    let content2 = rest;
     let hasId = "";
-    const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content);
+    const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content2);
     if (idMatch) {
       hasId = idMatch[1];
-      content = content.slice(0, idMatch.index).trimEnd();
+      content2 = content2.slice(0, idMatch.index).trimEnd();
     } else {
       hasId = Math.random().toString(36).slice(-6);
     }
-    const delMatch = extractDeletedAt(content);
+    const delMatch = extractDeletedAt(content2);
     let isDeleted = false;
     let deletedAt = "";
     if (delMatch.isDeleted) {
@@ -9898,18 +9905,18 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
       deletedAt = delMatch.deletedAt;
     }
     return {
-      idx: i,
+      idx: i2,
       hasId,
       time: time || "",
       deletedAt,
       isDeleted,
       memoType,
       body: [],
-      bodyEnd: i
+      bodyEnd: i2
     };
   };
-  for (let i = 0; i < fileLines.length; i++) {
-    const line = fileLines[i];
+  for (let i2 = 0; i2 < fileLines.length; i2++) {
+    const line = fileLines[i2];
     if (tokenRe && !active && tokenRe.test(line)) {
       active = true;
       continue;
@@ -9924,7 +9931,7 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
     const cls = classifyMemoRow(line);
     if (cls === "pure-header") {
       flush();
-      current = parseHeader(line, i);
+      current = parseHeader(line, i2);
       continue;
     }
     if (cls === "old-top-row") {
@@ -9945,7 +9952,7 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
         pendingBlanks = 0;
       }
       current.body.push(unindentContentLine(line));
-      current.bodyEnd = i;
+      current.bodyEnd = i2;
       continue;
     }
     flush();
@@ -9957,7 +9964,7 @@ async function getMemos(onBatch) {
   const { vault } = appStore.getState().dailyNotesState.app;
   const folder = getDailyNotePath();
   if (folder === "" || folder === void 0) {
-    new require$$0.Notice(t$1("Please check your daily note plugin OR periodic notes plugin settings"));
+    new require$$0.Notice(t$2("Please check your daily note plugin OR periodic notes plugin settings"));
     return memos;
   }
   const dailyNotesFolder = vault.getAbstractFileByPath(require$$0.normalizePath(folder));
@@ -9967,9 +9974,9 @@ async function getMemos(onBatch) {
   const dailyNotes = getAllDailyNotes_1();
   const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").sort((a, b) => b[0].localeCompare(a[0]));
   const BATCH_SIZE = 5;
-  for (let i = 0; i < files.length; i++) {
-    await getMemosFromDailyNote(files[i][1], memos);
-    if (onBatch && (i + 1) % BATCH_SIZE === 0) {
+  for (let i2 = 0; i2 < files.length; i2++) {
+    await getMemosFromDailyNote(files[i2][1], memos);
+    if (onBatch && (i2 + 1) % BATCH_SIZE === 0) {
       await onBatch([...memos]);
     }
   }
@@ -10066,8 +10073,8 @@ class MemoService {
     const uniqueTags = /* @__PURE__ */ new Set();
     const tagCounts = {};
     memos.forEach((memo2) => {
-      const tags = this.extractTagsFromContent(memo2.content);
-      tags.forEach((tag) => {
+      const tags2 = this.extractTagsFromContent(memo2.content);
+      tags2.forEach((tag) => {
         uniqueTags.add(tag);
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
@@ -10104,23 +10111,23 @@ class MemoService {
       params.hasId
     );
   }
-  extractTagsFromContent(content) {
-    const tags = /* @__PURE__ */ new Set();
+  extractTagsFromContent(content2) {
+    const tags2 = /* @__PURE__ */ new Set();
     const matches = [
-      ...content.match(TAG_REG) || [],
-      ...content.match(NOP_FIRST_TAG_REG) || [],
-      ...content.match(FIRST_TAG_REG) || []
+      ...content2.match(TAG_REG) || [],
+      ...content2.match(NOP_FIRST_TAG_REG) || [],
+      ...content2.match(FIRST_TAG_REG) || []
     ];
     matches.forEach((match) => {
       if (TAG_REG.test(match)) {
-        tags.add(match.replace(TAG_REG, "$1").trim());
+        tags2.add(match.replace(TAG_REG, "$1").trim());
       } else if (NOP_FIRST_TAG_REG.test(match)) {
-        tags.add(match.replace(NOP_FIRST_TAG_REG, "$1").trim());
+        tags2.add(match.replace(NOP_FIRST_TAG_REG, "$1").trim());
       } else if (FIRST_TAG_REG.test(match)) {
-        tags.add(match.replace(FIRST_TAG_REG, "$2").trim());
+        tags2.add(match.replace(FIRST_TAG_REG, "$2").trim());
       }
     });
-    return Array.from(tags);
+    return Array.from(tags2);
   }
   updateMemoStore(memos) {
     appStore.dispatch({
@@ -10140,18 +10147,18 @@ const findQuery = async () => {
     const fileContents = await vault.read(queryFile);
     const fileLines = getAllLinesFromFile$4(fileContents);
     if (fileLines && fileLines.length != 0) {
-      for (let i = 0; i < fileLines.length; i++) {
-        if (fileLines[i] === "")
+      for (let i2 = 0; i2 < fileLines.length; i2++) {
+        if (fileLines[i2] === "")
           continue;
-        const createdDateString = getCreatedDateFromLine(fileLines[i]);
+        const createdDateString = getCreatedDateFromLine(fileLines[i2]);
         const createdDate = require$$0.moment(createdDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
         const updatedDate = createdDate;
-        const id2 = createdDateString + getIDFromLine$1(fileLines[i]);
-        const querystring = getStringFromLine(fileLines[i]);
-        const title = getTitleFromLine(fileLines[i]);
+        const id2 = createdDateString + getIDFromLine$1(fileLines[i2]);
+        const querystring = getStringFromLine(fileLines[i2]);
+        const title = getTitleFromLine(fileLines[i2]);
         let pinnedDate;
-        if (/^(.+)pinnedAt(.+)$/.test(fileLines[i])) {
-          pinnedDate = require$$0.moment(getPinnedDateFromLine$1(fileLines[i]), "YYYYMMDDHHmmss");
+        if (/^(.+)pinnedAt(.+)$/.test(fileLines[i2])) {
+          pinnedDate = require$$0.moment(getPinnedDateFromLine$1(fileLines[i2]), "YYYYMMDDHHmmss");
           queryList2.push({
             createdAt: createdDate,
             id: id2,
@@ -10161,7 +10168,7 @@ const findQuery = async () => {
             updatedAt: updatedDate,
             userId: ""
           });
-        } else if (/^(.+)\[\](.+)?$/.test(fileLines[i])) {
+        } else if (/^(.+)\[\](.+)?$/.test(fileLines[i2])) {
           queryList2.push({
             createdAt: createdDate,
             id: id2,
@@ -10189,24 +10196,24 @@ const findQuery = async () => {
 };
 const getAllLinesFromFile$4 = (cache) => cache.split(/\r?\n/);
 const getCreatedDateFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})/.exec(line)) == null ? void 0 : _a[1];
+  var _a2;
+  return (_a2 = /^(\d{14})/.exec(line)) == null ? void 0 : _a2[1];
 };
 const getIDFromLine$1 = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s/.exec(line)) == null ? void 0 : _a[2];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s/.exec(line)) == null ? void 0 : _a2[2];
 };
 const getStringFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)) == null ? void 0 : _a[4];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)) == null ? void 0 : _a2[4];
 };
 const getTitleFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)) == null ? void 0 : _a[3];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)) == null ? void 0 : _a2[3];
 };
 const getPinnedDateFromLine$1 = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)) == null ? void 0 : _a[7];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)) == null ? void 0 : _a2[7];
 };
 async function deleteQueryForever(queryID) {
   const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
@@ -10368,16 +10375,16 @@ const updateObsidianQuery = async (queryId, title, queryString) => {
 };
 const getAllLinesFromFile$1 = (cache) => cache.split(/\r?\n/);
 const getIDFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})/.exec(line)) == null ? void 0 : _a[2];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})/.exec(line)) == null ? void 0 : _a2[2];
 };
 const getPinnedStringFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a[6];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a2[6];
 };
 const getPinnedDateFromLine = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a[7];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a2[7];
 };
 const pinQueryInFile = async (queryID) => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
@@ -10426,8 +10433,8 @@ const unpinQueryInFile = async (queryID) => {
 };
 const getAllLinesFromFile = (cache) => cache.split(/\r?\n/);
 const extractPinnedAtfromText = (line) => {
-  var _a;
-  return (_a = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)) == null ? void 0 : _a[6];
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)) == null ? void 0 : _a2[6];
 };
 class QueryService {
   getState() {
@@ -10523,20 +10530,20 @@ class ResourceService {
     const el = document.createElement("html");
     el.innerHTML = output;
     const elementsByClassName = el.getElementsByClassName("memo");
-    for (let i = 0; i < elementsByClassName.length; i++) {
-      const source = elementsByClassName[i].getElementsByClassName("content")[0].innerHTML.replace(/\s{16}?<p><\/p>/g, "").replace(/\s{16}?<p>/g, "").replace(/<\/p>/g, "").replace(/<strong>/g, "**").replace(/<\/strong>/g, "**").replace(/^\s{16}/g, "");
+    for (let i2 = 0; i2 < elementsByClassName.length; i2++) {
+      const source = elementsByClassName[i2].getElementsByClassName("content")[0].innerHTML.replace(/\s{16}?<p><\/p>/g, "").replace(/\s{16}?<p>/g, "").replace(/<\/p>/g, "").replace(/<strong>/g, "**").replace(/<\/strong>/g, "**").replace(/^\s{16}/g, "");
       const importedMemo = await memoService.importMemos(
         source,
         true,
-        require$$0.moment(elementsByClassName[i].getElementsByClassName("time")[0].innerHTML)
+        require$$0.moment(elementsByClassName[i2].getElementsByClassName("time")[0].innerHTML)
       );
       memoService.pushMemo(importedMemo);
     }
   }
 }
 const getExt = (line) => {
-  var _a;
-  return (_a = /^image\/(.+)$/.exec(line)) == null ? void 0 : _a[1];
+  var _a2;
+  return (_a2 = /^image\/(.+)$/.exec(line)) == null ? void 0 : _a2[1];
 };
 const resourceService = new ResourceService();
 var dialog = "";
@@ -10575,13 +10582,13 @@ function showDialog(config, DialogComponent, props) {
   const tempDiv = document.createElement("div");
   document.body.append(tempDiv);
   setTimeout(() => {
-    var _a;
-    (_a = tempDiv.firstElementChild) == null ? void 0 : _a.classList.add("showup");
+    var _a2;
+    (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.add("showup");
   }, 0);
   const cbs = {
     destroy: () => {
-      var _a, _b;
-      (_a = tempDiv.firstElementChild) == null ? void 0 : _a.classList.remove("showup");
+      var _a2, _b;
+      (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.remove("showup");
       (_b = tempDiv.firstElementChild) == null ? void 0 : _b.classList.add("showoff");
       setTimeout(() => {
         tempDiv.remove();
@@ -10705,8 +10712,8 @@ const MenuBtnsPopup = (props) => {
   react.exports.useEffect(() => {
     if (shownStatus) {
       const handleClickOutside = (event) => {
-        var _a;
-        if (!((_a = popupElRef.current) == null ? void 0 : _a.contains(event.target))) {
+        var _a2;
+        if (!((_a2 = popupElRef.current) == null ? void 0 : _a2.contains(event.target))) {
           event.stopPropagation();
         }
         setShownStatus(false);
@@ -10766,35 +10773,35 @@ const MenuBtnsPopup = (props) => {
       children: [/* @__PURE__ */ jsx("span", {
         className: "icon",
         children: "\u{1F464}"
-      }), " ", t$1("Settings")]
+      }), " ", t$2("Settings")]
     }), /* @__PURE__ */ jsxs("button", {
       className: "btn action-btn",
       onClick: handleMemosTrashBtnClick,
       children: [/* @__PURE__ */ jsx("span", {
         className: "icon",
         children: "\u{1F5D1}\uFE0F"
-      }), " ", t$1("Recycle bin")]
+      }), " ", t$2("Recycle bin")]
     }), /* @__PURE__ */ jsxs("button", {
       className: "btn action-btn",
       onClick: () => locationService.pushHistory("/audit"),
       children: [/* @__PURE__ */ jsx("span", {
         className: "icon",
         children: "\u{1FA7A}"
-      }), " ", t$1("Audit data")]
+      }), " ", t$2("Audit data")]
     }), /* @__PURE__ */ jsxs("button", {
       className: "btn action-btn",
       onClick: handleImportBtnClick,
       children: [/* @__PURE__ */ jsx("span", {
         className: "icon",
         children: "\u{1F4C2}"
-      }), " ", t$1("Import")]
+      }), " ", t$2("Import")]
     }), /* @__PURE__ */ jsxs("button", {
       className: "btn action-btn",
       onClick: handleAboutBtnClick,
       children: [/* @__PURE__ */ jsx("span", {
         className: "icon",
         children: "\u{1F920}"
-      }), " ", t$1("About Me")]
+      }), " ", t$2("About Me")]
     })]
   });
 };
@@ -10865,7 +10872,7 @@ const getCloneStyledElement = async (element) => {
   const clonedElementContainer = document.createElement(element.tagName);
   clonedElementContainer.innerHTML = element.innerHTML;
   const applyStyles2 = async (sourceElement, clonedElement) => {
-    var _a;
+    var _a2;
     if (!sourceElement || !clonedElement) {
       return;
     }
@@ -10873,7 +10880,7 @@ const getCloneStyledElement = async (element) => {
     if (sourceElement.tagName === "IMG") {
       try {
         const url = await convertResourceToDataURL(
-          (_a = sourceElement.getAttribute("path")) != null ? _a : sourceElement.getAttribute("src")
+          (_a2 = sourceElement.getAttribute("path")) != null ? _a2 : sourceElement.getAttribute("src")
         );
         clonedElement.src = url;
       } catch (error) {
@@ -10893,8 +10900,8 @@ const getCloneStyledElement = async (element) => {
         sourceStyles.getPropertyPriority(item)
       );
     }
-    for (let i = 0; i < clonedElement.childElementCount; i++) {
-      await applyStyles2(sourceElement.children[i], clonedElement.children[i]);
+    for (let i2 = 0; i2 < clonedElement.childElementCount; i2++) {
+      await applyStyles2(sourceElement.children[i2], clonedElement.children[i2]);
     }
   };
   await applyStyles2(element, clonedElementContainer);
@@ -11066,21 +11073,21 @@ const cssPrefix$3 = "yarl__";
 function clsx(...classes) {
   return [...classes].filter(Boolean).join(" ");
 }
-function cssClass(name) {
-  return `${cssPrefix$3}${name}`;
+function cssClass(name2) {
+  return `${cssPrefix$3}${name2}`;
 }
-function cssVar(name) {
-  return `--${cssPrefix$3}${name}`;
+function cssVar(name2) {
+  return `--${cssPrefix$3}${name2}`;
 }
-function composePrefix(base, prefix) {
-  return `${base}${prefix ? `_${prefix}` : ""}`;
+function composePrefix(base2, prefix) {
+  return `${base2}${prefix ? `_${prefix}` : ""}`;
 }
-function makeComposePrefix(base) {
-  return (prefix) => composePrefix(base, prefix);
+function makeComposePrefix(base2) {
+  return (prefix) => composePrefix(base2, prefix);
 }
 function label(labels, defaultLabel) {
-  var _a;
-  return (_a = labels === null || labels === void 0 ? void 0 : labels[defaultLabel]) !== null && _a !== void 0 ? _a : defaultLabel;
+  var _a2;
+  return (_a2 = labels === null || labels === void 0 ? void 0 : labels[defaultLabel]) !== null && _a2 !== void 0 ? _a2 : defaultLabel;
 }
 function cleanup(...cleaners) {
   return () => {
@@ -11089,11 +11096,11 @@ function cleanup(...cleaners) {
     });
   };
 }
-function makeUseContext(name, contextName, context) {
+function makeUseContext(name2, contextName, context) {
   return () => {
     const ctx = react.exports.useContext(context);
     if (!ctx) {
-      throw new Error(`${name} must be used within a ${contextName}.Provider`);
+      throw new Error(`${name2} must be used within a ${contextName}.Provider`);
     }
     return ctx;
   };
@@ -11217,8 +11224,8 @@ const LightboxDefaultProps = {
   styles: {},
   className: ""
 };
-function createModule(name, component) {
-  return { name, component };
+function createModule(name2, component) {
+  return { name: name2, component };
 }
 function createNode(module2, children) {
   return { module: module2, children };
@@ -11230,8 +11237,8 @@ function traverseNode(node, target, apply) {
   if (node.children) {
     return [
       createNode(node.module, node.children.flatMap((n2) => {
-        var _a;
-        return (_a = traverseNode(n2, target, apply)) !== null && _a !== void 0 ? _a : [];
+        var _a2;
+        return (_a2 = traverseNode(n2, target, apply)) !== null && _a2 !== void 0 ? _a2 : [];
       }))
     ];
   }
@@ -11239,8 +11246,8 @@ function traverseNode(node, target, apply) {
 }
 function traverse(nodes, target, apply) {
   return nodes.flatMap((node) => {
-    var _a;
-    return (_a = traverseNode(node, target, apply)) !== null && _a !== void 0 ? _a : [];
+    var _a2;
+    return (_a2 = traverseNode(node, target, apply)) !== null && _a2 !== void 0 ? _a2 : [];
   });
 }
 function withPlugins(root, plugins = [], augmentations = []) {
@@ -11268,11 +11275,11 @@ function withPlugins(root, plugins = [], augmentations = []) {
   };
   const addChild = (target, module2, precede) => {
     config = traverse(config, target, (node) => {
-      var _a;
+      var _a2;
       return [
         createNode(node.module, [
           ...precede ? [createNode(module2)] : [],
-          ...(_a = node.children) !== null && _a !== void 0 ? _a : [],
+          ...(_a2 = node.children) !== null && _a2 !== void 0 ? _a2 : [],
           ...!precede ? [createNode(module2)] : []
         ])
       ];
@@ -11288,10 +11295,10 @@ function withPlugins(root, plugins = [], augmentations = []) {
   const addModule = (module2) => {
     append(MODULE_CONTROLLER, module2);
   };
-  const replace = (target, module2) => {
+  const replace2 = (target, module2) => {
     config = traverse(config, target, (node) => [createNode(module2, node.children)]);
   };
-  const remove = (target) => {
+  const remove2 = (target) => {
     config = traverse(config, target, (node) => node.children);
   };
   const augment = (augmentation) => {
@@ -11305,8 +11312,8 @@ function withPlugins(root, plugins = [], augmentations = []) {
       addChild,
       addSibling,
       addModule,
-      replace,
-      remove,
+      replace: replace2,
+      remove: remove2,
       augment
     });
   });
@@ -11320,12 +11327,12 @@ const useDocumentContext = makeUseContext("useDocument", "DocumentContext", Docu
 function DocumentContextProvider({ nodeRef, children }) {
   const context = react.exports.useMemo(() => {
     const getOwnerDocument = (node) => {
-      var _a;
-      return ((_a = node || nodeRef.current) === null || _a === void 0 ? void 0 : _a.ownerDocument) || document;
+      var _a2;
+      return ((_a2 = node || nodeRef.current) === null || _a2 === void 0 ? void 0 : _a2.ownerDocument) || document;
     };
     const getOwnerWindow = (node) => {
-      var _a;
-      return ((_a = getOwnerDocument(node)) === null || _a === void 0 ? void 0 : _a.defaultView) || window;
+      var _a2;
+      return ((_a2 = getOwnerDocument(node)) === null || _a2 === void 0 ? void 0 : _a2.defaultView) || window;
     };
     return { getOwnerDocument, getOwnerWindow };
   }, [nodeRef]);
@@ -11340,8 +11347,8 @@ function EventsProvider({ children }) {
   }, [subscriptions]);
   const context = react.exports.useMemo(() => {
     const unsubscribe = (topic, callback) => {
-      var _a;
-      (_a = subscriptions[topic]) === null || _a === void 0 ? void 0 : _a.splice(0, subscriptions[topic].length, ...subscriptions[topic].filter((cb2) => cb2 !== callback));
+      var _a2;
+      (_a2 = subscriptions[topic]) === null || _a2 === void 0 ? void 0 : _a2.splice(0, subscriptions[topic].length, ...subscriptions[topic].filter((cb2) => cb2 !== callback));
     };
     const subscribe = (topic, callback) => {
       if (!subscriptions[topic]) {
@@ -11351,8 +11358,8 @@ function EventsProvider({ children }) {
       return () => unsubscribe(topic, callback);
     };
     const publish = (...[topic, event]) => {
-      var _a;
-      (_a = subscriptions[topic]) === null || _a === void 0 ? void 0 : _a.forEach((callback) => callback(event));
+      var _a2;
+      (_a2 = subscriptions[topic]) === null || _a2 === void 0 ? void 0 : _a2.forEach((callback) => callback(event));
     };
     return { publish, subscribe, unsubscribe };
   }, [subscriptions]);
@@ -11448,13 +11455,13 @@ const IconButton = react.exports.forwardRef(function IconButton2({ label: label$
   const buttonLabel = label(labels, label$1);
   return react.exports.createElement("button", { ref, type: "button", title: buttonLabel, "aria-label": buttonLabel, className: clsx(cssClass(ELEMENT_BUTTON), className), onClick, style: { ...style, ...styles2.button }, ...rest }, renderIcon ? renderIcon() : react.exports.createElement(Icon, { className: cssClass(ELEMENT_ICON), style: styles2.icon }));
 });
-function svgIcon(name, children) {
+function svgIcon(name2, children) {
   const icon = (props) => react.exports.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", width: "24", height: "24", "aria-hidden": "true", focusable: "false", ...props }, children);
-  icon.displayName = name;
+  icon.displayName = name2;
   return icon;
 }
-function createIcon(name, glyph) {
-  return svgIcon(name, react.exports.createElement(
+function createIcon(name2, glyph) {
+  return svgIcon(name2, react.exports.createElement(
     "g",
     { fill: "currentColor" },
     react.exports.createElement("path", { d: "M0 0h24v24H0z", fill: "none" }),
@@ -11470,14 +11477,14 @@ const useLayoutEffect = hasWindow() ? react.exports.useLayoutEffect : react.expo
 function useMotionPreference() {
   const [reduceMotion, setReduceMotion] = react.exports.useState(false);
   react.exports.useEffect(() => {
-    var _a, _b;
-    const mediaQuery = (_a = window.matchMedia) === null || _a === void 0 ? void 0 : _a.call(window, "(prefers-reduced-motion: reduce)");
+    var _a2, _b;
+    const mediaQuery = (_a2 = window.matchMedia) === null || _a2 === void 0 ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)");
     setReduceMotion(mediaQuery === null || mediaQuery === void 0 ? void 0 : mediaQuery.matches);
     const listener = (event) => setReduceMotion(event.matches);
     (_b = mediaQuery === null || mediaQuery === void 0 ? void 0 : mediaQuery.addEventListener) === null || _b === void 0 ? void 0 : _b.call(mediaQuery, "change", listener);
     return () => {
-      var _a2;
-      return (_a2 = mediaQuery === null || mediaQuery === void 0 ? void 0 : mediaQuery.removeEventListener) === null || _a2 === void 0 ? void 0 : _a2.call(mediaQuery, "change", listener);
+      var _a3;
+      return (_a3 = mediaQuery === null || mediaQuery === void 0 ? void 0 : mediaQuery.removeEventListener) === null || _a3 === void 0 ? void 0 : _a3.call(mediaQuery, "change", listener);
     };
   }, []);
   return reduceMotion;
@@ -11506,11 +11513,11 @@ function useAnimation(nodeRef, computeAnimation) {
   const animation = react.exports.useRef();
   const reduceMotion = useMotionPreference();
   useLayoutEffect(() => {
-    var _a, _b, _c;
+    var _a2, _b, _c;
     if (nodeRef.current && snapshot.current !== void 0 && !reduceMotion) {
       const { keyframes, duration, easing, onfinish } = computeAnimation(snapshot.current, nodeRef.current.getBoundingClientRect(), currentTransformation(nodeRef.current)) || {};
       if (keyframes && duration) {
-        (_a = animation.current) === null || _a === void 0 ? void 0 : _a.cancel();
+        (_a2 = animation.current) === null || _a2 === void 0 ? void 0 : _a2.cancel();
         animation.current = void 0;
         try {
           animation.current = (_c = (_b = nodeRef.current).animate) === null || _c === void 0 ? void 0 : _c.call(_b, keyframes, { duration, easing });
@@ -11532,8 +11539,8 @@ function useAnimation(nodeRef, computeAnimation) {
       snapshot.current = currentSnapshot;
     },
     isAnimationPlaying: () => {
-      var _a;
-      return ((_a = animation.current) === null || _a === void 0 ? void 0 : _a.playState) === "running";
+      var _a2;
+      return ((_a2 = animation.current) === null || _a2 === void 0 ? void 0 : _a2.playState) === "running";
     }
   };
 }
@@ -11581,8 +11588,8 @@ function useEventCallback(fn2) {
     ref.current = fn2;
   });
   return react.exports.useCallback((...args) => {
-    var _a;
-    return (_a = ref.current) === null || _a === void 0 ? void 0 : _a.call(ref, ...args);
+    var _a2;
+    return (_a2 = ref.current) === null || _a2 === void 0 ? void 0 : _a2.call(ref, ...args);
   }, []);
 }
 function setRef(ref, value) {
@@ -11624,8 +11631,8 @@ function useRTL() {
 function useSensors() {
   const [subscribers] = react.exports.useState({});
   const notifySubscribers = react.exports.useCallback((type, event) => {
-    var _a;
-    (_a = subscribers[type]) === null || _a === void 0 ? void 0 : _a.forEach((listener) => {
+    var _a2;
+    (_a2 = subscribers[type]) === null || _a2 === void 0 ? void 0 : _a2.forEach((listener) => {
       if (!event.isPropagationStopped())
         listener(event);
     });
@@ -11670,7 +11677,7 @@ function useThrottle(callback, delay) {
 const slidePrefix = makeComposePrefix("slide");
 const slideImagePrefix = makeComposePrefix("slide_image");
 function ImageSlide({ slide: image2, offset: offset2, render, rect, imageFit, imageProps, onClick, onLoad, onError, style }) {
-  var _a, _b, _c, _d, _e, _f, _g;
+  var _a2, _b, _c, _d, _e, _f, _g;
   const [status, setStatus] = react.exports.useState(SLIDE_STATUS_LOADING);
   const { publish } = useEvents();
   const { setTimeout: setTimeout2 } = useTimeouts();
@@ -11707,7 +11714,7 @@ function ImageSlide({ slide: image2, offset: offset2, render, rect, imageFit, im
   });
   const cover = isImageFitCover(image2, imageFit);
   const nonInfinite = (value, fallback) => Number.isFinite(value) ? value : fallback;
-  const maxWidth = nonInfinite(Math.max(...((_b = (_a = image2.srcSet) === null || _a === void 0 ? void 0 : _a.map((x2) => x2.width)) !== null && _b !== void 0 ? _b : []).concat(image2.width ? [image2.width] : []).filter(Boolean)), ((_c = imageRef.current) === null || _c === void 0 ? void 0 : _c.naturalWidth) || 0);
+  const maxWidth = nonInfinite(Math.max(...((_b = (_a2 = image2.srcSet) === null || _a2 === void 0 ? void 0 : _a2.map((x2) => x2.width)) !== null && _b !== void 0 ? _b : []).concat(image2.width ? [image2.width] : []).filter(Boolean)), ((_c = imageRef.current) === null || _c === void 0 ? void 0 : _c.naturalWidth) || 0);
   const maxHeight = nonInfinite(Math.max(...((_e = (_d = image2.srcSet) === null || _d === void 0 ? void 0 : _d.map((x2) => x2.height)) !== null && _e !== void 0 ? _e : []).concat(image2.height ? [image2.height] : []).filter(Boolean)), ((_f = imageRef.current) === null || _f === void 0 ? void 0 : _f.naturalHeight) || 0);
   const defaultStyle = maxWidth && maxHeight ? {
     maxWidth: `min(${maxWidth}px, 100%)`,
@@ -11853,11 +11860,11 @@ function usePreventWheelDefaults({ preventDefaultWheelX, preventDefaultWheelY })
     }
   });
   return react.exports.useCallback((node) => {
-    var _a;
+    var _a2;
     if (node) {
       node.addEventListener("wheel", listener, { passive: false });
     } else {
-      (_a = ref.current) === null || _a === void 0 ? void 0 : _a.removeEventListener("wheel", listener);
+      (_a2 = ref.current) === null || _a2 === void 0 ? void 0 : _a2.removeEventListener("wheel", listener);
     }
     ref.current = node;
   }, [listener]);
@@ -11959,7 +11966,7 @@ const cssContainerPrefix = makeComposePrefix("container");
 const ControllerContext = react.exports.createContext(null);
 const useController = makeUseContext("useController", "ControllerContext", ControllerContext);
 function Controller({ children, ...props }) {
-  var _a;
+  var _a2;
   const { carousel, animation, controller, on, styles: styles2, render } = props;
   const { closeOnPullUp, closeOnPullDown, preventDefaultWheelX, preventDefaultWheelY } = controller;
   const [toolbarWidth, setToolbarWidth] = react.exports.useState();
@@ -11982,8 +11989,8 @@ function Controller({ children, ...props }) {
   const isRTL = useRTL();
   const rtl = (value) => (isRTL ? -1 : 1) * (typeof value === "number" ? value : 1);
   const focus = useEventCallback(() => {
-    var _a2;
-    return (_a2 = containerRef.current) === null || _a2 === void 0 ? void 0 : _a2.focus();
+    var _a3;
+    return (_a3 = containerRef.current) === null || _a3 === void 0 ? void 0 : _a3.focus();
   });
   const getLightboxProps = useEventCallback(() => props);
   const getLightboxState = useEventCallback(() => state);
@@ -11992,12 +11999,12 @@ function Controller({ children, ...props }) {
   const close = react.exports.useCallback(() => publish(ACTION_CLOSE), [publish]);
   const isSwipeValid = (offset2) => !(carousel.finite && (rtl(offset2) > 0 && state.currentIndex === 0 || rtl(offset2) < 0 && state.currentIndex === state.slides.length - 1));
   const setSwipeOffset = (offset2) => {
-    var _a2;
+    var _a3;
     swipeOffset.current = offset2;
-    (_a2 = containerRef.current) === null || _a2 === void 0 ? void 0 : _a2.style.setProperty(cssVar("swipe_offset"), `${Math.round(offset2)}px`);
+    (_a3 = containerRef.current) === null || _a3 === void 0 ? void 0 : _a3.style.setProperty(cssVar("swipe_offset"), `${Math.round(offset2)}px`);
   };
   const setPullOffset = (offset2) => {
-    var _a2, _b;
+    var _a3, _b;
     pullOffset.current = offset2;
     pullOpacity.current = (() => {
       const threshold = 60;
@@ -12011,7 +12018,7 @@ function Controller({ children, ...props }) {
       })();
       return Math.min(Math.max(round$1(1 - offsetValue / threshold * (1 - minOpacity), 2), minOpacity), 1);
     })();
-    (_a2 = containerRef.current) === null || _a2 === void 0 ? void 0 : _a2.style.setProperty(cssVar("pull_offset"), `${Math.round(offset2)}px`);
+    (_a3 = containerRef.current) === null || _a3 === void 0 ? void 0 : _a3.style.setProperty(cssVar("pull_offset"), `${Math.round(offset2)}px`);
     (_b = containerRef.current) === null || _b === void 0 ? void 0 : _b.style.setProperty(cssVar("pull_opacity"), `${pullOpacity.current}`);
   };
   const { prepareAnimation: preparePullAnimation } = useAnimation(carouselRef, (snapshot, rect, translate) => {
@@ -12053,8 +12060,8 @@ function Controller({ children, ...props }) {
     }
   };
   const { prepareAnimation, isAnimationPlaying } = useAnimation(carouselRef, (snapshot, rect, translate) => {
-    var _a2;
-    if (carouselRef.current && containerRect && ((_a2 = state.animation) === null || _a2 === void 0 ? void 0 : _a2.duration)) {
+    var _a3;
+    if (carouselRef.current && containerRect && ((_a3 = state.animation) === null || _a3 === void 0 ? void 0 : _a3.duration)) {
       const parsedSpacing = parseLengthPercentage(carousel.spacing);
       const spacingValue = (parsedSpacing.percent ? parsedSpacing.percent * containerRect.width / 100 : parsedSpacing.pixel) || 0;
       return {
@@ -12071,9 +12078,9 @@ function Controller({ children, ...props }) {
     return void 0;
   });
   const swipe = useEventCallback((action) => {
-    var _a2, _b;
+    var _a3, _b;
     const currentSwipeOffset = action.offset || 0;
-    const swipeDuration = !currentSwipeOffset ? (_a2 = animation.navigation) !== null && _a2 !== void 0 ? _a2 : animation.swipe : animation.swipe;
+    const swipeDuration = !currentSwipeOffset ? (_a3 = animation.navigation) !== null && _a3 !== void 0 ? _a3 : animation.swipe : animation.swipe;
     const swipeEasing = !currentSwipeOffset && !isAnimationPlaying() ? animation.easing.navigation : animation.easing.swipe;
     let { direction } = action;
     const count = (_b = action.count) !== null && _b !== void 0 ? _b : 1;
@@ -12130,8 +12137,8 @@ function Controller({ children, ...props }) {
     });
   });
   react.exports.useEffect(() => {
-    var _a2, _b;
-    if (((_a2 = state.animation) === null || _a2 === void 0 ? void 0 : _a2.increment) && ((_b = state.animation) === null || _b === void 0 ? void 0 : _b.duration)) {
+    var _a3, _b;
+    if (((_a3 = state.animation) === null || _a3 === void 0 ? void 0 : _a3.increment) && ((_b = state.animation) === null || _b === void 0 ? void 0 : _b.duration)) {
       cleanupAnimationIncrement(() => dispatch({ type: "swipe", increment: 0 }), state.animation.duration);
     }
   }, [state.animation, dispatch, cleanupAnimationIncrement]);
@@ -12164,8 +12171,8 @@ function Controller({ children, ...props }) {
   });
   react.exports.useEffect(focusOnMount, [focusOnMount]);
   const onViewCallback = useEventCallback(() => {
-    var _a2;
-    (_a2 = on.view) === null || _a2 === void 0 ? void 0 : _a2.call(on, { index: state.currentIndex });
+    var _a3;
+    (_a3 = on.view) === null || _a3 === void 0 ? void 0 : _a3.call(on, { index: state.currentIndex });
   });
   react.exports.useEffect(onViewCallback, [state.globalIndex, onViewCallback]);
   react.exports.useEffect(() => cleanup(subscribe(ACTION_PREV, (action) => swipe({ direction: ACTION_PREV, ...action })), subscribe(ACTION_NEXT, (action) => swipe({ direction: ACTION_NEXT, ...action })), subscribe(ACTION_SWIPE, (action) => dispatch(action))), [subscribe, swipe, dispatch]);
@@ -12214,7 +12221,7 @@ function Controller({ children, ...props }) {
     ControllerContext.Provider,
     { value: context },
     children,
-    (_a = render.controls) === null || _a === void 0 ? void 0 : _a.call(render)
+    (_a2 = render.controls) === null || _a2 === void 0 ? void 0 : _a2.call(render)
   ));
 }
 const ControllerModule = createModule(MODULE_CONTROLLER, Controller);
@@ -12232,14 +12239,14 @@ function CarouselSlide({ slide, offset: offset2 }) {
   const { getOwnerDocument } = useDocumentContext();
   const offscreen = offset2 !== 0;
   react.exports.useEffect(() => {
-    var _a;
-    if (offscreen && ((_a = containerRef.current) === null || _a === void 0 ? void 0 : _a.contains(getOwnerDocument().activeElement))) {
+    var _a2;
+    if (offscreen && ((_a2 = containerRef.current) === null || _a2 === void 0 ? void 0 : _a2.contains(getOwnerDocument().activeElement))) {
       focus();
     }
   }, [offscreen, focus, getOwnerDocument]);
   const renderSlide = () => {
-    var _a, _b, _c, _d;
-    let rendered = (_a = render.slide) === null || _a === void 0 ? void 0 : _a.call(render, { slide, offset: offset2, rect: slideRect });
+    var _a2, _b, _c, _d;
+    let rendered = (_a2 = render.slide) === null || _a2 === void 0 ? void 0 : _a2.call(render, { slide, offset: offset2, rect: slideRect });
     if (!rendered && isImageSlide(slide)) {
       rendered = react.exports.createElement(ImageSlide, { slide, offset: offset2, render, rect: slideRect, imageFit, imageProps, onClick: !offscreen ? () => onClick === null || onClick === void 0 ? void 0 : onClick({ index: currentIndex }) : void 0 });
     }
@@ -12260,7 +12267,7 @@ function CarouselSlide({ slide, offset: offset2 }) {
   };
   return react.exports.createElement("div", { ref: containerRef, className: clsx(cssClass(cssSlidePrefix()), !offscreen && cssClass(cssSlidePrefix("current")), cssClass(CLASS_FLEX_CENTER)), ...makeInertWhen(offscreen), onClick: handleBackdropClick, style }, renderSlide());
 }
-function Placeholder() {
+function Placeholder$1() {
   const style = useLightboxProps().styles.slide;
   return react.exports.createElement("div", { className: cssClass("slide"), style });
 }
@@ -12275,8 +12282,8 @@ function Carousel({ carousel }) {
     for (let index = currentIndex - preload; index <= currentIndex + preload; index += 1) {
       const slide = getSlide(slides, index);
       const key = globalIndex - currentIndex + index;
-      const placeholder = carousel.finite && (index < 0 || index > slides.length - 1);
-      items.push(!placeholder ? {
+      const placeholder2 = carousel.finite && (index < 0 || index > slides.length - 1);
+      items.push(!placeholder2 ? {
         key: [`${key}`, getSlideKey(slide)].filter(Boolean).join("|"),
         offset: index - currentIndex,
         slide
@@ -12289,7 +12296,7 @@ function Carousel({ carousel }) {
     [`${cssVar(cssPrefix$2("spacing_percent"))}`]: spacingValue.percent || 0,
     [`${cssVar(cssPrefix$2("padding_px"))}`]: paddingValue.pixel || 0,
     [`${cssVar(cssPrefix$2("padding_percent"))}`]: paddingValue.percent || 0
-  } }, items.map(({ key, slide, offset: offset2 }) => slide ? react.exports.createElement(CarouselSlide, { key, slide, offset: offset2 }) : react.exports.createElement(Placeholder, { key })));
+  } }, items.map(({ key, slide, offset: offset2 }) => slide ? react.exports.createElement(CarouselSlide, { key, slide, offset: offset2 }) : react.exports.createElement(Placeholder$1, { key })));
 }
 const CarouselModule = createModule(MODULE_CAROUSEL, Carousel);
 function useNavigationState() {
@@ -12300,12 +12307,12 @@ function useNavigationState() {
   return { prevDisabled, nextDisabled };
 }
 function useKeyboardNavigation(subscribeSensors) {
-  var _a;
+  var _a2;
   const isRTL = useRTL();
   const { publish } = useEvents();
   const { animation } = useLightboxProps();
   const { prevDisabled, nextDisabled } = useNavigationState();
-  const throttle = ((_a = animation.navigation) !== null && _a !== void 0 ? _a : animation.swipe) / 2;
+  const throttle = ((_a2 = animation.navigation) !== null && _a2 !== void 0 ? _a2 : animation.swipe) / 2;
   const prev = useThrottle(() => publish(ACTION_PREV), throttle);
   const next = useThrottle(() => publish(ACTION_NEXT), throttle);
   const handleKeyDown = useEventCallback((event) => {
@@ -12373,8 +12380,8 @@ function NoScroll({ noScroll: { disabled }, children }) {
     if (scrollbar > 0) {
       cleanup2.push(padScrollbar(body, scrollbar, rtl));
       const elements = body.getElementsByTagName("*");
-      for (let i = 0; i < elements.length; i += 1) {
-        const element = elements[i];
+      for (let i2 = 0; i2 < elements.length; i2 += 1) {
+        const element = elements[i2];
         if (isHTMLElement$1(element) && ownerWindow.getComputedStyle(element).getPropertyValue("position") === "fixed" && !element.classList.contains(noScrollPadding)) {
           cleanup2.push(padScrollbar(element, scrollbar, rtl));
         }
@@ -12424,37 +12431,37 @@ function Portal({ children, animation, styles: styles2, className, on, portal, c
     cleanup2.current = [];
   });
   const handleClose = useEventCallback(() => {
-    var _a;
+    var _a2;
     setVisible(false);
     handleCleanup();
-    (_a = on.exiting) === null || _a === void 0 ? void 0 : _a.call(on);
+    (_a2 = on.exiting) === null || _a2 === void 0 ? void 0 : _a2.call(on);
     setTimeout2(() => {
-      var _a2;
-      (_a2 = on.exited) === null || _a2 === void 0 ? void 0 : _a2.call(on);
+      var _a3;
+      (_a3 = on.exited) === null || _a3 === void 0 ? void 0 : _a3.call(on);
       close();
     }, animationDuration);
   });
   react.exports.useEffect(() => subscribe(ACTION_CLOSE, handleClose), [subscribe, handleClose]);
   const handleEnter = useEventCallback((node) => {
-    var _a, _b, _c;
+    var _a2, _b, _c;
     node.scrollTop;
     setVisible(true);
-    (_a = on.entering) === null || _a === void 0 ? void 0 : _a.call(on);
+    (_a2 = on.entering) === null || _a2 === void 0 ? void 0 : _a2.call(on);
     const elements = (_c = (_b = node.parentNode) === null || _b === void 0 ? void 0 : _b.children) !== null && _c !== void 0 ? _c : [];
-    for (let i = 0; i < elements.length; i += 1) {
-      const element = elements[i];
+    for (let i2 = 0; i2 < elements.length; i2 += 1) {
+      const element = elements[i2];
       if (["TEMPLATE", "SCRIPT", "STYLE"].indexOf(element.tagName) === -1 && element !== node) {
         cleanup2.current.push(setAttribute(element, "inert", ""));
         cleanup2.current.push(setAttribute(element, "aria-hidden", "true"));
       }
     }
     cleanup2.current.push(() => {
-      var _a2, _b2;
-      (_b2 = (_a2 = restoreFocus.current) === null || _a2 === void 0 ? void 0 : _a2.focus) === null || _b2 === void 0 ? void 0 : _b2.call(_a2);
+      var _a3, _b2;
+      (_b2 = (_a3 = restoreFocus.current) === null || _a3 === void 0 ? void 0 : _a3.focus) === null || _b2 === void 0 ? void 0 : _b2.call(_a3);
     });
     setTimeout2(() => {
-      var _a2;
-      (_a2 = on.entered) === null || _a2 === void 0 ? void 0 : _a2.call(on);
+      var _a3;
+      (_a3 = on.entered) === null || _a3 === void 0 ? void 0 : _a3.call(on);
     }, animationDuration);
   });
   const handleRef = react.exports.useCallback((node) => {
@@ -12497,8 +12504,8 @@ function Toolbar({ toolbar: { buttons }, render: { buttonClose, iconClose }, sty
 }
 const ToolbarModule = createModule(MODULE_TOOLBAR, Toolbar);
 function renderNode(node, props) {
-  var _a;
-  return react.exports.createElement(node.module.component, { key: node.module.name, ...props }, (_a = node.children) === null || _a === void 0 ? void 0 : _a.map((child) => renderNode(child, props)));
+  var _a2;
+  return react.exports.createElement(node.module.component, { key: node.module.name, ...props }, (_a2 = node.children) === null || _a2 === void 0 ? void 0 : _a2.map((child) => renderNode(child, props)));
 }
 function mergeAnimation(defaultAnimation, animation = {}) {
   const { easing: defaultAnimationEasing, ...restDefaultAnimation } = defaultAnimation;
@@ -12570,8 +12577,8 @@ function useZoomAnimation(zoom, offsetX, offsetY, zoomWrapperRef) {
   const { zoom: zoomAnimationDuration } = useLightboxProps().animation;
   const reduceMotion = useMotionPreference();
   const playZoomAnimation = useEventCallback(() => {
-    var _a, _b, _c;
-    (_a = zoomAnimation.current) === null || _a === void 0 ? void 0 : _a.cancel();
+    var _a2, _b, _c;
+    (_a2 = zoomAnimation.current) === null || _a2 === void 0 ? void 0 : _a2.cancel();
     zoomAnimation.current = void 0;
     if (zoomAnimationStart.current && (zoomWrapperRef === null || zoomWrapperRef === void 0 ? void 0 : zoomWrapperRef.current)) {
       try {
@@ -12601,9 +12608,9 @@ function useZoomAnimation(zoom, offsetX, offsetY, zoomWrapperRef) {
 function useZoomCallback(zoom, disabled) {
   const { on } = useLightboxProps();
   const onZoomCallback = useEventCallback(() => {
-    var _a;
+    var _a2;
     if (!disabled) {
-      (_a = on.zoom) === null || _a === void 0 ? void 0 : _a.call(on, { zoom });
+      (_a2 = on.zoom) === null || _a2 === void 0 ? void 0 : _a2.call(on, { zoom });
     }
   });
   react.exports.useEffect(onZoomCallback, [zoom, onZoomCallback]);
@@ -12613,7 +12620,7 @@ function useZoomProps() {
   return resolveZoomProps(zoom);
 }
 function useZoomImageRect(slideRect, imageDimensions) {
-  var _a, _b;
+  var _a2, _b;
   let imageRect = { width: 0, height: 0 };
   let maxImageRect = { width: 0, height: 0 };
   const { currentSlide } = useLightboxState();
@@ -12623,7 +12630,7 @@ function useZoomImageRect(slideRect, imageDimensions) {
     const slide = { ...currentSlide, ...imageDimensions };
     if (isImageSlide(slide)) {
       const cover = isImageFitCover(slide, imageFit);
-      const width = Math.max(...(((_a = slide.srcSet) === null || _a === void 0 ? void 0 : _a.map((x2) => x2.width)) || []).concat(slide.width ? [slide.width] : []));
+      const width = Math.max(...(((_a2 = slide.srcSet) === null || _a2 === void 0 ? void 0 : _a2.map((x2) => x2.width)) || []).concat(slide.width ? [slide.width] : []));
       const height = Math.max(...(((_b = slide.srcSet) === null || _b === void 0 ? void 0 : _b.map((x2) => x2.height)) || []).concat(slide.height ? [slide.height] : []));
       if (width > 0 && height > 0 && slideRect.width > 0 && slideRect.height > 0) {
         maxImageRect = cover ? {
@@ -12728,9 +12735,9 @@ function useZoomSensors(zoom, maxZoom, disabled, changeZoom, changeOffsets, zoom
     activePointers.current.push(event);
   }, [clearPointer]);
   const onPointerDown = useEventCallback((event) => {
-    var _a;
+    var _a2;
     const pointers = activePointers.current;
-    if (event.pointerType === "mouse" && event.buttons > 1 || !((_a = zoomWrapperRef === null || zoomWrapperRef === void 0 ? void 0 : zoomWrapperRef.current) === null || _a === void 0 ? void 0 : _a.contains(event.target))) {
+    if (event.pointerType === "mouse" && event.buttons > 1 || !((_a2 = zoomWrapperRef === null || zoomWrapperRef === void 0 ? void 0 : zoomWrapperRef.current) === null || _a2 === void 0 ? void 0 : _a2.contains(event.target))) {
       return;
     }
     if (zoom > 1) {
@@ -12757,7 +12764,7 @@ function useZoomSensors(zoom, maxZoom, disabled, changeZoom, changeOffsets, zoom
       const currentDistance = distance(pointers[0], pointers[1]);
       const delta = currentDistance - pinchZoomDistance.current;
       if (Math.abs(delta) > 0) {
-        changeZoom(scaleZoom(zoom, delta, pinchZoomDistanceFactor), true, ...pointers.map((x2) => translateCoordinates(x2)).reduce((acc, coordinate) => coordinate.map((x2, i) => acc[i] + x2 / 2)));
+        changeZoom(scaleZoom(zoom, delta, pinchZoomDistanceFactor), true, ...pointers.map((x2) => translateCoordinates(x2)).reduce((acc, coordinate) => coordinate.map((x2, i2) => acc[i2] + x2 / 2)));
         pinchZoomDistance.current = currentDistance;
       }
       return;
@@ -12888,8 +12895,8 @@ function ZoomButtonsGroup() {
   const zoomOutRef = react.exports.useRef(null);
   const { focus } = useController();
   const focusSibling = react.exports.useCallback((sibling) => {
-    var _a, _b;
-    if (!((_a = sibling.current) === null || _a === void 0 ? void 0 : _a.disabled)) {
+    var _a2, _b;
+    if (!((_a2 = sibling.current) === null || _a2 === void 0 ? void 0 : _a2.disabled)) {
       (_b = sibling.current) === null || _b === void 0 ? void 0 : _b.focus();
     } else {
       focus();
@@ -12913,8 +12920,8 @@ function ZoomToolbarControl() {
   return react.exports.createElement(ZoomButtonsGroup, null);
 }
 function isResponsiveImageSlide(slide) {
-  var _a;
-  return (((_a = slide.srcSet) === null || _a === void 0 ? void 0 : _a.length) || 0) > 0;
+  var _a2;
+  return (((_a2 = slide.srcSet) === null || _a2 === void 0 ? void 0 : _a2.length) || 0) > 0;
 }
 function reducer({ current, preload }, { type, source }) {
   switch (type) {
@@ -12933,19 +12940,19 @@ function reducer({ current, preload }, { type, source }) {
   }
 }
 function ResponsiveImage(props) {
-  var _a, _b;
+  var _a2, _b;
   const [{ current, preload }, dispatch] = react.exports.useReducer(reducer, {});
   const { slide: image2, rect, imageFit, render, interactive } = props;
   const srcSet = image2.srcSet.sort((a, b) => a.width - b.width);
-  const width = (_a = image2.width) !== null && _a !== void 0 ? _a : srcSet[srcSet.length - 1].width;
+  const width = (_a2 = image2.width) !== null && _a2 !== void 0 ? _a2 : srcSet[srcSet.length - 1].width;
   const height = (_b = image2.height) !== null && _b !== void 0 ? _b : srcSet[srcSet.length - 1].height;
   const cover = isImageFitCover(image2, imageFit);
   const maxWidth = Math.max(...srcSet.map((x2) => x2.width));
   const targetWidth = Math.min((cover ? Math.max : Math.min)(rect.width, width * (rect.height / height)), maxWidth);
   const pixelDensity = devicePixelRatio();
   const handleResize = useEventCallback(() => {
-    var _a2;
-    const targetSource = (_a2 = srcSet.find((x2) => x2.width >= targetWidth * pixelDensity)) !== null && _a2 !== void 0 ? _a2 : srcSet[srcSet.length - 1];
+    var _a3;
+    const targetSource = (_a3 = srcSet.find((x2) => x2.width >= targetWidth * pixelDensity)) !== null && _a3 !== void 0 ? _a3 : srcSet[srcSet.length - 1];
     if (!current || srcSet.findIndex((x2) => x2.src === current) < srcSet.findIndex((x2) => x2 === targetSource)) {
       dispatch({ type: "fetch", source: targetSource.src });
     }
@@ -12970,7 +12977,7 @@ function ResponsiveImage(props) {
   );
 }
 function ZoomWrapper({ render, slide, offset: offset2, rect }) {
-  var _a;
+  var _a2;
   const [imageDimensions, setImageDimensions] = react.exports.useState();
   const zoomWrapperRef = react.exports.useRef(null);
   const { zoom, maxZoom, offsetX, offsetY, setZoomWrapper } = useZoom();
@@ -12985,7 +12992,7 @@ function ZoomWrapper({ render, slide, offset: offset2, rect }) {
     return () => {
     };
   }, [offset2, imageDimensions, setZoomWrapper]);
-  let rendered = (_a = render.slide) === null || _a === void 0 ? void 0 : _a.call(render, { slide, offset: offset2, rect, zoom, maxZoom });
+  let rendered = (_a2 = render.slide) === null || _a2 === void 0 ? void 0 : _a2.call(render, { slide, offset: offset2, rect, zoom, maxZoom });
   if (!rendered && isImageSlide(slide)) {
     const slideProps = {
       slide,
@@ -12995,8 +13002,8 @@ function ZoomWrapper({ render, slide, offset: offset2, rect }) {
       imageFit: carousel.imageFit,
       imageProps: carousel.imageProps,
       onClick: offset2 === 0 ? () => {
-        var _a2;
-        return (_a2 = on.click) === null || _a2 === void 0 ? void 0 : _a2.call(on, { index: currentIndex });
+        var _a3;
+        return (_a3 = on.click) === null || _a3 === void 0 ? void 0 : _a3.call(on, { index: currentIndex });
       } : void 0
     };
     rendered = isResponsiveImageSlide(slide) ? react.exports.createElement(ResponsiveImage, { ...slideProps, slide, interactive, rect: offset2 === 0 ? { width: rect.width * zoom, height: rect.height * zoom } : rect }) : react.exports.createElement(ImageSlide, { onLoad: (img) => setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight }), ...slideProps });
@@ -13014,8 +13021,8 @@ const Zoom = ({ augment, addModule }) => {
       render: {
         ...render,
         slide: (props) => {
-          var _a;
-          return isImageSlide(props.slide) ? react.exports.createElement(ZoomWrapper, { render, ...props }) : (_a = render.slide) === null || _a === void 0 ? void 0 : _a.call(render, props);
+          var _a2;
+          return isImageSlide(props.slide) ? react.exports.createElement(ZoomWrapper, { render, ...props }) : (_a2 = render.slide) === null || _a2 === void 0 ? void 0 : _a2.call(render, props);
         }
       },
       controller: { ...controller, preventDefaultWheelY: zoom.scrollToZoom },
@@ -13064,10 +13071,10 @@ const LightboxHost = ({
     },
     render: {
       iconLoading: () => /* @__PURE__ */ jsx("div", {
-        children: t$1("Image is loading...")
+        children: t$2("Image is loading...")
       }),
       iconError: () => /* @__PURE__ */ jsx("div", {
-        children: t$1("\u{1F61F} Cannot load image, image link maybe broken")
+        children: t$2("\u{1F61F} Cannot load image, image link maybe broken")
       }),
       buttonPrev: hasMultipleImages ? void 0 : () => null,
       buttonNext: hasMultipleImages ? void 0 : () => null
@@ -13137,12 +13144,12 @@ const resolveMDInternalLink = (app2, linkText) => {
   }
   return resolveFilePath(app2, m2[5] || "", m2[2] || "");
 };
-function parseMemoImages(content, app2) {
+function parseMemoImages(content2, app2) {
   const external = [];
   const internal = [];
   const webReg = new RegExp(MARKDOWN_WEB_URL_REG.source, "g");
   let webMatch;
-  while ((webMatch = webReg.exec(content)) !== null) {
+  while ((webMatch = webReg.exec(content2)) !== null) {
     const url = urlOnly(webMatch[0]);
     if (url && !external.includes(url)) {
       external.push(url);
@@ -13150,7 +13157,7 @@ function parseMemoImages(content, app2) {
   }
   const mdReg = new RegExp(MARKDOWN_URL_REG.source, "g");
   let mdMatch;
-  while ((mdMatch = mdReg.exec(content)) !== null) {
+  while ((mdMatch = mdReg.exec(content2)) !== null) {
     const link = mdMatch[0];
     const target = mdMatch[5] || "";
     if (/^https?:\/\//.test(target.trim())) {
@@ -13166,7 +13173,7 @@ function parseMemoImages(content, app2) {
   }
   const wikiReg = new RegExp(WIKI_IMAGE_URL_REG.source, "g");
   let wikiMatch;
-  while ((wikiMatch = wikiReg.exec(content)) !== null) {
+  while ((wikiMatch = wikiReg.exec(content2)) !== null) {
     const resolved = resolveWikiInternalLink(app2, wikiMatch[0]);
     if (resolved) {
       internal.push(resolved);
@@ -13183,7 +13190,7 @@ var isFunction = function(setStateAction) {
   return typeof setStateAction === "function";
 };
 var useStateRef = function(initialState) {
-  var _a = react_1.useState(initialState), state = _a[0], setState = _a[1];
+  var _a2 = react_1.useState(initialState), state = _a2[0], setState = _a2[1];
   var ref = react_1.useRef(state);
   var dispatch = react_1.useCallback(function(setStateAction) {
     ref.current = isFunction(setStateAction) ? setStateAction(ref.current) : setStateAction;
@@ -13191,7 +13198,7 @@ var useStateRef = function(initialState) {
   }, []);
   return [state, dispatch, ref];
 };
-var dist = useStateRef;
+var dist$1 = useStateRef;
 const BOLD_TEXT_REG = /\*\*(.+?)\*\*/g;
 const EM_TEXT_REG = /\*(.+?)\*/g;
 const CODE_INLINE_REG = /(^|[^`])`([^`\n]+?)`([^`]|$)/g;
@@ -13206,10 +13213,10 @@ const encodeHtml = (htmlStr) => {
 function renderMemoContentLines(src) {
   const text = src.replace(/<br\s*\/?>/gi, "\n").replace(/&lt;br\s*\/?&gt;/gi, "\n");
   const codeBlocks = [];
-  const masked = text.replace(/```[ \t]*\w*[ \t]*\r?\n?([\s\S]*?)```/g, (m2, code) => {
+  const masked = text.replace(/```[ \t]*\w*[ \t]*\r?\n?([\s\S]*?)```/g, (m2, code2) => {
     const langMatch = /^```(\w*)/.exec(m2);
     const lang = langMatch ? langMatch[1] : "";
-    codeBlocks.push(`<pre lang='${lang}'>${encodeHtml(code.replace(/\n+$/, "").replace(/^\n/, ""))}</pre>`);
+    codeBlocks.push(`<pre lang='${lang}'>${encodeHtml(code2.replace(/\n+$/, "").replace(/^\n/, ""))}</pre>`);
     return `${PLACEHOLDER}CODE${codeBlocks.length - 1}${PLACEHOLDER}`;
   });
   const out = [];
@@ -13261,7 +13268,7 @@ function renderMemoContentLines(src) {
   return out.join("\n");
 }
 const parseMarkedToHtml = (htmlStr, memoid) => {
-  var _a, _b;
+  var _a2, _b;
   const pres = [];
   const masked = htmlStr.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, (m2) => {
     pres.push(m2);
@@ -13271,8 +13278,8 @@ const parseMarkedToHtml = (htmlStr, memoid) => {
   if (memoid) {
     if (INTERNAL_MD_REG.test(text)) {
       const internalMD = text.match(INTERNAL_MD_REG);
-      for (let i = 0; i < ((_a = internalMD == null ? void 0 : internalMD.length) != null ? _a : 0); i++) {
-        const raw = internalMD[i];
+      for (let i2 = 0; i2 < ((_a2 = internalMD == null ? void 0 : internalMD.length) != null ? _a2 : 0); i2++) {
+        const raw = internalMD[i2];
         if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(raw)) {
           const internalContent = getContentFromInternalLink(raw);
           if (/\|/g.test(internalContent)) {
@@ -13286,8 +13293,8 @@ const parseMarkedToHtml = (htmlStr, memoid) => {
     }
     if (EXRERNAL_MD_REG.test(text)) {
       const externalMD = text.match(EXRERNAL_MD_REG);
-      for (let i = 0; i < ((_b = externalMD == null ? void 0 : externalMD.length) != null ? _b : 0); i++) {
-        const raw = externalMD[i];
+      for (let i2 = 0; i2 < ((_b = externalMD == null ? void 0 : externalMD.length) != null ? _b : 0); i2++) {
+        const raw = externalMD[i2];
         if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(raw)) {
           const link = getContentFromExternalLink(raw);
           const label2 = getLabelFromExternalLink(raw);
@@ -13296,8 +13303,8 @@ const parseMarkedToHtml = (htmlStr, memoid) => {
       }
     }
   }
-  for (let i = 0; i < pres.length; i++) {
-    text = text.replace(`${PLACEHOLDER}PRE${i}${PLACEHOLDER}`, pres[i]);
+  for (let i2 = 0; i2 < pres.length; i2++) {
+    text = text.replace(`${PLACEHOLDER}PRE${i2}${PLACEHOLDER}`, pres[i2]);
   }
   return text;
 };
@@ -13315,16 +13322,16 @@ const replaceMd = (internalLink, label2) => {
   return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link is-unresolved">${internalLink}</a>`;
 };
 const getContentFromInternalLink = (line) => {
-  var _a;
-  return (_a = /\[\[([^\]]+)\]\]/g.exec(line)) == null ? void 0 : _a[1];
+  var _a2;
+  return (_a2 = /\[\[([^\]]+)\]\]/g.exec(line)) == null ? void 0 : _a2[1];
 };
 const getLabelFromExternalLink = (line) => {
-  var _a;
-  return (_a = EXRERNAL_MD_REG.exec(line)) == null ? void 0 : _a[1];
+  var _a2;
+  return (_a2 = EXRERNAL_MD_REG.exec(line)) == null ? void 0 : _a2[1];
 };
 const getContentFromExternalLink = (line) => {
-  var _a;
-  return (_a = /\[([^\]]+)\]\((([^\]]+).md)\)/g.exec(line)) == null ? void 0 : _a[3];
+  var _a2;
+  return (_a2 = /\[([^\]]+)\]\((([^\]]+).md)\)/g.exec(line)) == null ? void 0 : _a2[3];
 };
 const parseHtmlToRawText = (htmlStr) => {
   const tempEl = document.createElement("div");
@@ -13479,10 +13486,10 @@ const MemoCardDialog = (props) => {
     fetchLinkedMemos();
   }, [memo2.id]);
   const handleMemoContentClick = react.exports.useCallback(async (e) => {
-    var _a;
+    var _a2;
     const targetEl = e.target;
     if (targetEl.className === "memo-link-text") {
-      const nextMemoId = (_a = targetEl.dataset) == null ? void 0 : _a.value;
+      const nextMemoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
       const memoTemp = memoService.getMemoById(nextMemoId != null ? nextMemoId : "");
       if (memoTemp) {
         const nextMemo = {
@@ -13563,7 +13570,7 @@ const MemoCardDialog = (props) => {
       className: "linked-memos-wrapper",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "normal-text",
-        children: [t$1("LINKED"), " ", linkMemos.length, " MEMO", " "]
+        children: [t$2("LINKED"), " ", linkMemos.length, " MEMO", " "]
       }), linkMemos.map((m2) => {
         const rawtext = parseHtmlToRawText(formatMemoContent(m2.content)).replaceAll("\n", " ");
         return /* @__PURE__ */ jsxs("div", {
@@ -13579,7 +13586,7 @@ const MemoCardDialog = (props) => {
       className: "linked-memos-wrapper",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "normal-text",
-        children: [linkedMemos.length, " MEMO ", t$1("LINK TO THE"), " MEMO"]
+        children: [linkedMemos.length, " MEMO ", t$2("LINK TO THE"), " MEMO"]
       }), linkedMemos.map((m2) => {
         const rawtext = parseHtmlToRawText(formatMemoContent(m2.content)).replaceAll("\n", " ");
         return /* @__PURE__ */ jsxs("div", {
@@ -13703,8 +13710,8 @@ const ShareMemoImageDialog = (props) => {
     const bytes = window.atob(base64);
     const ab2 = new ArrayBuffer(bytes.length);
     const ia2 = new Uint8Array(ab2);
-    for (let i = 0; i < bytes.length; i++) {
-      ia2[i] = bytes.charCodeAt(i);
+    for (let i2 = 0; i2 < bytes.length; i2++) {
+      ia2[i2] = bytes.charCodeAt(i2);
     }
     return new Blob([ab2], {
       type
@@ -13769,9 +13776,9 @@ const ShareMemoImageDialog = (props) => {
       blobInput.arrayBuffer().then(async (buffer) => {
         const ext = "png";
         const dailyNotes = getAllDailyNotes_1();
-        for (const string in dailyNotes) {
-          if (dailyNotes[string] instanceof require$$0.TFile) {
-            aFile = dailyNotes[string];
+        for (const string2 in dailyNotes) {
+          if (dailyNotes[string2] instanceof require$$0.TFile) {
+            aFile = dailyNotes[string2];
             break;
           }
         }
@@ -13791,7 +13798,7 @@ const ShareMemoImageDialog = (props) => {
   };
   const handleImageOnLoad = (ev) => {
     if (ev.type === "error") {
-      new require$$0.Notice(t$1("Image load failed"));
+      new require$$0.Notice(t$2("Image load failed"));
       ev.target.remove();
     }
     setImgAmount((n2) => n2 - 1);
@@ -13804,7 +13811,7 @@ const ShareMemoImageDialog = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "icon-text",
           children: "\u{1F970}"
-        }), t$1("Share Memo Image")]
+        }), t$2("Share Memo Image")]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btn-group",
         children: [/* @__PURE__ */ jsx("button", {
@@ -13827,7 +13834,7 @@ const ShareMemoImageDialog = (props) => {
         className: `tip-words-container ${shortcutImgUrl ? "finish" : "loading"}`,
         children: /* @__PURE__ */ jsx("p", {
           className: "tip-text",
-          children: shortcutImgUrl ? t$1("\u2197Click the button to save") : t$1("Image is generating...")
+          children: shortcutImgUrl ? t$2("\u2197Click the button to save") : t$2("Image is generating...")
         })
       }), /* @__PURE__ */ jsxs("div", {
         className: "memo-container",
@@ -13982,7 +13989,7 @@ const Memo = (props) => {
     memo: propsMemo
   } = props;
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
-  const [menuOpen, setMenuOpen] = dist(false);
+  const [menuOpen, setMenuOpen] = dist$1(false);
   const memoCardRef = react.exports.useRef(null);
   react.exports.useEffect(() => {
     if (!menuOpen) {
@@ -14059,7 +14066,7 @@ const Memo = (props) => {
     }
   }, [propsMemo]);
   const animateShred = () => {
-    var _a;
+    var _a2;
     const el = memoCardRef.current;
     if (!el) {
       return Promise.resolve();
@@ -14069,7 +14076,7 @@ const Memo = (props) => {
     if (w2 < 8 || h2 < 8) {
       return Promise.resolve();
     }
-    const host = (_a = el.offsetParent) != null ? _a : el.parentElement;
+    const host = (_a2 = el.offsetParent) != null ? _a2 : el.parentElement;
     if (!host) {
       return Promise.resolve();
     }
@@ -14083,11 +14090,11 @@ const Memo = (props) => {
     });
     const overlay = document.createElement("div");
     overlay.style.cssText = `position:absolute;left:${x2}px;top:${y2}px;width:${w2}px;height:${h2}px;pointer-events:none;z-index:50;`;
-    for (let i = 0; i < N2; i++) {
+    for (let i2 = 0; i2 < N2; i2++) {
       const outer = document.createElement("div");
-      outer.style.cssText = `position:absolute;top:0;left:${i * band}px;width:${band}px;height:100%;overflow:hidden;`;
+      outer.style.cssText = `position:absolute;top:0;left:${i2 * band}px;width:${band}px;height:100%;overflow:hidden;`;
       const inner = document.createElement("div");
-      inner.style.cssText = `position:absolute;top:0;left:${-i * band}px;width:${w2}px;height:auto;`;
+      inner.style.cssText = `position:absolute;top:0;left:${-i2 * band}px;width:${w2}px;height:auto;`;
       inner.appendChild(cloneTemplate.cloneNode(true));
       outer.appendChild(inner);
       overlay.appendChild(outer);
@@ -14150,13 +14157,13 @@ const Memo = (props) => {
     }
   }, []);
   const handleMemoContentClick = async (e, m2) => {
-    var _a;
+    var _a2;
     const targetEl = e.target;
     if (e.ctrlKey || e.metaKey) {
       handleSourceMemoClick(m2);
     }
     if (targetEl.className === "memo-link-text") {
-      const memoId = (_a = targetEl.dataset) == null ? void 0 : _a.value;
+      const memoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
       const memoTemp = memoService.getMemoById(memoId != null ? memoId : "");
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
@@ -14187,7 +14194,7 @@ const Memo = (props) => {
           children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
         }), isTaskCard ? /* @__PURE__ */ jsx("span", {
           className: `memo-task-toggle ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
-          title: t$1(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
+          title: t$2(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
           onClick: handleToggleTaskClick,
           children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
         }) : null]
@@ -14209,31 +14216,31 @@ const Memo = (props) => {
               children: [/* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: handleShowMemoStoryDialog,
-                children: t$1("READ")
+                children: t$2("READ")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: handleMarkMemoClick,
-                children: t$1("MARK")
+                children: t$2("MARK")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: handleGenMemoImageBtnClick,
-                children: t$1("SHARE")
+                children: t$2("SHARE")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: handleEditMemoClick,
-                children: t$1("EDIT")
+                children: t$2("EDIT")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: handleToggleTaskTypeClick,
-                children: isTaskCard ? t$1("TURN INTO MEMO") : t$1("TURN INTO TASK")
+                children: isTaskCard ? t$2("TURN INTO MEMO") : t$2("TURN INTO TASK")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: () => handleSourceMemoClick(propsMemo),
-                children: t$1("SOURCE")
+                children: t$2("SOURCE")
               }), /* @__PURE__ */ jsx("span", {
                 className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
                 onClick: handleDeleteMemoClick,
-                children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
+                children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
               })]
             })
           })]
@@ -14251,43 +14258,43 @@ const Memo = (props) => {
     })]
   });
 };
-function formatMemoContent(content, memoid) {
+function formatMemoContent(content2, memoid) {
   const {
     shouldUseMarkdownParser,
     shouldHideImageUrl
   } = globalStateService.getState();
-  content = renderMemoContentLines(content);
+  content2 = renderMemoContentLines(content2);
   if (shouldUseMarkdownParser) {
-    content = parseMarkedToHtml(content, memoid);
+    content2 = parseMarkedToHtml(content2, memoid);
   }
   if (shouldHideImageUrl) {
-    content = content.replace(WIKI_IMAGE_URL_REG, "").replace(MARKDOWN_URL_REG, "").replace(IMAGE_URL_REG, "");
+    content2 = content2.replace(WIKI_IMAGE_URL_REG, "").replace(MARKDOWN_URL_REG, "").replace(IMAGE_URL_REG, "");
   }
-  content = content.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>").replace(/\^\S{6}/g, "");
-  const tagsCollect = (content2) => {
-    let tags = [...content2.matchAll(TAG_REG)];
-    tags = [...tags, ...content2.matchAll(FIRST_TAG_REG)];
-    tags.sort((tag, tag2) => tag.index - tag2.index);
-    content2 = content2.replace(TAG_REG, "").replace(FIRST_TAG_REG, "");
+  content2 = content2.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(MEMO_LINK_REG, "<span class='memo-link-text' data-value='$2'>$1</span>").replace(/\^\S{6}/g, "");
+  const tagsCollect = (content22) => {
+    let tags2 = [...content22.matchAll(TAG_REG)];
+    tags2 = [...tags2, ...content22.matchAll(FIRST_TAG_REG)];
+    tags2.sort((tag, tag2) => tag.index - tag2.index);
+    content22 = content22.replace(TAG_REG, "").replace(FIRST_TAG_REG, "");
     let tagsComponent = `<p>`;
-    if (tags.length > 0) {
-      for (const tag of tags) {
+    if (tags2.length > 0) {
+      for (const tag of tags2) {
         tagsComponent += `<span class='tag-span'>#${tag[tag.length - 1]}</span>`;
       }
       {
-        content2 += tagsComponent;
+        content22 += tagsComponent;
       }
     }
-    return content2;
+    return content22;
   };
-  content = tagsCollect(content);
+  content2 = tagsCollect(content2);
   const tempDivContainer = document.createElement("div");
-  tempDivContainer.innerHTML = content;
-  for (let i = 0; i < tempDivContainer.children.length; i++) {
-    const c = tempDivContainer.children[i];
+  tempDivContainer.innerHTML = content2;
+  for (let i2 = 0; i2 < tempDivContainer.children.length; i2++) {
+    const c = tempDivContainer.children[i2];
     if (c.tagName === "P" && c.textContent === "") {
       c.remove();
-      i--;
+      i2--;
       continue;
     }
   }
@@ -14394,7 +14401,7 @@ function SvgArrowRight(props) {
   }));
 }
 const DatePicker = (props) => {
-  var _a, _b;
+  var _a2, _b;
   const {
     className,
     datestamp,
@@ -14407,32 +14414,32 @@ const DatePicker = (props) => {
   const firstDate = new Date(currentDateStamp);
   const firstDateDay = firstDate.getDay() === 0 ? 7 : firstDate.getDay();
   const dayList = [];
-  for (let i = 0; i < firstDateDay; i++) {
+  for (let i2 = 0; i2 < firstDateDay; i2++) {
     dayList.push({
       date: 0,
-      datestamp: firstDate.getTime() - DAILY_TIMESTAMP * (7 - i)
+      datestamp: firstDate.getTime() - DAILY_TIMESTAMP * (7 - i2)
     });
   }
   const dayAmount = getMonthDayAmount(currentDateStamp);
-  for (let i = 1; i <= dayAmount; i++) {
+  for (let i2 = 1; i2 <= dayAmount; i2++) {
     dayList.push({
-      date: i,
-      datestamp: firstDate.getTime() + DAILY_TIMESTAMP * (i - 1)
+      date: i2,
+      datestamp: firstDate.getTime() + DAILY_TIMESTAMP * (i2 - 1)
     });
   }
   const handleDateItemClick = (datestamp2) => {
     handleDateStampChange(datestamp2);
   };
-  const handleChangeMonthBtnClick = (i) => {
+  const handleChangeMonthBtnClick = (i2) => {
     const year = firstDate.getFullYear();
     const month = firstDate.getMonth() + 1;
     let nextDateStamp = 0;
-    if (month === 1 && i === -1) {
+    if (month === 1 && i2 === -1) {
       nextDateStamp = new Date(`${year - 1}/12/1`).getTime();
-    } else if (month === 12 && i === 1) {
+    } else if (month === 12 && i2 === 1) {
       nextDateStamp = new Date(`${year + 1}/1/1`).getTime();
     } else {
-      nextDateStamp = new Date(`${year}/${month + i}/1`).getTime();
+      nextDateStamp = new Date(`${year}/${month + i2}/1`).getTime();
     }
     setCurrentDateStamp(getMonthFirstDayDateStamp(nextDateStamp));
   };
@@ -14448,7 +14455,7 @@ const DatePicker = (props) => {
         })
       }), /* @__PURE__ */ jsxs("span", {
         className: "normal-text",
-        children: [firstDate.getFullYear(), " ", t$1("year"), " ", (_a = t$1("monthsShort")[firstDate.getMonth()]) != null ? _a : firstDate.getMonth() + 1, " ", (_b = t$1("month")) != null ? _b : ""]
+        children: [firstDate.getFullYear(), " ", t$2("year"), " ", (_a2 = t$2("monthsShort")[firstDate.getMonth()]) != null ? _a2 : firstDate.getMonth() + 1, " ", (_b = t$2("month")) != null ? _b : ""]
       }), /* @__PURE__ */ jsx("span", {
         className: "btn-text",
         onClick: () => handleChangeMonthBtnClick(1),
@@ -14462,25 +14469,25 @@ const DatePicker = (props) => {
         className: "date-picker-day-header",
         children: [/* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[0]
+          children: t$2("weekDaysShort")[0]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[1]
+          children: t$2("weekDaysShort")[1]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[2]
+          children: t$2("weekDaysShort")[2]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[3]
+          children: t$2("weekDaysShort")[3]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[4]
+          children: t$2("weekDaysShort")[4]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[5]
+          children: t$2("weekDaysShort")[5]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$1("weekDaysShort")[6]
+          children: t$2("weekDaysShort")[6]
         })]
       }), dayList.map((d) => {
         if (d.date === 0) {
@@ -14533,8 +14540,8 @@ const DailyMemoDiaryDialog = (props) => {
     var bytes = window.atob(base64);
     var ab2 = new ArrayBuffer(bytes.length);
     var ia2 = new Uint8Array(ab2);
-    for (var i = 0; i < bytes.length; i++) {
-      ia2[i] = bytes.charCodeAt(i);
+    for (var i2 = 0; i2 < bytes.length; i2++) {
+      ia2[i2] = bytes.charCodeAt(i2);
     }
     return new Blob([ab2], {
       type
@@ -14557,9 +14564,9 @@ const DailyMemoDiaryDialog = (props) => {
             let aFile;
             const ext = "png";
             const dailyNotes = getAllDailyNotes_1();
-            for (const string in dailyNotes) {
-              if (dailyNotes[string] instanceof require$$0.TFile) {
-                aFile = dailyNotes[string];
+            for (const string2 in dailyNotes) {
+              if (dailyNotes[string2] instanceof require$$0.TFile) {
+                aFile = dailyNotes[string2];
                 break;
               }
             }
@@ -14587,7 +14594,7 @@ const DailyMemoDiaryDialog = (props) => {
         className: "header-wrapper",
         children: [/* @__PURE__ */ jsx("p", {
           className: "title-text",
-          children: t$1("Daily Memos")
+          children: t$2("Daily Memos")
         }), /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("span", {
@@ -14630,13 +14637,13 @@ const DailyMemoDiaryDialog = (props) => {
           className: "date-container",
           children: [/* @__PURE__ */ jsx("div", {
             className: "month-text",
-            children: t$1("months")[currentDate.getMonth()]
+            children: t$2("months")[currentDate.getMonth()]
           }), /* @__PURE__ */ jsx("div", {
             className: "date-text",
             children: currentDate.getDate()
           }), /* @__PURE__ */ jsx("div", {
             className: "day-text",
-            children: t$1("weekDays")[currentDate.getDay()]
+            children: t$2("weekDays")[currentDate.getDay()]
           })]
         })]
       }), /* @__PURE__ */ jsx(DatePicker, {
@@ -14647,13 +14654,13 @@ const DailyMemoDiaryDialog = (props) => {
         className: "tip-container",
         children: /* @__PURE__ */ jsx("p", {
           className: "tip-text",
-          children: t$1("Loading...")
+          children: t$2("Loading...")
         })
       }) : memos.length === 0 ? /* @__PURE__ */ jsx("div", {
         className: "tip-container",
         children: /* @__PURE__ */ jsx("p", {
           className: "tip-text",
-          children: t$1("Noooop!")
+          children: t$2("Noooop!")
         })
       }) : /* @__PURE__ */ jsx("div", {
         className: "dailymemos-wrapper",
@@ -14676,7 +14683,7 @@ const UserBanner = () => {
   const {
     memoState: {
       memos,
-      tags
+      tags: tags2
     },
     userState: {
       user
@@ -14736,10 +14743,10 @@ const UserBanner = () => {
         className: "status-text tags-text",
         children: [/* @__PURE__ */ jsx("span", {
           className: "amount-text",
-          children: tags.length
+          children: tags2.length
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
-          children: t$1("TAG")
+          children: t$2("TAG")
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "status-text duration-text",
@@ -14749,7 +14756,7 @@ const UserBanner = () => {
           children: createdDays != null ? createdDays : 0
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
-          children: t$1("DAY")
+          children: t$2("DAY")
         })]
       })]
     })]
@@ -14762,75 +14769,75 @@ const relationConsts = [
 const filterConsts = {
   TAG: {
     value: "TAG",
-    text: t$1("TAG"),
+    text: t$2("TAG"),
     operators: [
       {
-        text: t$1("INCLUDE"),
+        text: t$2("INCLUDE"),
         value: "CONTAIN"
       },
       {
-        text: t$1("EXCLUDE"),
+        text: t$2("EXCLUDE"),
         value: "NOT_CONTAIN"
       }
     ]
   },
   TYPE: {
     value: "TYPE",
-    text: t$1("TYPE"),
+    text: t$2("TYPE"),
     operators: [
       {
         value: "IS",
-        text: t$1("IS")
+        text: t$2("IS")
       },
       {
         value: "IS_NOT",
-        text: t$1("ISNOT")
+        text: t$2("ISNOT")
       }
     ],
     values: [
       {
         value: "CONNECTED",
-        text: t$1("LINKED")
+        text: t$2("LINKED")
       },
       {
         value: "NOT_TAGGED",
-        text: t$1("NO TAGS")
+        text: t$2("NO TAGS")
       },
       {
         value: "LINKED",
-        text: t$1("HAS LINKS")
+        text: t$2("HAS LINKS")
       },
       {
         value: "IMAGED",
-        text: t$1("HAS IMAGES")
+        text: t$2("HAS IMAGES")
       }
     ]
   },
   TEXT: {
     value: "TEXT",
-    text: t$1("TEXT"),
+    text: t$2("TEXT"),
     operators: [
       {
         value: "CONTAIN",
-        text: t$1("INCLUDE")
+        text: t$2("INCLUDE")
       },
       {
         value: "NOT_CONTAIN",
-        text: t$1("EXCLUDE")
+        text: t$2("EXCLUDE")
       }
     ]
   },
   DATE: {
     value: "DATE",
-    text: t$1("DATE"),
+    text: t$2("DATE"),
     operators: [
       {
         value: "NOT_CONTAIN",
-        text: t$1("BEFORE")
+        text: t$2("BEFORE")
       },
       {
         value: "CONTAIN",
-        text: t$1("AFTER")
+        text: t$2("AFTER")
       }
     ]
   }
@@ -14868,10 +14875,10 @@ const checkShouldShowMemoWithFilters = (memo2, filters) => {
   return shouldShow;
 };
 const checkShouldShowMemo = (memo2, filter) => {
-  var _a, _b;
+  var _a2, _b;
   const {
     type,
-    value: { operator, value }
+    value: { operator: operator2, value }
   } = filter;
   if (value === "") {
     return true;
@@ -14880,12 +14887,12 @@ const checkShouldShowMemo = (memo2, filter) => {
   if (type === "TAG") {
     let contained = true;
     const tagsSet = /* @__PURE__ */ new Set();
-    for (const t2 of Array.from((_a = memo2.content.match(TAG_REG)) != null ? _a : [])) {
+    for (const t2 of Array.from((_a2 = memo2.content.match(TAG_REG)) != null ? _a2 : [])) {
       const tag = t2.replace(TAG_REG, "$1").trim();
       const items = tag.split("/");
       let temp = "";
-      for (const i of items) {
-        temp += i;
+      for (const i2 of items) {
+        temp += i2;
         tagsSet.add(temp);
         temp += "/";
       }
@@ -14894,8 +14901,8 @@ const checkShouldShowMemo = (memo2, filter) => {
       const tag = t2.replace(NOP_FIRST_TAG_REG, "$1").trim();
       const items = tag.split("/");
       let temp = "";
-      for (const i of items) {
-        temp += i;
+      for (const i2 of items) {
+        temp += i2;
         tagsSet.add(temp);
         temp += "/";
       }
@@ -14903,7 +14910,7 @@ const checkShouldShowMemo = (memo2, filter) => {
     if (!tagsSet.has(value)) {
       contained = false;
     }
-    if (operator === "NOT_CONTAIN") {
+    if (operator2 === "NOT_CONTAIN") {
       contained = !contained;
     }
     shouldShow = contained;
@@ -14918,19 +14925,19 @@ const checkShouldShowMemo = (memo2, filter) => {
     } else if (value === "CONNECTED" && memo2.content.match(MEMO_LINK_REG) !== null) {
       matched = true;
     }
-    if (operator === "IS_NOT") {
+    if (operator2 === "IS_NOT") {
       matched = !matched;
     }
     shouldShow = matched;
   } else if (type === "TEXT") {
     let contained = memo2.content.includes(value);
-    if (operator === "NOT_CONTAIN") {
+    if (operator2 === "NOT_CONTAIN") {
       contained = !contained;
     }
     shouldShow = contained;
   } else if (type === "DATE") {
     if (!app.plugins.enabledPlugins.has("nldates-obsidian")) {
-      new require$$0.Notice(t$1("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
+      new require$$0.Notice(t$2("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
     } else {
       const nldatesPlugin = app.plugins.getPlugin("nldates-obsidian");
       const parsedResult = nldatesPlugin.parseDate(value);
@@ -14938,7 +14945,7 @@ const checkShouldShowMemo = (memo2, filter) => {
       if (parsedResult.date !== null) {
         contained = parsedResult.moment.isBefore(require$$0.moment(memo2.createdAt), "day");
       }
-      if (operator === "NOT_CONTAIN") {
+      if (operator2 === "NOT_CONTAIN") {
         contained = !contained;
       }
       shouldShow = contained;
@@ -14949,7 +14956,7 @@ const checkShouldShowMemo = (memo2, filter) => {
 };
 var selector = "";
 const nullItem = {
-  text: t$1("SELECT"),
+  text: t$2("SELECT"),
   value: ""
 };
 const Selector = (props) => {
@@ -14971,8 +14978,8 @@ const Selector = (props) => {
   react.exports.useEffect(() => {
     if (showSelector) {
       const handleClickOutside = (event) => {
-        var _a;
-        if (!((_a = seletorElRef.current) == null ? void 0 : _a.contains(event.target))) {
+        var _a2;
+        if (!((_a2 = seletorElRef.current) == null ? void 0 : _a2.contains(event.target))) {
           toggleSelectorStatus(false);
         }
       };
@@ -15050,11 +15057,11 @@ const CreateQueryDialog = (props) => {
   };
   const handleSaveBtnClick = async () => {
     if (!title) {
-      new require$$0.Notice(t$1("TITLE CANNOT BE NULL!"));
+      new require$$0.Notice(t$2("TITLE CANNOT BE NULL!"));
       return;
     }
     if (filters.length === 0) {
-      new require$$0.Notice(t$1("FILTER CANNOT BE NULL!"));
+      new require$$0.Notice(t$2("FILTER CANNOT BE NULL!"));
       return;
     }
     try {
@@ -15076,7 +15083,7 @@ const CreateQueryDialog = (props) => {
     if (filters.length > 0) {
       const lastFilter = filters[filters.length - 1];
       if (lastFilter.value.value === "") {
-        new require$$0.Notice(t$1("Please finish the last filter setting first"));
+        new require$$0.Notice(t$2("Please finish the last filter setting first"));
         return;
       }
     }
@@ -15091,7 +15098,7 @@ const CreateQueryDialog = (props) => {
   }, []);
   const handleFilterRemove = react.exports.useCallback((index) => {
     setFilters((filters2) => {
-      const temp = filters2.filter((_, i) => i !== index);
+      const temp = filters2.filter((_, i2) => i2 !== index);
       return temp;
     });
   }, []);
@@ -15103,7 +15110,7 @@ const CreateQueryDialog = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "icon-text",
           children: "\u{1F516}"
-        }), queryId ? t$1("EDIT QUERY") : t$1("CREATE QUERY")]
+        }), queryId ? t$2("EDIT QUERY") : t$2("CREATE QUERY")]
       }), /* @__PURE__ */ jsx("button", {
         className: "btn close-btn",
         onClick: destroy,
@@ -15117,7 +15124,7 @@ const CreateQueryDialog = (props) => {
         className: "form-item-container input-form-container",
         children: [/* @__PURE__ */ jsx("span", {
           className: "normal-text",
-          children: t$1("TITLE")
+          children: t$2("TITLE")
         }), /* @__PURE__ */ jsx("input", {
           className: "title-input",
           type: "text",
@@ -15128,7 +15135,7 @@ const CreateQueryDialog = (props) => {
         className: "form-item-container filter-form-container",
         children: [/* @__PURE__ */ jsx("span", {
           className: "normal-text",
-          children: t$1("FILTER")
+          children: t$2("FILTER")
         }), /* @__PURE__ */ jsxs("div", {
           className: "filters-wrapper",
           children: [filters.map((f2, index) => {
@@ -15141,7 +15148,7 @@ const CreateQueryDialog = (props) => {
           }), /* @__PURE__ */ jsx("div", {
             className: "create-filter-btn",
             onClick: handleAddFilterBenClick,
-            children: t$1("ADD FILTER TERMS")
+            children: t$2("ADD FILTER TERMS")
           })]
         })]
       })]
@@ -15151,9 +15158,9 @@ const CreateQueryDialog = (props) => {
         className: "btns-container",
         children: [/* @__PURE__ */ jsxs("span", {
           className: `tip-text ${filters.length === 0 && "hidden"}`,
-          children: [t$1("MATCH"), " Memo ", /* @__PURE__ */ jsx("strong", {
+          children: [t$2("MATCH"), " Memo ", /* @__PURE__ */ jsx("strong", {
             children: shownMemoLength
-          }), " ", t$1("TIMES")]
+          }), " ", t$2("TIMES")]
         }), /* @__PURE__ */ jsx("button", {
           className: `btn save-btn ${requestState.isLoading ? "requesting" : ""}`,
           onClick: handleSaveBtnClick,
@@ -15335,8 +15342,8 @@ const QueryList = () => {
   } = react.exports.useContext(appContext);
   const loadingState = useLoading();
   const sortedQueries = queries.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).sort((a, b) => {
-    var _a, _b;
-    return utils$1.getTimeStampByDate((_a = b.pinnedAt) != null ? _a : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
+    var _a2, _b;
+    return utils$1.getTimeStampByDate((_a2 = b.pinnedAt) != null ? _a2 : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
   });
   react.exports.useEffect(() => {
     queryService.getMyAllQueries().catch(() => {
@@ -15350,7 +15357,7 @@ const QueryList = () => {
       className: "title-text",
       children: [/* @__PURE__ */ jsx("span", {
         className: "normal-text",
-        children: t$1("QUERY")
+        children: t$2("QUERY")
       }), /* @__PURE__ */ jsx("span", {
         className: "btn",
         onClick: () => showCreateQueryDialog(),
@@ -15363,7 +15370,7 @@ const QueryList = () => {
         children: /* @__PURE__ */ jsx("span", {
           className: "btn",
           onClick: () => showCreateQueryDialog(),
-          children: t$1("CREATE FILTER")
+          children: t$2("CREATE FILTER")
         })
       })
     }), /* @__PURE__ */ jsx("div", {
@@ -15463,16 +15470,16 @@ const QueryItemContainer = (props) => {
             children: [/* @__PURE__ */ jsx("span", {
               className: "btn",
               onClick: handlePinQueryBtnClick,
-              children: query.pinnedAt ? t$1("UNPIN") : t$1("PIN")
+              children: query.pinnedAt ? t$2("UNPIN") : t$2("PIN")
             }), /* @__PURE__ */ jsx("span", {
               className: "btn",
               onClick: handleEditQueryBtnClick,
-              children: t$1("EDIT")
+              children: t$2("EDIT")
             }), /* @__PURE__ */ jsx("span", {
               className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
               onClick: handleDeleteMemoClick,
               onMouseLeave: handleDeleteBtnMouseLeave,
-              children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
+              children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
             })]
           })
         })]
@@ -15494,7 +15501,7 @@ const TagList = () => {
       memos
     }
   } = react.exports.useContext(appContext);
-  const [tags, setTags] = react.exports.useState([]);
+  const [tags2, setTags] = react.exports.useState([]);
   react.exports.useEffect(() => {
     memoService.updateTagsState();
   }, [memos]);
@@ -15507,9 +15514,9 @@ const TagList = () => {
       const subtags = tag.split("/");
       let tempObj = root;
       let tagText = "";
-      for (let i = 0; i < subtags.length; i++) {
-        const key = subtags[i];
-        if (i === 0) {
+      for (let i2 = 0; i2 < subtags.length; i2++) {
+        const key = subtags[i2];
+        if (i2 === 0) {
           tagText += key;
         } else {
           tagText += "/" + key;
@@ -15539,14 +15546,14 @@ const TagList = () => {
     className: "tags-wrapper",
     children: [/* @__PURE__ */ jsx("p", {
       className: "title-text",
-      children: t$1("Frequently Used Tags")
+      children: t$2("Frequently Used Tags")
     }), /* @__PURE__ */ jsxs("div", {
       className: "tags-container",
-      children: [tags.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
+      children: [tags2.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
         tag: t2,
         tagQuery
       }, t2.text + "-" + idx)), /* @__PURE__ */ jsx(Only, {
-        when: tags.length < 5 && memoService.initialized,
+        when: tags2.length < 5 && memoService.initialized,
         children: /* @__PURE__ */ jsxs("p", {
           className: "tag-tip-container",
           children: ["Input", /* @__PURE__ */ jsx("span", {
@@ -15623,9 +15630,9 @@ const tableConfig = {
 };
 const getInitialUsageStat = (usedDaysAmount, beginDayTimestamp) => {
   const initialUsageStat = [];
-  for (let i = 0; i <= usedDaysAmount; i++) {
+  for (let i2 = 0; i2 <= usedDaysAmount; i2++) {
     initialUsageStat.push({
-      timestamp: parseInt(require$$0.moment(beginDayTimestamp).add(i, "days").format("x")),
+      timestamp: parseInt(require$$0.moment(beginDayTimestamp).add(i2, "days").format("x")),
       count: 0
     });
   }
@@ -15644,10 +15651,10 @@ const UsageHeatMap = () => {
     }
   } = react.exports.useContext(appContext);
   const newMemos = memos.filter((memo2) => memo2.linkId === "");
-  const [allStat, setAllStat] = dist(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
-  const [popupStat, setPopupStat] = dist(null);
-  const [currentStat, setCurrentStat] = dist(null);
-  const [fromTo, setFromTo, fromToRef] = dist("");
+  const [allStat, setAllStat] = dist$1(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
+  const [popupStat, setPopupStat] = dist$1(null);
+  const [currentStat, setCurrentStat] = dist$1(null);
+  const [fromTo, setFromTo, fromToRef] = dist$1("");
   const containerElRef = react.exports.useRef(null);
   const popupRef = react.exports.useRef(null);
   react.exports.useEffect(() => {
@@ -15662,7 +15669,7 @@ const UsageHeatMap = () => {
     setAllStat([...newStat]);
   }, [memos]);
   const handleUsageStatItemMouseEnter = react.exports.useCallback((event, item) => {
-    var _a, _b;
+    var _a2, _b;
     setPopupStat(item);
     if (!popupRef.current) {
       return;
@@ -15672,7 +15679,7 @@ const UsageHeatMap = () => {
     } = globalStateService.getState();
     const targetEl = event.target;
     const sidebarEl = document.querySelector(".memos-sidebar-wrapper");
-    popupRef.current.style.left = targetEl.offsetLeft - ((_b = (_a = containerElRef.current) == null ? void 0 : _a.offsetLeft) != null ? _b : 0) + "px";
+    popupRef.current.style.left = targetEl.offsetLeft - ((_b = (_a2 = containerElRef.current) == null ? void 0 : _a2.offsetLeft) != null ? _b : 0) + "px";
     let topValue = targetEl.offsetTop;
     if (!isMobileView) {
       topValue -= sidebarEl.scrollTop;
@@ -15683,8 +15690,8 @@ const UsageHeatMap = () => {
     setPopupStat(null);
   }, []);
   const handleUsageStatItemClick = react.exports.useCallback((event, item) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
-    if (((_a = locationService.getState().query.duration) == null ? void 0 : _a.from) === item.timestamp && require$$0.moment((_b = locationService.getState().query.duration) == null ? void 0 : _b.from).diff((_c = locationService.getState().query.duration) == null ? void 0 : _c.to, "day") == 0) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+    if (((_a2 = locationService.getState().query.duration) == null ? void 0 : _a2.from) === item.timestamp && require$$0.moment((_b = locationService.getState().query.duration) == null ? void 0 : _b.from).diff((_c = locationService.getState().query.duration) == null ? void 0 : _c.to, "day") == 0) {
       locationService.setFromAndToQuery(0, 0);
       setCurrentStat(null);
       setFromTo(null);
@@ -15751,22 +15758,22 @@ const UsageHeatMap = () => {
       className: "day-tip-text-container",
       children: [/* @__PURE__ */ jsx("span", {
         className: "tip-text",
-        children: t$1("weekDaysShort")[0]
+        children: t$2("weekDaysShort")[0]
       }), /* @__PURE__ */ jsx("span", {
         className: "tip-text"
       }), /* @__PURE__ */ jsx("span", {
         className: "tip-text",
-        children: t$1("weekDaysShort")[2]
+        children: t$2("weekDaysShort")[2]
       }), /* @__PURE__ */ jsx("span", {
         className: "tip-text"
       }), /* @__PURE__ */ jsx("span", {
         className: "tip-text",
-        children: t$1("weekDaysShort")[4]
+        children: t$2("weekDaysShort")[4]
       }), /* @__PURE__ */ jsx("span", {
         className: "tip-text"
       }), /* @__PURE__ */ jsx("span", {
         className: "tip-text",
-        children: t$1("weekDaysShort")[6]
+        children: t$2("weekDaysShort")[6]
       })]
     }), /* @__PURE__ */ jsxs("div", {
       ref: popupRef,
@@ -15777,7 +15784,7 @@ const UsageHeatMap = () => {
       })]
     }), /* @__PURE__ */ jsxs("div", {
       className: "usage-heat-map",
-      children: [allStat.map((v2, i) => {
+      children: [allStat.map((v2, i2) => {
         const count = v2.count;
         const colorLevel = count <= 0 ? "" : count <= 1 ? "stat-day-L1-bg" : count <= 2 ? "stat-day-L2-bg" : count <= 4 ? "stat-day-L3-bg" : "stat-day-L4-bg";
         return /* @__PURE__ */ jsx("span", {
@@ -15785,10 +15792,10 @@ const UsageHeatMap = () => {
           onMouseEnter: (e) => handleUsageStatItemMouseEnter(e, v2),
           onMouseLeave: handleUsageStatItemMouseLeave,
           onClick: (e) => handleUsageStatItemClick(e, v2)
-        }, i);
-      }), nullCell.map((v2, i) => /* @__PURE__ */ jsx("span", {
+        }, i2);
+      }), nullCell.map((v2, i2) => /* @__PURE__ */ jsx("span", {
         className: "stat-container null"
-      }, i))]
+      }, i2))]
     })]
   });
 };
@@ -15804,7 +15811,7 @@ const Sidebar = () => {
   const wrapperElRef = react.exports.useRef(null);
   const handleClickOutsideOfWrapper = react.exports.useMemo(() => {
     return (event) => {
-      var _a, _b, _c;
+      var _a2, _b, _c;
       const siderbarShown = globalStateService.getState().showSiderbarInMobileView;
       if (!siderbarShown) {
         window.removeEventListener("click", handleClickOutsideOfWrapper, {
@@ -15812,7 +15819,7 @@ const Sidebar = () => {
         });
         return;
       }
-      if (!((_a = wrapperElRef.current) == null ? void 0 : _a.contains(event.target))) {
+      if (!((_a2 = wrapperElRef.current) == null ? void 0 : _a2.contains(event.target))) {
         if ((_c = (_b = wrapperElRef.current) == null ? void 0 : _b.parentNode) == null ? void 0 : _c.contains(event.target)) {
           if (siderbarShown) {
             event.stopPropagation();
@@ -15872,1404 +15879,15974 @@ function Home() {
 const appRouter = {
   "*": /* @__PURE__ */ jsx(Home, {})
 };
-const getInitialAction = () => {
-  return {
-    type: "initialText",
-    value: "",
-    timestamp: Date.now(),
-    selectionStart: 0,
-    selectionEnd: 0
-  };
-};
-const defaultConfig = {
-  initialValue: "",
-  interval: 300
-};
-class TinyUndo {
-  constructor(element, config = defaultConfig) {
-    this.listeners = [];
-    this.runUndo = () => {
-      const cursorPosition = this.actions[this.currentIndex].selectionStart;
-      if (this.currentIndex > 0) {
-        this.currentIndex--;
+let rangeFrom = [], rangeTo = [];
+(() => {
+  let numbers = "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,1n,9,16,o,,x,1i,3,,i,,7,a,2,t,3,1k,,,7,2,2,2,3,9,,a,2,q,,2,3,1k,,,5,4,2,2,3,3,,u,2,3,,b,3,1k,,,8,,3,,3,k,2,m,6,,3,1k,,,7,2,2,2,3,7,3,a,2,u,,1n,5,3,3,,4,9,,14,5,1j,,,7,,3,,4,7,2,b,2,t,3,1k,,,7,,3,,4,7,2,b,2,f,,c,4,1j,2,,7,,3,,4,9,,a,2,t,3,1y,,4,6,,,,8,i,2,1p,,,8,c,8,2q,,,a,b,7,21,2,r,,,,,,4,2,1d,k,,2,5,b,,10,9,,2u,b,,6,n,4,4,3,g,4,d,,,3,6,,f,,jj,3,qa,4,s,3,t,2,u,2,1s,w,9,,19,3,,,39,2,y,,3a,c,4,c,63,5,1l,a,,,,,2,o,2,,1c,1a,2,c,k,5,1b,h,12,9,c,3,u,d,1k,e,1c,k,48,3,,l,4,,6,,2,3,5i,1s,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,n,5,4,,2b,2,1e,i,q,i,d,,12,8,p,d,18,4,1b,e,10,,1v,e,c,,8,2,1a,,1f,,,3,2,2,5,2,,,15,5,5,2,6k,8,,2,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,1t,5,8t,2,25,6,1y,b,1d,4,3e,3,1h,f,15,,2,2,a,4,19,b,7,,1p,3,10,e,g,2,18,,c,3,1c,e,8,4,,2,2k,c,6,,2,,4d,c,l,4,1j,2,,7,2,2,2,3,9,,a,2,2,7,3,5,1v,9,,,2,,,4,,5,,,e,2,2a,i,n,,29,k,6j,7,2,9,r,2,2a,h,2y,d,2t,3,2,a,74,f,6t,6,,2,2,4,,,,2,3x,7,2,7,3,,s,a,14,7,,4,8,,9,b,1a,g,5i,8,5j,8,,8,2a,m,,e,3e,6,3,,,2,,7,,,1u,5,,2,,5,9n,4,9,2,,,1c,7,3,5,n,,44l,,6,f,8ug,i,1xc,5,1n,7,t4,,,1j,7,4,29,,b,2,f57,2,3mp,1a,2,n,f2,5,3,6,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,2s,,4g,7,af,,1p,4,e4,4,72,2,6r,,2,,7,2,5,,d6,7,31,7,240,5".split(",").map((s) => s ? parseInt(s, 36) : 1);
+  for (let i2 = 0, n2 = 0; i2 < numbers.length; i2++)
+    (i2 % 2 ? rangeTo : rangeFrom).push(n2 = n2 + numbers[i2]);
+})();
+function isExtendingChar(code2) {
+  if (code2 < 768)
+    return false;
+  for (let from = 0, to = rangeFrom.length; ; ) {
+    let mid = from + to >> 1;
+    if (code2 < rangeFrom[mid])
+      to = mid;
+    else if (code2 >= rangeTo[mid])
+      from = mid + 1;
+    else
+      return true;
+    if (from == to)
+      return false;
+  }
+}
+function isRegionalIndicator(code2) {
+  return code2 >= 127462 && code2 <= 127487;
+}
+const ZWJ = 8205;
+function findClusterBreak$1(str, pos, forward = true, includeExtending = true) {
+  return (forward ? nextClusterBreak : prevClusterBreak)(str, pos, includeExtending);
+}
+function nextClusterBreak(str, pos, includeExtending) {
+  if (pos == str.length)
+    return pos;
+  if (pos && surrogateLow$1(str.charCodeAt(pos)) && surrogateHigh$1(str.charCodeAt(pos - 1)))
+    pos--;
+  let prev = codePointAt$1(str, pos);
+  pos += codePointSize$1(prev);
+  while (pos < str.length) {
+    let next = codePointAt$1(str, pos);
+    if (prev == ZWJ || next == ZWJ || includeExtending && isExtendingChar(next)) {
+      pos += codePointSize$1(next);
+      prev = next;
+    } else if (isRegionalIndicator(next)) {
+      let countBefore = 0, i2 = pos - 2;
+      while (i2 >= 0 && isRegionalIndicator(codePointAt$1(str, i2))) {
+        countBefore++;
+        i2 -= 2;
       }
-      this.element.value = this.actions[this.currentIndex].value;
-      this.element.setSelectionRange(cursorPosition, cursorPosition);
-      this.dispatchChange();
-    };
-    this.runRedo = () => {
-      if (this.currentIndex < this.actions.length - 1) {
-        this.currentIndex++;
-      }
-      const cursorPosition = this.actions[this.currentIndex].selectionEnd;
-      this.element.value = this.actions[this.currentIndex].value;
-      this.element.setSelectionRange(cursorPosition, cursorPosition);
-      this.dispatchChange();
-    };
-    this.getActions = () => {
-      return this.actions;
-    };
-    this.setState = (actions, index) => {
-      this.actions = [...actions];
-      this.currentIndex = index < this.actions.length ? index : this.actions.length - 1;
-      this.dispatchChange();
-    };
-    this.resetState = () => {
-      this.actions = [getInitialAction()];
-      this.currentIndex = 0;
-      this.dispatchChange();
-    };
-    this.destroy = () => {
-      this.rmEventListeners();
-    };
-    this.subscribe = (callback) => {
-      this.listeners.push(callback);
-    };
-    this.handleElementKeydown = (event) => {
-      const keyboardEvent = event;
-      if (keyboardEvent.key === "z" && !keyboardEvent.shiftKey && (keyboardEvent.metaKey || keyboardEvent.ctrlKey)) {
-        event.preventDefault();
-        this.runUndo();
-      } else if (keyboardEvent.key === "z" && keyboardEvent.shiftKey && (keyboardEvent.metaKey || keyboardEvent.ctrlKey) || keyboardEvent.key === "y" && (keyboardEvent.metaKey || keyboardEvent.ctrlKey)) {
-        event.preventDefault();
-        this.runRedo();
-      }
-    };
-    this.handleElementInput = (event) => {
-      const inputEvent = event;
-      const lastAction = this.actions[this.currentIndex];
-      this.pushNewAction({
-        type: inputEvent.inputType,
-        value: this.element.value,
-        timestamp: Date.now(),
-        selectionStart: this.element.selectionEnd - (this.element.value.length - lastAction.value.length),
-        selectionEnd: this.element.selectionEnd
-      });
-    };
-    this.addEventListeners = () => {
-      this.element.addEventListener("keydown", this.handleElementKeydown);
-      this.element.addEventListener("input", this.handleElementInput);
-    };
-    this.rmEventListeners = () => {
-      this.element.removeEventListener("keydown", this.handleElementKeydown);
-      this.element.removeEventListener("input", this.handleElementInput);
-    };
-    this.pushNewAction = (action) => {
-      const lastAction = this.actions[this.currentIndex];
-      if (lastAction && lastAction.type === action.type && action.timestamp - lastAction.timestamp < this.config.interval) {
-        this.actions[this.currentIndex] = Object.assign(Object.assign({}, lastAction), { value: action.value, selectionEnd: action.selectionEnd, timestamp: action.timestamp });
+      if (countBefore % 2 == 0)
+        break;
+      else
+        pos += 2;
+    } else {
+      break;
+    }
+  }
+  return pos;
+}
+function prevClusterBreak(str, pos, includeExtending) {
+  while (pos > 1) {
+    let found = nextClusterBreak(str, pos - 2, includeExtending);
+    if (found < pos)
+      return found;
+    pos--;
+  }
+  return 0;
+}
+function codePointAt$1(str, pos) {
+  let code0 = str.charCodeAt(pos);
+  if (!surrogateHigh$1(code0) || pos + 1 == str.length)
+    return code0;
+  let code1 = str.charCodeAt(pos + 1);
+  if (!surrogateLow$1(code1))
+    return code0;
+  return (code0 - 55296 << 10) + (code1 - 56320) + 65536;
+}
+function surrogateLow$1(ch2) {
+  return ch2 >= 56320 && ch2 < 57344;
+}
+function surrogateHigh$1(ch2) {
+  return ch2 >= 55296 && ch2 < 56320;
+}
+function codePointSize$1(code2) {
+  return code2 < 65536 ? 1 : 2;
+}
+class Text {
+  lineAt(pos) {
+    if (pos < 0 || pos > this.length)
+      throw new RangeError(`Invalid position ${pos} in document of length ${this.length}`);
+    return this.lineInner(pos, false, 1, 0);
+  }
+  line(n2) {
+    if (n2 < 1 || n2 > this.lines)
+      throw new RangeError(`Invalid line number ${n2} in ${this.lines}-line document`);
+    return this.lineInner(n2, true, 1, 0);
+  }
+  replace(from, to, text) {
+    [from, to] = clip(this, from, to);
+    let parts = [];
+    this.decompose(0, from, parts, 2);
+    if (text.length)
+      text.decompose(0, text.length, parts, 1 | 2);
+    this.decompose(to, this.length, parts, 1);
+    return TextNode.from(parts, this.length - (to - from) + text.length);
+  }
+  append(other) {
+    return this.replace(this.length, this.length, other);
+  }
+  slice(from, to = this.length) {
+    [from, to] = clip(this, from, to);
+    let parts = [];
+    this.decompose(from, to, parts, 0);
+    return TextNode.from(parts, to - from);
+  }
+  eq(other) {
+    if (other == this)
+      return true;
+    if (other.length != this.length || other.lines != this.lines)
+      return false;
+    let start2 = this.scanIdentical(other, 1), end2 = this.length - this.scanIdentical(other, -1);
+    let a = new RawTextCursor(this), b = new RawTextCursor(other);
+    for (let skip = start2, pos = start2; ; ) {
+      a.next(skip);
+      b.next(skip);
+      skip = 0;
+      if (a.lineBreak != b.lineBreak || a.done != b.done || a.value != b.value)
+        return false;
+      pos += a.value.length;
+      if (a.done || pos >= end2)
+        return true;
+    }
+  }
+  iter(dir = 1) {
+    return new RawTextCursor(this, dir);
+  }
+  iterRange(from, to = this.length) {
+    return new PartialTextCursor(this, from, to);
+  }
+  iterLines(from, to) {
+    let inner;
+    if (from == null) {
+      inner = this.iter();
+    } else {
+      if (to == null)
+        to = this.lines + 1;
+      let start2 = this.line(from).from;
+      inner = this.iterRange(start2, Math.max(start2, to == this.lines + 1 ? this.length : to <= 1 ? 0 : this.line(to - 1).to));
+    }
+    return new LineCursor(inner);
+  }
+  toString() {
+    return this.sliceString(0);
+  }
+  toJSON() {
+    let lines = [];
+    this.flatten(lines);
+    return lines;
+  }
+  constructor() {
+  }
+  static of(text) {
+    if (text.length == 0)
+      throw new RangeError("A document must have at least one line");
+    if (text.length == 1 && !text[0])
+      return Text.empty;
+    return text.length <= 32 ? new TextLeaf(text) : TextNode.from(TextLeaf.split(text, []));
+  }
+}
+class TextLeaf extends Text {
+  constructor(text, length = textLength(text)) {
+    super();
+    this.text = text;
+    this.length = length;
+  }
+  get lines() {
+    return this.text.length;
+  }
+  get children() {
+    return null;
+  }
+  lineInner(target, isLine, line, offset2) {
+    for (let i2 = 0; ; i2++) {
+      let string2 = this.text[i2], end2 = offset2 + string2.length;
+      if ((isLine ? line : end2) >= target)
+        return new Line(offset2, end2, line, string2);
+      offset2 = end2 + 1;
+      line++;
+    }
+  }
+  decompose(from, to, target, open) {
+    let text = from <= 0 && to >= this.length ? this : new TextLeaf(sliceText(this.text, from, to), Math.min(to, this.length) - Math.max(0, from));
+    if (open & 1) {
+      let prev = target.pop();
+      let joined = appendText(text.text, prev.text.slice(), 0, text.length);
+      if (joined.length <= 32) {
+        target.push(new TextLeaf(joined, prev.length + text.length));
       } else {
-        if (this.config.maxSize && this.currentIndex >= this.config.maxSize) {
-          this.actions.shift();
-          this.actions[0] = getInitialAction();
-        } else {
-          this.currentIndex++;
-        }
-        this.actions[this.currentIndex] = action;
-        this.actions = this.actions.slice(0, this.currentIndex + 1);
-      }
-      this.dispatchChange();
-    };
-    this.dispatchChange = () => {
-      for (const cb2 of this.listeners) {
-        cb2([...this.actions], this.currentIndex);
-      }
-    };
-    this.element = element;
-    this.config = Object.assign(Object.assign({}, defaultConfig), config);
-    if (this.config.initialActions && this.config.initialActions.length > 0) {
-      this.actions = this.config.initialActions;
-      if (this.config.initialIndex !== void 0 && this.config.initialIndex < this.actions.length) {
-        this.currentIndex = this.config.initialIndex;
-      } else {
-        this.currentIndex = this.actions.length - 1;
+        let mid = joined.length >> 1;
+        target.push(new TextLeaf(joined.slice(0, mid)), new TextLeaf(joined.slice(mid)));
       }
     } else {
-      this.actions = [getInitialAction()];
-      this.currentIndex = 0;
-      if (this.config.initialValue !== "") {
-        this.actions.push({
-          type: "insertText",
-          value: this.config.initialValue,
-          timestamp: Date.now(),
-          selectionStart: 0,
-          selectionEnd: this.config.initialValue.length
-        });
-        this.currentIndex++;
+      target.push(text);
+    }
+  }
+  replace(from, to, text) {
+    if (!(text instanceof TextLeaf))
+      return super.replace(from, to, text);
+    [from, to] = clip(this, from, to);
+    let lines = appendText(this.text, appendText(text.text, sliceText(this.text, 0, from)), to);
+    let newLen = this.length + text.length - (to - from);
+    if (lines.length <= 32)
+      return new TextLeaf(lines, newLen);
+    return TextNode.from(TextLeaf.split(lines, []), newLen);
+  }
+  sliceString(from, to = this.length, lineSep = "\n") {
+    [from, to] = clip(this, from, to);
+    let result = "";
+    for (let pos = 0, i2 = 0; pos <= to && i2 < this.text.length; i2++) {
+      let line = this.text[i2], end2 = pos + line.length;
+      if (pos > from && i2)
+        result += lineSep;
+      if (from < end2 && to > pos)
+        result += line.slice(Math.max(0, from - pos), to - pos);
+      pos = end2 + 1;
+    }
+    return result;
+  }
+  flatten(target) {
+    for (let line of this.text)
+      target.push(line);
+  }
+  scanIdentical() {
+    return 0;
+  }
+  static split(text, target) {
+    let part = [], len = -1;
+    for (let line of text) {
+      part.push(line);
+      len += line.length + 1;
+      if (part.length == 32) {
+        target.push(new TextLeaf(part, len));
+        part = [];
+        len = -1;
       }
     }
-    this.element.value = this.actions[this.currentIndex].value;
-    this.addEventListeners();
+    if (len > -1)
+      target.push(new TextLeaf(part, len));
+    return target;
   }
 }
-function useRefresh() {
-  const [, setBoolean] = react.exports.useState(false);
-  const refresh = react.exports.useCallback(() => {
-    setBoolean((ps) => {
-      return !ps;
-    });
-  }, []);
-  return refresh;
-}
-var editor = "";
-var textareaCaret = { exports: {} };
-(function(module2) {
-  (function() {
-    var properties = [
-      "direction",
-      "boxSizing",
-      "width",
-      "height",
-      "overflowX",
-      "overflowY",
-      "borderTopWidth",
-      "borderRightWidth",
-      "borderBottomWidth",
-      "borderLeftWidth",
-      "borderStyle",
-      "paddingTop",
-      "paddingRight",
-      "paddingBottom",
-      "paddingLeft",
-      "fontStyle",
-      "fontVariant",
-      "fontWeight",
-      "fontStretch",
-      "fontSize",
-      "fontSizeAdjust",
-      "lineHeight",
-      "fontFamily",
-      "textAlign",
-      "textTransform",
-      "textIndent",
-      "textDecoration",
-      "letterSpacing",
-      "wordSpacing",
-      "tabSize",
-      "MozTabSize"
-    ];
-    var isBrowser = typeof window !== "undefined";
-    var isFirefox = isBrowser && window.mozInnerScreenX != null;
-    function getCaretCoordinates2(element, position, options) {
-      if (!isBrowser) {
-        throw new Error("textarea-caret-position#getCaretCoordinates should only be called in a browser");
+class TextNode extends Text {
+  constructor(children, length) {
+    super();
+    this.children = children;
+    this.length = length;
+    this.lines = 0;
+    for (let child of children)
+      this.lines += child.lines;
+  }
+  lineInner(target, isLine, line, offset2) {
+    for (let i2 = 0; ; i2++) {
+      let child = this.children[i2], end2 = offset2 + child.length, endLine = line + child.lines - 1;
+      if ((isLine ? endLine : end2) >= target)
+        return child.lineInner(target, isLine, line, offset2);
+      offset2 = end2 + 1;
+      line = endLine + 1;
+    }
+  }
+  decompose(from, to, target, open) {
+    for (let i2 = 0, pos = 0; pos <= to && i2 < this.children.length; i2++) {
+      let child = this.children[i2], end2 = pos + child.length;
+      if (from <= end2 && to >= pos) {
+        let childOpen = open & ((pos <= from ? 1 : 0) | (end2 >= to ? 2 : 0));
+        if (pos >= from && end2 <= to && !childOpen)
+          target.push(child);
+        else
+          child.decompose(from - pos, to - pos, target, childOpen);
       }
-      var debug = options && options.debug || false;
-      if (debug) {
-        var el = document.querySelector("#input-textarea-caret-position-mirror-div");
-        if (el) {
-          el.parentNode.removeChild(el);
+      pos = end2 + 1;
+    }
+  }
+  replace(from, to, text) {
+    [from, to] = clip(this, from, to);
+    if (text.lines < this.lines)
+      for (let i2 = 0, pos = 0; i2 < this.children.length; i2++) {
+        let child = this.children[i2], end2 = pos + child.length;
+        if (from >= pos && to <= end2) {
+          let updated = child.replace(from - pos, to - pos, text);
+          let totalLines = this.lines - child.lines + updated.lines;
+          if (updated.lines < totalLines >> 5 - 1 && updated.lines > totalLines >> 5 + 1) {
+            let copy = this.children.slice();
+            copy[i2] = updated;
+            return new TextNode(copy, this.length - (to - from) + text.length);
+          }
+          return super.replace(pos, end2, updated);
         }
+        pos = end2 + 1;
       }
-      var div = document.createElement("div");
-      div.id = "input-textarea-caret-position-mirror-div";
-      document.body.appendChild(div);
-      var style = div.style;
-      var computed = window.getComputedStyle ? getComputedStyle(element) : element.currentStyle;
-      style.whiteSpace = "pre-wrap";
-      if (element.nodeName !== "INPUT")
-        style.wordWrap = "break-word";
-      style.position = "absolute";
-      if (!debug)
-        style.visibility = "hidden";
-      properties.forEach(function(prop) {
-        style[prop] = computed[prop];
-      });
-      if (isFirefox) {
-        if (element.scrollHeight > parseInt(computed.height))
-          style.overflowY = "scroll";
+    return super.replace(from, to, text);
+  }
+  sliceString(from, to = this.length, lineSep = "\n") {
+    [from, to] = clip(this, from, to);
+    let result = "";
+    for (let i2 = 0, pos = 0; i2 < this.children.length && pos <= to; i2++) {
+      let child = this.children[i2], end2 = pos + child.length;
+      if (pos > from && i2)
+        result += lineSep;
+      if (from < end2 && to > pos)
+        result += child.sliceString(from - pos, to - pos, lineSep);
+      pos = end2 + 1;
+    }
+    return result;
+  }
+  flatten(target) {
+    for (let child of this.children)
+      child.flatten(target);
+  }
+  scanIdentical(other, dir) {
+    if (!(other instanceof TextNode))
+      return 0;
+    let length = 0;
+    let [iA, iB, eA, eB] = dir > 0 ? [0, 0, this.children.length, other.children.length] : [this.children.length - 1, other.children.length - 1, -1, -1];
+    for (; ; iA += dir, iB += dir) {
+      if (iA == eA || iB == eB)
+        return length;
+      let chA = this.children[iA], chB = other.children[iB];
+      if (chA != chB)
+        return length + chA.scanIdentical(chB, dir);
+      length += chA.length + 1;
+    }
+  }
+  static from(children, length = children.reduce((l2, ch2) => l2 + ch2.length + 1, -1)) {
+    let lines = 0;
+    for (let ch2 of children)
+      lines += ch2.lines;
+    if (lines < 32) {
+      let flat = [];
+      for (let ch2 of children)
+        ch2.flatten(flat);
+      return new TextLeaf(flat, length);
+    }
+    let chunk = Math.max(32, lines >> 5), maxChunk = chunk << 1, minChunk = chunk >> 1;
+    let chunked = [], currentLines = 0, currentLen = -1, currentChunk = [];
+    function add(child) {
+      let last2;
+      if (child.lines > maxChunk && child instanceof TextNode) {
+        for (let node of child.children)
+          add(node);
+      } else if (child.lines > minChunk && (currentLines > minChunk || !currentLines)) {
+        flush();
+        chunked.push(child);
+      } else if (child instanceof TextLeaf && currentLines && (last2 = currentChunk[currentChunk.length - 1]) instanceof TextLeaf && child.lines + last2.lines <= 32) {
+        currentLines += child.lines;
+        currentLen += child.length + 1;
+        currentChunk[currentChunk.length - 1] = new TextLeaf(last2.text.concat(child.text), last2.length + 1 + child.length);
       } else {
-        style.overflow = "hidden";
+        if (currentLines + child.lines > chunk)
+          flush();
+        currentLines += child.lines;
+        currentLen += child.length + 1;
+        currentChunk.push(child);
       }
-      div.textContent = element.value.substring(0, position);
-      if (element.nodeName === "INPUT")
-        div.textContent = div.textContent.replace(/\s/g, "\xA0");
-      var span = document.createElement("span");
-      span.textContent = element.value.substring(position) || ".";
-      div.appendChild(span);
-      var coordinates = {
-        top: span.offsetTop + parseInt(computed["borderTopWidth"]),
-        left: span.offsetLeft + parseInt(computed["borderLeftWidth"])
-      };
-      if (debug) {
-        span.style.backgroundColor = "#aaa";
-      } else {
-        document.body.removeChild(div);
-      }
-      return coordinates;
     }
-    {
-      module2.exports = getCaretCoordinates2;
+    function flush() {
+      if (currentLines == 0)
+        return;
+      chunked.push(currentChunk.length == 1 ? currentChunk[0] : TextNode.from(currentChunk, currentLen));
+      currentLen = -1;
+      currentLines = currentChunk.length = 0;
     }
-  })();
-})(textareaCaret);
-var getCaretCoordinates = textareaCaret.exports;
-var NativeCustomEvent = commonjsGlobal.CustomEvent;
-function useNative() {
-  try {
-    var p2 = new NativeCustomEvent("cat", { detail: { foo: "bar" } });
-    return "cat" === p2.type && "bar" === p2.detail.foo;
-  } catch (e) {
+    for (let child of children)
+      add(child);
+    flush();
+    return chunked.length == 1 ? chunked[0] : new TextNode(chunked, length);
   }
-  return false;
 }
-var customEvent = useNative() ? NativeCustomEvent : "undefined" !== typeof document && "function" === typeof document.createEvent ? function CustomEvent(type, params) {
-  var e = document.createEvent("CustomEvent");
-  if (params) {
-    e.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
-  } else {
-    e.initCustomEvent(type, false, false, void 0);
-  }
-  return e;
-} : function CustomEvent2(type, params) {
-  var e = document.createEventObject();
-  e.type = type;
-  if (params) {
-    e.bubbles = Boolean(params.bubbles);
-    e.cancelable = Boolean(params.cancelable);
-    e.detail = params.detail;
-  } else {
-    e.bubbles = false;
-    e.cancelable = false;
-    e.detail = void 0;
-  }
-  return e;
-};
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-  return obj;
+Text.empty = /* @__PURE__ */ new TextLeaf([""], 0);
+function textLength(text) {
+  let length = -1;
+  for (let line of text)
+    length += line.length + 1;
+  return length;
 }
-function _objectSpread(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-    var ownKeys = Object.keys(source);
-    if (typeof Object.getOwnPropertySymbols === "function") {
-      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
-        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-      }));
+function appendText(text, target, from = 0, to = 1e9) {
+  for (let pos = 0, i2 = 0, first = true; i2 < text.length && pos <= to; i2++) {
+    let line = text[i2], end2 = pos + line.length;
+    if (end2 >= from) {
+      if (end2 > to)
+        line = line.slice(0, to - pos);
+      if (pos < from)
+        line = line.slice(from - pos);
+      if (first) {
+        target[target.length - 1] += line;
+        first = false;
+      } else
+        target.push(line);
     }
-    ownKeys.forEach(function(key) {
-      _defineProperty(target, key, source[key]);
-    });
+    pos = end2 + 1;
   }
   return target;
 }
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
+function sliceText(text, from, to) {
+  return appendText(text, [""], from, to);
+}
+class RawTextCursor {
+  constructor(text, dir = 1) {
+    this.dir = dir;
+    this.done = false;
+    this.lineBreak = false;
+    this.value = "";
+    this.nodes = [text];
+    this.offsets = [dir > 0 ? 1 : (text instanceof TextLeaf ? text.text.length : text.children.length) << 1];
+  }
+  nextInner(skip, dir) {
+    this.done = this.lineBreak = false;
+    for (; ; ) {
+      let last2 = this.nodes.length - 1;
+      let top2 = this.nodes[last2], offsetValue = this.offsets[last2], offset2 = offsetValue >> 1;
+      let size = top2 instanceof TextLeaf ? top2.text.length : top2.children.length;
+      if (offset2 == (dir > 0 ? size : 0)) {
+        if (last2 == 0) {
+          this.done = true;
+          this.value = "";
+          return this;
+        }
+        if (dir > 0)
+          this.offsets[last2 - 1]++;
+        this.nodes.pop();
+        this.offsets.pop();
+      } else if ((offsetValue & 1) == (dir > 0 ? 0 : 1)) {
+        this.offsets[last2] += dir;
+        if (skip == 0) {
+          this.lineBreak = true;
+          this.value = "\n";
+          return this;
+        }
+        skip--;
+      } else if (top2 instanceof TextLeaf) {
+        let next = top2.text[offset2 + (dir < 0 ? -1 : 0)];
+        this.offsets[last2] += dir;
+        if (next.length > Math.max(0, skip)) {
+          this.value = skip == 0 ? next : dir > 0 ? next.slice(skip) : next.slice(0, next.length - skip);
+          return this;
+        }
+        skip -= next.length;
+      } else {
+        let next = top2.children[offset2 + (dir < 0 ? -1 : 0)];
+        if (skip > next.length) {
+          skip -= next.length;
+          this.offsets[last2] += dir;
+        } else {
+          if (dir < 0)
+            this.offsets[last2]--;
+          this.nodes.push(next);
+          this.offsets.push(dir > 0 ? 1 : (next instanceof TextLeaf ? next.text.length : next.children.length) << 1);
+        }
+      }
+    }
+  }
+  next(skip = 0) {
+    if (skip < 0) {
+      this.nextInner(-skip, -this.dir);
+      skip = this.value.length;
+    }
+    return this.nextInner(skip, this.dir);
   }
 }
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor)
-      descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
+class PartialTextCursor {
+  constructor(text, start2, end2) {
+    this.value = "";
+    this.done = false;
+    this.cursor = new RawTextCursor(text, start2 > end2 ? -1 : 1);
+    this.pos = start2 > end2 ? text.length : 0;
+    this.from = Math.min(start2, end2);
+    this.to = Math.max(start2, end2);
+  }
+  nextInner(skip, dir) {
+    if (dir < 0 ? this.pos <= this.from : this.pos >= this.to) {
+      this.value = "";
+      this.done = true;
+      return this;
+    }
+    skip += Math.max(0, dir < 0 ? this.pos - this.to : this.from - this.pos);
+    let limit = dir < 0 ? this.pos - this.from : this.to - this.pos;
+    if (skip > limit)
+      skip = limit;
+    limit -= skip;
+    let { value } = this.cursor.next(skip);
+    this.pos += (value.length + skip) * dir;
+    this.value = value.length <= limit ? value : dir < 0 ? value.slice(value.length - limit) : value.slice(0, limit);
+    this.done = !this.value;
+    return this;
+  }
+  next(skip = 0) {
+    if (skip < 0)
+      skip = Math.max(skip, this.from - this.pos);
+    else if (skip > 0)
+      skip = Math.min(skip, this.to - this.pos);
+    return this.nextInner(skip, this.cursor.dir);
+  }
+  get lineBreak() {
+    return this.cursor.lineBreak && this.value != "";
   }
 }
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps)
-    _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps)
-    _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-function _typeof2(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof2 = function _typeof22(obj2) {
-      return typeof obj2;
-    };
-  } else {
-    _typeof2 = function _typeof22(obj2) {
-      return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-    };
+class LineCursor {
+  constructor(inner) {
+    this.inner = inner;
+    this.afterBreak = true;
+    this.value = "";
+    this.done = false;
   }
-  return _typeof2(obj);
-}
-function _typeof(obj) {
-  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-    _typeof = function _typeof3(obj2) {
-      return _typeof2(obj2);
-    };
-  } else {
-    _typeof = function _typeof3(obj2) {
-      return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : _typeof2(obj2);
-    };
+  next(skip = 0) {
+    let { done, lineBreak, value } = this.inner.next(skip);
+    if (done && this.afterBreak) {
+      this.value = "";
+      this.afterBreak = false;
+    } else if (done) {
+      this.done = true;
+      this.value = "";
+    } else if (lineBreak) {
+      if (this.afterBreak) {
+        this.value = "";
+      } else {
+        this.afterBreak = true;
+        this.next();
+      }
+    } else {
+      this.value = value;
+      this.afterBreak = false;
+    }
+    return this;
   }
-  return _typeof(obj);
-}
-function _assertThisInitialized(self2) {
-  if (self2 === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  get lineBreak() {
+    return false;
   }
-  return self2;
 }
-function _possibleConstructorReturn(self2, call) {
-  if (call && (_typeof(call) === "object" || typeof call === "function")) {
-    return call;
-  }
-  return _assertThisInitialized(self2);
-}
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf2(o2) {
-    return o2.__proto__ || Object.getPrototypeOf(o2);
+if (typeof Symbol != "undefined") {
+  Text.prototype[Symbol.iterator] = function() {
+    return this.iter();
   };
-  return _getPrototypeOf(o);
-}
-function _setPrototypeOf(o, p2) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf2(o2, p3) {
-    o2.__proto__ = p3;
-    return o2;
+  RawTextCursor.prototype[Symbol.iterator] = PartialTextCursor.prototype[Symbol.iterator] = LineCursor.prototype[Symbol.iterator] = function() {
+    return this;
   };
-  return _setPrototypeOf(o, p2);
 }
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
+class Line {
+  constructor(from, to, number2, text) {
+    this.from = from;
+    this.to = to;
+    this.number = number2;
+    this.text = text;
   }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
+  get length() {
+    return this.to - this.from;
+  }
+}
+function clip(text, from, to) {
+  from = Math.max(0, Math.min(text.length, from));
+  return [from, Math.max(from, Math.min(text.length, to))];
+}
+function findClusterBreak(str, pos, forward = true, includeExtending = true) {
+  return findClusterBreak$1(str, pos, forward, includeExtending);
+}
+function surrogateLow(ch2) {
+  return ch2 >= 56320 && ch2 < 57344;
+}
+function surrogateHigh(ch2) {
+  return ch2 >= 55296 && ch2 < 56320;
+}
+function codePointAt(str, pos) {
+  let code0 = str.charCodeAt(pos);
+  if (!surrogateHigh(code0) || pos + 1 == str.length)
+    return code0;
+  let code1 = str.charCodeAt(pos + 1);
+  if (!surrogateLow(code1))
+    return code0;
+  return (code0 - 55296 << 10) + (code1 - 56320) + 65536;
+}
+function fromCodePoint(code2) {
+  if (code2 <= 65535)
+    return String.fromCharCode(code2);
+  code2 -= 65536;
+  return String.fromCharCode((code2 >> 10) + 55296, (code2 & 1023) + 56320);
+}
+function codePointSize(code2) {
+  return code2 < 65536 ? 1 : 2;
+}
+const DefaultSplit = /\r\n?|\n/;
+var MapMode = /* @__PURE__ */ function(MapMode2) {
+  MapMode2[MapMode2["Simple"] = 0] = "Simple";
+  MapMode2[MapMode2["TrackDel"] = 1] = "TrackDel";
+  MapMode2[MapMode2["TrackBefore"] = 2] = "TrackBefore";
+  MapMode2[MapMode2["TrackAfter"] = 3] = "TrackAfter";
+  return MapMode2;
+}(MapMode || (MapMode = {}));
+class ChangeDesc {
+  constructor(sections) {
+    this.sections = sections;
+  }
+  get length() {
+    let result = 0;
+    for (let i2 = 0; i2 < this.sections.length; i2 += 2)
+      result += this.sections[i2];
+    return result;
+  }
+  get newLength() {
+    let result = 0;
+    for (let i2 = 0; i2 < this.sections.length; i2 += 2) {
+      let ins = this.sections[i2 + 1];
+      result += ins < 0 ? this.sections[i2] : ins;
+    }
+    return result;
+  }
+  get empty() {
+    return this.sections.length == 0 || this.sections.length == 2 && this.sections[1] < 0;
+  }
+  iterGaps(f2) {
+    for (let i2 = 0, posA = 0, posB = 0; i2 < this.sections.length; ) {
+      let len = this.sections[i2++], ins = this.sections[i2++];
+      if (ins < 0) {
+        f2(posA, posB, len);
+        posB += len;
+      } else {
+        posB += ins;
+      }
+      posA += len;
+    }
+  }
+  iterChangedRanges(f2, individual = false) {
+    iterChanges(this, f2, individual);
+  }
+  get invertedDesc() {
+    let sections = [];
+    for (let i2 = 0; i2 < this.sections.length; ) {
+      let len = this.sections[i2++], ins = this.sections[i2++];
+      if (ins < 0)
+        sections.push(len, ins);
+      else
+        sections.push(ins, len);
+    }
+    return new ChangeDesc(sections);
+  }
+  composeDesc(other) {
+    return this.empty ? other : other.empty ? this : composeSets(this, other);
+  }
+  mapDesc(other, before = false) {
+    return other.empty ? this : mapSet(this, other, before);
+  }
+  mapPos(pos, assoc = -1, mode = MapMode.Simple) {
+    let posA = 0, posB = 0;
+    for (let i2 = 0; i2 < this.sections.length; ) {
+      let len = this.sections[i2++], ins = this.sections[i2++], endA = posA + len;
+      if (ins < 0) {
+        if (endA > pos)
+          return posB + (pos - posA);
+        posB += len;
+      } else {
+        if (mode != MapMode.Simple && endA >= pos && (mode == MapMode.TrackDel && posA < pos && endA > pos || mode == MapMode.TrackBefore && posA < pos || mode == MapMode.TrackAfter && endA > pos))
+          return null;
+        if (endA > pos || endA == pos && assoc < 0 && !len)
+          return pos == posA || assoc < 0 ? posB : posB + ins;
+        posB += ins;
+      }
+      posA = endA;
+    }
+    if (pos > posA)
+      throw new RangeError(`Position ${pos} is out of range for changeset of length ${posA}`);
+    return posB;
+  }
+  touchesRange(from, to = from) {
+    for (let i2 = 0, pos = 0; i2 < this.sections.length && pos <= to; ) {
+      let len = this.sections[i2++], ins = this.sections[i2++], end2 = pos + len;
+      if (ins >= 0 && pos <= to && end2 >= from)
+        return pos < from && end2 > to ? "cover" : true;
+      pos = end2;
+    }
+    return false;
+  }
+  toString() {
+    let result = "";
+    for (let i2 = 0; i2 < this.sections.length; ) {
+      let len = this.sections[i2++], ins = this.sections[i2++];
+      result += (result ? " " : "") + len + (ins >= 0 ? ":" + ins : "");
+    }
+    return result;
+  }
+  toJSON() {
+    return this.sections;
+  }
+  static fromJSON(json) {
+    if (!Array.isArray(json) || json.length % 2 || json.some((a) => typeof a != "number"))
+      throw new RangeError("Invalid JSON representation of ChangeDesc");
+    return new ChangeDesc(json);
+  }
+  static create(sections) {
+    return new ChangeDesc(sections);
+  }
+}
+class ChangeSet extends ChangeDesc {
+  constructor(sections, inserted) {
+    super(sections);
+    this.inserted = inserted;
+  }
+  apply(doc2) {
+    if (this.length != doc2.length)
+      throw new RangeError("Applying change set to a document with the wrong length");
+    iterChanges(this, (fromA, toA, fromB, _toB, text) => doc2 = doc2.replace(fromB, fromB + (toA - fromA), text), false);
+    return doc2;
+  }
+  mapDesc(other, before = false) {
+    return mapSet(this, other, before, true);
+  }
+  invert(doc2) {
+    let sections = this.sections.slice(), inserted = [];
+    for (let i2 = 0, pos = 0; i2 < sections.length; i2 += 2) {
+      let len = sections[i2], ins = sections[i2 + 1];
+      if (ins >= 0) {
+        sections[i2] = ins;
+        sections[i2 + 1] = len;
+        let index = i2 >> 1;
+        while (inserted.length < index)
+          inserted.push(Text.empty);
+        inserted.push(len ? doc2.slice(pos, pos + len) : Text.empty);
+      }
+      pos += len;
+    }
+    return new ChangeSet(sections, inserted);
+  }
+  compose(other) {
+    return this.empty ? other : other.empty ? this : composeSets(this, other, true);
+  }
+  map(other, before = false) {
+    return other.empty ? this : mapSet(this, other, before, true);
+  }
+  iterChanges(f2, individual = false) {
+    iterChanges(this, f2, individual);
+  }
+  get desc() {
+    return ChangeDesc.create(this.sections);
+  }
+  filter(ranges) {
+    let resultSections = [], resultInserted = [], filteredSections = [];
+    let iter = new SectionIter(this);
+    done:
+      for (let i2 = 0, pos = 0; ; ) {
+        let next = i2 == ranges.length ? 1e9 : ranges[i2++];
+        while (pos < next || pos == next && iter.len == 0) {
+          if (iter.done)
+            break done;
+          let len = Math.min(iter.len, next - pos);
+          addSection(filteredSections, len, -1);
+          let ins = iter.ins == -1 ? -1 : iter.off == 0 ? iter.ins : 0;
+          addSection(resultSections, len, ins);
+          if (ins > 0)
+            addInsert(resultInserted, resultSections, iter.text);
+          iter.forward(len);
+          pos += len;
+        }
+        let end2 = ranges[i2++];
+        while (pos < end2) {
+          if (iter.done)
+            break done;
+          let len = Math.min(iter.len, end2 - pos);
+          addSection(resultSections, len, -1);
+          addSection(filteredSections, len, iter.ins == -1 ? -1 : iter.off == 0 ? iter.ins : 0);
+          iter.forward(len);
+          pos += len;
+        }
+      }
+    return {
+      changes: new ChangeSet(resultSections, resultInserted),
+      filtered: ChangeDesc.create(filteredSections)
+    };
+  }
+  toJSON() {
+    let parts = [];
+    for (let i2 = 0; i2 < this.sections.length; i2 += 2) {
+      let len = this.sections[i2], ins = this.sections[i2 + 1];
+      if (ins < 0)
+        parts.push(len);
+      else if (ins == 0)
+        parts.push([len]);
+      else
+        parts.push([len].concat(this.inserted[i2 >> 1].toJSON()));
+    }
+    return parts;
+  }
+  static of(changes, length, lineSep) {
+    let sections = [], inserted = [], pos = 0;
+    let total = null;
+    function flush(force = false) {
+      if (!force && !sections.length)
+        return;
+      if (pos < length)
+        addSection(sections, length - pos, -1);
+      let set = new ChangeSet(sections, inserted);
+      total = total ? total.compose(set.map(total)) : set;
+      sections = [];
+      inserted = [];
+      pos = 0;
+    }
+    function process(spec) {
+      if (Array.isArray(spec)) {
+        for (let sub of spec)
+          process(sub);
+      } else if (spec instanceof ChangeSet) {
+        if (spec.length != length)
+          throw new RangeError(`Mismatched change set length (got ${spec.length}, expected ${length})`);
+        flush();
+        total = total ? total.compose(spec.map(total)) : spec;
+      } else {
+        let { from, to = from, insert: insert2 } = spec;
+        if (from > to || from < 0 || to > length)
+          throw new RangeError(`Invalid change range ${from} to ${to} (in doc of length ${length})`);
+        let insText = !insert2 ? Text.empty : typeof insert2 == "string" ? Text.of(insert2.split(lineSep || DefaultSplit)) : insert2;
+        let insLen = insText.length;
+        if (from == to && insLen == 0)
+          return;
+        if (from < pos)
+          flush();
+        if (from > pos)
+          addSection(sections, from - pos, -1);
+        addSection(sections, to - from, insLen);
+        addInsert(inserted, sections, insText);
+        pos = to;
+      }
+    }
+    process(changes);
+    flush(!total);
+    return total;
+  }
+  static empty(length) {
+    return new ChangeSet(length ? [length, -1] : [], []);
+  }
+  static fromJSON(json) {
+    if (!Array.isArray(json))
+      throw new RangeError("Invalid JSON representation of ChangeSet");
+    let sections = [], inserted = [];
+    for (let i2 = 0; i2 < json.length; i2++) {
+      let part = json[i2];
+      if (typeof part == "number") {
+        sections.push(part, -1);
+      } else if (!Array.isArray(part) || typeof part[0] != "number" || part.some((e, i3) => i3 && typeof e != "string")) {
+        throw new RangeError("Invalid JSON representation of ChangeSet");
+      } else if (part.length == 1) {
+        sections.push(part[0], 0);
+      } else {
+        while (inserted.length < i2)
+          inserted.push(Text.empty);
+        inserted[i2] = Text.of(part.slice(1));
+        sections.push(part[0], inserted[i2].length);
+      }
+    }
+    return new ChangeSet(sections, inserted);
+  }
+  static createSet(sections, inserted) {
+    return new ChangeSet(sections, inserted);
+  }
+}
+function addSection(sections, len, ins, forceJoin = false) {
+  if (len == 0 && ins <= 0)
+    return;
+  let last2 = sections.length - 2;
+  if (last2 >= 0 && ins <= 0 && ins == sections[last2 + 1])
+    sections[last2] += len;
+  else if (last2 >= 0 && len == 0 && sections[last2] == 0)
+    sections[last2 + 1] += ins;
+  else if (forceJoin) {
+    sections[last2] += len;
+    sections[last2 + 1] += ins;
+  } else
+    sections.push(len, ins);
+}
+function addInsert(values, sections, value) {
+  if (value.length == 0)
+    return;
+  let index = sections.length - 2 >> 1;
+  if (index < values.length) {
+    values[values.length - 1] = values[values.length - 1].append(value);
+  } else {
+    while (values.length < index)
+      values.push(Text.empty);
+    values.push(value);
+  }
+}
+function iterChanges(desc, f2, individual) {
+  let inserted = desc.inserted;
+  for (let posA = 0, posB = 0, i2 = 0; i2 < desc.sections.length; ) {
+    let len = desc.sections[i2++], ins = desc.sections[i2++];
+    if (ins < 0) {
+      posA += len;
+      posB += len;
+    } else {
+      let endA = posA, endB = posB, text = Text.empty;
+      for (; ; ) {
+        endA += len;
+        endB += ins;
+        if (ins && inserted)
+          text = text.append(inserted[i2 - 2 >> 1]);
+        if (individual || i2 == desc.sections.length || desc.sections[i2 + 1] < 0)
+          break;
+        len = desc.sections[i2++];
+        ins = desc.sections[i2++];
+      }
+      f2(posA, endA, posB, endB, text);
+      posA = endA;
+      posB = endB;
+    }
+  }
+}
+function mapSet(setA, setB, before, mkSet = false) {
+  let sections = [], insert2 = mkSet ? [] : null;
+  let a = new SectionIter(setA), b = new SectionIter(setB);
+  for (let inserted = -1; ; ) {
+    if (a.done && b.len || b.done && a.len) {
+      throw new Error("Mismatched change set lengths");
+    } else if (a.ins == -1 && b.ins == -1) {
+      let len = Math.min(a.len, b.len);
+      addSection(sections, len, -1);
+      a.forward(len);
+      b.forward(len);
+    } else if (b.ins >= 0 && (a.ins < 0 || inserted == a.i || a.off == 0 && (b.len < a.len || b.len == a.len && !before))) {
+      let len = b.len;
+      addSection(sections, b.ins, -1);
+      while (len) {
+        let piece = Math.min(a.len, len);
+        if (a.ins >= 0 && inserted < a.i && a.len <= piece) {
+          addSection(sections, 0, a.ins);
+          if (insert2)
+            addInsert(insert2, sections, a.text);
+          inserted = a.i;
+        }
+        a.forward(piece);
+        len -= piece;
+      }
+      b.next();
+    } else if (a.ins >= 0) {
+      let len = 0, left2 = a.len;
+      while (left2) {
+        if (b.ins == -1) {
+          let piece = Math.min(left2, b.len);
+          len += piece;
+          left2 -= piece;
+          b.forward(piece);
+        } else if (b.ins == 0 && b.len < left2) {
+          left2 -= b.len;
+          b.next();
+        } else {
+          break;
+        }
+      }
+      addSection(sections, len, inserted < a.i ? a.ins : 0);
+      if (insert2 && inserted < a.i)
+        addInsert(insert2, sections, a.text);
+      inserted = a.i;
+      a.forward(a.len - left2);
+    } else if (a.done && b.done) {
+      return insert2 ? ChangeSet.createSet(sections, insert2) : ChangeDesc.create(sections);
+    } else {
+      throw new Error("Mismatched change set lengths");
+    }
+  }
+}
+function composeSets(setA, setB, mkSet = false) {
+  let sections = [];
+  let insert2 = mkSet ? [] : null;
+  let a = new SectionIter(setA), b = new SectionIter(setB);
+  for (let open = false; ; ) {
+    if (a.done && b.done) {
+      return insert2 ? ChangeSet.createSet(sections, insert2) : ChangeDesc.create(sections);
+    } else if (a.ins == 0) {
+      addSection(sections, a.len, 0, open);
+      a.next();
+    } else if (b.len == 0 && !b.done) {
+      addSection(sections, 0, b.ins, open);
+      if (insert2)
+        addInsert(insert2, sections, b.text);
+      b.next();
+    } else if (a.done || b.done) {
+      throw new Error("Mismatched change set lengths");
+    } else {
+      let len = Math.min(a.len2, b.len), sectionLen = sections.length;
+      if (a.ins == -1) {
+        let insB = b.ins == -1 ? -1 : b.off ? 0 : b.ins;
+        addSection(sections, len, insB, open);
+        if (insert2 && insB)
+          addInsert(insert2, sections, b.text);
+      } else if (b.ins == -1) {
+        addSection(sections, a.off ? 0 : a.len, len, open);
+        if (insert2)
+          addInsert(insert2, sections, a.textBit(len));
+      } else {
+        addSection(sections, a.off ? 0 : a.len, b.off ? 0 : b.ins, open);
+        if (insert2 && !b.off)
+          addInsert(insert2, sections, b.text);
+      }
+      open = (a.ins > len || b.ins >= 0 && b.len > len) && (open || sections.length > sectionLen);
+      a.forward2(len);
+      b.forward(len);
+    }
+  }
+}
+class SectionIter {
+  constructor(set) {
+    this.set = set;
+    this.i = 0;
+    this.next();
+  }
+  next() {
+    let { sections } = this.set;
+    if (this.i < sections.length) {
+      this.len = sections[this.i++];
+      this.ins = sections[this.i++];
+    } else {
+      this.len = 0;
+      this.ins = -2;
+    }
+    this.off = 0;
+  }
+  get done() {
+    return this.ins == -2;
+  }
+  get len2() {
+    return this.ins < 0 ? this.len : this.ins;
+  }
+  get text() {
+    let { inserted } = this.set, index = this.i - 2 >> 1;
+    return index >= inserted.length ? Text.empty : inserted[index];
+  }
+  textBit(len) {
+    let { inserted } = this.set, index = this.i - 2 >> 1;
+    return index >= inserted.length && !len ? Text.empty : inserted[index].slice(this.off, len == null ? void 0 : this.off + len);
+  }
+  forward(len) {
+    if (len == this.len)
+      this.next();
+    else {
+      this.len -= len;
+      this.off += len;
+    }
+  }
+  forward2(len) {
+    if (this.ins == -1)
+      this.forward(len);
+    else if (len == this.ins)
+      this.next();
+    else {
+      this.ins -= len;
+      this.off += len;
+    }
+  }
+}
+class SelectionRange {
+  constructor(from, to, flags, goalColumn) {
+    this.from = from;
+    this.to = to;
+    this.flags = flags;
+    this.goalColumn = goalColumn;
+  }
+  get anchor() {
+    return this.flags & 32 ? this.to : this.from;
+  }
+  get head() {
+    return this.flags & 32 ? this.from : this.to;
+  }
+  get empty() {
+    return this.from == this.to;
+  }
+  get assoc() {
+    return this.flags & 8 ? -1 : this.flags & 16 ? 1 : 0;
+  }
+  get undirectional() {
+    return (this.flags & 64) > 0;
+  }
+  get bidiLevel() {
+    let level = this.flags & 7;
+    return level == 7 ? null : level;
+  }
+  map(change, assoc = -1) {
+    let from, to;
+    if (this.empty) {
+      from = to = change.mapPos(this.from, assoc);
+    } else {
+      from = change.mapPos(this.from, 1);
+      to = change.mapPos(this.to, -1);
+    }
+    return from == this.from && to == this.to ? this : new SelectionRange(from, to, this.flags, this.goalColumn);
+  }
+  extend(from, to = from, assoc = 0) {
+    if (from <= this.anchor && to >= this.anchor)
+      return EditorSelection.range(from, to, void 0, void 0, assoc);
+    let head = Math.abs(from - this.anchor) > Math.abs(to - this.anchor) ? from : to;
+    return EditorSelection.range(this.anchor, head, void 0, void 0, assoc);
+  }
+  eq(other, includeAssoc = false) {
+    return this.anchor == other.anchor && this.head == other.head && this.goalColumn == other.goalColumn && (!includeAssoc || !this.empty || this.assoc == other.assoc);
+  }
+  toJSON() {
+    return { anchor: this.anchor, head: this.head };
+  }
+  static fromJSON(json) {
+    if (!json || typeof json.anchor != "number" || typeof json.head != "number")
+      throw new RangeError("Invalid JSON representation for SelectionRange");
+    return EditorSelection.range(json.anchor, json.head);
+  }
+  static create(from, to, flags, goalColumn) {
+    return new SelectionRange(from, to, flags, goalColumn);
+  }
+}
+class EditorSelection {
+  constructor(ranges, mainIndex) {
+    this.ranges = ranges;
+    this.mainIndex = mainIndex;
+  }
+  map(change, assoc = -1) {
+    if (change.empty)
+      return this;
+    return EditorSelection.create(this.ranges.map((r2) => r2.map(change, assoc)), this.mainIndex);
+  }
+  eq(other, includeAssoc = false) {
+    if (this.ranges.length != other.ranges.length || this.mainIndex != other.mainIndex)
+      return false;
+    for (let i2 = 0; i2 < this.ranges.length; i2++)
+      if (!this.ranges[i2].eq(other.ranges[i2], includeAssoc))
+        return false;
+    return true;
+  }
+  get main() {
+    return this.ranges[this.mainIndex];
+  }
+  asSingle() {
+    return this.ranges.length == 1 ? this : new EditorSelection([this.main], 0);
+  }
+  addRange(range, main2 = true) {
+    return EditorSelection.create([range].concat(this.ranges), main2 ? 0 : this.mainIndex + 1);
+  }
+  replaceRange(range, which = this.mainIndex) {
+    let ranges = this.ranges.slice();
+    ranges[which] = range;
+    return EditorSelection.create(ranges, this.mainIndex);
+  }
+  toJSON() {
+    return { ranges: this.ranges.map((r2) => r2.toJSON()), main: this.mainIndex };
+  }
+  static fromJSON(json) {
+    if (!json || !Array.isArray(json.ranges) || typeof json.main != "number" || json.main >= json.ranges.length)
+      throw new RangeError("Invalid JSON representation for EditorSelection");
+    return new EditorSelection(json.ranges.map((r2) => SelectionRange.fromJSON(r2)), json.main);
+  }
+  static single(anchor, head = anchor) {
+    return new EditorSelection([EditorSelection.range(anchor, head)], 0);
+  }
+  static create(ranges, mainIndex = 0) {
+    if (ranges.length == 0)
+      throw new RangeError("A selection needs at least one range");
+    for (let pos = 0, i2 = 0; i2 < ranges.length; i2++) {
+      let range = ranges[i2];
+      if (range.empty ? range.from <= pos : range.from < pos)
+        return EditorSelection.normalized(ranges.slice(), mainIndex);
+      pos = range.to;
+    }
+    return new EditorSelection(ranges, mainIndex);
+  }
+  static cursor(pos, assoc = 0, bidiLevel, goalColumn) {
+    return SelectionRange.create(pos, pos, (assoc == 0 ? 0 : assoc < 0 ? 8 : 16) | (bidiLevel == null ? 7 : Math.min(6, bidiLevel)), goalColumn);
+  }
+  static range(anchor, head, goalColumn, bidiLevel, assoc) {
+    let flags = bidiLevel == null ? 7 : Math.min(6, bidiLevel);
+    if (!assoc && anchor != head)
+      assoc = head < anchor ? 1 : -1;
+    if (assoc)
+      flags |= assoc < 0 ? 8 : 16;
+    return head < anchor ? SelectionRange.create(head, anchor, flags | 32, goalColumn) : SelectionRange.create(anchor, head, flags, goalColumn);
+  }
+  static undirectionalRange(from, to) {
+    return SelectionRange.create(from, to, 64, void 0);
+  }
+  static normalized(ranges, mainIndex = 0) {
+    let main2 = ranges[mainIndex];
+    ranges.sort((a, b) => a.from - b.from);
+    mainIndex = ranges.indexOf(main2);
+    for (let i2 = 1; i2 < ranges.length; i2++) {
+      let range = ranges[i2], prev = ranges[i2 - 1];
+      if (range.empty ? range.from <= prev.to : range.from < prev.to) {
+        let from = prev.from, to = Math.max(range.to, prev.to);
+        if (i2 <= mainIndex)
+          mainIndex--;
+        ranges.splice(--i2, 2, range.anchor > range.head ? EditorSelection.range(to, from) : EditorSelection.range(from, to));
+      }
+    }
+    return new EditorSelection(ranges, mainIndex);
+  }
+}
+function checkSelection(selection, docLength) {
+  for (let range of selection.ranges)
+    if (range.to > docLength)
+      throw new RangeError("Selection points outside of document");
+}
+let nextID = 0;
+class Facet {
+  constructor(combine, compareInput, compare2, isStatic, enables) {
+    this.combine = combine;
+    this.compareInput = compareInput;
+    this.compare = compare2;
+    this.isStatic = isStatic;
+    this.id = nextID++;
+    this.default = combine([]);
+    this.extensions = typeof enables == "function" ? enables(this) : enables;
+  }
+  get reader() {
+    return this;
+  }
+  static define(config = {}) {
+    return new Facet(config.combine || ((a) => a), config.compareInput || ((a, b) => a === b), config.compare || (!config.combine ? sameArray$1 : (a, b) => a === b), !!config.static, config.enables);
+  }
+  of(value) {
+    return new FacetProvider([], this, 0, value);
+  }
+  compute(deps, get) {
+    if (this.isStatic)
+      throw new Error("Can't compute a static facet");
+    return new FacetProvider(deps, this, 1, get);
+  }
+  computeN(deps, get) {
+    if (this.isStatic)
+      throw new Error("Can't compute a static facet");
+    return new FacetProvider(deps, this, 2, get);
+  }
+  from(field, get) {
+    if (!get)
+      get = (x2) => x2;
+    return this.compute([field], (state) => get(state.field(field)));
+  }
+}
+function sameArray$1(a, b) {
+  return a == b || a.length == b.length && a.every((e, i2) => e === b[i2]);
+}
+class FacetProvider {
+  constructor(dependencies, facet, type, value) {
+    this.dependencies = dependencies;
+    this.facet = facet;
+    this.type = type;
+    this.value = value;
+    this.id = nextID++;
+  }
+  dynamicSlot(addresses) {
+    var _a2;
+    let getter = this.value;
+    let compare2 = this.facet.compareInput;
+    let id2 = this.id, idx = addresses[id2] >> 1, multi = this.type == 2;
+    let depDoc = false, depSel = false, depAddrs = [];
+    for (let dep of this.dependencies) {
+      if (dep == "doc")
+        depDoc = true;
+      else if (dep == "selection")
+        depSel = true;
+      else if ((((_a2 = addresses[dep.id]) !== null && _a2 !== void 0 ? _a2 : 1) & 1) == 0)
+        depAddrs.push(addresses[dep.id]);
+    }
+    return {
+      create(state) {
+        state.values[idx] = getter(state);
+        return 1;
+      },
+      update(state, tr2) {
+        if (depDoc && tr2.docChanged || depSel && (tr2.docChanged || tr2.selection) || ensureAll(state, depAddrs)) {
+          let newVal = getter(state);
+          if (multi ? !compareArray(newVal, state.values[idx], compare2) : !compare2(newVal, state.values[idx])) {
+            state.values[idx] = newVal;
+            return 1;
+          }
+        }
+        return 0;
+      },
+      reconfigure: (state, oldState) => {
+        let newVal, oldAddr = oldState.config.address[id2];
+        if (oldAddr != null) {
+          let oldVal = getAddr(oldState, oldAddr);
+          if (this.dependencies.every((dep) => {
+            return dep instanceof Facet ? oldState.facet(dep) === state.facet(dep) : dep instanceof StateField ? oldState.field(dep, false) == state.field(dep, false) : true;
+          }) || (multi ? compareArray(newVal = getter(state), oldVal, compare2) : compare2(newVal = getter(state), oldVal))) {
+            state.values[idx] = oldVal;
+            return 0;
+          }
+        } else {
+          newVal = getter(state);
+        }
+        state.values[idx] = newVal;
+        return 1;
+      }
+    };
+  }
+  get extension() {
+    return this;
+  }
+}
+function compareArray(a, b, compare2) {
+  if (a.length != b.length)
+    return false;
+  for (let i2 = 0; i2 < a.length; i2++)
+    if (!compare2(a[i2], b[i2]))
+      return false;
+  return true;
+}
+function ensureAll(state, addrs) {
+  let changed = false;
+  for (let addr of addrs)
+    if (ensureAddr(state, addr) & 1)
+      changed = true;
+  return changed;
+}
+function dynamicFacetSlot(addresses, facet, providers) {
+  let providerAddrs = providers.map((p2) => addresses[p2.id]);
+  let providerTypes = providers.map((p2) => p2.type);
+  let dynamic = providerAddrs.filter((p2) => !(p2 & 1));
+  let idx = addresses[facet.id] >> 1;
+  function get(state) {
+    let values = [];
+    for (let i2 = 0; i2 < providerAddrs.length; i2++) {
+      let value = getAddr(state, providerAddrs[i2]);
+      if (providerTypes[i2] == 2)
+        for (let val of value)
+          values.push(val);
+      else
+        values.push(value);
+    }
+    return facet.combine(values);
+  }
+  return {
+    create(state) {
+      for (let addr of providerAddrs)
+        ensureAddr(state, addr);
+      state.values[idx] = get(state);
+      return 1;
+    },
+    update(state, tr2) {
+      if (!ensureAll(state, dynamic))
+        return 0;
+      let value = get(state);
+      if (facet.compare(value, state.values[idx]))
+        return 0;
+      state.values[idx] = value;
+      return 1;
+    },
+    reconfigure(state, oldState) {
+      let depChanged = ensureAll(state, providerAddrs);
+      let oldProviders = oldState.config.facets[facet.id], oldValue = oldState.facet(facet);
+      if (oldProviders && !depChanged && sameArray$1(providers, oldProviders)) {
+        state.values[idx] = oldValue;
+        return 0;
+      }
+      let value = get(state);
+      if (facet.compare(value, oldValue)) {
+        state.values[idx] = oldValue;
+        return 0;
+      }
+      state.values[idx] = value;
+      return 1;
+    }
+  };
+}
+const initField = /* @__PURE__ */ Facet.define({ static: true });
+class StateField {
+  constructor(id2, createF, updateF, compareF, spec) {
+    this.id = id2;
+    this.createF = createF;
+    this.updateF = updateF;
+    this.compareF = compareF;
+    this.spec = spec;
+    this.provides = void 0;
+  }
+  static define(config) {
+    let field = new StateField(nextID++, config.create, config.update, config.compare || ((a, b) => a === b), config);
+    if (config.provide)
+      field.provides = config.provide(field);
+    return field;
+  }
+  create(state) {
+    let init = state.facet(initField).find((i2) => i2.field == this);
+    return ((init === null || init === void 0 ? void 0 : init.create) || this.createF)(state);
+  }
+  slot(addresses) {
+    let idx = addresses[this.id] >> 1;
+    return {
+      create: (state) => {
+        state.values[idx] = this.create(state);
+        return 1;
+      },
+      update: (state, tr2) => {
+        let oldVal = state.values[idx];
+        let value = this.updateF(oldVal, tr2);
+        if (this.compareF(oldVal, value))
+          return 0;
+        state.values[idx] = value;
+        return 1;
+      },
+      reconfigure: (state, oldState) => {
+        let init = state.facet(initField), oldInit = oldState.facet(initField), reInit;
+        if ((reInit = init.find((i2) => i2.field == this)) && reInit != oldInit.find((i2) => i2.field == this)) {
+          state.values[idx] = reInit.create(state);
+          return 1;
+        }
+        if (oldState.config.address[this.id] != null) {
+          state.values[idx] = oldState.field(this);
+          return 0;
+        }
+        state.values[idx] = this.create(state);
+        return 1;
+      }
+    };
+  }
+  init(create) {
+    return [this, initField.of({ field: this, create })];
+  }
+  get extension() {
+    return this;
+  }
+}
+const Prec_ = { lowest: 4, low: 3, default: 2, high: 1, highest: 0 };
+function prec(value) {
+  return (ext) => new PrecExtension(ext, value);
+}
+const Prec = {
+  highest: /* @__PURE__ */ prec(Prec_.highest),
+  high: /* @__PURE__ */ prec(Prec_.high),
+  default: /* @__PURE__ */ prec(Prec_.default),
+  low: /* @__PURE__ */ prec(Prec_.low),
+  lowest: /* @__PURE__ */ prec(Prec_.lowest)
+};
+class PrecExtension {
+  constructor(inner, prec2) {
+    this.inner = inner;
+    this.prec = prec2;
+  }
+  get extension() {
+    return this;
+  }
+}
+class Compartment {
+  of(ext) {
+    return new CompartmentInstance(this, ext);
+  }
+  reconfigure(content2) {
+    return Compartment.reconfigure.of({ compartment: this, extension: content2 });
+  }
+  get(state) {
+    return state.config.compartments.get(this);
+  }
+}
+class CompartmentInstance {
+  constructor(compartment, inner) {
+    this.compartment = compartment;
+    this.inner = inner;
+  }
+  get extension() {
+    return this;
+  }
+}
+class Configuration {
+  constructor(base2, compartments, dynamicSlots, address, staticValues, facets) {
+    this.base = base2;
+    this.compartments = compartments;
+    this.dynamicSlots = dynamicSlots;
+    this.address = address;
+    this.staticValues = staticValues;
+    this.facets = facets;
+    this.statusTemplate = [];
+    while (this.statusTemplate.length < dynamicSlots.length)
+      this.statusTemplate.push(0);
+  }
+  staticFacet(facet) {
+    let addr = this.address[facet.id];
+    return addr == null ? facet.default : this.staticValues[addr >> 1];
+  }
+  static resolve(base2, compartments, oldState) {
+    let fields = [];
+    let facets = /* @__PURE__ */ Object.create(null);
+    let newCompartments = /* @__PURE__ */ new Map();
+    for (let ext of flatten(base2, compartments, newCompartments)) {
+      if (ext instanceof StateField)
+        fields.push(ext);
+      else
+        (facets[ext.facet.id] || (facets[ext.facet.id] = [])).push(ext);
+    }
+    let address = /* @__PURE__ */ Object.create(null);
+    let staticValues = [];
+    let dynamicSlots = [];
+    for (let field of fields) {
+      address[field.id] = dynamicSlots.length << 1;
+      dynamicSlots.push((a) => field.slot(a));
+    }
+    let oldFacets = oldState === null || oldState === void 0 ? void 0 : oldState.config.facets;
+    for (let id2 in facets) {
+      let providers = facets[id2], facet = providers[0].facet;
+      let oldProviders = oldFacets && oldFacets[id2] || [];
+      if (providers.every((p2) => p2.type == 0)) {
+        address[facet.id] = staticValues.length << 1 | 1;
+        if (sameArray$1(oldProviders, providers)) {
+          staticValues.push(oldState.facet(facet));
+        } else {
+          let value = facet.combine(providers.map((p2) => p2.value));
+          staticValues.push(oldState && facet.compare(value, oldState.facet(facet)) ? oldState.facet(facet) : value);
+        }
+      } else {
+        for (let p2 of providers) {
+          if (p2.type == 0) {
+            address[p2.id] = staticValues.length << 1 | 1;
+            staticValues.push(p2.value);
+          } else {
+            address[p2.id] = dynamicSlots.length << 1;
+            dynamicSlots.push((a) => p2.dynamicSlot(a));
+          }
+        }
+        address[facet.id] = dynamicSlots.length << 1;
+        dynamicSlots.push((a) => dynamicFacetSlot(a, facet, providers));
+      }
+    }
+    let dynamic = dynamicSlots.map((f2) => f2(address));
+    return new Configuration(base2, newCompartments, dynamic, address, staticValues, facets);
+  }
+}
+function flatten(extension, compartments, newCompartments) {
+  let result = [[], [], [], [], []];
+  let seen = /* @__PURE__ */ new Map();
+  function inner(ext, prec2) {
+    let known = seen.get(ext);
+    if (known != null) {
+      if (known <= prec2)
+        return;
+      let found = result[known].indexOf(ext);
+      if (found > -1)
+        result[known].splice(found, 1);
+      if (ext instanceof CompartmentInstance)
+        newCompartments.delete(ext.compartment);
+    }
+    seen.set(ext, prec2);
+    if (Array.isArray(ext)) {
+      for (let e of ext)
+        inner(e, prec2);
+    } else if (ext instanceof CompartmentInstance) {
+      if (newCompartments.has(ext.compartment))
+        throw new RangeError(`Duplicate use of compartment in extensions`);
+      let content2 = compartments.get(ext.compartment) || ext.inner;
+      newCompartments.set(ext.compartment, content2);
+      inner(content2, prec2);
+    } else if (ext instanceof PrecExtension) {
+      inner(ext.inner, ext.prec);
+    } else if (ext instanceof StateField) {
+      result[prec2].push(ext);
+      if (ext.provides)
+        inner(ext.provides, prec2);
+    } else if (ext instanceof FacetProvider) {
+      result[prec2].push(ext);
+      if (ext.facet.extensions)
+        inner(ext.facet.extensions, Prec_.default);
+    } else {
+      let content2 = ext.extension;
+      if (!content2)
+        throw new Error(`Unrecognized extension value in extension set (${ext}).`);
+      if (content2 == ext)
+        throw new Error(`Unrecognized extension value in extension set (${ext}). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.`);
+      inner(content2, prec2);
+    }
+  }
+  inner(extension, Prec_.default);
+  return result.reduce((a, b) => a.concat(b));
+}
+function ensureAddr(state, addr) {
+  if (addr & 1)
+    return 2;
+  let idx = addr >> 1;
+  let status = state.status[idx];
+  if (status == 4)
+    throw new Error("Cyclic dependency between fields and/or facets");
+  if (status & 2)
+    return status;
+  state.status[idx] = 4;
+  let changed = state.computeSlot(state, state.config.dynamicSlots[idx]);
+  return state.status[idx] = 2 | changed;
+}
+function getAddr(state, addr) {
+  return addr & 1 ? state.config.staticValues[addr >> 1] : state.values[addr >> 1];
+}
+const languageData = /* @__PURE__ */ Facet.define();
+const allowMultipleSelections = /* @__PURE__ */ Facet.define({
+  combine: (values) => values.some((v2) => v2),
+  static: true
+});
+const lineSeparator = /* @__PURE__ */ Facet.define({
+  combine: (values) => values.length ? values[0] : void 0,
+  static: true
+});
+const changeFilter = /* @__PURE__ */ Facet.define();
+const transactionFilter = /* @__PURE__ */ Facet.define();
+const transactionExtender = /* @__PURE__ */ Facet.define();
+const readOnly = /* @__PURE__ */ Facet.define({
+  combine: (values) => values.length ? values[0] : false
+});
+class Annotation {
+  constructor(type, value) {
+    this.type = type;
+    this.value = value;
+  }
+  static define() {
+    return new AnnotationType();
+  }
+}
+class AnnotationType {
+  of(value) {
+    return new Annotation(this, value);
+  }
+}
+class StateEffectType {
+  constructor(map) {
+    this.map = map;
+  }
+  of(value) {
+    return new StateEffect(this, value);
+  }
+}
+class StateEffect {
+  constructor(type, value) {
+    this.type = type;
+    this.value = value;
+  }
+  map(mapping) {
+    let mapped = this.type.map(this.value, mapping);
+    return mapped === void 0 ? void 0 : mapped == this.value ? this : new StateEffect(this.type, mapped);
+  }
+  is(type) {
+    return this.type == type;
+  }
+  static define(spec = {}) {
+    return new StateEffectType(spec.map || ((v2) => v2));
+  }
+  static mapEffects(effects, mapping) {
+    if (!effects.length)
+      return effects;
+    let result = [];
+    for (let effect2 of effects) {
+      let mapped = effect2.map(mapping);
+      if (mapped)
+        result.push(mapped);
+    }
+    return result;
+  }
+}
+StateEffect.reconfigure = /* @__PURE__ */ StateEffect.define();
+StateEffect.appendConfig = /* @__PURE__ */ StateEffect.define();
+class Transaction {
+  constructor(startState, changes, selection, effects, annotations, scrollIntoView2) {
+    this.startState = startState;
+    this.changes = changes;
+    this.selection = selection;
+    this.effects = effects;
+    this.annotations = annotations;
+    this.scrollIntoView = scrollIntoView2;
+    this._doc = null;
+    this._state = null;
+    if (selection)
+      checkSelection(selection, changes.newLength);
+    if (!annotations.some((a) => a.type == Transaction.time))
+      this.annotations = annotations.concat(Transaction.time.of(Date.now()));
+  }
+  static create(startState, changes, selection, effects, annotations, scrollIntoView2) {
+    return new Transaction(startState, changes, selection, effects, annotations, scrollIntoView2);
+  }
+  get newDoc() {
+    return this._doc || (this._doc = this.changes.apply(this.startState.doc));
+  }
+  get newSelection() {
+    return this.selection || this.startState.selection.map(this.changes);
+  }
+  get state() {
+    if (!this._state)
+      this.startState.applyTransaction(this);
+    return this._state;
+  }
+  annotation(type) {
+    for (let ann of this.annotations)
+      if (ann.type == type)
+        return ann.value;
+    return void 0;
+  }
+  get docChanged() {
+    return !this.changes.empty;
+  }
+  get reconfigured() {
+    return this.startState.config != this.state.config;
+  }
+  isUserEvent(event) {
+    let e = this.annotation(Transaction.userEvent);
+    return !!(e && (e == event || e.length > event.length && e.slice(0, event.length) == event && e[event.length] == "."));
+  }
+}
+Transaction.time = /* @__PURE__ */ Annotation.define();
+Transaction.userEvent = /* @__PURE__ */ Annotation.define();
+Transaction.addToHistory = /* @__PURE__ */ Annotation.define();
+Transaction.remote = /* @__PURE__ */ Annotation.define();
+function joinRanges(a, b) {
+  let result = [];
+  for (let iA = 0, iB = 0; ; ) {
+    let from, to;
+    if (iA < a.length && (iB == b.length || b[iB] >= a[iA])) {
+      from = a[iA++];
+      to = a[iA++];
+    } else if (iB < b.length) {
+      from = b[iB++];
+      to = b[iB++];
+    } else
+      return result;
+    if (!result.length || result[result.length - 1] < from)
+      result.push(from, to);
+    else if (result[result.length - 1] < to)
+      result[result.length - 1] = to;
+  }
+}
+function mergeTransaction(a, b, sequential) {
+  var _a2;
+  let mapForA, mapForB, changes;
+  if (sequential) {
+    mapForA = b.changes;
+    mapForB = ChangeSet.empty(b.changes.length);
+    changes = a.changes.compose(b.changes);
+  } else {
+    mapForA = b.changes.map(a.changes);
+    mapForB = a.changes.mapDesc(b.changes, true);
+    changes = a.changes.compose(mapForA);
+  }
+  return {
+    changes,
+    selection: b.selection ? b.selection.map(mapForB) : (_a2 = a.selection) === null || _a2 === void 0 ? void 0 : _a2.map(mapForA),
+    effects: StateEffect.mapEffects(a.effects, mapForA).concat(StateEffect.mapEffects(b.effects, mapForB)),
+    annotations: a.annotations.length ? a.annotations.concat(b.annotations) : b.annotations,
+    scrollIntoView: a.scrollIntoView || b.scrollIntoView
+  };
+}
+function resolveTransactionInner(state, spec, docSize) {
+  let sel = spec.selection, annotations = asArray(spec.annotations);
+  if (spec.userEvent)
+    annotations = annotations.concat(Transaction.userEvent.of(spec.userEvent));
+  return {
+    changes: spec.changes instanceof ChangeSet ? spec.changes : ChangeSet.of(spec.changes || [], docSize, state.facet(lineSeparator)),
+    selection: sel && (sel instanceof EditorSelection ? sel : EditorSelection.single(sel.anchor, sel.head)),
+    effects: asArray(spec.effects),
+    annotations,
+    scrollIntoView: !!spec.scrollIntoView
+  };
+}
+function resolveTransaction(state, specs, filter) {
+  let s = resolveTransactionInner(state, specs.length ? specs[0] : {}, state.doc.length);
+  if (specs.length && specs[0].filter === false)
+    filter = false;
+  for (let i2 = 1; i2 < specs.length; i2++) {
+    if (specs[i2].filter === false)
+      filter = false;
+    let seq = !!specs[i2].sequential;
+    s = mergeTransaction(s, resolveTransactionInner(state, specs[i2], seq ? s.changes.newLength : state.doc.length), seq);
+  }
+  let tr2 = Transaction.create(state, s.changes, s.selection, s.effects, s.annotations, s.scrollIntoView);
+  return extendTransaction(filter ? filterTransaction(tr2) : tr2);
+}
+function filterTransaction(tr2) {
+  let state = tr2.startState;
+  let result = true;
+  for (let filter of state.facet(changeFilter)) {
+    let value = filter(tr2);
+    if (value === false) {
+      result = false;
+      break;
+    }
+    if (Array.isArray(value))
+      result = result === true ? value : joinRanges(result, value);
+  }
+  if (result !== true) {
+    let changes, back;
+    if (result === false) {
+      back = tr2.changes.invertedDesc;
+      changes = ChangeSet.empty(state.doc.length);
+    } else {
+      let filtered = tr2.changes.filter(result);
+      changes = filtered.changes;
+      back = filtered.filtered.mapDesc(filtered.changes).invertedDesc;
+    }
+    tr2 = Transaction.create(state, changes, tr2.selection && tr2.selection.map(back), StateEffect.mapEffects(tr2.effects, back), tr2.annotations, tr2.scrollIntoView);
+  }
+  let filters = state.facet(transactionFilter);
+  for (let i2 = filters.length - 1; i2 >= 0; i2--) {
+    let filtered = filters[i2](tr2);
+    if (filtered instanceof Transaction)
+      tr2 = filtered;
+    else if (Array.isArray(filtered) && filtered.length == 1 && filtered[0] instanceof Transaction)
+      tr2 = filtered[0];
+    else
+      tr2 = resolveTransaction(state, asArray(filtered), false);
+  }
+  return tr2;
+}
+function extendTransaction(tr2) {
+  let state = tr2.startState, extenders = state.facet(transactionExtender), spec = tr2;
+  for (let i2 = extenders.length - 1; i2 >= 0; i2--) {
+    let extension = extenders[i2](tr2);
+    if (extension && Object.keys(extension).length)
+      spec = mergeTransaction(spec, resolveTransactionInner(state, extension, tr2.changes.newLength), true);
+  }
+  return spec == tr2 ? tr2 : Transaction.create(state, tr2.changes, tr2.selection, spec.effects, spec.annotations, spec.scrollIntoView);
+}
+const none$2 = [];
+function asArray(value) {
+  return value == null ? none$2 : Array.isArray(value) ? value : [value];
+}
+var CharCategory = /* @__PURE__ */ function(CharCategory2) {
+  CharCategory2[CharCategory2["Word"] = 0] = "Word";
+  CharCategory2[CharCategory2["Space"] = 1] = "Space";
+  CharCategory2[CharCategory2["Other"] = 2] = "Other";
+  return CharCategory2;
+}(CharCategory || (CharCategory = {}));
+const nonASCIISingleCaseWordChar = /[\u00df\u0587\u0590-\u05f4\u0600-\u06ff\u3040-\u309f\u30a0-\u30ff\u3400-\u4db5\u4e00-\u9fcc\uac00-\ud7af]/;
+let wordChar;
+try {
+  wordChar = /* @__PURE__ */ new RegExp("[\\p{Alphabetic}\\p{Number}_]", "u");
+} catch (_) {
+}
+function hasWordChar(str) {
+  if (wordChar)
+    return wordChar.test(str);
+  for (let i2 = 0; i2 < str.length; i2++) {
+    let ch2 = str[i2];
+    if (/\w/.test(ch2) || ch2 > "\x80" && (ch2.toUpperCase() != ch2.toLowerCase() || nonASCIISingleCaseWordChar.test(ch2)))
+      return true;
+  }
+  return false;
+}
+function makeCategorizer(wordChars) {
+  return (char) => {
+    if (!/\S/.test(char))
+      return CharCategory.Space;
+    if (hasWordChar(char))
+      return CharCategory.Word;
+    for (let i2 = 0; i2 < wordChars.length; i2++)
+      if (char.indexOf(wordChars[i2]) > -1)
+        return CharCategory.Word;
+    return CharCategory.Other;
+  };
+}
+class EditorState {
+  constructor(config, doc2, selection, values, computeSlot, tr2) {
+    this.config = config;
+    this.doc = doc2;
+    this.selection = selection;
+    this.values = values;
+    this.status = config.statusTemplate.slice();
+    this.computeSlot = computeSlot;
+    if (tr2)
+      tr2._state = this;
+    for (let i2 = 0; i2 < this.config.dynamicSlots.length; i2++)
+      ensureAddr(this, i2 << 1);
+    this.computeSlot = null;
+  }
+  field(field, require2 = true) {
+    let addr = this.config.address[field.id];
+    if (addr == null) {
+      if (require2)
+        throw new RangeError("Field is not present in this state");
+      return void 0;
+    }
+    ensureAddr(this, addr);
+    return getAddr(this, addr);
+  }
+  update(...specs) {
+    return resolveTransaction(this, specs, true);
+  }
+  applyTransaction(tr2) {
+    let conf = this.config, { base: base2, compartments } = conf;
+    for (let effect2 of tr2.effects) {
+      if (effect2.is(Compartment.reconfigure)) {
+        if (conf) {
+          compartments = /* @__PURE__ */ new Map();
+          conf.compartments.forEach((val, key) => compartments.set(key, val));
+          conf = null;
+        }
+        compartments.set(effect2.value.compartment, effect2.value.extension);
+      } else if (effect2.is(StateEffect.reconfigure)) {
+        conf = null;
+        base2 = effect2.value;
+      } else if (effect2.is(StateEffect.appendConfig)) {
+        conf = null;
+        base2 = asArray(base2).concat(effect2.value);
+      }
+    }
+    let startValues;
+    if (!conf) {
+      conf = Configuration.resolve(base2, compartments, this);
+      let intermediateState = new EditorState(conf, this.doc, this.selection, conf.dynamicSlots.map(() => null), (state, slot) => slot.reconfigure(state, this), null);
+      startValues = intermediateState.values;
+    } else {
+      startValues = tr2.startState.values.slice();
+    }
+    let selection = tr2.startState.facet(allowMultipleSelections) ? tr2.newSelection : tr2.newSelection.asSingle();
+    new EditorState(conf, tr2.newDoc, selection, startValues, (state, slot) => slot.update(state, tr2), tr2);
+  }
+  replaceSelection(text) {
+    if (typeof text == "string")
+      text = this.toText(text);
+    return this.changeByRange((range) => ({
+      changes: { from: range.from, to: range.to, insert: text },
+      range: EditorSelection.cursor(range.from + text.length)
+    }));
+  }
+  changeByRange(f2) {
+    let sel = this.selection;
+    let result1 = f2(sel.ranges[0]);
+    let changes = this.changes(result1.changes), ranges = [result1.range];
+    let effects = asArray(result1.effects);
+    for (let i2 = 1; i2 < sel.ranges.length; i2++) {
+      let result = f2(sel.ranges[i2]);
+      let newChanges = this.changes(result.changes), newMapped = newChanges.map(changes);
+      for (let j = 0; j < i2; j++)
+        ranges[j] = ranges[j].map(newMapped);
+      let mapBy = changes.mapDesc(newChanges, true);
+      ranges.push(result.range.map(mapBy));
+      changes = changes.compose(newMapped);
+      effects = StateEffect.mapEffects(effects, newMapped).concat(StateEffect.mapEffects(asArray(result.effects), mapBy));
+    }
+    return {
+      changes,
+      selection: EditorSelection.create(ranges, sel.mainIndex),
+      effects
+    };
+  }
+  changes(spec = []) {
+    if (spec instanceof ChangeSet)
+      return spec;
+    return ChangeSet.of(spec, this.doc.length, this.facet(EditorState.lineSeparator));
+  }
+  toText(string2) {
+    return Text.of(string2.split(this.facet(EditorState.lineSeparator) || DefaultSplit));
+  }
+  sliceDoc(from = 0, to = this.doc.length) {
+    return this.doc.sliceString(from, to, this.lineBreak);
+  }
+  facet(facet) {
+    let addr = this.config.address[facet.id];
+    if (addr == null)
+      return facet.default;
+    ensureAddr(this, addr);
+    return getAddr(this, addr);
+  }
+  toJSON(fields) {
+    let result = {
+      doc: this.sliceDoc(),
+      selection: this.selection.toJSON()
+    };
+    if (fields)
+      for (let prop in fields) {
+        let value = fields[prop];
+        if (value instanceof StateField && this.config.address[value.id] != null)
+          result[prop] = value.spec.toJSON(this.field(fields[prop]), this);
+      }
+    return result;
+  }
+  static fromJSON(json, config = {}, fields) {
+    if (!json || typeof json.doc != "string")
+      throw new RangeError("Invalid JSON representation for EditorState");
+    let fieldInit = [];
+    if (fields)
+      for (let prop in fields) {
+        if (Object.prototype.hasOwnProperty.call(json, prop)) {
+          let field = fields[prop], value = json[prop];
+          fieldInit.push(field.init((state) => field.spec.fromJSON(value, state)));
+        }
+      }
+    return EditorState.create({
+      doc: json.doc,
+      selection: EditorSelection.fromJSON(json.selection),
+      extensions: config.extensions ? fieldInit.concat([config.extensions]) : fieldInit
+    });
+  }
+  static create(config = {}) {
+    let configuration = Configuration.resolve(config.extensions || [], /* @__PURE__ */ new Map());
+    let doc2 = config.doc instanceof Text ? config.doc : Text.of((config.doc || "").split(configuration.staticFacet(EditorState.lineSeparator) || DefaultSplit));
+    let selection = !config.selection ? EditorSelection.single(0) : config.selection instanceof EditorSelection ? config.selection : EditorSelection.single(config.selection.anchor, config.selection.head);
+    checkSelection(selection, doc2.length);
+    if (!configuration.staticFacet(allowMultipleSelections))
+      selection = selection.asSingle();
+    return new EditorState(configuration, doc2, selection, configuration.dynamicSlots.map(() => null), (state, slot) => slot.create(state), null);
+  }
+  get tabSize() {
+    return this.facet(EditorState.tabSize);
+  }
+  get lineBreak() {
+    return this.facet(EditorState.lineSeparator) || "\n";
+  }
+  get readOnly() {
+    return this.facet(readOnly);
+  }
+  phrase(phrase, ...insert2) {
+    for (let map of this.facet(EditorState.phrases))
+      if (Object.prototype.hasOwnProperty.call(map, phrase)) {
+        phrase = map[phrase];
+        break;
+      }
+    if (insert2.length)
+      phrase = phrase.replace(/\$(\$|\d*)/g, (m2, i2) => {
+        if (i2 == "$")
+          return "$";
+        let n2 = +(i2 || 1);
+        return !n2 || n2 > insert2.length ? m2 : insert2[n2 - 1];
+      });
+    return phrase;
+  }
+  languageDataAt(name2, pos, side = -1) {
+    let values = [];
+    for (let provider of this.facet(languageData)) {
+      for (let result of provider(this, pos, side)) {
+        if (Object.prototype.hasOwnProperty.call(result, name2))
+          values.push(result[name2]);
+      }
+    }
+    return values;
+  }
+  charCategorizer(at) {
+    let chars = this.languageDataAt("wordChars", at);
+    return makeCategorizer(chars.length ? chars[0] : "");
+  }
+  wordAt(pos) {
+    let { text, from, length } = this.doc.lineAt(pos);
+    let cat = this.charCategorizer(pos);
+    let start2 = pos - from, end2 = pos - from;
+    while (start2 > 0) {
+      let prev = findClusterBreak(text, start2, false);
+      if (cat(text.slice(prev, start2)) != CharCategory.Word)
+        break;
+      start2 = prev;
+    }
+    while (end2 < length) {
+      let next = findClusterBreak(text, end2);
+      if (cat(text.slice(end2, next)) != CharCategory.Word)
+        break;
+      end2 = next;
+    }
+    return start2 == end2 ? null : EditorSelection.range(start2 + from, end2 + from);
+  }
+}
+EditorState.allowMultipleSelections = allowMultipleSelections;
+EditorState.tabSize = /* @__PURE__ */ Facet.define({
+  combine: (values) => values.length ? values[0] : 4
+});
+EditorState.lineSeparator = lineSeparator;
+EditorState.readOnly = readOnly;
+EditorState.phrases = /* @__PURE__ */ Facet.define({
+  compare(a, b) {
+    let kA = Object.keys(a), kB = Object.keys(b);
+    return kA.length == kB.length && kA.every((k) => a[k] == b[k]);
+  }
+});
+EditorState.languageData = languageData;
+EditorState.changeFilter = changeFilter;
+EditorState.transactionFilter = transactionFilter;
+EditorState.transactionExtender = transactionExtender;
+Compartment.reconfigure = /* @__PURE__ */ StateEffect.define();
+function combineConfig(configs, defaults, combine = {}) {
+  let result = {};
+  for (let config of configs)
+    for (let key of Object.keys(config)) {
+      let value = config[key], current = result[key];
+      if (current === void 0)
+        result[key] = value;
+      else if (current === value || value === void 0)
+        ;
+      else if (Object.hasOwnProperty.call(combine, key))
+        result[key] = combine[key](current, value);
+      else
+        throw new Error("Config merge conflict for field " + key);
+    }
+  for (let key in defaults)
+    if (result[key] === void 0)
+      result[key] = defaults[key];
+  return result;
+}
+class RangeValue {
+  eq(other) {
+    return this == other;
+  }
+  range(from, to = from) {
+    return Range$1.create(from, to, this);
+  }
+}
+RangeValue.prototype.startSide = RangeValue.prototype.endSide = 0;
+RangeValue.prototype.point = false;
+RangeValue.prototype.mapMode = MapMode.TrackDel;
+function cmpVal(a, b) {
+  return a == b || a.constructor == b.constructor && a.eq(b);
+}
+class Range$1 {
+  constructor(from, to, value) {
+    this.from = from;
+    this.to = to;
+    this.value = value;
+  }
+  static create(from, to, value) {
+    return new Range$1(from, to, value);
+  }
+}
+function cmpRange(a, b) {
+  return a.from - b.from || a.value.startSide - b.value.startSide;
+}
+class Chunk {
+  constructor(from, to, value, maxPoint) {
+    this.from = from;
+    this.to = to;
+    this.value = value;
+    this.maxPoint = maxPoint;
+  }
+  get length() {
+    return last(this.to);
+  }
+  findIndex(pos, side, end2, startAt = 0) {
+    let arr = end2 ? this.to : this.from;
+    for (let lo = startAt, hi2 = arr.length; ; ) {
+      if (lo == hi2)
+        return lo;
+      let mid = lo + hi2 >> 1;
+      let diff = arr[mid] - pos || (end2 ? this.value[mid].endSide : this.value[mid].startSide) - side;
+      if (mid == lo)
+        return diff >= 0 ? lo : hi2;
+      if (diff >= 0)
+        hi2 = mid;
+      else
+        lo = mid + 1;
+    }
+  }
+  between(offset2, from, to, f2) {
+    for (let i2 = this.findIndex(from, -1e9, true), e = this.findIndex(to, 1e9, false, i2); i2 < e; i2++)
+      if (f2(this.from[i2] + offset2, this.to[i2] + offset2, this.value[i2]) === false)
+        return false;
+  }
+  map(offset2, changes, basePos, baseSide, spill) {
+    let value = [], from = [], to = [], newPos = -1, maxPoint = -1;
+    iter:
+      for (let i2 = 0; i2 < this.value.length; i2++) {
+        let val = this.value[i2], curFrom = this.from[i2] + offset2, curTo = this.to[i2] + offset2, newFrom, newTo;
+        if (curFrom == curTo) {
+          let mapped = changes.mapPos(curFrom, val.startSide, val.mapMode);
+          if (mapped == null)
+            continue;
+          newFrom = newTo = mapped;
+          if (val.startSide != val.endSide) {
+            newTo = changes.mapPos(curFrom, val.endSide);
+            if (newTo < newFrom)
+              continue;
+          }
+        } else {
+          newFrom = changes.mapPos(curFrom, val.startSide);
+          newTo = changes.mapPos(curTo, val.endSide);
+          if (newFrom > newTo || newFrom == newTo && val.startSide > 0 && val.endSide <= 0)
+            continue;
+        }
+        if ((newTo - newFrom || val.endSide - val.startSide) < 0)
+          continue;
+        if (newPos < 0)
+          newPos = newFrom;
+        if (val.point)
+          maxPoint = Math.max(maxPoint, newTo - newFrom);
+        if ((newFrom - basePos || val.startSide - baseSide) >= 0) {
+          value.push(val);
+          from.push(newFrom - newPos);
+          to.push(newTo - newPos);
+          basePos = newTo;
+          baseSide = val.endSide;
+        } else {
+          if (newFrom == newTo) {
+            for (let i3 = value.length; i3 > 0; i3--) {
+              if ((newFrom - (to[i3 - 1] + newPos) || val.startSide - value[i3 - 1].endSide) >= 0) {
+                value.splice(i3, 0, val);
+                from.splice(i3, 0, newFrom - newPos);
+                to.splice(i3, 0, newTo - newPos);
+                continue iter;
+              }
+              if ((newFrom - (from[i3 - 1] + newPos) || val.endSide - value[i3 - 1].startSide) > 0)
+                break;
+            }
+          }
+          spill(newFrom, newTo, val);
+        }
+      }
+    return { mapped: value.length ? new Chunk(from, to, value, maxPoint) : null, pos: newPos };
+  }
+}
+class RangeSet {
+  constructor(chunkPos, chunk, nextLayer, maxPoint) {
+    this.chunkPos = chunkPos;
+    this.chunk = chunk;
+    this.nextLayer = nextLayer;
+    this.maxPoint = maxPoint;
+  }
+  static create(chunkPos, chunk, nextLayer, maxPoint) {
+    return new RangeSet(chunkPos, chunk, nextLayer, maxPoint);
+  }
+  get length() {
+    let last2 = this.chunk.length - 1;
+    return last2 < 0 ? 0 : Math.max(this.chunkEnd(last2), this.nextLayer.length);
+  }
+  get size() {
+    if (this.isEmpty)
+      return 0;
+    let size = this.nextLayer.size;
+    for (let chunk of this.chunk)
+      size += chunk.value.length;
+    return size;
+  }
+  chunkEnd(index) {
+    return this.chunkPos[index] + this.chunk[index].length;
+  }
+  update(updateSpec) {
+    let { add = [], sort = false, filterFrom = 0, filterTo = this.length } = updateSpec;
+    let filter = updateSpec.filter;
+    if (add.length == 0 && !filter)
+      return this;
+    if (sort)
+      add = add.slice().sort(cmpRange);
+    if (this.isEmpty)
+      return add.length ? RangeSet.of(add) : this;
+    let cur2 = new LayerCursor(this, null, -1).goto(0), i2 = 0, spill = [];
+    let builder = new RangeSetBuilder();
+    while (cur2.value || i2 < add.length) {
+      if (i2 < add.length && (cur2.from - add[i2].from || cur2.startSide - add[i2].value.startSide) >= 0) {
+        let range = add[i2++];
+        if (!builder.addInner(range.from, range.to, range.value, false))
+          spill.push(range);
+      } else if (cur2.rangeIndex == 1 && cur2.chunkIndex < this.chunk.length && (i2 == add.length || this.chunkEnd(cur2.chunkIndex) < add[i2].from) && (!filter || filterFrom > this.chunkEnd(cur2.chunkIndex) || filterTo < this.chunkPos[cur2.chunkIndex]) && builder.addChunk(this.chunkPos[cur2.chunkIndex], this.chunk[cur2.chunkIndex])) {
+        cur2.nextChunk();
+      } else {
+        if (!filter || filterFrom > cur2.to || filterTo < cur2.from || filter(cur2.from, cur2.to, cur2.value)) {
+          if (!builder.addInner(cur2.from, cur2.to, cur2.value, false))
+            spill.push(Range$1.create(cur2.from, cur2.to, cur2.value));
+        }
+        cur2.next();
+      }
+    }
+    return builder.finishInner(this.nextLayer.isEmpty && !spill.length ? RangeSet.empty : this.nextLayer.update({ add: spill, filter, filterFrom, filterTo }));
+  }
+  map(changes) {
+    if (changes.empty || this.isEmpty)
+      return this;
+    let chunks = [], chunkPos = [], maxPoint = -1;
+    let spilled;
+    let spill = (from, to, value) => {
+      if (!spilled)
+        spilled = new RangeSetBuilder();
+      spilled.addRange(from, to, value, false);
+    };
+    for (let i2 = 0; i2 < this.chunk.length; i2++) {
+      let start2 = this.chunkPos[i2], chunk = this.chunk[i2];
+      let touch = changes.touchesRange(start2, start2 + chunk.length);
+      if (touch === false) {
+        maxPoint = Math.max(maxPoint, chunk.maxPoint);
+        chunks.push(chunk);
+        chunkPos.push(changes.mapPos(start2));
+      } else if (touch === true) {
+        let [prevPos, prevSide] = !chunks.length ? [-1, -1] : [last(chunkPos) + last(chunks).length, last(last(chunks).value).endSide];
+        let { mapped, pos } = chunk.map(start2, changes, prevPos, prevSide, spill);
+        if (mapped) {
+          maxPoint = Math.max(maxPoint, mapped.maxPoint);
+          chunks.push(mapped);
+          chunkPos.push(pos);
+        }
+      }
+    }
+    let next = this.nextLayer.map(changes);
+    if (spilled)
+      next = spilled.finishInner(next);
+    return chunks.length == 0 ? next : new RangeSet(chunkPos, chunks, next || RangeSet.empty, maxPoint);
+  }
+  between(from, to, f2) {
+    if (this.isEmpty)
+      return;
+    for (let i2 = 0; i2 < this.chunk.length; i2++) {
+      let start2 = this.chunkPos[i2], chunk = this.chunk[i2];
+      if (to >= start2 && from <= start2 + chunk.length && chunk.between(start2, from - start2, to - start2, f2) === false)
+        return;
+    }
+    this.nextLayer.between(from, to, f2);
+  }
+  iter(from = 0) {
+    return HeapCursor.from([this]).goto(from);
+  }
+  get isEmpty() {
+    return this.nextLayer == this;
+  }
+  static iter(sets, from = 0) {
+    return HeapCursor.from(sets).goto(from);
+  }
+  static compare(oldSets, newSets, textDiff, comparator, minPointSize = -1) {
+    let a = oldSets.filter((set) => set.maxPoint > 0 || !set.isEmpty && set.maxPoint >= minPointSize);
+    let b = newSets.filter((set) => set.maxPoint > 0 || !set.isEmpty && set.maxPoint >= minPointSize);
+    let sharedChunks = findSharedChunks(a, b, textDiff);
+    let sideA = new SpanCursor(a, sharedChunks, minPointSize);
+    let sideB = new SpanCursor(b, sharedChunks, minPointSize);
+    textDiff.iterGaps((fromA, fromB, length) => compare(sideA, fromA, sideB, fromB, length, comparator));
+    if (textDiff.empty && textDiff.length == 0)
+      compare(sideA, 0, sideB, 0, 0, comparator);
+  }
+  static eq(oldSets, newSets, from = 0, to) {
+    if (to == null)
+      to = 1e9 - 1;
+    let a = oldSets.filter((set) => !set.isEmpty && newSets.indexOf(set) < 0);
+    let b = newSets.filter((set) => !set.isEmpty && oldSets.indexOf(set) < 0);
+    if (a.length != b.length)
+      return false;
+    if (!a.length)
+      return true;
+    let sharedChunks = findSharedChunks(a, b);
+    let sideA = new SpanCursor(a, sharedChunks, 0).goto(from), sideB = new SpanCursor(b, sharedChunks, 0).goto(from);
+    for (; ; ) {
+      if (sideA.to != sideB.to || !sameValues(sideA.active, sideB.active) || sideA.point && (!sideB.point || !cmpVal(sideA.point, sideB.point)))
+        return false;
+      if (sideA.to > to)
+        return true;
+      sideA.next();
+      sideB.next();
+    }
+  }
+  static spans(sets, from, to, iterator, minPointSize = -1) {
+    let cursor = new SpanCursor(sets, null, minPointSize).goto(from), pos = from;
+    let openRanges = cursor.openStart;
+    for (; ; ) {
+      let curTo = Math.min(cursor.to, to);
+      if (cursor.point) {
+        let active = cursor.activeForPoint(cursor.to);
+        let openCount = cursor.pointFrom < from ? active.length + 1 : cursor.point.startSide < 0 ? active.length : Math.min(active.length, openRanges);
+        iterator.point(pos, curTo, cursor.point, active, openCount, cursor.pointRank);
+        openRanges = Math.min(cursor.openEnd(curTo), active.length);
+      } else if (curTo > pos) {
+        iterator.span(pos, curTo, cursor.active, openRanges);
+        openRanges = cursor.openEnd(curTo);
+      }
+      if (cursor.to > to)
+        return openRanges + (cursor.point && cursor.to > to ? 1 : 0);
+      pos = cursor.to;
+      cursor.next();
+    }
+  }
+  static of(ranges, sort = false) {
+    let build = new RangeSetBuilder();
+    for (let range of ranges instanceof Range$1 ? [ranges] : sort ? lazySort(ranges) : ranges)
+      build.add(range.from, range.to, range.value);
+    return build.finish();
+  }
+  static join(sets) {
+    if (!sets.length)
+      return RangeSet.empty;
+    let result = last(sets);
+    for (let i2 = sets.length - 2; i2 >= 0; i2--) {
+      for (let layer = sets[i2]; layer != RangeSet.empty; layer = layer.nextLayer)
+        result = new RangeSet(layer.chunkPos, layer.chunk, result, Math.max(layer.maxPoint, result.maxPoint));
+    }
+    return result;
+  }
+}
+RangeSet.empty = /* @__PURE__ */ new RangeSet([], [], null, -1);
+function last(arr) {
+  return arr[arr.length - 1];
+}
+function lazySort(ranges) {
+  if (ranges.length > 1)
+    for (let prev = ranges[0], i2 = 1; i2 < ranges.length; i2++) {
+      let cur2 = ranges[i2];
+      if (cmpRange(prev, cur2) > 0)
+        return ranges.slice().sort(cmpRange);
+      prev = cur2;
+    }
+  return ranges;
+}
+RangeSet.empty.nextLayer = RangeSet.empty;
+class RangeSetBuilder {
+  finishChunk(newArrays) {
+    this.chunks.push(new Chunk(this.from, this.to, this.value, this.maxPoint));
+    this.chunkPos.push(this.chunkStart);
+    this.chunkStart = -1;
+    this.setMaxPoint = Math.max(this.setMaxPoint, this.maxPoint);
+    this.maxPoint = -1;
+    if (newArrays) {
+      this.from = [];
+      this.to = [];
+      this.value = [];
+    }
+  }
+  constructor() {
+    this.chunks = [];
+    this.chunkPos = [];
+    this.chunkStart = -1;
+    this.last = null;
+    this.lastFrom = -1e9;
+    this.lastTo = -1e9;
+    this.from = [];
+    this.to = [];
+    this.value = [];
+    this.maxPoint = -1;
+    this.setMaxPoint = -1;
+    this.nextLayer = null;
+  }
+  add(from, to, value) {
+    this.addRange(from, to, value, true);
+  }
+  addRange(from, to, value, strict) {
+    if (!this.addInner(from, to, value, strict))
+      (this.nextLayer || (this.nextLayer = new RangeSetBuilder())).addRange(from, to, value, strict);
+  }
+  addInner(from, to, value, strict) {
+    let diff = from - this.lastTo || value.startSide - this.last.endSide;
+    if (strict && diff <= 0 && (from - this.lastFrom || value.startSide - this.last.startSide) < 0)
+      throw new Error("Ranges must be added sorted by `from` position and `startSide`");
+    if (diff < 0)
+      return false;
+    if (this.from.length == 250)
+      this.finishChunk(true);
+    if (this.chunkStart < 0)
+      this.chunkStart = from;
+    this.from.push(from - this.chunkStart);
+    this.to.push(to - this.chunkStart);
+    this.last = value;
+    this.lastFrom = from;
+    this.lastTo = to;
+    this.value.push(value);
+    if (value.point)
+      this.maxPoint = Math.max(this.maxPoint, to - from);
+    return true;
+  }
+  addChunk(from, chunk) {
+    if ((from - this.lastTo || chunk.value[0].startSide - this.last.endSide) < 0)
+      return false;
+    if (this.from.length)
+      this.finishChunk(true);
+    this.setMaxPoint = Math.max(this.setMaxPoint, chunk.maxPoint);
+    this.chunks.push(chunk);
+    this.chunkPos.push(from);
+    let last2 = chunk.value.length - 1;
+    this.last = chunk.value[last2];
+    this.lastFrom = chunk.from[last2] + from;
+    this.lastTo = chunk.to[last2] + from;
+    return true;
+  }
+  finish() {
+    return this.finishInner(RangeSet.empty);
+  }
+  finishInner(next) {
+    if (this.from.length)
+      this.finishChunk(false);
+    if (this.chunks.length == 0)
+      return next;
+    let result = RangeSet.create(this.chunkPos, this.chunks, this.nextLayer ? this.nextLayer.finishInner(next) : next, this.setMaxPoint);
+    this.from = null;
+    return result;
+  }
+}
+function findSharedChunks(a, b, textDiff) {
+  let inA = /* @__PURE__ */ new Map();
+  for (let set of a)
+    for (let i2 = 0; i2 < set.chunk.length; i2++)
+      if (set.chunk[i2].maxPoint <= 0)
+        inA.set(set.chunk[i2], set.chunkPos[i2]);
+  let shared = /* @__PURE__ */ new Set();
+  for (let set of b)
+    for (let i2 = 0; i2 < set.chunk.length; i2++) {
+      let known = inA.get(set.chunk[i2]);
+      if (known != null && (textDiff ? textDiff.mapPos(known) : known) == set.chunkPos[i2] && !(textDiff === null || textDiff === void 0 ? void 0 : textDiff.touchesRange(known, known + set.chunk[i2].length)))
+        shared.add(set.chunk[i2]);
+    }
+  return shared;
+}
+class LayerCursor {
+  constructor(layer, skip, minPoint, rank = 0) {
+    this.layer = layer;
+    this.skip = skip;
+    this.minPoint = minPoint;
+    this.rank = rank;
+  }
+  get startSide() {
+    return this.value ? this.value.startSide : 0;
+  }
+  get endSide() {
+    return this.value ? this.value.endSide : 0;
+  }
+  goto(pos, side = -1e9) {
+    this.chunkIndex = this.rangeIndex = 0;
+    this.gotoInner(pos, side, false);
+    return this;
+  }
+  gotoInner(pos, side, forward) {
+    while (this.chunkIndex < this.layer.chunk.length) {
+      let next = this.layer.chunk[this.chunkIndex];
+      if (!(this.skip && this.skip.has(next) || this.layer.chunkEnd(this.chunkIndex) < pos || next.maxPoint < this.minPoint))
+        break;
+      this.chunkIndex++;
+      forward = false;
+    }
+    if (this.chunkIndex < this.layer.chunk.length) {
+      let rangeIndex = this.layer.chunk[this.chunkIndex].findIndex(pos - this.layer.chunkPos[this.chunkIndex], side, true);
+      if (!forward || this.rangeIndex < rangeIndex)
+        this.setRangeIndex(rangeIndex);
+    }
+    this.next();
+  }
+  forward(pos, side) {
+    if ((this.to - pos || this.endSide - side) < 0)
+      this.gotoInner(pos, side, true);
+  }
+  next() {
+    for (; ; ) {
+      if (this.chunkIndex == this.layer.chunk.length) {
+        this.from = this.to = 1e9;
+        this.value = null;
+        break;
+      } else {
+        let chunkPos = this.layer.chunkPos[this.chunkIndex], chunk = this.layer.chunk[this.chunkIndex];
+        let from = chunkPos + chunk.from[this.rangeIndex];
+        this.from = from;
+        this.to = chunkPos + chunk.to[this.rangeIndex];
+        this.value = chunk.value[this.rangeIndex];
+        this.setRangeIndex(this.rangeIndex + 1);
+        if (this.minPoint < 0 || this.value.point && this.to - this.from >= this.minPoint)
+          break;
+      }
+    }
+  }
+  setRangeIndex(index) {
+    if (index == this.layer.chunk[this.chunkIndex].value.length) {
+      this.chunkIndex++;
+      if (this.skip) {
+        while (this.chunkIndex < this.layer.chunk.length && this.skip.has(this.layer.chunk[this.chunkIndex]))
+          this.chunkIndex++;
+      }
+      this.rangeIndex = 0;
+    } else {
+      this.rangeIndex = index;
+    }
+  }
+  nextChunk() {
+    this.chunkIndex++;
+    this.rangeIndex = 0;
+    this.next();
+  }
+  compare(other) {
+    return this.from - other.from || this.startSide - other.startSide || this.rank - other.rank || this.to - other.to || this.endSide - other.endSide;
+  }
+}
+class HeapCursor {
+  constructor(heap) {
+    this.heap = heap;
+  }
+  static from(sets, skip = null, minPoint = -1) {
+    let heap = [];
+    for (let i2 = 0; i2 < sets.length; i2++) {
+      for (let cur2 = sets[i2]; !cur2.isEmpty; cur2 = cur2.nextLayer) {
+        if (cur2.maxPoint >= minPoint)
+          heap.push(new LayerCursor(cur2, skip, minPoint, i2));
+      }
+    }
+    return heap.length == 1 ? heap[0] : new HeapCursor(heap);
+  }
+  get startSide() {
+    return this.value ? this.value.startSide : 0;
+  }
+  goto(pos, side = -1e9) {
+    for (let cur2 of this.heap)
+      cur2.goto(pos, side);
+    for (let i2 = this.heap.length >> 1; i2 >= 0; i2--)
+      heapBubble(this.heap, i2);
+    this.next();
+    return this;
+  }
+  forward(pos, side) {
+    for (let cur2 of this.heap)
+      cur2.forward(pos, side);
+    for (let i2 = this.heap.length >> 1; i2 >= 0; i2--)
+      heapBubble(this.heap, i2);
+    if ((this.to - pos || this.value.endSide - side) < 0)
+      this.next();
+  }
+  next() {
+    if (this.heap.length == 0) {
+      this.from = this.to = 1e9;
+      this.value = null;
+      this.rank = -1;
+    } else {
+      let top2 = this.heap[0];
+      this.from = top2.from;
+      this.to = top2.to;
+      this.value = top2.value;
+      this.rank = top2.rank;
+      if (top2.value)
+        top2.next();
+      heapBubble(this.heap, 0);
+    }
+  }
+}
+function heapBubble(heap, index) {
+  for (let cur2 = heap[index]; ; ) {
+    let childIndex = (index << 1) + 1;
+    if (childIndex >= heap.length)
+      break;
+    let child = heap[childIndex];
+    if (childIndex + 1 < heap.length && child.compare(heap[childIndex + 1]) >= 0) {
+      child = heap[childIndex + 1];
+      childIndex++;
+    }
+    if (cur2.compare(child) < 0)
+      break;
+    heap[childIndex] = cur2;
+    heap[index] = child;
+    index = childIndex;
+  }
+}
+class SpanCursor {
+  constructor(sets, skip, minPoint) {
+    this.minPoint = minPoint;
+    this.active = [];
+    this.activeTo = [];
+    this.activeRank = [];
+    this.minActive = -1;
+    this.point = null;
+    this.pointFrom = 0;
+    this.pointRank = 0;
+    this.to = -1e9;
+    this.endSide = 0;
+    this.openStart = -1;
+    this.cursor = HeapCursor.from(sets, skip, minPoint);
+  }
+  goto(pos, side = -1e9) {
+    this.cursor.goto(pos, side);
+    this.active.length = this.activeTo.length = this.activeRank.length = 0;
+    this.minActive = -1;
+    this.to = pos;
+    this.endSide = side;
+    this.openStart = -1;
+    this.next();
+    return this;
+  }
+  forward(pos, side) {
+    while (this.minActive > -1 && (this.activeTo[this.minActive] - pos || this.active[this.minActive].endSide - side) < 0)
+      this.removeActive(this.minActive);
+    this.cursor.forward(pos, side);
+  }
+  removeActive(index) {
+    remove(this.active, index);
+    remove(this.activeTo, index);
+    remove(this.activeRank, index);
+    this.minActive = findMinIndex(this.active, this.activeTo);
+  }
+  addActive(trackOpen) {
+    let i2 = 0, { value, to, rank } = this.cursor;
+    while (i2 < this.activeRank.length && (rank - this.activeRank[i2] || to - this.activeTo[i2]) > 0)
+      i2++;
+    insert(this.active, i2, value);
+    insert(this.activeTo, i2, to);
+    insert(this.activeRank, i2, rank);
+    if (trackOpen)
+      insert(trackOpen, i2, this.cursor.from);
+    this.minActive = findMinIndex(this.active, this.activeTo);
+  }
+  next() {
+    let from = this.to, wasPoint = this.point;
+    this.point = null;
+    let trackOpen = this.openStart < 0 ? [] : null;
+    for (; ; ) {
+      let a = this.minActive;
+      if (a > -1 && (this.activeTo[a] - this.cursor.from || this.active[a].endSide - this.cursor.startSide) < 0) {
+        if (this.activeTo[a] > from) {
+          this.to = this.activeTo[a];
+          this.endSide = this.active[a].endSide;
+          break;
+        }
+        this.removeActive(a);
+        if (trackOpen)
+          remove(trackOpen, a);
+      } else if (!this.cursor.value) {
+        this.to = this.endSide = 1e9;
+        break;
+      } else if (this.cursor.from > from) {
+        this.to = this.cursor.from;
+        this.endSide = this.cursor.startSide;
+        break;
+      } else {
+        let nextVal = this.cursor.value;
+        if (!nextVal.point) {
+          this.addActive(trackOpen);
+          this.cursor.next();
+        } else if (wasPoint && this.cursor.to == this.to && this.cursor.from < this.cursor.to) {
+          this.cursor.next();
+        } else {
+          this.point = nextVal;
+          this.pointFrom = this.cursor.from;
+          this.pointRank = this.cursor.rank;
+          this.to = this.cursor.to;
+          this.endSide = nextVal.endSide;
+          this.cursor.next();
+          this.forward(this.to, this.endSide);
+          break;
+        }
+      }
+    }
+    if (trackOpen) {
+      this.openStart = 0;
+      for (let i2 = trackOpen.length - 1; i2 >= 0 && trackOpen[i2] < from; i2--)
+        this.openStart++;
+    }
+  }
+  activeForPoint(to) {
+    if (!this.active.length)
+      return this.active;
+    let active = [];
+    for (let i2 = this.active.length - 1; i2 >= 0; i2--) {
+      if (this.activeRank[i2] < this.pointRank)
+        break;
+      if (this.activeTo[i2] > to || this.activeTo[i2] == to && this.active[i2].endSide >= this.point.endSide)
+        active.push(this.active[i2]);
+    }
+    return active.reverse();
+  }
+  openEnd(to) {
+    let open = 0;
+    for (let i2 = this.activeTo.length - 1; i2 >= 0 && this.activeTo[i2] > to; i2--)
+      open++;
+    return open;
+  }
+}
+function compare(a, startA, b, startB, length, comparator) {
+  a.goto(startA);
+  b.goto(startB);
+  let endB = startB + length;
+  let pos = startB, dPos = startB - startA;
+  let bounds = !!comparator.boundChange;
+  for (let boundChange = false; ; ) {
+    let dEnd = a.to + dPos - b.to, diff = dEnd || a.endSide - b.endSide;
+    let end2 = diff < 0 ? a.to + dPos : b.to, clipEnd = Math.min(end2, endB);
+    let point = a.point || b.point;
+    if (point) {
+      if (!(a.point && b.point && cmpVal(a.point, b.point) && sameValues(a.activeForPoint(a.to), b.activeForPoint(b.to))))
+        comparator.comparePoint(pos, clipEnd, a.point, b.point);
+      boundChange = false;
+    } else {
+      if (boundChange)
+        comparator.boundChange(pos);
+      if (clipEnd > pos && !sameValues(a.active, b.active))
+        comparator.compareRange(pos, clipEnd, a.active, b.active);
+      if (bounds && clipEnd < endB && (dEnd || a.openEnd(end2) != b.openEnd(end2)))
+        boundChange = true;
+    }
+    if (end2 > endB)
+      break;
+    pos = end2;
+    if (diff <= 0)
+      a.next();
+    if (diff >= 0)
+      b.next();
+  }
+}
+function sameValues(a, b) {
+  if (a.length != b.length)
+    return false;
+  for (let i2 = 0; i2 < a.length; i2++)
+    if (a[i2] != b[i2] && !cmpVal(a[i2], b[i2]))
+      return false;
+  return true;
+}
+function remove(array, index) {
+  for (let i2 = index, e = array.length - 1; i2 < e; i2++)
+    array[i2] = array[i2 + 1];
+  array.pop();
+}
+function insert(array, index, value) {
+  for (let i2 = array.length - 1; i2 >= index; i2--)
+    array[i2 + 1] = array[i2];
+  array[index] = value;
+}
+function findMinIndex(value, array) {
+  let found = -1, foundPos = 1e9;
+  for (let i2 = 0; i2 < array.length; i2++)
+    if ((array[i2] - foundPos || value[i2].endSide - value[found].endSide) < 0) {
+      found = i2;
+      foundPos = array[i2];
+    }
+  return found;
+}
+function countColumn(string2, tabSize, to = string2.length) {
+  let n2 = 0;
+  for (let i2 = 0; i2 < to && i2 < string2.length; ) {
+    if (string2.charCodeAt(i2) == 9) {
+      n2 += tabSize - n2 % tabSize;
+      i2++;
+    } else {
+      n2++;
+      i2 = findClusterBreak(string2, i2);
+    }
+  }
+  return n2;
+}
+function findColumn(string2, col, tabSize, strict) {
+  for (let i2 = 0, n2 = 0; ; ) {
+    if (n2 >= col)
+      return i2;
+    if (i2 == string2.length)
+      break;
+    n2 += string2.charCodeAt(i2) == 9 ? tabSize - n2 % tabSize : 1;
+    i2 = findClusterBreak(string2, i2);
+  }
+  return strict === true ? -1 : string2.length;
+}
+const C = "\u037C";
+const COUNT = typeof Symbol == "undefined" ? "__" + C : Symbol.for(C);
+const SET = typeof Symbol == "undefined" ? "__styleSet" + Math.floor(Math.random() * 1e8) : Symbol("styleSet");
+const top$1 = typeof globalThis != "undefined" ? globalThis : typeof window != "undefined" ? window : {};
+class StyleModule {
+  constructor(spec, options) {
+    this.rules = [];
+    let { finish } = options || {};
+    function splitSelector(selector2) {
+      return /^@/.test(selector2) ? [selector2] : selector2.split(/,\s*/);
+    }
+    function render(selectors, spec2, target, isKeyframes) {
+      let local = [], isAt = /^@(\w+)\b/.exec(selectors[0]), keyframes = isAt && isAt[1] == "keyframes";
+      if (isAt && spec2 == null)
+        return target.push(selectors[0] + ";");
+      for (let prop in spec2) {
+        let value = spec2[prop];
+        if (/&/.test(prop)) {
+          render(
+            prop.split(/,\s*/).map((part) => selectors.map((sel) => part.replace(/&/, sel))).reduce((a, b) => a.concat(b)),
+            value,
+            target
+          );
+        } else if (value && typeof value == "object") {
+          if (!isAt)
+            throw new RangeError("The value of a property (" + prop + ") should be a primitive value.");
+          render(splitSelector(prop), value, local, keyframes);
+        } else if (value != null) {
+          local.push(prop.replace(/_.*/, "").replace(/[A-Z]/g, (l2) => "-" + l2.toLowerCase()) + ": " + value + ";");
+        }
+      }
+      if (local.length || keyframes) {
+        target.push((finish && !isAt && !isKeyframes ? selectors.map(finish) : selectors).join(", ") + " {" + local.join(" ") + "}");
+      }
+    }
+    for (let prop in spec)
+      render(splitSelector(prop), spec[prop], this.rules);
+  }
+  getRules() {
+    return this.rules.join("\n");
+  }
+  static newName() {
+    let id2 = top$1[COUNT] || 1;
+    top$1[COUNT] = id2 + 1;
+    return C + id2.toString(36);
+  }
+  static mount(root, modules, options) {
+    let set = root[SET], nonce = options && options.nonce;
+    if (!set)
+      set = new StyleSet(root, nonce);
+    else if (nonce)
+      set.setNonce(nonce);
+    set.mount(Array.isArray(modules) ? modules : [modules], root);
+  }
+}
+let adoptedSet = /* @__PURE__ */ new Map();
+class StyleSet {
+  constructor(root, nonce) {
+    let doc2 = root.ownerDocument || root, win = doc2.defaultView;
+    if (!root.head && root.adoptedStyleSheets && win.CSSStyleSheet) {
+      let adopted = adoptedSet.get(doc2);
+      if (adopted)
+        return root[SET] = adopted;
+      this.sheet = new win.CSSStyleSheet();
+      adoptedSet.set(doc2, this);
+    } else {
+      this.styleTag = doc2.createElement("style");
+      if (nonce)
+        this.styleTag.setAttribute("nonce", nonce);
+    }
+    this.modules = [];
+    root[SET] = this;
+  }
+  mount(modules, root) {
+    let sheet = this.sheet;
+    let pos = 0, j = 0;
+    for (let i2 = 0; i2 < modules.length; i2++) {
+      let mod = modules[i2], index = this.modules.indexOf(mod);
+      if (index < j && index > -1) {
+        this.modules.splice(index, 1);
+        j--;
+        index = -1;
+      }
+      if (index == -1) {
+        this.modules.splice(j++, 0, mod);
+        if (sheet)
+          for (let k = 0; k < mod.rules.length; k++)
+            sheet.insertRule(mod.rules[k], pos++);
+      } else {
+        while (j < index)
+          pos += this.modules[j++].rules.length;
+        pos += mod.rules.length;
+        j++;
+      }
+    }
+    if (sheet) {
+      if (root.adoptedStyleSheets.indexOf(this.sheet) < 0)
+        root.adoptedStyleSheets = [this.sheet, ...root.adoptedStyleSheets];
+    } else {
+      let text = "";
+      for (let i2 = 0; i2 < this.modules.length; i2++)
+        text += this.modules[i2].getRules() + "\n";
+      this.styleTag.textContent = text;
+      let target = root.head || root;
+      if (this.styleTag.parentNode != target)
+        target.insertBefore(this.styleTag, target.firstChild);
+    }
+  }
+  setNonce(nonce) {
+    if (this.styleTag && this.styleTag.getAttribute("nonce") != nonce)
+      this.styleTag.setAttribute("nonce", nonce);
+  }
+}
+var base = {
+  8: "Backspace",
+  9: "Tab",
+  10: "Enter",
+  12: "NumLock",
+  13: "Enter",
+  16: "Shift",
+  17: "Control",
+  18: "Alt",
+  20: "CapsLock",
+  27: "Escape",
+  32: " ",
+  33: "PageUp",
+  34: "PageDown",
+  35: "End",
+  36: "Home",
+  37: "ArrowLeft",
+  38: "ArrowUp",
+  39: "ArrowRight",
+  40: "ArrowDown",
+  44: "PrintScreen",
+  45: "Insert",
+  46: "Delete",
+  59: ";",
+  61: "=",
+  91: "Meta",
+  92: "Meta",
+  106: "*",
+  107: "+",
+  108: ",",
+  109: "-",
+  110: ".",
+  111: "/",
+  144: "NumLock",
+  145: "ScrollLock",
+  160: "Shift",
+  161: "Shift",
+  162: "Control",
+  163: "Control",
+  164: "Alt",
+  165: "Alt",
+  173: "-",
+  186: ";",
+  187: "=",
+  188: ",",
+  189: "-",
+  190: ".",
+  191: "/",
+  192: "`",
+  219: "[",
+  220: "\\",
+  221: "]",
+  222: "'"
+};
+var shift = {
+  48: ")",
+  49: "!",
+  50: "@",
+  51: "#",
+  52: "$",
+  53: "%",
+  54: "^",
+  55: "&",
+  56: "*",
+  57: "(",
+  59: ":",
+  61: "+",
+  173: "_",
+  186: ":",
+  187: "+",
+  188: "<",
+  189: "_",
+  190: ">",
+  191: "?",
+  192: "~",
+  219: "{",
+  220: "|",
+  221: "}",
+  222: '"'
+};
+var mac = typeof navigator != "undefined" && /Mac/.test(navigator.platform);
+var ie$1 = typeof navigator != "undefined" && /MSIE \d|Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
+for (var i = 0; i < 10; i++)
+  base[48 + i] = base[96 + i] = String(i);
+for (var i = 1; i <= 24; i++)
+  base[i + 111] = "F" + i;
+for (var i = 65; i <= 90; i++) {
+  base[i] = String.fromCharCode(i + 32);
+  shift[i] = String.fromCharCode(i);
+}
+for (var code in base)
+  if (!shift.hasOwnProperty(code))
+    shift[code] = base[code];
+function keyName(event) {
+  var ignoreKey = mac && event.metaKey && event.shiftKey && !event.ctrlKey && !event.altKey || ie$1 && event.shiftKey && event.key && event.key.length == 1 || event.key == "Unidentified";
+  var name2 = !ignoreKey && event.key || (event.shiftKey ? shift : base)[event.keyCode] || event.key || "Unidentified";
+  if (name2 == "Esc")
+    name2 = "Escape";
+  if (name2 == "Del")
+    name2 = "Delete";
+  if (name2 == "Left")
+    name2 = "ArrowLeft";
+  if (name2 == "Up")
+    name2 = "ArrowUp";
+  if (name2 == "Right")
+    name2 = "ArrowRight";
+  if (name2 == "Down")
+    name2 = "ArrowDown";
+  return name2;
+}
+let nav = typeof navigator != "undefined" ? navigator : { userAgent: "", vendor: "", platform: "" };
+let doc = typeof document != "undefined" ? document : { documentElement: { style: {} } };
+const ie_edge = /* @__PURE__ */ /Edge\/(\d+)/.exec(nav.userAgent);
+const ie_upto10 = /* @__PURE__ */ /MSIE \d/.test(nav.userAgent);
+const ie_11up = /* @__PURE__ */ /Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(nav.userAgent);
+const ie = !!(ie_upto10 || ie_11up || ie_edge);
+const gecko = !ie && /* @__PURE__ */ /gecko\/(\d+)/i.test(nav.userAgent);
+const chrome = !ie && /* @__PURE__ */ /Chrome\/(\d+)/.exec(nav.userAgent);
+const webkit = "webkitFontSmoothing" in doc.documentElement.style;
+const safari = !ie && /* @__PURE__ */ /Apple Computer/.test(nav.vendor);
+const ios = safari && (/* @__PURE__ */ /Mobile\/\w+/.test(nav.userAgent) || nav.maxTouchPoints > 2);
+var browser = {
+  mac: ios || /* @__PURE__ */ /Mac/.test(nav.platform),
+  windows: /* @__PURE__ */ /Win/.test(nav.platform),
+  linux: /* @__PURE__ */ /Linux|X11/.test(nav.platform),
+  ie,
+  ie_version: ie_upto10 ? doc.documentMode || 6 : ie_11up ? +ie_11up[1] : ie_edge ? +ie_edge[1] : 0,
+  gecko,
+  gecko_version: gecko ? +(/* @__PURE__ */ /Firefox\/(\d+)/.exec(nav.userAgent) || [0, 0])[1] : 0,
+  chrome: !!chrome,
+  chrome_version: chrome ? +chrome[1] : 0,
+  ios,
+  android: /* @__PURE__ */ /Android\b/.test(nav.userAgent),
+  webkit,
+  webkit_version: webkit ? +(/* @__PURE__ */ /\bAppleWebKit\/(\d+)/.exec(nav.userAgent) || [0, 0])[1] : 0,
+  safari,
+  safari_version: safari ? +(/* @__PURE__ */ /\bVersion\/(\d+(\.\d+)?)/.exec(nav.userAgent) || [0, 0])[1] : 0,
+  tabSize: doc.documentElement.style.tabSize != null ? "tab-size" : "-moz-tab-size"
+};
+function combineAttrs(source, target) {
+  for (let name2 in source) {
+    if (name2 == "class" && target.class)
+      target.class += " " + source.class;
+    else if (name2 == "style" && target.style)
+      target.style += ";" + source.style;
+    else
+      target[name2] = source[name2];
+  }
+  return target;
+}
+const noAttrs$1 = /* @__PURE__ */ Object.create(null);
+function attrsEq(a, b, ignore) {
+  if (a == b)
+    return true;
+  if (!a)
+    a = noAttrs$1;
+  if (!b)
+    b = noAttrs$1;
+  let keysA = Object.keys(a), keysB = Object.keys(b);
+  if (keysA.length - (ignore && keysA.indexOf(ignore) > -1 ? 1 : 0) != keysB.length - (ignore && keysB.indexOf(ignore) > -1 ? 1 : 0))
+    return false;
+  for (let key of keysA) {
+    if (key != ignore && (keysB.indexOf(key) == -1 || a[key] !== b[key]))
+      return false;
+  }
+  return true;
+}
+function setAttrs(dom, attrs) {
+  for (let i2 = dom.attributes.length - 1; i2 >= 0; i2--) {
+    let name2 = dom.attributes[i2].name;
+    if (attrs[name2] == null)
+      dom.removeAttribute(name2);
+  }
+  for (let name2 in attrs) {
+    let value = attrs[name2];
+    if (name2 == "style")
+      dom.style.cssText = value;
+    else if (dom.getAttribute(name2) != value)
+      dom.setAttribute(name2, value);
+  }
+}
+function updateAttrs(dom, prev, attrs) {
+  let changed = false;
+  if (prev) {
+    for (let name2 in prev)
+      if (!(attrs && name2 in attrs)) {
+        changed = true;
+        if (name2 == "style")
+          dom.style.cssText = "";
+        else
+          dom.removeAttribute(name2);
+      }
+  }
+  if (attrs) {
+    for (let name2 in attrs)
+      if (!(prev && prev[name2] == attrs[name2])) {
+        changed = true;
+        if (name2 == "style")
+          dom.style.cssText = attrs[name2];
+        else
+          dom.setAttribute(name2, attrs[name2]);
+      }
+  }
+  return changed;
+}
+function getAttrs(dom) {
+  let attrs = /* @__PURE__ */ Object.create(null);
+  for (let i2 = 0; i2 < dom.attributes.length; i2++) {
+    let attr = dom.attributes[i2];
+    attrs[attr.name] = attr.value;
+  }
+  return attrs;
+}
+class WidgetType {
+  eq(widget) {
+    return false;
+  }
+  updateDOM(dom, view, from) {
+    return false;
+  }
+  compare(other) {
+    return this == other || this.constructor == other.constructor && this.eq(other);
+  }
+  get estimatedHeight() {
+    return -1;
+  }
+  get lineBreaks() {
+    return 0;
+  }
+  ignoreEvent(event) {
+    return true;
+  }
+  coordsAt(dom, pos, side) {
+    return null;
+  }
+  get isHidden() {
+    return false;
+  }
+  get editable() {
+    return false;
+  }
+  destroy(dom) {
+  }
+}
+var BlockType = /* @__PURE__ */ function(BlockType2) {
+  BlockType2[BlockType2["Text"] = 0] = "Text";
+  BlockType2[BlockType2["WidgetBefore"] = 1] = "WidgetBefore";
+  BlockType2[BlockType2["WidgetAfter"] = 2] = "WidgetAfter";
+  BlockType2[BlockType2["WidgetRange"] = 3] = "WidgetRange";
+  return BlockType2;
+}(BlockType || (BlockType = {}));
+class Decoration extends RangeValue {
+  constructor(startSide, endSide, widget, spec) {
+    super();
+    this.startSide = startSide;
+    this.endSide = endSide;
+    this.widget = widget;
+    this.spec = spec;
+  }
+  get heightRelevant() {
+    return false;
+  }
+  static mark(spec) {
+    return new MarkDecoration(spec);
+  }
+  static widget(spec) {
+    let side = Math.max(-1e4, Math.min(1e4, spec.side || 0)), block = !!spec.block;
+    side += block && !spec.inlineOrder ? side > 0 ? 3e8 : -4e8 : side > 0 ? 1e8 : -1e8;
+    return new PointDecoration(spec, side, side, block, spec.widget || null, false);
+  }
+  static replace(spec) {
+    let block = !!spec.block, startSide, endSide;
+    if (spec.isBlockGap) {
+      startSide = -5e8;
+      endSide = 4e8;
+    } else {
+      let { start: start2, end: end2 } = getInclusive(spec, block);
+      startSide = (start2 ? block ? -3e8 : -1 : 5e8) - 1;
+      endSide = (end2 ? block ? 2e8 : 1 : -6e8) + 1;
+    }
+    return new PointDecoration(spec, startSide, endSide, block, spec.widget || null, true);
+  }
+  static line(spec) {
+    return new LineDecoration(spec);
+  }
+  static set(of2, sort = false) {
+    return RangeSet.of(of2, sort);
+  }
+  hasHeight() {
+    return this.widget ? this.widget.estimatedHeight > -1 : false;
+  }
+}
+Decoration.none = RangeSet.empty;
+class MarkDecoration extends Decoration {
+  constructor(spec) {
+    let { start: start2, end: end2 } = getInclusive(spec);
+    super(start2 ? -1 : 5e8, end2 ? 1 : -6e8, null, spec);
+    this.tagName = spec.tagName || "span";
+    this.attrs = spec.class && spec.attributes ? combineAttrs(spec.attributes, { class: spec.class }) : spec.class ? { class: spec.class } : spec.attributes || noAttrs$1;
+  }
+  eq(other) {
+    return this == other || other instanceof MarkDecoration && this.tagName == other.tagName && attrsEq(this.attrs, other.attrs);
+  }
+  range(from, to = from) {
+    if (from >= to)
+      throw new RangeError("Mark decorations may not be empty");
+    return super.range(from, to);
+  }
+}
+MarkDecoration.prototype.point = false;
+class LineDecoration extends Decoration {
+  constructor(spec) {
+    super(-2e8, -2e8, null, spec);
+  }
+  eq(other) {
+    return other instanceof LineDecoration && this.spec.class == other.spec.class && attrsEq(this.spec.attributes, other.spec.attributes);
+  }
+  range(from, to = from) {
+    if (to != from)
+      throw new RangeError("Line decoration ranges must be zero-length");
+    return super.range(from, to);
+  }
+}
+LineDecoration.prototype.mapMode = MapMode.TrackBefore;
+LineDecoration.prototype.point = true;
+class PointDecoration extends Decoration {
+  constructor(spec, startSide, endSide, block, widget, isReplace) {
+    super(startSide, endSide, widget, spec);
+    this.block = block;
+    this.isReplace = isReplace;
+    this.mapMode = !block ? MapMode.TrackDel : startSide <= 0 ? MapMode.TrackBefore : MapMode.TrackAfter;
+  }
+  get type() {
+    return this.startSide != this.endSide ? BlockType.WidgetRange : this.startSide <= 0 ? BlockType.WidgetBefore : BlockType.WidgetAfter;
+  }
+  get heightRelevant() {
+    return this.block || !!this.widget && (this.widget.estimatedHeight >= 5 || this.widget.lineBreaks > 0);
+  }
+  eq(other) {
+    return other instanceof PointDecoration && widgetsEq(this.widget, other.widget) && this.block == other.block && this.startSide == other.startSide && this.endSide == other.endSide;
+  }
+  range(from, to = from) {
+    if (this.isReplace && (from > to || from == to && this.startSide > 0 && this.endSide <= 0))
+      throw new RangeError("Invalid range for replacement decoration");
+    if (!this.isReplace && to != from)
+      throw new RangeError("Widget decorations can only have zero-length ranges");
+    return super.range(from, to);
+  }
+}
+PointDecoration.prototype.point = true;
+function getInclusive(spec, block = false) {
+  let { inclusiveStart: start2, inclusiveEnd: end2 } = spec;
+  if (start2 == null)
+    start2 = spec.inclusive;
+  if (end2 == null)
+    end2 = spec.inclusive;
+  return { start: start2 !== null && start2 !== void 0 ? start2 : block, end: end2 !== null && end2 !== void 0 ? end2 : block };
+}
+function widgetsEq(a, b) {
+  return a == b || !!(a && b && a.compare(b));
+}
+function addRange(from, to, ranges, margin = 0) {
+  let last2 = ranges.length - 1;
+  if (last2 >= 0 && ranges[last2] + margin >= from)
+    ranges[last2] = Math.max(ranges[last2], to);
+  else
+    ranges.push(from, to);
+}
+class BlockWrapper extends RangeValue {
+  constructor(tagName, attributes, rank) {
+    super();
+    this.tagName = tagName;
+    this.attributes = attributes;
+    this.rank = rank;
+  }
+  eq(other) {
+    return other == this || other instanceof BlockWrapper && this.tagName == other.tagName && attrsEq(this.attributes, other.attributes);
+  }
+  static create(spec) {
+    return new BlockWrapper(spec.tagName, spec.attributes || noAttrs$1, spec.rank == null ? 50 : Math.max(0, Math.min(spec.rank, 100)));
+  }
+  static set(of2, sort = false) {
+    return RangeSet.of(of2, sort);
+  }
+}
+BlockWrapper.prototype.startSide = BlockWrapper.prototype.endSide = -1;
+function getSelection(root) {
+  let target;
+  if (root.nodeType == 11) {
+    target = root.getSelection ? root : root.ownerDocument;
+  } else {
+    target = root;
+  }
+  return target.getSelection();
+}
+function contains$1(dom, node) {
+  return node ? dom == node || dom.contains(node.nodeType != 1 ? node.parentNode : node) : false;
+}
+function hasSelection(dom, selection) {
+  if (!selection.anchorNode)
+    return false;
+  try {
+    return contains$1(dom, selection.anchorNode);
+  } catch (_) {
+    return false;
+  }
+}
+function clientRectsFor(dom) {
+  if (dom.nodeType == 3)
+    return textRange(dom, 0, dom.nodeValue.length).getClientRects();
+  else if (dom.nodeType == 1)
+    return dom.getClientRects();
+  else
+    return [];
+}
+function isEquivalentPosition(node, off, targetNode, targetOff) {
+  return targetNode ? scanFor(node, off, targetNode, targetOff, -1) || scanFor(node, off, targetNode, targetOff, 1) : false;
+}
+function domIndex(node) {
+  for (var index = 0; ; index++) {
+    node = node.previousSibling;
+    if (!node)
+      return index;
+  }
+}
+function isBlockElement(node) {
+  return node.nodeType == 1 && /^(DIV|P|LI|UL|OL|BLOCKQUOTE|DD|DT|H\d|SECTION|PRE)$/.test(node.nodeName);
+}
+function scanFor(node, off, targetNode, targetOff, dir) {
+  for (; ; ) {
+    if (node == targetNode && off == targetOff)
+      return true;
+    if (off == (dir < 0 ? 0 : maxOffset(node))) {
+      if (node.nodeName == "DIV")
+        return false;
+      let parent = node.parentNode;
+      if (!parent || parent.nodeType != 1)
+        return false;
+      off = domIndex(node) + (dir < 0 ? 0 : 1);
+      node = parent;
+    } else if (node.nodeType == 1) {
+      node = node.childNodes[off + (dir < 0 ? -1 : 0)];
+      if (node.nodeType == 1 && node.contentEditable == "false")
+        return false;
+      off = dir < 0 ? maxOffset(node) : 0;
+    } else {
+      return false;
+    }
+  }
+}
+function maxOffset(node) {
+  return node.nodeType == 3 ? node.nodeValue.length : node.childNodes.length;
+}
+function flattenRect(rect, toLeft) {
+  let { left: left2, right: right2 } = rect;
+  if (left2 == right2)
+    return rect;
+  let x2 = toLeft ? left2 : right2;
+  return { left: x2, right: x2, top: rect.top, bottom: rect.bottom };
+}
+function windowRect(win) {
+  let vp = win.visualViewport;
+  if (vp)
+    return {
+      left: 0,
+      right: vp.width,
+      top: 0,
+      bottom: vp.height
+    };
+  return {
+    left: 0,
+    right: win.innerWidth,
+    top: 0,
+    bottom: win.innerHeight
+  };
+}
+function getScale(elt, rect) {
+  let scaleX = rect.width / elt.offsetWidth;
+  let scaleY = rect.height / elt.offsetHeight;
+  if (scaleX > 0.995 && scaleX < 1.005 || !isFinite(scaleX) || Math.abs(rect.width - elt.offsetWidth) < 1)
+    scaleX = 1;
+  if (scaleY > 0.995 && scaleY < 1.005 || !isFinite(scaleY) || Math.abs(rect.height - elt.offsetHeight) < 1)
+    scaleY = 1;
+  return { scaleX, scaleY };
+}
+function scrollRectIntoView(dom, rect, side, x2, y2, xMargin, yMargin, ltr) {
+  let doc2 = dom.ownerDocument, win = doc2.defaultView || window;
+  for (let cur2 = dom, stop = false; cur2 && !stop; ) {
+    if (cur2.nodeType == 1) {
+      let bounding, top2 = cur2 == doc2.body;
+      let scaleX = 1, scaleY = 1;
+      if (top2) {
+        bounding = windowRect(win);
+      } else {
+        if (/^(fixed|sticky)$/.test(getComputedStyle(cur2).position))
+          stop = true;
+        if (cur2.scrollHeight <= cur2.clientHeight && cur2.scrollWidth <= cur2.clientWidth) {
+          cur2 = cur2.assignedSlot || cur2.parentNode;
+          continue;
+        }
+        let rect2 = cur2.getBoundingClientRect();
+        ({ scaleX, scaleY } = getScale(cur2, rect2));
+        bounding = {
+          left: rect2.left,
+          right: rect2.left + cur2.clientWidth * scaleX,
+          top: rect2.top,
+          bottom: rect2.top + cur2.clientHeight * scaleY
+        };
+      }
+      let moveX = 0, moveY = 0;
+      if (y2 == "nearest") {
+        if (rect.top < bounding.top + yMargin) {
+          moveY = rect.top - (bounding.top + yMargin);
+          if (side > 0 && rect.bottom > bounding.bottom + moveY)
+            moveY = rect.bottom - bounding.bottom + yMargin;
+        } else if (rect.bottom > bounding.bottom - yMargin) {
+          moveY = rect.bottom - bounding.bottom + yMargin;
+          if (side < 0 && rect.top - moveY < bounding.top)
+            moveY = rect.top - (bounding.top + yMargin);
+        }
+      } else {
+        let rectHeight = rect.bottom - rect.top, boundingHeight = bounding.bottom - bounding.top;
+        let targetTop = y2 == "center" && rectHeight <= boundingHeight ? rect.top + rectHeight / 2 - boundingHeight / 2 : y2 == "start" || y2 == "center" && side < 0 ? rect.top - yMargin : rect.bottom - boundingHeight + yMargin;
+        moveY = targetTop - bounding.top;
+      }
+      if (x2 == "nearest") {
+        if (rect.left < bounding.left + xMargin) {
+          moveX = rect.left - (bounding.left + xMargin);
+          if (side > 0 && rect.right > bounding.right + moveX)
+            moveX = rect.right - bounding.right + xMargin;
+        } else if (rect.right > bounding.right - xMargin) {
+          moveX = rect.right - bounding.right + xMargin;
+          if (side < 0 && rect.left < bounding.left + moveX)
+            moveX = rect.left - (bounding.left + xMargin);
+        }
+      } else {
+        let targetLeft = x2 == "center" ? rect.left + (rect.right - rect.left) / 2 - (bounding.right - bounding.left) / 2 : x2 == "start" == ltr ? rect.left - xMargin : rect.right - (bounding.right - bounding.left) + xMargin;
+        moveX = targetLeft - bounding.left;
+      }
+      if (moveX || moveY) {
+        if (top2) {
+          win.scrollBy(moveX, moveY);
+        } else {
+          let movedX = 0, movedY = 0;
+          if (moveY) {
+            let start2 = cur2.scrollTop;
+            cur2.scrollTop += moveY / scaleY;
+            movedY = (cur2.scrollTop - start2) * scaleY;
+          }
+          if (moveX) {
+            let start2 = cur2.scrollLeft;
+            cur2.scrollLeft += moveX / scaleX;
+            movedX = (cur2.scrollLeft - start2) * scaleX;
+          }
+          rect = {
+            left: rect.left - movedX,
+            top: rect.top - movedY,
+            right: rect.right - movedX,
+            bottom: rect.bottom - movedY
+          };
+          if (movedX && Math.abs(movedX - moveX) < 1)
+            x2 = "nearest";
+          if (movedY && Math.abs(movedY - moveY) < 1)
+            y2 = "nearest";
+        }
+      }
+      if (top2)
+        break;
+      if (rect.top < bounding.top || rect.bottom > bounding.bottom || rect.left < bounding.left || rect.right > bounding.right)
+        rect = {
+          left: Math.max(rect.left, bounding.left),
+          right: Math.min(rect.right, bounding.right),
+          top: Math.max(rect.top, bounding.top),
+          bottom: Math.min(rect.bottom, bounding.bottom)
+        };
+      cur2 = cur2.assignedSlot || cur2.parentNode;
+    } else if (cur2.nodeType == 11) {
+      cur2 = cur2.host;
+    } else {
+      break;
+    }
+  }
+}
+function scrollableParents(dom, getX = true) {
+  let doc2 = dom.ownerDocument, x2 = null, y2 = null;
+  for (let cur2 = dom.parentNode; cur2; ) {
+    if (cur2 == doc2.body || (!getX || x2) && y2) {
+      break;
+    } else if (cur2.nodeType == 1) {
+      if (!y2 && cur2.scrollHeight > cur2.clientHeight)
+        y2 = cur2;
+      if (getX && !x2 && cur2.scrollWidth > cur2.clientWidth)
+        x2 = cur2;
+      cur2 = cur2.assignedSlot || cur2.parentNode;
+    } else if (cur2.nodeType == 11) {
+      cur2 = cur2.host;
+    } else {
+      break;
+    }
+  }
+  return { x: x2, y: y2 };
+}
+class DOMSelectionState {
+  constructor() {
+    this.anchorNode = null;
+    this.anchorOffset = 0;
+    this.focusNode = null;
+    this.focusOffset = 0;
+  }
+  eq(domSel) {
+    return this.anchorNode == domSel.anchorNode && this.anchorOffset == domSel.anchorOffset && this.focusNode == domSel.focusNode && this.focusOffset == domSel.focusOffset;
+  }
+  setRange(range) {
+    let { anchorNode, focusNode } = range;
+    this.set(anchorNode, Math.min(range.anchorOffset, anchorNode ? maxOffset(anchorNode) : 0), focusNode, Math.min(range.focusOffset, focusNode ? maxOffset(focusNode) : 0));
+  }
+  set(anchorNode, anchorOffset, focusNode, focusOffset) {
+    this.anchorNode = anchorNode;
+    this.anchorOffset = anchorOffset;
+    this.focusNode = focusNode;
+    this.focusOffset = focusOffset;
+  }
+}
+function getScrollStack(target) {
+  let stack = [];
+  for (let cur2 = target; cur2; cur2 = cur2.nodeType == 11 ? cur2.host : cur2.parentNode) {
+    if (cur2.nodeType == 1)
+      stack.push({ node: cur2, left: cur2.scrollLeft, top: cur2.scrollTop });
+  }
+  return stack;
+}
+function restoreScrollStack(stack, vert = true) {
+  for (let { node, left: left2, top: top2 } of stack) {
+    if (vert && node.scrollTop != top2)
+      node.scrollTop = top2;
+    if (node.scrollLeft != left2)
+      node.scrollLeft = left2;
+  }
+}
+let preventScrollSupported = null;
+if (browser.safari && browser.safari_version >= 26)
+  preventScrollSupported = false;
+function focusPreventScroll(dom) {
+  if (dom.setActive)
+    return dom.setActive();
+  if (preventScrollSupported)
+    return dom.focus(preventScrollSupported);
+  let stack = getScrollStack(dom);
+  dom.focus(preventScrollSupported == null ? {
+    get preventScroll() {
+      preventScrollSupported = { preventScroll: true };
+      return true;
+    }
+  } : void 0);
+  if (!preventScrollSupported) {
+    preventScrollSupported = false;
+    restoreScrollStack(stack);
+  }
+}
+let scratchRange;
+function textRange(node, from, to = from) {
+  let range = scratchRange || (scratchRange = document.createRange());
+  range.setEnd(node, to);
+  range.setStart(node, from);
+  return range;
+}
+function dispatchKey(elt, name2, code2, mods) {
+  let options = { key: name2, code: name2, keyCode: code2, which: code2, cancelable: true };
+  if (mods)
+    ({ altKey: options.altKey, ctrlKey: options.ctrlKey, shiftKey: options.shiftKey, metaKey: options.metaKey } = mods);
+  let down = new KeyboardEvent("keydown", options);
+  down.synthetic = true;
+  elt.dispatchEvent(down);
+  let up = new KeyboardEvent("keyup", options);
+  up.synthetic = true;
+  elt.dispatchEvent(up);
+  return down.defaultPrevented || up.defaultPrevented;
+}
+function getRoot(node) {
+  while (node) {
+    if (node && (node.nodeType == 9 || node.nodeType == 11 && node.host))
+      return node;
+    node = node.assignedSlot || node.parentNode;
+  }
+  return null;
+}
+function atElementStart(doc2, selection) {
+  let node = selection.focusNode, offset2 = selection.focusOffset;
+  if (!node || selection.anchorNode != node || selection.anchorOffset != offset2)
+    return false;
+  offset2 = Math.min(offset2, maxOffset(node));
+  for (; ; ) {
+    if (offset2) {
+      if (node.nodeType != 1)
+        return false;
+      let prev = node.childNodes[offset2 - 1];
+      if (prev.contentEditable == "false")
+        offset2--;
+      else {
+        node = prev;
+        offset2 = maxOffset(node);
+      }
+    } else if (node == doc2) {
+      return true;
+    } else {
+      offset2 = domIndex(node);
+      node = node.parentNode;
+    }
+  }
+}
+function isScrolledToBottom(elt) {
+  if (elt instanceof Window)
+    return elt.pageYOffset > Math.max(0, elt.document.documentElement.scrollHeight - elt.innerHeight - 4);
+  return elt.scrollTop > Math.max(1, elt.scrollHeight - elt.clientHeight - 4);
+}
+function textNodeBefore(startNode, startOffset) {
+  for (let node = startNode, offset2 = startOffset; ; ) {
+    if (node.nodeType == 3 && offset2 > 0) {
+      return { node, offset: offset2 };
+    } else if (node.nodeType == 1 && offset2 > 0) {
+      if (node.contentEditable == "false")
+        return null;
+      node = node.childNodes[offset2 - 1];
+      offset2 = maxOffset(node);
+    } else if (node.parentNode && !isBlockElement(node)) {
+      offset2 = domIndex(node);
+      node = node.parentNode;
+    } else {
+      return null;
+    }
+  }
+}
+function textNodeAfter(startNode, startOffset) {
+  for (let node = startNode, offset2 = startOffset; ; ) {
+    if (node.nodeType == 3 && offset2 < node.nodeValue.length) {
+      return { node, offset: offset2 };
+    } else if (node.nodeType == 1 && offset2 < node.childNodes.length) {
+      if (node.contentEditable == "false")
+        return null;
+      node = node.childNodes[offset2];
+      offset2 = 0;
+    } else if (node.parentNode && !isBlockElement(node)) {
+      offset2 = domIndex(node) + 1;
+      node = node.parentNode;
+    } else {
+      return null;
+    }
+  }
+}
+class DOMPos {
+  constructor(node, offset2, precise = true) {
+    this.node = node;
+    this.offset = offset2;
+    this.precise = precise;
+  }
+  static before(dom, precise) {
+    return new DOMPos(dom.parentNode, domIndex(dom), precise);
+  }
+  static after(dom, precise) {
+    return new DOMPos(dom.parentNode, domIndex(dom) + 1, precise);
+  }
+}
+var Direction = /* @__PURE__ */ function(Direction2) {
+  Direction2[Direction2["LTR"] = 0] = "LTR";
+  Direction2[Direction2["RTL"] = 1] = "RTL";
+  return Direction2;
+}(Direction || (Direction = {}));
+const LTR = Direction.LTR, RTL = Direction.RTL;
+function dec(str) {
+  let result = [];
+  for (let i2 = 0; i2 < str.length; i2++)
+    result.push(1 << +str[i2]);
+  return result;
+}
+const LowTypes = /* @__PURE__ */ dec("88888888888888888888888888888888888666888888787833333333337888888000000000000000000000000008888880000000000000000000000000088888888888888888888888888888888888887866668888088888663380888308888800000000000000000000000800000000000000000000000000000008");
+const ArabicTypes = /* @__PURE__ */ dec("4444448826627288999999999992222222222222222222222222222222222222222222222229999999999999999999994444444444644222822222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222999999949999999229989999223333333333");
+const Brackets = /* @__PURE__ */ Object.create(null), BracketStack = [];
+for (let p2 of ["()", "[]", "{}"]) {
+  let l2 = /* @__PURE__ */ p2.charCodeAt(0), r2 = /* @__PURE__ */ p2.charCodeAt(1);
+  Brackets[l2] = r2;
+  Brackets[r2] = -l2;
+}
+function charType(ch2) {
+  return ch2 <= 247 ? LowTypes[ch2] : 1424 <= ch2 && ch2 <= 1524 ? 2 : 1536 <= ch2 && ch2 <= 1785 ? ArabicTypes[ch2 - 1536] : 1774 <= ch2 && ch2 <= 2220 ? 4 : 8192 <= ch2 && ch2 <= 8204 ? 256 : 64336 <= ch2 && ch2 <= 65023 ? 4 : 1;
+}
+const BidiRE = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac\ufb50-\ufdff]/;
+class BidiSpan {
+  get dir() {
+    return this.level % 2 ? RTL : LTR;
+  }
+  constructor(from, to, level) {
+    this.from = from;
+    this.to = to;
+    this.level = level;
+  }
+  side(end2, dir) {
+    return this.dir == dir == end2 ? this.to : this.from;
+  }
+  forward(forward, dir) {
+    return forward == (this.dir == dir);
+  }
+  static find(order2, index, level, assoc) {
+    let maybe = -1;
+    for (let i2 = 0; i2 < order2.length; i2++) {
+      let span = order2[i2];
+      if (span.from <= index && span.to >= index) {
+        if (span.level == level)
+          return i2;
+        if (maybe < 0 || (assoc != 0 ? assoc < 0 ? span.from < index : span.to > index : order2[maybe].level > span.level))
+          maybe = i2;
+      }
+    }
+    if (maybe < 0)
+      throw new RangeError("Index out of range");
+    return maybe;
+  }
+}
+function isolatesEq(a, b) {
+  if (a.length != b.length)
+    return false;
+  for (let i2 = 0; i2 < a.length; i2++) {
+    let iA = a[i2], iB = b[i2];
+    if (iA.from != iB.from || iA.to != iB.to || iA.direction != iB.direction || !isolatesEq(iA.inner, iB.inner))
+      return false;
+  }
+  return true;
+}
+const types = [];
+function computeCharTypes(line, rFrom, rTo, isolates, outerType) {
+  for (let iI = 0; iI <= isolates.length; iI++) {
+    let from = iI ? isolates[iI - 1].to : rFrom, to = iI < isolates.length ? isolates[iI].from : rTo;
+    let prevType = iI ? 256 : outerType;
+    for (let i2 = from, prev = prevType, prevStrong = prevType; i2 < to; i2++) {
+      let type = charType(line.charCodeAt(i2));
+      if (type == 512)
+        type = prev;
+      else if (type == 8 && prevStrong == 4)
+        type = 16;
+      types[i2] = type == 4 ? 2 : type;
+      if (type & 7)
+        prevStrong = type;
+      prev = type;
+    }
+    for (let i2 = from, prev = prevType, prevStrong = prevType; i2 < to; i2++) {
+      let type = types[i2];
+      if (type == 128) {
+        if (i2 < to - 1 && prev == types[i2 + 1] && prev & 24)
+          type = types[i2] = prev;
+        else
+          types[i2] = 256;
+      } else if (type == 64) {
+        let end2 = i2 + 1;
+        while (end2 < to && types[end2] == 64)
+          end2++;
+        let replace2 = i2 && prev == 8 || end2 < rTo && types[end2] == 8 ? prevStrong == 1 ? 1 : 8 : 256;
+        for (let j = i2; j < end2; j++)
+          types[j] = replace2;
+        i2 = end2 - 1;
+      } else if (type == 8 && prevStrong == 1) {
+        types[i2] = 1;
+      }
+      prev = type;
+      if (type & 7)
+        prevStrong = type;
+    }
+  }
+}
+function processBracketPairs(line, rFrom, rTo, isolates, outerType) {
+  let oppositeType = outerType == 1 ? 2 : 1;
+  for (let iI = 0, sI = 0, context = 0; iI <= isolates.length; iI++) {
+    let from = iI ? isolates[iI - 1].to : rFrom, to = iI < isolates.length ? isolates[iI].from : rTo;
+    for (let i2 = from, ch2, br, type; i2 < to; i2++) {
+      if (br = Brackets[ch2 = line.charCodeAt(i2)]) {
+        if (br < 0) {
+          for (let sJ = sI - 3; sJ >= 0; sJ -= 3) {
+            if (BracketStack[sJ + 1] == -br) {
+              let flags = BracketStack[sJ + 2];
+              let type2 = flags & 2 ? outerType : !(flags & 4) ? 0 : flags & 1 ? oppositeType : outerType;
+              if (type2)
+                types[i2] = types[BracketStack[sJ]] = type2;
+              sI = sJ;
+              break;
+            }
+          }
+        } else if (BracketStack.length == 189) {
+          break;
+        } else {
+          BracketStack[sI++] = i2;
+          BracketStack[sI++] = ch2;
+          BracketStack[sI++] = context;
+        }
+      } else if ((type = types[i2]) == 2 || type == 1) {
+        let embed = type == outerType;
+        context = embed ? 0 : 1;
+        for (let sJ = sI - 3; sJ >= 0; sJ -= 3) {
+          let cur2 = BracketStack[sJ + 2];
+          if (cur2 & 2)
+            break;
+          if (embed) {
+            BracketStack[sJ + 2] |= 2;
+          } else {
+            if (cur2 & 4)
+              break;
+            BracketStack[sJ + 2] |= 4;
+          }
+        }
+      }
+    }
+  }
+}
+function processNeutrals(rFrom, rTo, isolates, outerType) {
+  for (let iI = 0, prev = outerType; iI <= isolates.length; iI++) {
+    let from = iI ? isolates[iI - 1].to : rFrom, to = iI < isolates.length ? isolates[iI].from : rTo;
+    for (let i2 = from; i2 < to; ) {
+      let type = types[i2];
+      if (type == 256) {
+        let end2 = i2 + 1;
+        for (; ; ) {
+          if (end2 == to) {
+            if (iI == isolates.length)
+              break;
+            end2 = isolates[iI++].to;
+            to = iI < isolates.length ? isolates[iI].from : rTo;
+          } else if (types[end2] == 256) {
+            end2++;
+          } else {
+            break;
+          }
+        }
+        let beforeL = prev == 1;
+        let afterL = (end2 < rTo ? types[end2] : outerType) == 1;
+        let replace2 = beforeL == afterL ? beforeL ? 1 : 2 : outerType;
+        for (let j = end2, jI = iI, fromJ = jI ? isolates[jI - 1].to : rFrom; j > i2; ) {
+          if (j == fromJ) {
+            j = isolates[--jI].from;
+            fromJ = jI ? isolates[jI - 1].to : rFrom;
+          }
+          types[--j] = replace2;
+        }
+        i2 = end2;
+      } else {
+        prev = type;
+        i2++;
+      }
+    }
+  }
+}
+function emitSpans(line, from, to, level, baseLevel, isolates, order2) {
+  let ourType = level % 2 ? 2 : 1;
+  if (level % 2 == baseLevel % 2) {
+    for (let iCh = from, iI = 0; iCh < to; ) {
+      let sameDir = true, isNum = false;
+      if (iI == isolates.length || iCh < isolates[iI].from) {
+        let next = types[iCh];
+        if (next != ourType) {
+          sameDir = false;
+          isNum = next == 16;
+        }
+      }
+      let recurse = !sameDir && ourType == 1 ? [] : null;
+      let localLevel = sameDir ? level : level + 1;
+      let iScan = iCh;
+      run:
+        for (; ; ) {
+          if (iI < isolates.length && iScan == isolates[iI].from) {
+            if (isNum)
+              break run;
+            let iso = isolates[iI];
+            if (!sameDir)
+              for (let upto = iso.to, jI = iI + 1; ; ) {
+                if (upto == to)
+                  break run;
+                if (jI < isolates.length && isolates[jI].from == upto)
+                  upto = isolates[jI++].to;
+                else if (types[upto] == ourType)
+                  break run;
+                else
+                  break;
+              }
+            iI++;
+            if (recurse) {
+              recurse.push(iso);
+            } else {
+              if (iso.from > iCh)
+                order2.push(new BidiSpan(iCh, iso.from, localLevel));
+              let dirSwap = iso.direction == LTR != !(localLevel % 2);
+              computeSectionOrder(line, dirSwap ? level + 1 : level, baseLevel, iso.inner, iso.from, iso.to, order2);
+              iCh = iso.to;
+            }
+            iScan = iso.to;
+          } else if (iScan == to || (sameDir ? types[iScan] != ourType : types[iScan] == ourType)) {
+            break;
+          } else {
+            iScan++;
+          }
+        }
+      if (recurse)
+        emitSpans(line, iCh, iScan, level + 1, baseLevel, recurse, order2);
+      else if (iCh < iScan)
+        order2.push(new BidiSpan(iCh, iScan, localLevel));
+      iCh = iScan;
+    }
+  } else {
+    for (let iCh = to, iI = isolates.length; iCh > from; ) {
+      let sameDir = true, isNum = false;
+      if (!iI || iCh > isolates[iI - 1].to) {
+        let next = types[iCh - 1];
+        if (next != ourType) {
+          sameDir = false;
+          isNum = next == 16;
+        }
+      }
+      let recurse = !sameDir && ourType == 1 ? [] : null;
+      let localLevel = sameDir ? level : level + 1;
+      let iScan = iCh;
+      run:
+        for (; ; ) {
+          if (iI && iScan == isolates[iI - 1].to) {
+            if (isNum)
+              break run;
+            let iso = isolates[--iI];
+            if (!sameDir)
+              for (let upto = iso.from, jI = iI; ; ) {
+                if (upto == from)
+                  break run;
+                if (jI && isolates[jI - 1].to == upto)
+                  upto = isolates[--jI].from;
+                else if (types[upto - 1] == ourType)
+                  break run;
+                else
+                  break;
+              }
+            if (recurse) {
+              recurse.push(iso);
+            } else {
+              if (iso.to < iCh)
+                order2.push(new BidiSpan(iso.to, iCh, localLevel));
+              let dirSwap = iso.direction == LTR != !(localLevel % 2);
+              computeSectionOrder(line, dirSwap ? level + 1 : level, baseLevel, iso.inner, iso.from, iso.to, order2);
+              iCh = iso.from;
+            }
+            iScan = iso.from;
+          } else if (iScan == from || (sameDir ? types[iScan - 1] != ourType : types[iScan - 1] == ourType)) {
+            break;
+          } else {
+            iScan--;
+          }
+        }
+      if (recurse)
+        emitSpans(line, iScan, iCh, level + 1, baseLevel, recurse, order2);
+      else if (iScan < iCh)
+        order2.push(new BidiSpan(iScan, iCh, localLevel));
+      iCh = iScan;
+    }
+  }
+}
+function computeSectionOrder(line, level, baseLevel, isolates, from, to, order2) {
+  let outerType = level % 2 ? 2 : 1;
+  computeCharTypes(line, from, to, isolates, outerType);
+  processBracketPairs(line, from, to, isolates, outerType);
+  processNeutrals(from, to, isolates, outerType);
+  emitSpans(line, from, to, level, baseLevel, isolates, order2);
+}
+function computeOrder(line, direction, isolates) {
+  if (!line)
+    return [new BidiSpan(0, 0, direction == RTL ? 1 : 0)];
+  if (direction == LTR && !isolates.length && !BidiRE.test(line))
+    return trivialOrder(line.length);
+  if (isolates.length)
+    while (line.length > types.length)
+      types[types.length] = 256;
+  let order2 = [], level = direction == LTR ? 0 : 1;
+  computeSectionOrder(line, level, level, isolates, 0, line.length, order2);
+  return order2;
+}
+function trivialOrder(length) {
+  return [new BidiSpan(0, length, 0)];
+}
+let movedOver = "";
+function moveVisually(line, order2, dir, start2, forward) {
+  var _a2;
+  let startIndex = start2.head - line.from;
+  let spanI = BidiSpan.find(order2, startIndex, (_a2 = start2.bidiLevel) !== null && _a2 !== void 0 ? _a2 : -1, start2.assoc);
+  let span = order2[spanI], spanEnd = span.side(forward, dir);
+  if (startIndex == spanEnd) {
+    let nextI = spanI += forward ? 1 : -1;
+    if (nextI < 0 || nextI >= order2.length)
+      return null;
+    span = order2[spanI = nextI];
+    startIndex = span.side(!forward, dir);
+    spanEnd = span.side(forward, dir);
+  }
+  let nextIndex = findClusterBreak(line.text, startIndex, span.forward(forward, dir));
+  if (nextIndex < span.from || nextIndex > span.to)
+    nextIndex = spanEnd;
+  movedOver = line.text.slice(Math.min(startIndex, nextIndex), Math.max(startIndex, nextIndex));
+  let nextSpan = spanI == (forward ? order2.length - 1 : 0) ? null : order2[spanI + (forward ? 1 : -1)];
+  if (nextSpan && nextIndex == spanEnd && nextSpan.level + (forward ? 0 : 1) < span.level)
+    return EditorSelection.cursor(nextSpan.side(!forward, dir) + line.from, nextSpan.forward(forward, dir) ? 1 : -1, nextSpan.level);
+  return EditorSelection.cursor(nextIndex + line.from, span.forward(forward, dir) ? -1 : 1, span.level);
+}
+function autoDirection(text, from, to) {
+  for (let i2 = from; i2 < to; i2++) {
+    let type = charType(text.charCodeAt(i2));
+    if (type == 1)
+      return LTR;
+    if (type == 2 || type == 4)
+      return RTL;
+  }
+  return LTR;
+}
+const clickAddsSelectionRange = /* @__PURE__ */ Facet.define();
+const dragMovesSelection$1 = /* @__PURE__ */ Facet.define();
+const mouseSelectionStyle = /* @__PURE__ */ Facet.define();
+const exceptionSink = /* @__PURE__ */ Facet.define();
+const updateListener = /* @__PURE__ */ Facet.define();
+const inputHandler = /* @__PURE__ */ Facet.define();
+const focusChangeEffect = /* @__PURE__ */ Facet.define();
+const clipboardInputFilter = /* @__PURE__ */ Facet.define();
+const clipboardOutputFilter = /* @__PURE__ */ Facet.define();
+const perLineTextDirection = /* @__PURE__ */ Facet.define({
+  combine: (values) => values.some((x2) => x2)
+});
+const nativeSelectionHidden = /* @__PURE__ */ Facet.define({
+  combine: (values) => values.some((x2) => x2)
+});
+const scrollHandler = /* @__PURE__ */ Facet.define();
+class ScrollTarget {
+  constructor(range, y2, x2, yMargin, xMargin, isSnapshot = false) {
+    this.range = range;
+    this.y = y2;
+    this.x = x2;
+    this.yMargin = yMargin;
+    this.xMargin = xMargin;
+    this.isSnapshot = isSnapshot;
+  }
+  map(changes) {
+    return changes.empty ? this : new ScrollTarget(this.range.map(changes), this.y, this.x, this.yMargin, this.xMargin, this.isSnapshot);
+  }
+  clip(state) {
+    return this.range.to <= state.doc.length ? this : new ScrollTarget(EditorSelection.cursor(state.doc.length), this.y, this.x, this.yMargin, this.xMargin, this.isSnapshot);
+  }
+}
+const scrollIntoView$1 = /* @__PURE__ */ StateEffect.define({ map: (t2, ch2) => t2.map(ch2) });
+const setEditContextFormatting = /* @__PURE__ */ StateEffect.define();
+function logException(state, exception, context) {
+  let handler = state.facet(exceptionSink);
+  if (handler.length)
+    handler[0](exception);
+  else if (window.onerror && window.onerror(String(exception), context, void 0, void 0, exception))
+    ;
+  else if (context)
+    console.error(context + ":", exception);
+  else
+    console.error(exception);
+}
+const editable = /* @__PURE__ */ Facet.define({ combine: (values) => values.length ? values[0] : true });
+let nextPluginID = 0;
+const viewPlugin = /* @__PURE__ */ Facet.define({
+  combine(plugins) {
+    return plugins.filter((p2, i2) => {
+      for (let j = 0; j < i2; j++)
+        if (plugins[j].plugin == p2.plugin)
+          return false;
+      return true;
+    });
+  }
+});
+class ViewPlugin {
+  constructor(id2, create, domEventHandlers, domEventObservers, buildExtensions) {
+    this.id = id2;
+    this.create = create;
+    this.domEventHandlers = domEventHandlers;
+    this.domEventObservers = domEventObservers;
+    this.baseExtensions = buildExtensions(this);
+    this.extension = this.baseExtensions.concat(viewPlugin.of({ plugin: this, arg: void 0 }));
+  }
+  of(arg) {
+    return this.baseExtensions.concat(viewPlugin.of({ plugin: this, arg }));
+  }
+  static define(create, spec) {
+    const { eventHandlers, eventObservers, provide, decorations: deco } = spec || {};
+    return new ViewPlugin(nextPluginID++, create, eventHandlers, eventObservers, (plugin) => {
+      let ext = [];
+      if (deco)
+        ext.push(decorations.of((view) => {
+          let pluginInst = view.plugin(plugin);
+          return pluginInst ? deco(pluginInst) : Decoration.none;
+        }));
+      if (provide)
+        ext.push(provide(plugin));
+      return ext;
+    });
+  }
+  static fromClass(cls, spec) {
+    return ViewPlugin.define((view, arg) => new cls(view, arg), spec);
+  }
+}
+class PluginInstance {
+  constructor(spec) {
+    this.spec = spec;
+    this.mustUpdate = null;
+    this.value = null;
+  }
+  get plugin() {
+    return this.spec && this.spec.plugin;
+  }
+  update(view) {
+    if (!this.value) {
+      if (this.spec) {
+        try {
+          this.value = this.spec.plugin.create(view, this.spec.arg);
+        } catch (e) {
+          logException(view.state, e, "CodeMirror plugin crashed");
+          this.deactivate();
+        }
+      }
+    } else if (this.mustUpdate) {
+      let update = this.mustUpdate;
+      this.mustUpdate = null;
+      if (this.value.update) {
+        try {
+          this.value.update(update);
+        } catch (e) {
+          logException(update.state, e, "CodeMirror plugin crashed");
+          if (this.value.destroy)
+            try {
+              this.value.destroy();
+            } catch (_) {
+            }
+          this.deactivate();
+        }
+      }
+    }
+    return this;
+  }
+  destroy(view) {
+    var _a2;
+    if ((_a2 = this.value) === null || _a2 === void 0 ? void 0 : _a2.destroy) {
+      try {
+        this.value.destroy();
+      } catch (e) {
+        logException(view.state, e, "CodeMirror plugin crashed");
+      }
+    }
+  }
+  deactivate() {
+    this.spec = this.value = null;
+  }
+}
+const editorAttributes = /* @__PURE__ */ Facet.define();
+const contentAttributes = /* @__PURE__ */ Facet.define();
+const decorations = /* @__PURE__ */ Facet.define();
+const blockWrappers = /* @__PURE__ */ Facet.define();
+const outerDecorations = /* @__PURE__ */ Facet.define();
+const atomicRanges = /* @__PURE__ */ Facet.define();
+const bidiIsolatedRanges = /* @__PURE__ */ Facet.define();
+function getIsolatedRanges(view, line) {
+  let isolates = view.state.facet(bidiIsolatedRanges);
+  if (!isolates.length)
+    return isolates;
+  let sets = isolates.map((i2) => i2 instanceof Function ? i2(view) : i2);
+  let result = [];
+  RangeSet.spans(sets, line.from, line.to, {
+    point() {
+    },
+    span(fromDoc, toDoc, active, open) {
+      let from = fromDoc - line.from, to = toDoc - line.from;
+      let level = result;
+      for (let i2 = active.length - 1; i2 >= 0; i2--, open--) {
+        let direction = active[i2].spec.bidiIsolate, update;
+        if (direction == null)
+          direction = autoDirection(line.text, from, to);
+        if (open > 0 && level.length && (update = level[level.length - 1]).to == from && update.direction == direction) {
+          update.to = to;
+          level = update.inner;
+        } else {
+          let add = { from, to, direction, inner: [] };
+          level.push(add);
+          level = add.inner;
+        }
+      }
     }
   });
-  if (superClass)
-    _setPrototypeOf(subClass, superClass);
+  return result;
 }
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
-      arr2[i] = arr[i];
+const scrollMargins = /* @__PURE__ */ Facet.define();
+function getScrollMargins(view) {
+  let left2 = 0, right2 = 0, top2 = 0, bottom2 = 0;
+  for (let source of view.state.facet(scrollMargins)) {
+    let m2 = source(view);
+    if (m2) {
+      if (m2.left != null)
+        left2 = Math.max(left2, m2.left);
+      if (m2.right != null)
+        right2 = Math.max(right2, m2.right);
+      if (m2.top != null)
+        top2 = Math.max(top2, m2.top);
+      if (m2.bottom != null)
+        bottom2 = Math.max(bottom2, m2.bottom);
     }
-    return arr2;
+  }
+  return { left: left2, right: right2, top: top2, bottom: bottom2 };
+}
+const styleModule = /* @__PURE__ */ Facet.define();
+class ChangedRange {
+  constructor(fromA, toA, fromB, toB) {
+    this.fromA = fromA;
+    this.toA = toA;
+    this.fromB = fromB;
+    this.toB = toB;
+  }
+  join(other) {
+    return new ChangedRange(Math.min(this.fromA, other.fromA), Math.max(this.toA, other.toA), Math.min(this.fromB, other.fromB), Math.max(this.toB, other.toB));
+  }
+  addToSet(set) {
+    let i2 = set.length, me2 = this;
+    for (; i2 > 0; i2--) {
+      let range = set[i2 - 1];
+      if (range.fromA > me2.toA)
+        continue;
+      if (range.toA < me2.fromA)
+        break;
+      me2 = me2.join(range);
+      set.splice(i2 - 1, 1);
+    }
+    set.splice(i2, 0, me2);
+    return set;
+  }
+  static extendWithRanges(diff, ranges) {
+    if (ranges.length == 0)
+      return diff;
+    let result = [];
+    for (let dI = 0, rI = 0, off = 0; ; ) {
+      let nextD = dI < diff.length ? diff[dI].fromB : 1e9;
+      let nextR = rI < ranges.length ? ranges[rI] : 1e9;
+      let fromB = Math.min(nextD, nextR);
+      if (fromB == 1e9)
+        break;
+      let fromA = fromB + off, toB = fromB, toA = fromA;
+      for (; ; ) {
+        if (rI < ranges.length && ranges[rI] <= toB) {
+          let end2 = ranges[rI + 1];
+          rI += 2;
+          toB = Math.max(toB, end2);
+          for (let i2 = dI; i2 < diff.length && diff[i2].fromB <= toB; i2++)
+            off = diff[i2].toA - diff[i2].toB;
+          toA = Math.max(toA, end2 + off);
+        } else if (dI < diff.length && diff[dI].fromB <= toB) {
+          let next = diff[dI++];
+          toB = Math.max(toB, next.toB);
+          toA = Math.max(toA, next.toA);
+          off = next.toA - next.toB;
+        } else {
+          break;
+        }
+      }
+      result.push(new ChangedRange(fromA, toA, fromB, toB));
+    }
+    return result;
   }
 }
-function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]")
-    return Array.from(iter);
+class ViewUpdate {
+  constructor(view, state, transactions) {
+    this.view = view;
+    this.state = state;
+    this.transactions = transactions;
+    this.flags = 0;
+    this.startState = view.state;
+    this.changes = ChangeSet.empty(this.startState.doc.length);
+    for (let tr2 of transactions)
+      this.changes = this.changes.compose(tr2.changes);
+    let changedRanges = [];
+    this.changes.iterChangedRanges((fromA, toA, fromB, toB) => changedRanges.push(new ChangedRange(fromA, toA, fromB, toB)));
+    this.changedRanges = changedRanges;
+  }
+  static create(view, state, transactions) {
+    return new ViewUpdate(view, state, transactions);
+  }
+  get viewportChanged() {
+    return (this.flags & 4) > 0;
+  }
+  get viewportMoved() {
+    return (this.flags & 8) > 0;
+  }
+  get heightChanged() {
+    return (this.flags & 2) > 0;
+  }
+  get geometryChanged() {
+    return this.docChanged || (this.flags & (16 | 2)) > 0;
+  }
+  get focusChanged() {
+    return (this.flags & 1) > 0;
+  }
+  get docChanged() {
+    return !this.changes.empty;
+  }
+  get selectionSet() {
+    return this.transactions.some((tr2) => tr2.selection);
+  }
+  get empty() {
+    return this.flags == 0 && this.transactions.length == 0;
+  }
 }
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
+const noChildren = [];
+class Tile {
+  constructor(dom, length, flags = 0) {
+    this.dom = dom;
+    this.length = length;
+    this.flags = flags;
+    this.parent = null;
+    dom.cmTile = this;
+  }
+  get breakAfter() {
+    return this.flags & 1;
+  }
+  get children() {
+    return noChildren;
+  }
+  isWidget() {
+    return false;
+  }
+  get isHidden() {
+    return false;
+  }
+  isComposite() {
+    return false;
+  }
+  isLine() {
+    return false;
+  }
+  isText() {
+    return false;
+  }
+  isBlock() {
+    return false;
+  }
+  get domAttrs() {
+    return null;
+  }
+  sync(track) {
+    this.flags |= 2;
+    if (this.flags & 4) {
+      this.flags &= ~4;
+      let attrs = this.domAttrs;
+      if (attrs)
+        setAttrs(this.dom, attrs);
+    }
+  }
+  toString() {
+    return this.constructor.name + (this.children.length ? `(${this.children})` : "") + (this.breakAfter ? "#" : "");
+  }
+  destroy() {
+    this.parent = null;
+  }
+  setDOM(dom) {
+    this.dom = dom;
+    dom.cmTile = this;
+  }
+  get posAtStart() {
+    return this.parent ? this.parent.posBefore(this) : 0;
+  }
+  get posAtEnd() {
+    return this.posAtStart + this.length;
+  }
+  posBefore(tile, start2 = this.posAtStart) {
+    let pos = start2;
+    for (let child of this.children) {
+      if (child == tile)
+        return pos;
+      pos += child.length + child.breakAfter;
+    }
+    throw new RangeError("Invalid child in posBefore");
+  }
+  posAfter(tile) {
+    return this.posBefore(tile) + tile.length;
+  }
+  covers(side) {
+    return true;
+  }
+  coordsIn(pos, side, rtl) {
+    return null;
+  }
+  domPosFor(off, side) {
+    let index = domIndex(this.dom);
+    let after = this.length ? off > 0 : side > 0;
+    return new DOMPos(this.parent.dom, index + (after ? 1 : 0), off == 0 || off == this.length);
+  }
+  markDirty(attrs) {
+    this.flags &= ~2;
+    if (attrs)
+      this.flags |= 4;
+    if (this.parent && this.parent.flags & 2)
+      this.parent.markDirty(false);
+  }
+  get overrideDOMText() {
+    return null;
+  }
+  get root() {
+    for (let t2 = this; t2; t2 = t2.parent)
+      if (t2 instanceof DocTile)
+        return t2;
+    return null;
+  }
+  static get(dom) {
+    return dom.cmTile;
+  }
 }
-function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+class CompositeTile extends Tile {
+  constructor(dom) {
+    super(dom, 0);
+    this._children = [];
+  }
+  isComposite() {
+    return true;
+  }
+  get children() {
+    return this._children;
+  }
+  get lastChild() {
+    return this.children.length ? this.children[this.children.length - 1] : null;
+  }
+  append(child) {
+    this.children.push(child);
+    child.parent = this;
+  }
+  sync(track) {
+    if (this.flags & 2)
+      return;
+    super.sync(track);
+    let parent = this.dom, prev = null, next;
+    let tracking = (track === null || track === void 0 ? void 0 : track.node) == parent ? track : null;
+    let length = 0;
+    for (let child of this.children) {
+      child.sync(track);
+      length += child.length + child.breakAfter;
+      next = prev ? prev.nextSibling : parent.firstChild;
+      if (tracking && next != child.dom)
+        tracking.written = true;
+      if (child.dom.parentNode == parent) {
+        while (next && next != child.dom)
+          next = rm$1(next);
+      } else {
+        parent.insertBefore(child.dom, next);
+      }
+      prev = child.dom;
+    }
+    next = prev ? prev.nextSibling : parent.firstChild;
+    if (tracking && next)
+      tracking.written = true;
+    while (next)
+      next = rm$1(next);
+    this.length = length;
+  }
 }
-var KEY_CODES = {
-  ESC: 27,
-  UP: 38,
-  DOWN: 40,
-  LEFT: 37,
-  RIGHT: 39,
-  ENTER: 13,
-  TAB: 9
-};
-var Listener = function Listener2() {
-  var _this = this;
-  _classCallCheck(this, Listener2);
-  this.startListen = function(ref) {
-    if (!ref)
-      return;
-    ref.addEventListener("keydown", _this.f);
-  };
-  this.stopListen = function(ref) {
-    if (!ref)
-      return;
-    ref.removeEventListener("keydown", _this.f);
-  };
-  this.add = function(keyCodes, fn2) {
-    var keyCode = keyCodes;
-    if (typeof keyCode !== "object")
-      keyCode = [keyCode];
-    _this.listeners[_this.index] = {
-      keyCode,
-      fn: fn2
-    };
-    return _this.index++;
-  };
-  this.remove = function(id2) {
-    delete _this.listeners[id2];
-  };
-  this.removeAll = function() {
-    _this.listeners = {};
-    _this.index = 1;
-  };
-  this.index = 1;
-  this.listeners = {};
-  this.f = function(e) {
-    if (!e)
-      return;
-    var code = e.keyCode || e.which;
-    Object.values(_this.listeners).forEach(function(_ref) {
-      var keyCode = _ref.keyCode, fn2 = _ref.fn;
-      if (keyCode.includes(code)) {
-        e.stopPropagation();
-        e.preventDefault();
-        fn2(e);
+function rm$1(dom) {
+  let next = dom.nextSibling;
+  dom.parentNode.removeChild(dom);
+  return next;
+}
+class DocTile extends CompositeTile {
+  constructor(view, dom) {
+    super(dom);
+    this.view = view;
+  }
+  owns(tile) {
+    for (; tile; tile = tile.parent)
+      if (tile == this)
+        return true;
+    return false;
+  }
+  isBlock() {
+    return true;
+  }
+  nearest(dom) {
+    for (; ; ) {
+      if (!dom)
+        return null;
+      let tile = Tile.get(dom);
+      if (tile && this.owns(tile))
+        return tile;
+      dom = dom.parentNode;
+    }
+  }
+  blockTiles(f2) {
+    for (let stack = [], cur2 = this, i2 = 0, pos = 0; ; ) {
+      if (i2 == cur2.children.length) {
+        if (!stack.length)
+          return;
+        cur2 = cur2.parent;
+        if (cur2.breakAfter)
+          pos++;
+        i2 = stack.pop();
+      } else {
+        let next = cur2.children[i2++];
+        if (next instanceof BlockWrapperTile) {
+          stack.push(i2);
+          cur2 = next;
+          i2 = 0;
+        } else {
+          let end2 = pos + next.length;
+          let result = f2(next, pos);
+          if (result !== void 0)
+            return result;
+          pos = end2 + next.breakAfter;
+        }
+      }
+    }
+  }
+  resolveBlock(pos, side) {
+    let before, beforeOff = -1, after, afterOff = -1;
+    this.blockTiles((tile, off) => {
+      let end2 = off + tile.length;
+      if (pos >= off && pos <= end2) {
+        if (tile.isWidget() && side >= -1 && side <= 1) {
+          if (tile.flags & 32)
+            return true;
+          if (tile.flags & 16)
+            before = void 0;
+        }
+        if ((off < pos || pos == end2 && (side < -1 ? tile.length : tile.covers(1))) && (!before || !tile.isWidget() && before.isWidget())) {
+          before = tile;
+          beforeOff = pos - off;
+        }
+        if ((end2 > pos || pos == off && (side > 1 ? tile.length : tile.covers(-1))) && (!after || !tile.isWidget() && after.isWidget())) {
+          after = tile;
+          afterOff = pos - off;
+        }
       }
     });
-  };
-};
-var Listeners = new Listener();
-var Item = /* @__PURE__ */ function(_React$Component) {
-  _inherits(Item2, _React$Component);
-  function Item2() {
-    var _getPrototypeOf2;
-    var _this;
-    _classCallCheck(this, Item2);
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(Item2)).call.apply(_getPrototypeOf2, [this].concat(args)));
-    _this.selectItem = function() {
-      var _this$props = _this.props, item = _this$props.item, onSelectHandler = _this$props.onSelectHandler;
-      onSelectHandler(item);
-    };
-    return _this;
+    if (!before && !after)
+      throw new Error("No tile at position " + pos);
+    return before && side < 0 || !after ? { tile: before, offset: beforeOff } : { tile: after, offset: afterOff };
   }
-  _createClass(Item2, [{
-    key: "shouldComponentUpdate",
-    value: function shouldComponentUpdate(nextProps) {
-      if (this.props.item !== nextProps.item || this.props.selected !== nextProps.selected || this.props.style !== nextProps.style || this.props.className !== nextProps.className) {
-        return true;
+}
+class BlockWrapperTile extends CompositeTile {
+  constructor(dom, wrapper) {
+    super(dom);
+    this.wrapper = wrapper;
+  }
+  isBlock() {
+    return true;
+  }
+  covers(side) {
+    if (!this.children.length)
+      return false;
+    return side < 0 ? this.children[0].covers(-1) : this.lastChild.covers(1);
+  }
+  get domAttrs() {
+    return this.wrapper.attributes;
+  }
+  static of(wrapper, dom) {
+    let tile = new BlockWrapperTile(dom || document.createElement(wrapper.tagName), wrapper);
+    if (!dom)
+      tile.flags |= 4;
+    return tile;
+  }
+}
+class LineTile extends CompositeTile {
+  constructor(dom, attrs) {
+    super(dom);
+    this.attrs = attrs;
+  }
+  isLine() {
+    return true;
+  }
+  static start(attrs, dom, keepAttrs) {
+    let line = new LineTile(dom || document.createElement("div"), attrs);
+    if (!dom || !keepAttrs)
+      line.flags |= 4;
+    return line;
+  }
+  get domAttrs() {
+    return this.attrs;
+  }
+  resolveInline(pos, side, forCoords) {
+    let before = null, beforeOff = -1, after = null, afterOff = -1;
+    function scan(tile, pos2) {
+      for (let i2 = 0, off = 0; i2 < tile.children.length && off <= pos2; i2++) {
+        let child = tile.children[i2], end2 = off + child.length;
+        if (end2 >= pos2) {
+          if (child.isComposite()) {
+            scan(child, pos2 - off);
+          } else if ((!after || after.isHidden && (side > 0 && !(after.flags & 32) || forCoords && onSameLine(after, child))) && (end2 > pos2 || child.flags & 32 && side <= 1)) {
+            after = child;
+            afterOff = pos2 - off;
+          } else if (off < pos2 || child.flags & 16 && !child.isHidden && side >= -1) {
+            before = child;
+            beforeOff = pos2 - off;
+          }
+        }
+        off = end2;
       }
+    }
+    scan(this, pos);
+    let target = (side < 0 ? before : after) || before || after;
+    return target ? { tile: target, offset: target == before ? beforeOff : afterOff } : null;
+  }
+  coordsIn(pos, side, rtl) {
+    let found = this.resolveInline(pos, side, true);
+    if (!found)
+      return fallbackRect(this);
+    return found.tile.coordsIn(Math.max(0, found.offset), side, rtl);
+  }
+  domIn(pos, side) {
+    let found = this.resolveInline(pos, side);
+    if (found) {
+      let { tile, offset: offset2 } = found;
+      if (this.dom.contains(tile.dom)) {
+        if (tile.isText())
+          return new DOMPos(tile.dom, Math.min(tile.dom.nodeValue.length, offset2));
+        return tile.domPosFor(offset2, tile.flags & 16 ? 1 : tile.flags & 32 ? -1 : side);
+      }
+      let parent = found.tile.parent, saw = false;
+      for (let ch2 of parent.children) {
+        if (saw)
+          return new DOMPos(ch2.dom, 0);
+        if (ch2 == found.tile) {
+          saw = true;
+        }
+      }
+    }
+    return new DOMPos(this.dom, 0);
+  }
+}
+function fallbackRect(tile) {
+  let last2 = tile.dom.lastChild;
+  if (!last2)
+    return tile.dom.getBoundingClientRect();
+  let rects = clientRectsFor(last2);
+  return rects[rects.length - 1] || null;
+}
+function onSameLine(a, b) {
+  let posA = a.coordsIn(0, 1), posB = b.coordsIn(0, 1);
+  return posA && posB && posB.top < posA.bottom;
+}
+class MarkTile extends CompositeTile {
+  constructor(dom, mark) {
+    super(dom);
+    this.mark = mark;
+  }
+  get domAttrs() {
+    return this.mark.attrs;
+  }
+  static of(mark, dom) {
+    let tile = new MarkTile(dom || document.createElement(mark.tagName), mark);
+    if (!dom)
+      tile.flags |= 4;
+    return tile;
+  }
+}
+class TextTile extends Tile {
+  constructor(dom, text) {
+    super(dom, text.length);
+    this.text = text;
+  }
+  sync(track) {
+    if (this.flags & 2)
+      return;
+    super.sync(track);
+    if (this.dom.nodeValue != this.text) {
+      if (track && track.node == this.dom)
+        track.written = true;
+      this.dom.nodeValue = this.text;
+    }
+  }
+  isText() {
+    return true;
+  }
+  toString() {
+    return JSON.stringify(this.text);
+  }
+  coordsIn(pos, side, rtl) {
+    let length = this.dom.nodeValue.length;
+    if (pos > length)
+      pos = length;
+    let from = pos, to = pos, flatten2 = 0;
+    if (pos == 0 && side < 0 || pos == length && side >= 0) {
+      if (!(browser.chrome || browser.gecko)) {
+        if (pos) {
+          from--;
+          flatten2 = 1;
+        } else if (to < length) {
+          to++;
+          flatten2 = -1;
+        }
+      }
+    } else {
+      if (side < 0)
+        from--;
+      else if (to < length)
+        to++;
+    }
+    let rects = textRange(this.dom, from, to).getClientRects();
+    if (!rects.length)
+      return null;
+    let rect = rects[(flatten2 ? flatten2 < 0 : side >= 0) ? 0 : rects.length - 1];
+    if (browser.safari && !flatten2 && rect.width == 0)
+      rect = Array.prototype.find.call(rects, (r2) => r2.width) || rect;
+    return rtl == null ? rect : flattenRect(rect, (flatten2 ? flatten2 > 0 : side < 0) == rtl);
+  }
+  static of(text, dom) {
+    let tile = new TextTile(dom || document.createTextNode(text), text);
+    if (!dom)
+      tile.flags |= 2;
+    return tile;
+  }
+}
+class WidgetTile extends Tile {
+  constructor(dom, length, widget, flags) {
+    super(dom, length, flags);
+    this.widget = widget;
+  }
+  isWidget() {
+    return true;
+  }
+  get isHidden() {
+    return this.widget.isHidden;
+  }
+  covers(side) {
+    if (this.flags & 48)
+      return false;
+    return (this.flags & (side < 0 ? 64 : 128)) > 0;
+  }
+  coordsIn(pos, side) {
+    return this.coordsInWidget(pos, side, false);
+  }
+  coordsInWidget(pos, side, block) {
+    let custom = this.widget.coordsAt(this.dom, pos, side);
+    if (custom)
+      return custom;
+    if (block) {
+      return flattenRect(this.dom.getBoundingClientRect(), this.length ? pos == 0 : side <= 0);
+    } else {
+      let rects = this.dom.getClientRects(), rect = null;
+      if (!rects.length)
+        return null;
+      let fromBack = this.flags & 16 ? true : this.flags & 32 ? false : pos > 0;
+      for (let i2 = fromBack ? rects.length - 1 : 0; ; i2 += fromBack ? -1 : 1) {
+        rect = rects[i2];
+        if (pos > 0 ? i2 == 0 : i2 == rects.length - 1 || rect.top < rect.bottom)
+          break;
+      }
+      return flattenRect(rect, !fromBack);
+    }
+  }
+  get overrideDOMText() {
+    if (!this.length)
+      return Text.empty;
+    let { root } = this;
+    if (!root)
+      return Text.empty;
+    let start2 = this.posAtStart;
+    return root.view.state.doc.slice(start2, start2 + this.length);
+  }
+  destroy() {
+    super.destroy();
+    this.widget.destroy(this.dom);
+  }
+  static of(widget, view, length, flags, dom) {
+    if (!dom) {
+      dom = widget.toDOM(view);
+      if (!widget.editable)
+        dom.contentEditable = "false";
+    }
+    return new WidgetTile(dom, length, widget, flags);
+  }
+}
+class WidgetBufferTile extends Tile {
+  constructor(flags) {
+    let img = document.createElement("img");
+    img.className = "cm-widgetBuffer";
+    img.setAttribute("aria-hidden", "true");
+    super(img, 0, flags);
+  }
+  get isHidden() {
+    return true;
+  }
+  get overrideDOMText() {
+    return Text.empty;
+  }
+  coordsIn(pos, side, rtl) {
+    let rect = this.dom.getBoundingClientRect();
+    return rtl == null ? rect : flattenRect(rect, side > 0 == rtl);
+  }
+}
+class TilePointer {
+  constructor(top2) {
+    this.index = 0;
+    this.beforeBreak = false;
+    this.parents = [];
+    this.tile = top2;
+  }
+  advance(dist2, side, walker) {
+    let { tile, index, beforeBreak, parents } = this;
+    while (dist2 || side > 0) {
+      if (!tile.isComposite()) {
+        let len = tile.length;
+        if (index < len && dist2) {
+          let take = Math.min(dist2, len - index);
+          if (walker)
+            walker.skip(tile, index, index + take);
+          dist2 -= take;
+          index += take;
+        }
+        if (index == len) {
+          beforeBreak = !!tile.breakAfter;
+          ({ tile, index } = parents.pop());
+          index++;
+        } else if (!dist2) {
+          break;
+        }
+      } else if (beforeBreak) {
+        if (!dist2)
+          break;
+        if (walker)
+          walker.break();
+        dist2--;
+        beforeBreak = false;
+      } else if (index == tile.children.length) {
+        if (!dist2 && !parents.length)
+          break;
+        if (walker)
+          walker.leave(tile);
+        beforeBreak = !!tile.breakAfter;
+        ({ tile, index } = parents.pop());
+        index++;
+      } else {
+        let next = tile.children[index], brk = next.breakAfter;
+        if ((side > 0 ? next.length <= dist2 : next.length < dist2) && (!walker || walker.skip(next, 0, next.length) !== false || !next.isComposite)) {
+          beforeBreak = !!brk;
+          index++;
+          dist2 -= next.length;
+        } else {
+          parents.push({ tile, index });
+          tile = next;
+          index = 0;
+          if (walker && next.isComposite())
+            walker.enter(next);
+        }
+      }
+    }
+    this.tile = tile;
+    this.index = index;
+    this.beforeBreak = beforeBreak;
+    return this;
+  }
+  get root() {
+    return this.parents.length ? this.parents[0].tile : this.tile;
+  }
+}
+class OpenWrapper {
+  constructor(from, to, wrapper, rank) {
+    this.from = from;
+    this.to = to;
+    this.wrapper = wrapper;
+    this.rank = rank;
+  }
+}
+class TileBuilder {
+  constructor(cache, root, blockWrappers2) {
+    this.cache = cache;
+    this.root = root;
+    this.blockWrappers = blockWrappers2;
+    this.curLine = null;
+    this.lastBlock = null;
+    this.afterWidget = null;
+    this.pos = 0;
+    this.wrappers = [];
+    this.wrapperPos = 0;
+  }
+  addText(text, marks, openStart, tile) {
+    var _a2;
+    this.flushBuffer();
+    let parent = this.ensureMarks(marks, openStart);
+    let prev = parent.lastChild;
+    if (prev && prev.isText() && !(prev.flags & 8) && prev.length + text.length < 512) {
+      this.cache.reused.set(prev, 2);
+      let tile2 = parent.children[parent.children.length - 1] = new TextTile(prev.dom, prev.text + text);
+      tile2.parent = parent;
+    } else {
+      parent.append(tile || TextTile.of(text, (_a2 = this.cache.find(TextTile)) === null || _a2 === void 0 ? void 0 : _a2.dom));
+    }
+    this.pos += text.length;
+    this.afterWidget = null;
+  }
+  addComposition(composition, context) {
+    let line = this.curLine;
+    if (line.dom != context.line.dom) {
+      line.setDOM(this.cache.reused.has(context.line) ? freeNode(context.line.dom) : context.line.dom);
+      this.cache.reused.set(context.line, 2);
+    }
+    let head = line;
+    for (let i2 = context.marks.length - 1; i2 >= 0; i2--) {
+      let mark = context.marks[i2];
+      let last2 = head.lastChild;
+      if (last2 instanceof MarkTile && last2.mark.eq(mark.mark)) {
+        if (last2.dom != mark.dom)
+          last2.setDOM(freeNode(mark.dom));
+        head = last2;
+      } else {
+        if (this.cache.reused.get(mark)) {
+          let tile = Tile.get(mark.dom);
+          if (tile)
+            tile.setDOM(freeNode(mark.dom));
+        }
+        let nw = MarkTile.of(mark.mark, mark.dom);
+        head.append(nw);
+        head = nw;
+      }
+      this.cache.reused.set(mark, 2);
+    }
+    let oldTile = Tile.get(composition.text);
+    if (oldTile)
+      this.cache.reused.set(oldTile, 2);
+    let text = new TextTile(composition.text, composition.text.nodeValue);
+    text.flags |= 8;
+    this.pos = composition.range.toB;
+    head.append(text);
+  }
+  addInlineWidget(widget, marks, openStart) {
+    let noSpace = this.afterWidget && widget.flags & 48 && (this.afterWidget.flags & 48) == (widget.flags & 48);
+    if (!noSpace)
+      this.flushBuffer();
+    let parent = this.ensureMarks(marks, openStart);
+    if (!noSpace && !(widget.flags & 16))
+      parent.append(this.getBuffer(1));
+    parent.append(widget);
+    this.pos += widget.length;
+    this.afterWidget = widget;
+  }
+  addMark(tile, marks, openStart) {
+    this.flushBuffer();
+    let parent = this.ensureMarks(marks, openStart);
+    parent.append(tile);
+    this.pos += tile.length;
+    this.afterWidget = null;
+  }
+  addBlockWidget(widget) {
+    this.getBlockPos().append(widget);
+    this.pos += widget.length;
+    this.lastBlock = widget;
+    this.endLine();
+  }
+  continueWidget(length) {
+    let widget = this.afterWidget || this.lastBlock;
+    widget.length += length;
+    this.pos += length;
+  }
+  addLineStart(attrs, dom) {
+    var _a2;
+    if (!attrs)
+      attrs = lineBaseAttrs;
+    let tile = LineTile.start(attrs, dom || ((_a2 = this.cache.find(LineTile)) === null || _a2 === void 0 ? void 0 : _a2.dom), !!dom);
+    this.getBlockPos().append(this.lastBlock = this.curLine = tile);
+  }
+  addLine(tile) {
+    this.getBlockPos().append(tile);
+    this.pos += tile.length;
+    this.lastBlock = tile;
+    this.endLine();
+  }
+  addBreak() {
+    this.lastBlock.flags |= 1;
+    this.endLine();
+    this.pos++;
+  }
+  addLineStartIfNotCovered(attrs) {
+    if (!this.blockPosCovered())
+      this.addLineStart(attrs);
+  }
+  ensureLine(attrs) {
+    if (!this.curLine)
+      this.addLineStart(attrs);
+  }
+  ensureMarks(marks, openStart) {
+    var _a2;
+    let parent = this.curLine;
+    for (let i2 = marks.length - 1; i2 >= 0; i2--) {
+      let mark = marks[i2], last2;
+      if (openStart > 0 && (last2 = parent.lastChild) && last2 instanceof MarkTile && last2.mark.eq(mark)) {
+        parent = last2;
+        openStart--;
+      } else {
+        let tile = MarkTile.of(mark, (_a2 = this.cache.find(MarkTile, (m2) => m2.mark.eq(mark))) === null || _a2 === void 0 ? void 0 : _a2.dom);
+        parent.append(tile);
+        parent = tile;
+        openStart = 0;
+      }
+    }
+    return parent;
+  }
+  endLine() {
+    if (this.curLine) {
+      this.flushBuffer();
+      let last2 = this.curLine.lastChild;
+      if (!last2 || !hasContent(this.curLine, false) || last2.dom.nodeName != "BR" && last2.isWidget() && !(browser.ios && hasContent(this.curLine, true)))
+        this.curLine.append(this.cache.findWidget(BreakWidget, 0, 32) || new WidgetTile(BreakWidget.toDOM(), 0, BreakWidget, 32));
+      this.curLine = this.afterWidget = null;
+    }
+  }
+  updateBlockWrappers() {
+    if (this.wrapperPos > this.pos + 1e4) {
+      this.blockWrappers.goto(this.pos);
+      this.wrappers.length = 0;
+    }
+    for (let i2 = this.wrappers.length - 1; i2 >= 0; i2--)
+      if (this.wrappers[i2].to < this.pos)
+        this.wrappers.splice(i2, 1);
+    for (let cur2 = this.blockWrappers; cur2.value && cur2.from <= this.pos; cur2.next())
+      if (cur2.to >= this.pos) {
+        let rank = cur2.rank * 102 + cur2.value.rank;
+        let wrap = new OpenWrapper(cur2.from, cur2.to, cur2.value, rank), i2 = this.wrappers.length;
+        while (i2 > 0 && (this.wrappers[i2 - 1].rank - wrap.rank || this.wrappers[i2 - 1].to - wrap.to) < 0)
+          i2--;
+        this.wrappers.splice(i2, 0, wrap);
+      }
+    this.wrapperPos = this.pos;
+  }
+  getBlockPos() {
+    var _a2;
+    this.updateBlockWrappers();
+    let parent = this.root;
+    for (let wrap of this.wrappers) {
+      let last2 = parent.lastChild;
+      if (wrap.from < this.pos && last2 instanceof BlockWrapperTile && last2.wrapper.eq(wrap.wrapper)) {
+        parent = last2;
+      } else {
+        let tile = BlockWrapperTile.of(wrap.wrapper, (_a2 = this.cache.find(BlockWrapperTile, (t2) => t2.wrapper.eq(wrap.wrapper))) === null || _a2 === void 0 ? void 0 : _a2.dom);
+        parent.append(tile);
+        parent = tile;
+      }
+    }
+    return parent;
+  }
+  blockPosCovered() {
+    let last2 = this.lastBlock;
+    return last2 != null && !last2.breakAfter && (!last2.isWidget() || (last2.flags & (32 | 128)) > 0);
+  }
+  getBuffer(side) {
+    let flags = 2 | (side < 0 ? 16 : 32);
+    let found = this.cache.find(WidgetBufferTile, void 0, 1);
+    if (found)
+      found.flags = flags;
+    return found || new WidgetBufferTile(flags);
+  }
+  flushBuffer() {
+    if (this.afterWidget && !(this.afterWidget.flags & 32)) {
+      this.afterWidget.parent.append(this.getBuffer(-1));
+      this.afterWidget = null;
+    }
+  }
+}
+class TextStream {
+  constructor(doc2) {
+    this.skipCount = 0;
+    this.text = "";
+    this.textOff = 0;
+    this.cursor = doc2.iter();
+  }
+  skip(len) {
+    if (this.textOff + len <= this.text.length) {
+      this.textOff += len;
+    } else {
+      this.skipCount += len - (this.text.length - this.textOff);
+      this.text = "";
+      this.textOff = 0;
+    }
+  }
+  next(maxLen) {
+    if (this.textOff == this.text.length) {
+      let { value, lineBreak, done } = this.cursor.next(this.skipCount);
+      this.skipCount = 0;
+      if (done)
+        throw new Error("Ran out of text content when drawing inline views");
+      this.text = value;
+      let len = this.textOff = Math.min(maxLen, value.length);
+      return lineBreak ? null : value.slice(0, len);
+    }
+    let end2 = Math.min(this.text.length, this.textOff + maxLen);
+    let chars = this.text.slice(this.textOff, end2);
+    this.textOff = end2;
+    return chars;
+  }
+}
+const buckets = [WidgetTile, LineTile, TextTile, MarkTile, WidgetBufferTile, BlockWrapperTile, DocTile];
+for (let i2 = 0; i2 < buckets.length; i2++)
+  buckets[i2].bucket = i2;
+class TileCache {
+  constructor(view) {
+    this.view = view;
+    this.buckets = buckets.map(() => []);
+    this.index = buckets.map(() => 0);
+    this.reused = /* @__PURE__ */ new Map();
+  }
+  add(tile) {
+    let i2 = tile.constructor.bucket, bucket = this.buckets[i2];
+    if (bucket.length < 6)
+      bucket.push(tile);
+    else
+      bucket[this.index[i2] = (this.index[i2] + 1) % 6] = tile;
+  }
+  find(cls, test, type = 2) {
+    let i2 = cls.bucket;
+    let bucket = this.buckets[i2], off = this.index[i2];
+    for (let j = 0; j < bucket.length; j++) {
+      let index = (j + off) % bucket.length, tile = bucket[index];
+      if ((!test || test(tile)) && !this.reused.has(tile)) {
+        bucket.splice(index, 1);
+        if (index < off)
+          this.index[i2]--;
+        this.reused.set(tile, type);
+        return tile;
+      }
+    }
+    return null;
+  }
+  findWidget(widget, length, flags) {
+    let widgets = this.buckets[0];
+    if (widgets.length)
+      for (let i2 = 0, pass = 0; ; i2++) {
+        if (i2 == widgets.length) {
+          if (pass)
+            return null;
+          pass = 1;
+          i2 = 0;
+        }
+        let tile = widgets[i2];
+        if (!this.reused.has(tile) && (pass == 0 ? tile.widget.compare(widget) : tile.widget.constructor == widget.constructor && widget.updateDOM(tile.dom, this.view, tile.widget))) {
+          widgets.splice(i2, 1);
+          if (i2 < this.index[0])
+            this.index[0]--;
+          if (tile.widget == widget && tile.length == length && (tile.flags & (496 | 1)) == flags) {
+            this.reused.set(tile, 1);
+            return tile;
+          } else {
+            this.reused.set(tile, 2);
+            return new WidgetTile(tile.dom, length, widget, tile.flags & ~(496 | 1) | flags);
+          }
+        }
+      }
+  }
+  reuse(tile) {
+    this.reused.set(tile, 1);
+    return tile;
+  }
+  maybeReuse(tile, type = 2) {
+    if (this.reused.has(tile))
+      return void 0;
+    this.reused.set(tile, type);
+    return tile.dom;
+  }
+  clear() {
+    for (let i2 = 0; i2 < this.buckets.length; i2++)
+      this.buckets[i2].length = this.index[i2] = 0;
+  }
+}
+class TileUpdate {
+  constructor(view, old, blockWrappers2, decorations2, disallowBlockEffectsFor) {
+    this.view = view;
+    this.decorations = decorations2;
+    this.disallowBlockEffectsFor = disallowBlockEffectsFor;
+    this.openWidget = false;
+    this.openMarks = 0;
+    this.cache = new TileCache(view);
+    this.text = new TextStream(view.state.doc);
+    this.builder = new TileBuilder(this.cache, new DocTile(view, view.contentDOM), RangeSet.iter(blockWrappers2));
+    this.cache.reused.set(old, 2);
+    this.old = new TilePointer(old);
+    this.reuseWalker = {
+      skip: (tile, from, to) => {
+        this.cache.add(tile);
+        if (tile.isComposite())
+          return false;
+      },
+      enter: (tile) => this.cache.add(tile),
+      leave: () => {
+      },
+      break: () => {
+      }
+    };
+  }
+  run(changes, composition) {
+    let compositionContext = composition && this.getCompositionContext(composition.text);
+    for (let posA = 0, posB = 0, i2 = 0; ; ) {
+      let next = i2 < changes.length ? changes[i2++] : null;
+      let skipA = next ? next.fromA : this.old.root.length;
+      if (skipA > posA) {
+        let len = skipA - posA;
+        this.preserve(len, !i2, !next);
+        posA = skipA;
+        posB += len;
+      }
+      if (!next)
+        break;
+      if (composition && next.fromA <= composition.range.fromA && next.toA >= composition.range.toA) {
+        this.forward(next.fromA, composition.range.fromA, composition.range.fromA < composition.range.toA ? 1 : -1);
+        this.emit(posB, composition.range.fromB);
+        this.builder.flushBuffer();
+        this.cache.clear();
+        this.builder.addComposition(composition, compositionContext);
+        this.text.skip(composition.range.toB - composition.range.fromB);
+        this.forward(composition.range.fromA, next.toA);
+        this.emit(composition.range.toB, next.toB);
+      } else {
+        this.forward(next.fromA, next.toA);
+        this.emit(posB, next.toB);
+      }
+      posB = next.toB;
+      posA = next.toA;
+    }
+    if (this.builder.curLine)
+      this.builder.endLine();
+    return this.builder.root;
+  }
+  preserve(length, incStart, incEnd) {
+    let activeMarks = getMarks(this.old), openMarks = this.openMarks;
+    this.old.advance(length, incEnd ? 1 : -1, {
+      skip: (tile, from, to) => {
+        if (tile.isWidget()) {
+          if (this.openWidget) {
+            this.builder.continueWidget(to - from);
+          } else {
+            let widget = to > 0 || from < tile.length ? WidgetTile.of(tile.widget, this.view, to - from, tile.flags & 496, this.cache.maybeReuse(tile)) : this.cache.reuse(tile);
+            if (widget.flags & 256) {
+              widget.flags &= ~1;
+              this.builder.addBlockWidget(widget);
+            } else {
+              this.builder.ensureLine(null);
+              this.builder.addInlineWidget(widget, activeMarks, openMarks);
+              openMarks = activeMarks.length;
+            }
+          }
+        } else if (tile.isText()) {
+          this.builder.ensureLine(null);
+          if (!from && to == tile.length && !this.cache.reused.has(tile)) {
+            this.builder.addText(tile.text, activeMarks, openMarks, this.cache.reuse(tile));
+          } else {
+            this.cache.add(tile);
+            this.builder.addText(tile.text.slice(from, to), activeMarks, openMarks);
+          }
+          openMarks = activeMarks.length;
+        } else if (tile.isLine()) {
+          tile.flags &= ~1;
+          this.cache.reused.set(tile, 1);
+          this.builder.addLine(tile);
+        } else if (tile instanceof WidgetBufferTile) {
+          this.cache.add(tile);
+        } else if (tile instanceof MarkTile) {
+          this.builder.ensureLine(null);
+          this.builder.addMark(tile, activeMarks, openMarks);
+          this.cache.reused.set(tile, 1);
+          openMarks = activeMarks.length;
+        } else {
+          return false;
+        }
+        this.openWidget = false;
+      },
+      enter: (tile) => {
+        if (tile.isLine()) {
+          this.builder.addLineStart(tile.attrs, this.cache.maybeReuse(tile));
+        } else {
+          this.cache.add(tile);
+          if (tile instanceof MarkTile)
+            activeMarks.unshift(tile.mark);
+        }
+        this.openWidget = false;
+      },
+      leave: (tile) => {
+        if (tile.isLine()) {
+          if (activeMarks.length)
+            activeMarks.length = openMarks = 0;
+        } else if (tile instanceof MarkTile) {
+          activeMarks.shift();
+          openMarks = Math.min(openMarks, activeMarks.length);
+        }
+      },
+      break: () => {
+        this.builder.addBreak();
+        this.openWidget = false;
+      }
+    });
+    this.text.skip(length);
+  }
+  emit(from, to) {
+    let pendingLineAttrs = null;
+    let b = this.builder, markCount = -1;
+    let openEnd = RangeSet.spans(this.decorations, from, to, {
+      point: (from2, to2, deco, active, openStart, index) => {
+        if (deco instanceof PointDecoration) {
+          if (this.disallowBlockEffectsFor[index]) {
+            if (deco.block)
+              throw new RangeError("Block decorations may not be specified via plugins");
+            if (to2 > this.view.state.doc.lineAt(from2).to)
+              throw new RangeError("Decorations that replace line breaks may not be specified via plugins");
+          }
+          markCount = active.length;
+          if (openStart > active.length) {
+            b.continueWidget(to2 - from2);
+          } else {
+            let widget = deco.widget || (deco.block ? NullWidget.block : NullWidget.inline);
+            let flags = widgetFlags(deco);
+            let tile = this.cache.findWidget(widget, to2 - from2, flags) || WidgetTile.of(widget, this.view, to2 - from2, flags);
+            if (deco.block) {
+              if (deco.startSide > 0)
+                b.addLineStartIfNotCovered(pendingLineAttrs);
+              b.addBlockWidget(tile);
+            } else {
+              b.ensureLine(pendingLineAttrs);
+              b.addInlineWidget(tile, active, openStart);
+            }
+          }
+          pendingLineAttrs = null;
+        } else {
+          pendingLineAttrs = addLineDeco(pendingLineAttrs, deco);
+        }
+        if (to2 > from2)
+          this.text.skip(to2 - from2);
+      },
+      span: (from2, to2, active, openStart) => {
+        for (let pos = from2; pos < to2; ) {
+          let chars = this.text.next(Math.min(512, to2 - pos));
+          if (chars == null) {
+            b.addLineStartIfNotCovered(pendingLineAttrs);
+            b.addBreak();
+            pos++;
+          } else {
+            b.ensureLine(pendingLineAttrs);
+            b.addText(chars, active, pos == from2 ? openStart : active.length);
+            pos += chars.length;
+          }
+          pendingLineAttrs = null;
+        }
+        markCount = active.length;
+      }
+    });
+    if (markCount > -1)
+      this.openWidget = openEnd > markCount;
+    if (!this.openWidget)
+      b.addLineStartIfNotCovered(pendingLineAttrs);
+    this.openMarks = openEnd;
+  }
+  forward(from, to, side = 1) {
+    if (to - from <= 10) {
+      this.old.advance(to - from, side, this.reuseWalker);
+    } else {
+      this.old.advance(5, -1, this.reuseWalker);
+      this.old.advance(to - from - 10, -1);
+      this.old.advance(5, side, this.reuseWalker);
+    }
+  }
+  getCompositionContext(text) {
+    let marks = [], line = null;
+    for (let parent = text.parentNode; ; parent = parent.parentNode) {
+      let tile = Tile.get(parent);
+      if (parent == this.view.contentDOM)
+        break;
+      if (tile instanceof MarkTile)
+        marks.push(tile);
+      else if (tile === null || tile === void 0 ? void 0 : tile.isLine())
+        line = tile;
+      else if (tile instanceof BlockWrapperTile)
+        ;
+      else if (parent.nodeName == "DIV" && !line && parent != this.view.contentDOM)
+        line = new LineTile(parent, lineBaseAttrs);
+      else if (!line)
+        marks.push(MarkTile.of(new MarkDecoration({ tagName: parent.nodeName.toLowerCase(), attributes: getAttrs(parent) }), parent));
+    }
+    return { line, marks };
+  }
+}
+function hasContent(tile, requireText) {
+  let scan = (tile2) => {
+    for (let ch2 of tile2.children)
+      if ((requireText ? ch2.isText() : ch2.length) || scan(ch2))
+        return true;
+    return false;
+  };
+  return scan(tile);
+}
+function widgetFlags(deco) {
+  let flags = deco.isReplace ? (deco.startSide < 0 ? 64 : 0) | (deco.endSide > 0 ? 128 : 0) : deco.startSide > 0 ? 32 : 16;
+  if (deco.block)
+    flags |= 256;
+  return flags;
+}
+const lineBaseAttrs = { class: "cm-line" };
+function addLineDeco(value, deco) {
+  let attrs = deco.spec.attributes, cls = deco.spec.class;
+  if (!attrs && !cls)
+    return value;
+  if (!value)
+    value = { class: "cm-line" };
+  if (attrs)
+    combineAttrs(attrs, value);
+  if (cls)
+    value.class += " " + cls;
+  return value;
+}
+function getMarks(ptr) {
+  let found = [];
+  for (let i2 = ptr.parents.length; i2 > 1; i2--) {
+    let tile = i2 == ptr.parents.length ? ptr.tile : ptr.parents[i2].tile;
+    if (tile instanceof MarkTile)
+      found.push(tile.mark);
+  }
+  return found;
+}
+function freeNode(node) {
+  let tile = Tile.get(node);
+  if (tile)
+    tile.setDOM(node.cloneNode());
+  return node;
+}
+class NullWidget extends WidgetType {
+  constructor(tag) {
+    super();
+    this.tag = tag;
+  }
+  eq(other) {
+    return other.tag == this.tag;
+  }
+  toDOM() {
+    return document.createElement(this.tag);
+  }
+  updateDOM(elt) {
+    return elt.nodeName.toLowerCase() == this.tag;
+  }
+  get isHidden() {
+    return true;
+  }
+}
+NullWidget.inline = /* @__PURE__ */ new NullWidget("span");
+NullWidget.block = /* @__PURE__ */ new NullWidget("div");
+const BreakWidget = /* @__PURE__ */ new class extends WidgetType {
+  toDOM() {
+    return document.createElement("br");
+  }
+  get isHidden() {
+    return true;
+  }
+  get editable() {
+    return true;
+  }
+}();
+class DocView {
+  constructor(view) {
+    this.view = view;
+    this.decorations = [];
+    this.blockWrappers = [];
+    this.dynamicDecorationMap = [false];
+    this.domChanged = null;
+    this.hasComposition = null;
+    this.editContextFormatting = Decoration.none;
+    this.lastCompositionAfterCursor = false;
+    this.minWidth = 0;
+    this.minWidthFrom = 0;
+    this.minWidthTo = 0;
+    this.impreciseAnchor = null;
+    this.impreciseHead = null;
+    this.forceSelection = false;
+    this.lastUpdate = Date.now();
+    this.updateDeco();
+    this.tile = new DocTile(view, view.contentDOM);
+    this.updateInner([new ChangedRange(0, 0, 0, view.state.doc.length)], null);
+  }
+  update(update) {
+    var _a2;
+    let changedRanges = update.changedRanges;
+    if (this.minWidth > 0 && changedRanges.length) {
+      if (!changedRanges.every(({ fromA, toA }) => toA < this.minWidthFrom || fromA > this.minWidthTo)) {
+        this.minWidth = this.minWidthFrom = this.minWidthTo = 0;
+      } else {
+        this.minWidthFrom = update.changes.mapPos(this.minWidthFrom, 1);
+        this.minWidthTo = update.changes.mapPos(this.minWidthTo, 1);
+      }
+    }
+    this.updateEditContextFormatting(update);
+    let readCompositionAt = -1;
+    if (this.view.inputState.composing >= 0 && !this.view.observer.editContext) {
+      if ((_a2 = this.domChanged) === null || _a2 === void 0 ? void 0 : _a2.newSel)
+        readCompositionAt = this.domChanged.newSel.head;
+      else if (!touchesComposition(update.changes, this.hasComposition) && !update.selectionSet)
+        readCompositionAt = update.state.selection.main.head;
+    }
+    let composition = readCompositionAt > -1 ? findCompositionRange(this.view, update.changes, readCompositionAt) : null;
+    this.domChanged = null;
+    if (this.hasComposition) {
+      let { from, to } = this.hasComposition;
+      changedRanges = new ChangedRange(from, to, update.changes.mapPos(from, -1), update.changes.mapPos(to, 1)).addToSet(changedRanges.slice());
+    }
+    this.hasComposition = composition ? { from: composition.range.fromB, to: composition.range.toB } : null;
+    if ((browser.ie || browser.chrome) && !composition && update && update.state.doc.lines != update.startState.doc.lines)
+      this.forceSelection = true;
+    let prevDeco = this.decorations, prevWrappers = this.blockWrappers;
+    this.updateDeco();
+    let decoDiff = findChangedDeco(prevDeco, this.decorations, update.changes);
+    if (decoDiff.length)
+      changedRanges = ChangedRange.extendWithRanges(changedRanges, decoDiff);
+    let blockDiff = findChangedWrappers(prevWrappers, this.blockWrappers, update.changes);
+    if (blockDiff.length)
+      changedRanges = ChangedRange.extendWithRanges(changedRanges, blockDiff);
+    if (composition && !changedRanges.some((r2) => r2.fromA <= composition.range.fromA && r2.toA >= composition.range.toA))
+      changedRanges = composition.range.addToSet(changedRanges.slice());
+    if (this.tile.flags & 2 && changedRanges.length == 0) {
+      return false;
+    } else {
+      this.updateInner(changedRanges, composition);
+      if (update.transactions.length)
+        this.lastUpdate = Date.now();
+      return true;
+    }
+  }
+  updateInner(changes, composition) {
+    this.view.viewState.mustMeasureContent = true;
+    let { observer } = this.view;
+    observer.ignore(() => {
+      if (composition || changes.length) {
+        let oldTile = this.tile;
+        let builder = new TileUpdate(this.view, oldTile, this.blockWrappers, this.decorations, this.dynamicDecorationMap);
+        if (composition && Tile.get(composition.text))
+          builder.cache.reused.set(Tile.get(composition.text), 2);
+        this.tile = builder.run(changes, composition);
+        destroyDropped(oldTile, builder.cache.reused);
+      }
+      this.tile.dom.style.height = this.view.viewState.contentHeight / this.view.scaleY + "px";
+      this.tile.dom.style.flexBasis = this.minWidth ? this.minWidth + "px" : "";
+      let track = browser.chrome || browser.ios ? { node: observer.selectionRange.focusNode, written: false } : void 0;
+      this.tile.sync(track);
+      if (track && (track.written || observer.selectionRange.focusNode != track.node || !this.tile.dom.contains(track.node)))
+        this.forceSelection = true;
+      this.tile.dom.style.height = "";
+    });
+    let gaps = [];
+    if (this.view.viewport.from || this.view.viewport.to < this.view.state.doc.length) {
+      for (let child of this.tile.children)
+        if (child.isWidget() && child.widget instanceof BlockGapWidget)
+          gaps.push(child.dom);
+    }
+    observer.updateGaps(gaps);
+  }
+  updateEditContextFormatting(update) {
+    this.editContextFormatting = this.editContextFormatting.map(update.changes);
+    for (let tr2 of update.transactions)
+      for (let effect2 of tr2.effects)
+        if (effect2.is(setEditContextFormatting)) {
+          this.editContextFormatting = effect2.value;
+        }
+  }
+  updateSelection(mustRead = false, fromPointer = false) {
+    if (mustRead || !this.view.observer.selectionRange.focusNode)
+      this.view.observer.readSelectionRange();
+    let { dom } = this.tile;
+    let activeElt = this.view.root.activeElement, focused = activeElt == dom;
+    let selectionNotFocus = !focused && !(this.view.state.facet(editable) || dom.tabIndex > -1) && hasSelection(dom, this.view.observer.selectionRange) && !(activeElt && dom.contains(activeElt));
+    if (!(focused || fromPointer || selectionNotFocus))
+      return;
+    let force = this.forceSelection;
+    this.forceSelection = false;
+    let main2 = this.view.state.selection.main, anchor, head;
+    if (main2.empty) {
+      head = anchor = this.inlineDOMNearPos(main2.anchor, main2.assoc || 1);
+    } else {
+      head = this.inlineDOMNearPos(main2.head, main2.head == main2.from ? 1 : -1);
+      anchor = this.inlineDOMNearPos(main2.anchor, main2.anchor == main2.from ? 1 : -1);
+    }
+    if (browser.gecko && main2.empty && !this.hasComposition && betweenUneditable(anchor)) {
+      let dummy = document.createTextNode("");
+      this.view.observer.ignore(() => anchor.node.insertBefore(dummy, anchor.node.childNodes[anchor.offset] || null));
+      anchor = head = new DOMPos(dummy, 0);
+      force = true;
+    }
+    let domSel = this.view.observer.selectionRange;
+    if (force || !domSel.focusNode || (!isEquivalentPosition(anchor.node, anchor.offset, domSel.anchorNode, domSel.anchorOffset) || !isEquivalentPosition(head.node, head.offset, domSel.focusNode, domSel.focusOffset)) && !this.suppressWidgetCursorChange(domSel, main2)) {
+      this.view.observer.ignore(() => {
+        if (browser.android && browser.chrome && dom.contains(domSel.focusNode) && inUneditable(domSel.focusNode, dom)) {
+          dom.blur();
+          dom.focus({ preventScroll: true });
+        }
+        let rawSel = getSelection(this.view.root);
+        if (!rawSel)
+          ;
+        else if (main2.empty) {
+          if (browser.gecko) {
+            let nextTo = nextToUneditable(anchor.node, anchor.offset);
+            if (nextTo && nextTo != (1 | 2)) {
+              let text = (nextTo == 1 ? textNodeBefore : textNodeAfter)(anchor.node, anchor.offset);
+              if (text)
+                anchor = new DOMPos(text.node, text.offset);
+            }
+          }
+          rawSel.collapse(anchor.node, anchor.offset);
+          if (main2.bidiLevel != null && rawSel.caretBidiLevel !== void 0)
+            rawSel.caretBidiLevel = main2.bidiLevel;
+        } else if (rawSel.extend) {
+          rawSel.collapse(anchor.node, anchor.offset);
+          try {
+            rawSel.extend(head.node, head.offset);
+          } catch (_) {
+          }
+        } else {
+          let range = document.createRange();
+          if (main2.anchor > main2.head)
+            [anchor, head] = [head, anchor];
+          range.setEnd(head.node, head.offset);
+          range.setStart(anchor.node, anchor.offset);
+          rawSel.removeAllRanges();
+          rawSel.addRange(range);
+        }
+        if (selectionNotFocus && this.view.root.activeElement == dom) {
+          dom.blur();
+          if (activeElt)
+            activeElt.focus();
+        }
+      });
+      this.view.observer.setSelectionRange(anchor, head);
+    }
+    this.impreciseAnchor = anchor.precise ? null : new DOMPos(domSel.anchorNode, domSel.anchorOffset);
+    this.impreciseHead = head.precise ? null : new DOMPos(domSel.focusNode, domSel.focusOffset);
+  }
+  suppressWidgetCursorChange(sel, cursor) {
+    return this.hasComposition && cursor.empty && isEquivalentPosition(sel.focusNode, sel.focusOffset, sel.anchorNode, sel.anchorOffset) && this.posFromDOM(sel.focusNode, sel.focusOffset) == cursor.head;
+  }
+  enforceCursorAssoc() {
+    if (this.hasComposition)
+      return;
+    let { view } = this, cursor = view.state.selection.main;
+    let sel = getSelection(view.root);
+    let { anchorNode, anchorOffset } = view.observer.selectionRange;
+    if (!sel || !cursor.empty || !cursor.assoc || !sel.modify)
+      return;
+    let line = this.lineAt(cursor.head, cursor.assoc);
+    if (!line)
+      return;
+    let lineStart = line.posAtStart;
+    if (cursor.head == lineStart || cursor.head == lineStart + line.length)
+      return;
+    let before = this.coordsAt(cursor.head, -1), after = this.coordsAt(cursor.head, 1);
+    if (!before || !after || before.bottom > after.top)
+      return;
+    let dom = this.domAtPos(cursor.head + cursor.assoc, cursor.assoc);
+    sel.collapse(dom.node, dom.offset);
+    sel.modify("move", cursor.assoc < 0 ? "forward" : "backward", "lineboundary");
+    view.observer.readSelectionRange();
+    let newRange = view.observer.selectionRange;
+    if (view.docView.posFromDOM(newRange.anchorNode, newRange.anchorOffset) != cursor.from)
+      sel.collapse(anchorNode, anchorOffset);
+  }
+  posFromDOM(node, offset2) {
+    let tile = this.tile.nearest(node);
+    if (!tile)
+      return this.tile.dom.compareDocumentPosition(node) & 2 ? 0 : this.view.state.doc.length;
+    let start2 = tile.posAtStart;
+    if (tile.isComposite()) {
+      let after;
+      if (node == tile.dom) {
+        after = tile.dom.childNodes[offset2];
+      } else {
+        let bias = maxOffset(node) == 0 ? 0 : offset2 == 0 ? -1 : 1;
+        for (; ; ) {
+          let parent = node.parentNode;
+          if (parent == tile.dom)
+            break;
+          if (bias == 0 && parent.firstChild != parent.lastChild) {
+            if (node == parent.firstChild)
+              bias = -1;
+            else
+              bias = 1;
+          }
+          node = parent;
+        }
+        if (bias < 0)
+          after = node;
+        else
+          after = node.nextSibling;
+      }
+      if (after == tile.dom.firstChild)
+        return start2;
+      while (after && !Tile.get(after))
+        after = after.nextSibling;
+      if (!after)
+        return start2 + tile.length;
+      for (let i2 = 0, pos = start2; ; i2++) {
+        let child = tile.children[i2];
+        if (child.dom == after)
+          return pos;
+        pos += child.length + child.breakAfter;
+      }
+    } else if (tile.isText()) {
+      return node == tile.dom ? start2 + offset2 : start2 + (offset2 ? tile.length : 0);
+    } else {
+      return start2;
+    }
+  }
+  domAtPos(pos, side) {
+    let { tile, offset: offset2 } = this.tile.resolveBlock(pos, side);
+    if (tile.isWidget())
+      return tile.domPosFor(offset2, side);
+    return tile.domIn(offset2, side);
+  }
+  inlineDOMNearPos(pos, side) {
+    let before, beforeOff = -1, beforeBad = false;
+    let after, afterOff = -1, afterBad = false;
+    this.tile.blockTiles((tile, off) => {
+      if (tile.isWidget()) {
+        if (tile.flags & 32 && off >= pos)
+          return true;
+        if (tile.flags & 16)
+          beforeBad = true;
+      } else {
+        let end2 = off + tile.length;
+        if (off <= pos) {
+          before = tile;
+          beforeOff = pos - off;
+          beforeBad = end2 < pos;
+        }
+        if (end2 >= pos && !after) {
+          after = tile;
+          afterOff = pos - off;
+          afterBad = off > pos;
+        }
+        if (off > pos && after)
+          return true;
+      }
+    });
+    if (!before && !after)
+      return this.domAtPos(pos, side);
+    if (beforeBad && after)
+      before = null;
+    else if (afterBad && before)
+      after = null;
+    return before && side < 0 || !after ? before.domIn(beforeOff, side) : after.domIn(afterOff, side);
+  }
+  coordsAt(pos, side, rtl) {
+    let { tile, offset: offset2 } = this.tile.resolveBlock(pos, side);
+    if (tile.isWidget()) {
+      if (tile.widget instanceof BlockGapWidget)
+        return null;
+      return tile.coordsInWidget(offset2, side, true);
+    }
+    return tile.coordsIn(offset2, side, rtl);
+  }
+  lineAt(pos, side) {
+    let { tile } = this.tile.resolveBlock(pos, side);
+    return tile.isLine() ? tile : null;
+  }
+  coordsForChar(pos) {
+    let { tile, offset: offset2 } = this.tile.resolveBlock(pos, 1);
+    if (!tile.isLine())
+      return null;
+    function scan(tile2, offset3) {
+      if (tile2.isComposite()) {
+        for (let ch2 of tile2.children) {
+          if (ch2.length >= offset3) {
+            let found = scan(ch2, offset3);
+            if (found)
+              return found;
+          }
+          offset3 -= ch2.length;
+          if (offset3 < 0)
+            break;
+        }
+      } else if (tile2.isText() && offset3 < tile2.length) {
+        let end2 = findClusterBreak(tile2.text, offset3);
+        if (end2 == offset3)
+          return null;
+        let rects = textRange(tile2.dom, offset3, end2).getClientRects();
+        for (let i2 = 0; i2 < rects.length; i2++) {
+          let rect = rects[i2];
+          if (i2 == rects.length - 1 || rect.top < rect.bottom && rect.left < rect.right)
+            return rect;
+        }
+      }
+      return null;
+    }
+    return scan(tile, offset2);
+  }
+  measureVisibleLineHeights(viewport2) {
+    let result = [], { from, to } = viewport2;
+    let contentWidth = this.view.contentDOM.clientWidth;
+    let isWider = contentWidth > Math.max(this.view.scrollDOM.clientWidth, this.minWidth) + 1;
+    let widest = -1, ltr = this.view.textDirection == Direction.LTR;
+    let spaceAbove = 0;
+    let scan = (tile, pos, measureBounds) => {
+      for (let i2 = 0; i2 < tile.children.length; i2++) {
+        if (pos > to)
+          break;
+        let child = tile.children[i2], end2 = pos + child.length;
+        let childRect = child.dom.getBoundingClientRect(), { height } = childRect;
+        if (measureBounds && !i2)
+          spaceAbove += childRect.top - measureBounds.top;
+        if (child instanceof BlockWrapperTile) {
+          if (end2 > from)
+            scan(child, pos, childRect);
+        } else if (pos >= from) {
+          if (spaceAbove > 0)
+            result.push(-spaceAbove);
+          result.push(height + spaceAbove);
+          spaceAbove = 0;
+          if (isWider) {
+            let last2 = child.dom.lastChild;
+            let rects = last2 ? clientRectsFor(last2) : [];
+            if (rects.length) {
+              let rect = rects[rects.length - 1];
+              let width = ltr ? rect.right - childRect.left : childRect.right - rect.left;
+              if (width > widest) {
+                widest = width;
+                this.minWidth = contentWidth;
+                this.minWidthFrom = pos;
+                this.minWidthTo = end2;
+              }
+            }
+          }
+        }
+        if (measureBounds && i2 == tile.children.length - 1)
+          spaceAbove += measureBounds.bottom - childRect.bottom;
+        pos = end2 + child.breakAfter;
+      }
+    };
+    scan(this.tile, 0, null);
+    return result;
+  }
+  textDirectionAt(pos) {
+    let { tile } = this.tile.resolveBlock(pos, 1);
+    return getComputedStyle(tile.dom).direction == "rtl" ? Direction.RTL : Direction.LTR;
+  }
+  measureTextSize() {
+    let lineMeasure = this.tile.blockTiles((tile) => {
+      if (tile.isLine() && tile.children.length && tile.length <= 20) {
+        let totalWidth = 0, textHeight2;
+        for (let child of tile.children) {
+          if (!child.isText() || /[^ -~]/.test(child.text))
+            return void 0;
+          let rects = clientRectsFor(child.dom);
+          if (rects.length != 1)
+            return void 0;
+          totalWidth += rects[0].width;
+          textHeight2 = rects[0].height;
+        }
+        if (totalWidth)
+          return {
+            lineHeight: tile.dom.getBoundingClientRect().height,
+            charWidth: totalWidth / tile.length,
+            textHeight: textHeight2
+          };
+      }
+    });
+    if (lineMeasure)
+      return lineMeasure;
+    let dummy = document.createElement("div"), lineHeight, charWidth, textHeight;
+    dummy.className = "cm-line";
+    dummy.style.width = "99999px";
+    dummy.style.position = "absolute";
+    dummy.textContent = "abc def ghi jkl mno pqr stu";
+    this.view.observer.ignore(() => {
+      this.tile.dom.appendChild(dummy);
+      let rect = clientRectsFor(dummy.firstChild)[0];
+      lineHeight = dummy.getBoundingClientRect().height;
+      charWidth = rect && rect.width ? rect.width / 27 : 7;
+      textHeight = rect && rect.height ? rect.height : lineHeight;
+      dummy.remove();
+    });
+    return { lineHeight, charWidth, textHeight };
+  }
+  computeBlockGapDeco() {
+    let deco = [], vs = this.view.viewState;
+    for (let pos = 0, i2 = 0; ; i2++) {
+      let next = i2 == vs.viewports.length ? null : vs.viewports[i2];
+      let end2 = next ? next.from - 1 : this.view.state.doc.length;
+      if (end2 > pos) {
+        let height = (vs.lineBlockAt(end2).bottom - vs.lineBlockAt(pos).top) / this.view.scaleY;
+        deco.push(Decoration.replace({
+          widget: new BlockGapWidget(height),
+          block: true,
+          inclusive: true,
+          isBlockGap: true
+        }).range(pos, end2));
+      }
+      if (!next)
+        break;
+      pos = next.to + 1;
+    }
+    return Decoration.set(deco);
+  }
+  updateDeco() {
+    let i2 = 1;
+    let allDeco = this.view.state.facet(decorations).map((d) => {
+      let dynamic = this.dynamicDecorationMap[i2++] = typeof d == "function";
+      return dynamic ? d(this.view) : d;
+    });
+    let dynamicOuter = false, outerDeco = this.view.state.facet(outerDecorations).map((d, i3) => {
+      let dynamic = typeof d == "function";
+      if (dynamic)
+        dynamicOuter = true;
+      return dynamic ? d(this.view) : d;
+    });
+    if (outerDeco.length) {
+      this.dynamicDecorationMap[i2++] = dynamicOuter;
+      allDeco.push(RangeSet.join(outerDeco));
+    }
+    this.decorations = [
+      this.editContextFormatting,
+      ...allDeco,
+      this.computeBlockGapDeco(),
+      this.view.viewState.lineGapDeco
+    ];
+    while (i2 < this.decorations.length)
+      this.dynamicDecorationMap[i2++] = false;
+    this.blockWrappers = this.view.state.facet(blockWrappers).map((v2) => typeof v2 == "function" ? v2(this.view) : v2);
+  }
+  scrollIntoView(target) {
+    if (target.isSnapshot) {
+      let ref = this.view.viewState.lineBlockAt(target.range.head);
+      this.view.scrollDOM.scrollTop = ref.top - target.yMargin;
+      this.view.scrollDOM.scrollLeft = target.xMargin;
+      return;
+    }
+    for (let handler of this.view.state.facet(scrollHandler)) {
+      try {
+        if (handler(this.view, target.range, target))
+          return true;
+      } catch (e) {
+        logException(this.view.state, e, "scroll handler");
+      }
+    }
+    let { range } = target;
+    let rect = this.coordsAt(range.head, range.assoc || (range.head > range.anchor ? -1 : 1)), other;
+    if (!rect)
+      return;
+    if (!range.empty && (other = this.coordsAt(range.anchor, range.anchor > range.head ? -1 : 1)))
+      rect = {
+        left: Math.min(rect.left, other.left),
+        top: Math.min(rect.top, other.top),
+        right: Math.max(rect.right, other.right),
+        bottom: Math.max(rect.bottom, other.bottom)
+      };
+    let margins = getScrollMargins(this.view);
+    let targetRect = {
+      left: rect.left - margins.left,
+      top: rect.top - margins.top,
+      right: rect.right + margins.right,
+      bottom: rect.bottom + margins.bottom
+    };
+    let { offsetWidth, offsetHeight } = this.view.scrollDOM;
+    scrollRectIntoView(this.view.scrollDOM, targetRect, range.head < range.anchor ? -1 : 1, target.x, target.y, Math.max(Math.min(target.xMargin, offsetWidth), -offsetWidth), Math.max(Math.min(target.yMargin, offsetHeight), -offsetHeight), this.view.textDirection == Direction.LTR);
+    if (window.visualViewport && window.innerHeight - window.visualViewport.height > 1 && (rect.top > window.visualViewport.offsetTop + window.visualViewport.height || rect.bottom < window.visualViewport.offsetTop)) {
+      let line = this.view.docView.lineAt(range.head, 1);
+      if (line) {
+        let stack = getScrollStack(line.dom);
+        line.dom.scrollIntoView({ block: "nearest" });
+        restoreScrollStack(stack, false);
+      }
+    }
+  }
+  lineHasWidget(pos) {
+    let scan = (child) => child.isWidget() || child.children.some(scan);
+    return scan(this.tile.resolveBlock(pos, 1).tile);
+  }
+  destroy() {
+    destroyDropped(this.tile);
+  }
+}
+function destroyDropped(tile, reused) {
+  let r2 = reused === null || reused === void 0 ? void 0 : reused.get(tile);
+  if (r2 != 1) {
+    if (r2 == null)
+      tile.destroy();
+    for (let ch2 of tile.children)
+      destroyDropped(ch2, reused);
+  }
+}
+function betweenUneditable(pos) {
+  return pos.node.nodeType == 1 && pos.node.firstChild && (pos.offset == 0 || pos.node.childNodes[pos.offset - 1].contentEditable == "false") && (pos.offset == pos.node.childNodes.length || pos.node.childNodes[pos.offset].contentEditable == "false");
+}
+function findCompositionNode(view, headPos) {
+  let sel = view.observer.selectionRange;
+  if (!sel.focusNode)
+    return null;
+  let textBefore = textNodeBefore(sel.focusNode, sel.focusOffset);
+  let textAfter = textNodeAfter(sel.focusNode, sel.focusOffset);
+  let textNode = textBefore || textAfter;
+  if (textAfter && textBefore && textAfter.node != textBefore.node) {
+    let tileAfter = Tile.get(textAfter.node);
+    if (!tileAfter || tileAfter.isText() && tileAfter.text != textAfter.node.nodeValue) {
+      textNode = textAfter;
+    } else if (view.docView.lastCompositionAfterCursor) {
+      let tileBefore = Tile.get(textBefore.node);
+      if (!(!tileBefore || tileBefore.isText() && tileBefore.text != textBefore.node.nodeValue))
+        textNode = textAfter;
+    }
+  }
+  view.docView.lastCompositionAfterCursor = textNode != textBefore;
+  if (!textNode)
+    return null;
+  let from = headPos - textNode.offset;
+  return { from, to: from + textNode.node.nodeValue.length, node: textNode.node };
+}
+function findCompositionRange(view, changes, headPos) {
+  let found = findCompositionNode(view, headPos);
+  if (!found)
+    return null;
+  let { node: textNode, from, to } = found, text = textNode.nodeValue;
+  if (/[\n\r]/.test(text))
+    return null;
+  if (view.state.doc.sliceString(found.from, found.to) != text)
+    return null;
+  let inv = changes.invertedDesc;
+  return { range: new ChangedRange(inv.mapPos(from), inv.mapPos(to), from, to), text: textNode };
+}
+function nextToUneditable(node, offset2) {
+  if (node.nodeType != 1)
+    return 0;
+  return (offset2 && node.childNodes[offset2 - 1].contentEditable == "false" ? 1 : 0) | (offset2 < node.childNodes.length && node.childNodes[offset2].contentEditable == "false" ? 2 : 0);
+}
+let DecorationComparator$1 = class DecorationComparator2 {
+  constructor() {
+    this.changes = [];
+  }
+  compareRange(from, to) {
+    addRange(from, to, this.changes);
+  }
+  comparePoint(from, to) {
+    addRange(from, to, this.changes);
+  }
+  boundChange(pos) {
+    addRange(pos, pos, this.changes);
+  }
+};
+function findChangedDeco(a, b, diff) {
+  let comp = new DecorationComparator$1();
+  RangeSet.compare(a, b, diff, comp);
+  return comp.changes;
+}
+class WrapperComparator {
+  constructor() {
+    this.changes = [];
+  }
+  compareRange(from, to) {
+    addRange(from, to, this.changes);
+  }
+  comparePoint() {
+  }
+  boundChange(pos) {
+    addRange(pos, pos, this.changes);
+  }
+}
+function findChangedWrappers(a, b, diff) {
+  let comp = new WrapperComparator();
+  RangeSet.compare(a, b, diff, comp);
+  return comp.changes;
+}
+function inUneditable(node, inside) {
+  for (let cur2 = node; cur2 && cur2 != inside; cur2 = cur2.assignedSlot || cur2.parentNode) {
+    if (cur2.nodeType == 1 && cur2.contentEditable == "false") {
+      return true;
+    }
+  }
+  return false;
+}
+function touchesComposition(changes, composition) {
+  let touched = false;
+  if (composition)
+    changes.iterChangedRanges((from, to) => {
+      if (from < composition.to && to > composition.from)
+        touched = true;
+    });
+  return touched;
+}
+class BlockGapWidget extends WidgetType {
+  constructor(height) {
+    super();
+    this.height = height;
+  }
+  toDOM() {
+    let elt = document.createElement("div");
+    elt.className = "cm-gap";
+    this.updateDOM(elt);
+    return elt;
+  }
+  eq(other) {
+    return other.height == this.height;
+  }
+  updateDOM(elt) {
+    elt.style.height = this.height + "px";
+    return true;
+  }
+  get editable() {
+    return true;
+  }
+  get estimatedHeight() {
+    return this.height;
+  }
+  ignoreEvent() {
+    return false;
+  }
+}
+function groupAt(state, pos, bias = 1) {
+  let categorize = state.charCategorizer(pos);
+  let line = state.doc.lineAt(pos), linePos = pos - line.from;
+  if (line.length == 0)
+    return EditorSelection.cursor(pos);
+  if (linePos == 0)
+    bias = 1;
+  else if (linePos == line.length)
+    bias = -1;
+  let from = linePos, to = linePos;
+  if (bias < 0)
+    from = findClusterBreak(line.text, linePos, false);
+  else
+    to = findClusterBreak(line.text, linePos);
+  let cat = categorize(line.text.slice(from, to));
+  while (from > 0) {
+    let prev = findClusterBreak(line.text, from, false);
+    if (categorize(line.text.slice(prev, from)) != cat)
+      break;
+    from = prev;
+  }
+  while (to < line.length) {
+    let next = findClusterBreak(line.text, to);
+    if (categorize(line.text.slice(to, next)) != cat)
+      break;
+    to = next;
+  }
+  return EditorSelection.undirectionalRange(from + line.from, to + line.from);
+}
+function posAtCoordsImprecise(view, contentRect, block, x2, y2) {
+  let into = Math.round((x2 - contentRect.left) * view.defaultCharacterWidth);
+  if (view.lineWrapping && block.height > view.defaultLineHeight * 1.5) {
+    let textHeight = view.viewState.heightOracle.textHeight;
+    let line = Math.floor((y2 - block.top - (view.defaultLineHeight - textHeight) * 0.5) / textHeight);
+    into += line * view.viewState.heightOracle.lineLength;
+  }
+  let content2 = view.state.sliceDoc(block.from, block.to);
+  return block.from + findColumn(content2, into, view.state.tabSize);
+}
+function blockAt(view, pos, side) {
+  let line = view.lineBlockAt(pos);
+  if (Array.isArray(line.type)) {
+    let best;
+    for (let l2 of line.type) {
+      if (l2.from > pos)
+        break;
+      if (l2.to < pos)
+        continue;
+      if (l2.from < pos && l2.to > pos)
+        return l2;
+      if (!best || l2.type == BlockType.Text && (best.type != l2.type || (side < 0 ? l2.from < pos : l2.to > pos)))
+        best = l2;
+    }
+    return best || line;
+  }
+  return line;
+}
+function moveToLineBoundary(view, start2, forward, includeWrap) {
+  let line = blockAt(view, start2.head, start2.assoc || -1);
+  let coords = !includeWrap || line.type != BlockType.Text || !(view.lineWrapping || line.widgetLineBreaks) ? null : view.coordsAtPos(start2.assoc < 0 && start2.head > line.from ? start2.head - 1 : start2.head);
+  if (coords) {
+    let editorRect = view.dom.getBoundingClientRect();
+    let direction = view.textDirectionAt(line.from);
+    let pos = view.posAtCoords({
+      x: forward == (direction == Direction.LTR) ? editorRect.right - 1 : editorRect.left + 1,
+      y: (coords.top + coords.bottom) / 2
+    });
+    if (pos != null)
+      return EditorSelection.cursor(pos, forward ? -1 : 1);
+  }
+  return EditorSelection.cursor(forward ? line.to : line.from, forward ? -1 : 1);
+}
+function moveByChar(view, start2, forward, by) {
+  let line = view.state.doc.lineAt(start2.head), spans = view.bidiSpans(line);
+  let direction = view.textDirectionAt(line.from);
+  for (let cur2 = start2, check = null; ; ) {
+    let next = moveVisually(line, spans, direction, cur2, forward), char = movedOver;
+    if (!next) {
+      if (line.number == (forward ? view.state.doc.lines : 1))
+        return cur2;
+      char = "\n";
+      line = view.state.doc.line(line.number + (forward ? 1 : -1));
+      spans = view.bidiSpans(line);
+      next = view.visualLineSide(line, !forward);
+    }
+    if (!check) {
+      if (!by)
+        return next;
+      check = by(char);
+    } else if (!check(char)) {
+      return cur2;
+    }
+    cur2 = next;
+  }
+}
+function byGroup(view, pos, start2) {
+  let categorize = view.state.charCategorizer(pos);
+  let cat = categorize(start2);
+  return (next) => {
+    let nextCat = categorize(next);
+    if (cat == CharCategory.Space)
+      cat = nextCat;
+    return cat == nextCat;
+  };
+}
+function moveVertically(view, start2, forward, distance2) {
+  let startPos = start2.head, dir = forward ? 1 : -1;
+  if (startPos == (forward ? view.state.doc.length : 0))
+    return EditorSelection.cursor(startPos, start2.assoc);
+  let goal = start2.goalColumn, startY;
+  let rect = view.contentDOM.getBoundingClientRect();
+  let startCoords = view.coordsAtPos(startPos, start2.assoc || ((start2.empty ? forward : start2.head == start2.from) ? 1 : -1));
+  let docTop = view.documentTop;
+  if (startCoords) {
+    if (goal == null)
+      goal = startCoords.left - rect.left;
+    startY = dir < 0 ? startCoords.top : startCoords.bottom;
+  } else {
+    let line = view.viewState.lineBlockAt(startPos);
+    if (goal == null)
+      goal = Math.min(rect.right - rect.left, view.defaultCharacterWidth * (startPos - line.from));
+    startY = (dir < 0 ? line.top : line.bottom) + docTop;
+  }
+  let resolvedGoal = rect.left + goal;
+  let halfText = view.viewState.heightOracle.textHeight >> 1, dist2 = distance2 !== null && distance2 !== void 0 ? distance2 : halfText;
+  for (let scan = 0; ; scan += halfText) {
+    let y2 = startY + (dist2 + scan) * dir;
+    let pos = posAtCoords(view, { x: resolvedGoal, y: y2 }, false, dir);
+    if (forward ? y2 > rect.bottom : y2 < rect.top)
+      return EditorSelection.cursor(pos.pos, pos.assoc);
+    let posCoords = view.coordsAtPos(pos.pos, pos.assoc), mid = posCoords ? (posCoords.top + posCoords.bottom) / 2 : 0;
+    if (!posCoords || (forward ? mid > startY : mid < startY))
+      return EditorSelection.cursor(pos.pos, pos.assoc, void 0, goal);
+  }
+}
+function skipAtomicRanges(atoms, pos, bias) {
+  for (; ; ) {
+    let moved = 0;
+    for (let set of atoms) {
+      set.between(pos - 1, pos + 1, (from, to, value) => {
+        if (pos > from && pos < to) {
+          let side = moved || bias || (pos - from < to - pos ? -1 : 1);
+          pos = side < 0 ? from : to;
+          moved = side;
+        }
+      });
+    }
+    if (!moved)
+      return pos;
+  }
+}
+function skipAtomsForSelection(atoms, sel) {
+  let ranges = null;
+  for (let i2 = 0; i2 < sel.ranges.length; i2++) {
+    let range = sel.ranges[i2], updated = null;
+    if (range.empty) {
+      let pos = skipAtomicRanges(atoms, range.from, 0);
+      if (pos != range.from)
+        updated = EditorSelection.cursor(pos, -1);
+    } else {
+      let from = skipAtomicRanges(atoms, range.from, -1);
+      let to = skipAtomicRanges(atoms, range.to, 1);
+      if (from != range.from || to != range.to) {
+        if (range.undirectional)
+          updated = EditorSelection.undirectionalRange(range.from, range.to);
+        else
+          updated = EditorSelection.range(range.from == range.anchor ? from : to, range.from == range.head ? from : to);
+      }
+    }
+    if (updated) {
+      if (!ranges)
+        ranges = sel.ranges.slice();
+      ranges[i2] = updated;
+    }
+  }
+  return ranges ? EditorSelection.create(ranges, sel.mainIndex) : sel;
+}
+function skipAtoms(view, oldPos, pos) {
+  let newPos = skipAtomicRanges(view.state.facet(atomicRanges).map((f2) => f2(view)), pos.from, oldPos.head > pos.from ? -1 : 1);
+  return newPos == pos.from ? pos : EditorSelection.cursor(newPos, newPos < pos.from ? 1 : -1);
+}
+class PosAssoc {
+  constructor(pos, assoc) {
+    this.pos = pos;
+    this.assoc = assoc;
+  }
+}
+function posAtCoords(view, coords, precise, scanY) {
+  let content2 = view.contentDOM.getBoundingClientRect(), docTop = content2.top + view.viewState.paddingTop;
+  let { x: x2, y: y2 } = coords, yOffset = y2 - docTop, block;
+  for (; ; ) {
+    if (yOffset < 0)
+      return new PosAssoc(0, 1);
+    if (yOffset > view.viewState.docHeight)
+      return new PosAssoc(view.state.doc.length, -1);
+    block = view.elementAtHeight(yOffset);
+    if (scanY == null)
+      break;
+    if (block.type == BlockType.Text) {
+      if (scanY < 0 ? block.to < view.viewport.from : block.from > view.viewport.to)
+        break;
+      let rect = view.docView.coordsAt(scanY < 0 ? block.from : block.to, scanY > 0 ? -1 : 1);
+      if (rect && (scanY < 0 ? rect.top <= yOffset + docTop : rect.bottom >= yOffset + docTop))
+        break;
+    }
+    let halfLine = view.viewState.heightOracle.textHeight / 2;
+    yOffset = scanY > 0 ? block.bottom + halfLine : block.top - halfLine;
+  }
+  if (view.viewport.from >= block.to || view.viewport.to <= block.from) {
+    if (precise)
+      return null;
+    if (block.type == BlockType.Text) {
+      let pos = posAtCoordsImprecise(view, content2, block, x2, y2);
+      return new PosAssoc(pos, pos == block.from ? 1 : -1);
+    }
+  }
+  if (block.type != BlockType.Text)
+    return yOffset < (block.top + block.bottom) / 2 ? new PosAssoc(block.from, 1) : new PosAssoc(block.to, -1);
+  let line = view.docView.lineAt(block.from, 2);
+  if (!line || line.length != block.length)
+    line = view.docView.lineAt(block.from, -2);
+  return new InlineCoordsScan(view, x2, y2, view.textDirectionAt(block.from)).scanTile(line, block.from);
+}
+class InlineCoordsScan {
+  constructor(view, x2, y2, baseDir) {
+    this.view = view;
+    this.x = x2;
+    this.y = y2;
+    this.baseDir = baseDir;
+    this.line = null;
+    this.spans = null;
+  }
+  bidiSpansAt(pos) {
+    if (!this.line || this.line.from > pos || this.line.to < pos) {
+      this.line = this.view.state.doc.lineAt(pos);
+      this.spans = this.view.bidiSpans(this.line);
+    }
+    return this;
+  }
+  baseDirAt(pos, side) {
+    let { line, spans } = this.bidiSpansAt(pos);
+    let level = spans[BidiSpan.find(spans, pos - line.from, -1, side)].level;
+    return level == this.baseDir;
+  }
+  dirAt(pos, side) {
+    let { line, spans } = this.bidiSpansAt(pos);
+    return spans[BidiSpan.find(spans, pos - line.from, -1, side)].dir;
+  }
+  bidiIn(from, to) {
+    let { spans, line } = this.bidiSpansAt(from);
+    return spans.length > 1 || spans.length && (spans[0].level != this.baseDir || spans[0].to + line.from < to);
+  }
+  scan(positions, getRects, recursed = false) {
+    let lo = 0, hi2 = positions.length - 1, seen = /* @__PURE__ */ new Set();
+    let bidi = this.bidiIn(positions[0], positions[hi2]);
+    let above, below;
+    let closestI = -1, closestDx = 1e9, closestRect;
+    search:
+      while (lo < hi2) {
+        let dist2 = hi2 - lo, mid = lo + hi2 >> 1;
+        adjust:
+          if (seen.has(mid)) {
+            for (let i2 = 1; i2 < dist2; i2++) {
+              let scan = mid + i2;
+              if (scan >= hi2)
+                scan -= dist2;
+              if (!seen.has(scan)) {
+                mid = scan;
+                break adjust;
+              }
+            }
+            break search;
+          }
+        seen.add(mid);
+        let rects = getRects(mid), side = 0;
+        if (rects)
+          for (let i2 = 0; i2 < rects.length; i2++) {
+            let rect = rects[i2];
+            if (rect.width == 0 && rects.length > 1)
+              continue;
+            if (rect.bottom < this.y) {
+              if (!above || above.bottom < rect.bottom)
+                above = rect;
+              side = 1;
+            } else if (rect.top > this.y) {
+              if (!below || below.top > rect.top)
+                below = rect;
+              side = -1;
+            } else {
+              let off = rect.left > this.x ? this.x - rect.left : rect.right < this.x ? this.x - rect.right : 0;
+              let dx = Math.abs(off);
+              if (dx < closestDx) {
+                closestI = mid;
+                closestDx = dx;
+                closestRect = rect;
+              }
+              if (off)
+                side = off < 0 == (this.baseDir == Direction.LTR) ? -1 : 1;
+            }
+          }
+        if (side == -1 && (!bidi || this.baseDirAt(positions[mid], 1)))
+          hi2 = mid;
+        else if (side == 1 && (!bidi || this.baseDirAt(positions[mid + 1], -1)))
+          lo = mid + 1;
+      }
+    if (!closestRect) {
+      if (!below && !above)
+        return { i: 0, after: false };
+      let side = above && (!below || this.y - above.bottom < below.top - this.y) ? above : below;
+      this.y = (side.top + side.bottom) / 2;
+      return this.scan(positions, getRects, true);
+    }
+    if (closestDx && !recursed) {
+      let { top: top2, bottom: bottom2 } = closestRect;
+      if (above && above.bottom > (top2 + top2 + bottom2) / 3) {
+        this.y = above.bottom - 1;
+        return this.scan(positions, getRects, true);
+      }
+      if (below && below.top < (top2 + bottom2 + bottom2) / 3) {
+        this.y = below.top + 1;
+        return this.scan(positions, getRects, true);
+      }
+    }
+    let ltr = (bidi ? this.dirAt(positions[closestI], 1) : this.baseDir) == Direction.LTR;
+    return {
+      i: closestI,
+      after: this.x > (closestRect.left + closestRect.right) / 2 == ltr
+    };
+  }
+  scanText(tile, offset2) {
+    let positions = [];
+    for (let i2 = 0; i2 < tile.length; i2 = findClusterBreak(tile.text, i2))
+      positions.push(offset2 + i2);
+    positions.push(offset2 + tile.length);
+    let scan = this.scan(positions, (i2) => {
+      let off = positions[i2] - offset2, end2 = positions[i2 + 1] - offset2;
+      return textRange(tile.dom, off, end2).getClientRects();
+    });
+    return scan.after ? new PosAssoc(positions[scan.i + 1], -1) : new PosAssoc(positions[scan.i], 1);
+  }
+  scanTile(tile, offset2) {
+    if (!tile.length)
+      return new PosAssoc(offset2, 1);
+    if (tile.children.length == 1) {
+      let child2 = tile.children[0];
+      if (child2.isText())
+        return this.scanText(child2, offset2);
+      else if (child2.isComposite())
+        return this.scanTile(child2, offset2);
+    }
+    let positions = [offset2];
+    for (let i2 = 0, pos2 = offset2; i2 < tile.children.length; i2++)
+      positions.push(pos2 += tile.children[i2].length);
+    let scan = this.scan(positions, (i2) => {
+      let child2 = tile.children[i2];
+      if (child2.flags & 48)
+        return null;
+      return (child2.dom.nodeType == 1 ? child2.dom : textRange(child2.dom, 0, child2.length)).getClientRects();
+    });
+    let child = tile.children[scan.i], pos = positions[scan.i];
+    if (child.isText())
+      return this.scanText(child, pos);
+    if (child.isComposite())
+      return this.scanTile(child, pos);
+    return scan.after ? new PosAssoc(positions[scan.i + 1], -1) : new PosAssoc(pos, 1);
+  }
+}
+const LineBreakPlaceholder = "\uFFFF";
+class DOMReader {
+  constructor(points, view) {
+    this.points = points;
+    this.view = view;
+    this.text = "";
+    this.lineSeparator = view.state.facet(EditorState.lineSeparator);
+  }
+  append(text) {
+    this.text += text;
+  }
+  lineBreak() {
+    this.text += LineBreakPlaceholder;
+  }
+  readRange(start2, end2) {
+    if (!start2)
+      return this;
+    let parent = start2.parentNode;
+    for (let cur2 = start2; ; ) {
+      this.findPointBefore(parent, cur2);
+      let oldLen = this.text.length;
+      this.readNode(cur2);
+      let tile = Tile.get(cur2), next = cur2.nextSibling;
+      if (next == end2) {
+        if ((tile === null || tile === void 0 ? void 0 : tile.breakAfter) && !next && parent != this.view.contentDOM)
+          this.lineBreak();
+        break;
+      }
+      let nextTile = Tile.get(next);
+      if ((tile && nextTile ? tile.breakAfter : (tile ? tile.breakAfter : isBlockElement(cur2)) || isBlockElement(next) && (cur2.nodeName != "BR" || (tile === null || tile === void 0 ? void 0 : tile.isWidget())) && this.text.length > oldLen) && !isEmptyToEnd(next, end2))
+        this.lineBreak();
+      cur2 = next;
+    }
+    this.findPointBefore(parent, end2);
+    return this;
+  }
+  readTextNode(node) {
+    let text = node.nodeValue;
+    for (let point of this.points)
+      if (point.node == node)
+        point.pos = this.text.length + Math.min(point.offset, text.length);
+    for (let off = 0, re2 = this.lineSeparator ? null : /\r\n?|\n/g; ; ) {
+      let nextBreak = -1, breakSize = 1, m2;
+      if (this.lineSeparator) {
+        nextBreak = text.indexOf(this.lineSeparator, off);
+        breakSize = this.lineSeparator.length;
+      } else if (m2 = re2.exec(text)) {
+        nextBreak = m2.index;
+        breakSize = m2[0].length;
+      }
+      this.append(text.slice(off, nextBreak < 0 ? text.length : nextBreak));
+      if (nextBreak < 0)
+        break;
+      this.lineBreak();
+      if (breakSize > 1) {
+        for (let point of this.points)
+          if (point.node == node && point.pos > this.text.length)
+            point.pos -= breakSize - 1;
+      }
+      off = nextBreak + breakSize;
+    }
+  }
+  readNode(node) {
+    let tile = Tile.get(node);
+    let fromView = tile && tile.overrideDOMText;
+    if (fromView != null) {
+      this.findPointInside(node, fromView.length);
+      for (let i2 = fromView.iter(); !i2.next().done; ) {
+        if (i2.lineBreak)
+          this.lineBreak();
+        else
+          this.append(i2.value);
+      }
+    } else if (node.nodeType == 3) {
+      this.readTextNode(node);
+    } else if (node.nodeName == "BR") {
+      if (node.nextSibling)
+        this.lineBreak();
+    } else if (node.nodeType == 1) {
+      this.readRange(node.firstChild, null);
+    }
+  }
+  findPointBefore(node, next) {
+    for (let point of this.points)
+      if (point.node == node && node.childNodes[point.offset] == next)
+        point.pos = this.text.length;
+  }
+  findPointInside(node, length) {
+    for (let point of this.points)
+      if (node.nodeType == 3 ? point.node == node : node.contains(point.node))
+        point.pos = this.text.length + (isAtEnd(node, point.node, point.offset) ? length : 0);
+  }
+}
+function isAtEnd(parent, node, offset2) {
+  for (; ; ) {
+    if (!node || offset2 < maxOffset(node))
+      return false;
+    if (node == parent)
+      return true;
+    offset2 = domIndex(node) + 1;
+    node = node.parentNode;
+  }
+}
+function isEmptyToEnd(node, end2) {
+  let widgets;
+  for (; ; node = node.nextSibling) {
+    if (node == end2 || !node)
+      break;
+    let view = Tile.get(node);
+    if (!(view === null || view === void 0 ? void 0 : view.isWidget()))
+      return false;
+    if (view)
+      (widgets || (widgets = [])).push(view);
+  }
+  if (widgets)
+    for (let w2 of widgets) {
+      let override = w2.overrideDOMText;
+      if (override === null || override === void 0 ? void 0 : override.length)
+        return false;
+    }
+  return true;
+}
+class DOMPoint {
+  constructor(node, offset2) {
+    this.node = node;
+    this.offset = offset2;
+    this.pos = -1;
+  }
+}
+class DOMChange {
+  constructor(view, start2, end2, typeOver) {
+    this.typeOver = typeOver;
+    this.bounds = null;
+    this.text = "";
+    this.domChanged = start2 > -1;
+    let { impreciseHead: iHead, impreciseAnchor: iAnchor } = view.docView, curSel = view.state.selection;
+    if (view.state.readOnly && start2 > -1) {
+      this.newSel = null;
+    } else if (start2 > -1 && (this.bounds = domBoundsAround(view.docView.tile, start2, end2, 0))) {
+      let selPoints = iHead || iAnchor ? [] : selectionPoints(view);
+      let reader = new DOMReader(selPoints, view);
+      reader.readRange(this.bounds.startDOM, this.bounds.endDOM);
+      this.text = reader.text;
+      this.newSel = selectionFromPoints(selPoints, this.bounds.from);
+    } else {
+      let domSel = view.observer.selectionRange;
+      let head = iHead && iHead.node == domSel.focusNode && iHead.offset == domSel.focusOffset || !contains$1(view.contentDOM, domSel.focusNode) ? curSel.main.head : view.docView.posFromDOM(domSel.focusNode, domSel.focusOffset);
+      let anchor = iAnchor && iAnchor.node == domSel.anchorNode && iAnchor.offset == domSel.anchorOffset || !contains$1(view.contentDOM, domSel.anchorNode) ? curSel.main.anchor : view.docView.posFromDOM(domSel.anchorNode, domSel.anchorOffset);
+      let vp = view.viewport;
+      if ((browser.ios || browser.chrome) && head != anchor && Math.min(head, anchor) <= curSel.main.from && Math.max(head, anchor) >= curSel.main.to && (vp.from > 0 || vp.to < view.state.doc.length)) {
+        let from = Math.min(head, anchor), to = Math.max(head, anchor);
+        let offFrom = vp.from - from, offTo = vp.to - to;
+        if ((offFrom == 0 || offFrom == 1 || from == 0) && (offTo == 0 || offTo == -1 || to == view.state.doc.length)) {
+          head = 0;
+          anchor = view.state.doc.length;
+        }
+      }
+      if (view.inputState.composing > -1 && curSel.ranges.length > 1) {
+        this.newSel = curSel.replaceRange(EditorSelection.range(anchor, head));
+      } else if (view.lineWrapping && anchor == head && !(curSel.main.empty && curSel.main.head == head) && view.inputState.lastTouchTime > Date.now() - 100) {
+        let before = view.coordsAtPos(head, -1), assoc = 0;
+        if (before)
+          assoc = view.inputState.lastTouchY <= before.bottom ? -1 : 1;
+        this.newSel = EditorSelection.create([EditorSelection.cursor(head, assoc)]);
+      } else {
+        this.newSel = EditorSelection.single(anchor, head);
+      }
+    }
+  }
+}
+function domBoundsAround(tile, from, to, offset2) {
+  if (tile.isComposite()) {
+    let fromI = -1, fromStart = -1, toI = -1, toEnd = -1;
+    for (let i2 = 0, pos = offset2, prevEnd = offset2; i2 < tile.children.length; i2++) {
+      let child = tile.children[i2], end2 = pos + child.length;
+      if (pos < from && end2 > to)
+        return domBoundsAround(child, from, to, pos);
+      if (end2 >= from && fromI == -1) {
+        fromI = i2;
+        fromStart = pos;
+      }
+      if (pos > to && child.dom.parentNode == tile.dom) {
+        toI = i2;
+        toEnd = prevEnd;
+        break;
+      }
+      prevEnd = end2;
+      pos = end2 + child.breakAfter;
+    }
+    return {
+      from: fromStart,
+      to: toEnd < 0 ? offset2 + tile.length : toEnd,
+      startDOM: (fromI ? tile.children[fromI - 1].dom.nextSibling : null) || tile.dom.firstChild,
+      endDOM: toI < tile.children.length && toI >= 0 ? tile.children[toI].dom : null
+    };
+  } else if (tile.isText()) {
+    return { from: offset2, to: offset2 + tile.length, startDOM: tile.dom, endDOM: tile.dom.nextSibling };
+  } else {
+    return null;
+  }
+}
+function applyDOMChange(view, domChange) {
+  let change;
+  let { newSel } = domChange, { state } = view, sel = state.selection.main;
+  let lastKey = view.inputState.lastKeyTime > Date.now() - 100 ? view.inputState.lastKeyCode : -1;
+  if (domChange.bounds) {
+    let { from, to } = domChange.bounds;
+    let preferredPos = sel.from, preferredSide = null;
+    if (lastKey === 8 || browser.android && domChange.text.length < to - from) {
+      preferredPos = sel.to;
+      preferredSide = "end";
+    }
+    let cmp = state.doc.sliceString(from, to, LineBreakPlaceholder), selEnd, diff;
+    if (!sel.empty && sel.from >= from && sel.to <= to && (domChange.typeOver || cmp != domChange.text) && cmp.slice(0, sel.from - from) == domChange.text.slice(0, sel.from - from) && cmp.slice(sel.to - from) == domChange.text.slice(selEnd = domChange.text.length - (cmp.length - (sel.to - from)))) {
+      change = {
+        from: sel.from,
+        to: sel.to,
+        insert: Text.of(domChange.text.slice(sel.from - from, selEnd).split(LineBreakPlaceholder))
+      };
+    } else if (diff = findDiff(cmp, domChange.text, preferredPos - from, preferredSide)) {
+      if (browser.chrome && lastKey == 13 && diff.toB == diff.from + 2 && domChange.text.slice(diff.from, diff.toB) == LineBreakPlaceholder + LineBreakPlaceholder)
+        diff.toB--;
+      change = {
+        from: from + diff.from,
+        to: from + diff.toA,
+        insert: Text.of(domChange.text.slice(diff.from, diff.toB).split(LineBreakPlaceholder))
+      };
+    }
+  } else if (newSel && (!view.hasFocus && state.facet(editable) || sameSelPos(newSel, sel))) {
+    newSel = null;
+  }
+  if (!change && !newSel)
+    return false;
+  if ((browser.mac || browser.android) && change && change.from == change.to && change.from == sel.head - 1 && /^\. ?$/.test(change.insert.toString()) && view.contentDOM.getAttribute("autocorrect") == "off") {
+    if (newSel && change.insert.length == 2)
+      newSel = EditorSelection.single(newSel.main.anchor - 1, newSel.main.head - 1);
+    change = { from: change.from, to: change.to, insert: Text.of([change.insert.toString().replace(".", " ")]) };
+  } else if (state.doc.lineAt(sel.from).to < sel.to && view.docView.lineHasWidget(sel.to) && view.inputState.insertingTextAt > Date.now() - 50) {
+    change = {
+      from: sel.from,
+      to: sel.to,
+      insert: state.toText(view.inputState.insertingText)
+    };
+  } else if (browser.chrome && change && change.from == change.to && change.from == sel.head && change.insert.toString() == "\n " && view.lineWrapping) {
+    if (newSel)
+      newSel = EditorSelection.single(newSel.main.anchor - 1, newSel.main.head - 1);
+    change = { from: sel.from, to: sel.to, insert: Text.of([" "]) };
+  }
+  if (change) {
+    return applyDOMChangeInner(view, change, newSel, lastKey);
+  } else if (newSel && !sameSelPos(newSel, sel)) {
+    let scrollIntoView2 = false, userEvent = "select";
+    if (view.inputState.lastSelectionTime > Date.now() - 50) {
+      if (view.inputState.lastSelectionOrigin == "select")
+        scrollIntoView2 = true;
+      userEvent = view.inputState.lastSelectionOrigin;
+      if (userEvent == "select.pointer")
+        newSel = skipAtomsForSelection(state.facet(atomicRanges).map((f2) => f2(view)), newSel);
+    }
+    view.dispatch({ selection: newSel, scrollIntoView: scrollIntoView2, userEvent });
+    return true;
+  } else {
+    return false;
+  }
+}
+function applyDOMChangeInner(view, change, newSel, lastKey = -1) {
+  if (browser.ios && view.inputState.flushIOSKey(change))
+    return true;
+  let sel = view.state.selection.main;
+  if (browser.android && (change.to == sel.to && (change.from == sel.from || change.from == sel.from - 1 && view.state.sliceDoc(change.from, sel.from) == " ") && change.insert.length == 1 && change.insert.lines == 2 && dispatchKey(view.contentDOM, "Enter", 13) || (change.from == sel.from - 1 && change.to == sel.to && change.insert.length == 0 || lastKey == 8 && change.insert.length < change.to - change.from && change.to > sel.head) && dispatchKey(view.contentDOM, "Backspace", 8) || change.from == sel.from && change.to == sel.to + 1 && change.insert.length == 0 && dispatchKey(view.contentDOM, "Delete", 46)))
+    return true;
+  let text = change.insert.toString();
+  if (view.inputState.composing >= 0)
+    view.inputState.composing++;
+  let defaultTr;
+  let defaultInsert = () => defaultTr || (defaultTr = applyDefaultInsert(view, change, newSel));
+  if (!view.state.facet(inputHandler).some((h2) => h2(view, change.from, change.to, text, defaultInsert)))
+    view.dispatch(defaultInsert());
+  return true;
+}
+function applyDefaultInsert(view, change, newSel) {
+  let tr2, startState = view.state, sel = startState.selection.main, inAtomic = -1;
+  if (change.from == change.to && change.from < sel.from || change.from > sel.to) {
+    let side = change.from < sel.from ? -1 : 1, pos = side < 0 ? sel.from : sel.to;
+    let moved = skipAtomicRanges(startState.facet(atomicRanges).map((f2) => f2(view)), pos, side);
+    if (change.from == moved)
+      inAtomic = moved;
+  }
+  if (inAtomic > -1) {
+    tr2 = {
+      changes: change,
+      selection: EditorSelection.cursor(change.from + change.insert.length, -1)
+    };
+  } else if (change.from >= sel.from && change.to <= sel.to && change.to - change.from >= (sel.to - sel.from) / 3 && (!newSel || newSel.main.empty && newSel.main.from == change.from + change.insert.length) && view.inputState.composing < 0) {
+    let before = sel.from < change.from ? startState.sliceDoc(sel.from, change.from) : "";
+    let after = sel.to > change.to ? startState.sliceDoc(change.to, sel.to) : "";
+    tr2 = startState.replaceSelection(view.state.toText(before + change.insert.sliceString(0, void 0, view.state.lineBreak) + after));
+  } else {
+    let changes = startState.changes(change);
+    let mainSel = newSel && newSel.main.to <= changes.newLength ? newSel.main : void 0;
+    if (startState.selection.ranges.length > 1 && (view.inputState.composing >= 0 || view.inputState.compositionPendingChange) && change.to <= sel.to + 10 && change.to >= sel.to - 10) {
+      let replaced = view.state.sliceDoc(change.from, change.to);
+      let compositionRange, composition = newSel && findCompositionNode(view, newSel.main.head);
+      if (composition) {
+        let dLen = change.insert.length - (change.to - change.from);
+        compositionRange = { from: composition.from, to: composition.to - dLen };
+      } else {
+        compositionRange = view.state.doc.lineAt(sel.head);
+      }
+      let offset2 = sel.to - change.to;
+      tr2 = startState.changeByRange((range) => {
+        if (range.from == sel.from && range.to == sel.to)
+          return { changes, range: mainSel || range.map(changes) };
+        let to = range.to - offset2, from = to - replaced.length;
+        if (view.state.sliceDoc(from, to) != replaced || to >= compositionRange.from && from <= compositionRange.to)
+          return { range };
+        let rangeChanges = startState.changes({ from, to, insert: change.insert }), selOff = range.to - sel.to;
+        return {
+          changes: rangeChanges,
+          range: !mainSel ? range.map(rangeChanges) : EditorSelection.range(Math.max(0, mainSel.anchor + selOff), Math.max(0, mainSel.head + selOff))
+        };
+      });
+    } else {
+      tr2 = {
+        changes,
+        selection: mainSel && startState.selection.replaceRange(mainSel)
+      };
+    }
+  }
+  let userEvent = "input.type";
+  if (view.composing || view.inputState.compositionPendingChange && view.inputState.compositionEndedAt > Date.now() - 50) {
+    view.inputState.compositionPendingChange = false;
+    userEvent += ".compose";
+    if (view.inputState.compositionFirstChange) {
+      userEvent += ".start";
+      view.inputState.compositionFirstChange = false;
+    }
+  }
+  return startState.update(tr2, { userEvent, scrollIntoView: true });
+}
+function findDiff(a, b, preferredPos, preferredSide) {
+  let minLen = Math.min(a.length, b.length);
+  let from = 0;
+  while (from < minLen && a.charCodeAt(from) == b.charCodeAt(from))
+    from++;
+  if (from == minLen && a.length == b.length)
+    return null;
+  let toA = a.length, toB = b.length;
+  while (toA > 0 && toB > 0 && a.charCodeAt(toA - 1) == b.charCodeAt(toB - 1)) {
+    toA--;
+    toB--;
+  }
+  if (preferredSide == "end") {
+    let adjust = Math.max(0, from - Math.min(toA, toB));
+    preferredPos -= toA + adjust - from;
+  }
+  if (toA < from && a.length < b.length) {
+    let move = preferredPos <= from && preferredPos >= toA ? from - preferredPos : 0;
+    from -= move;
+    toB = from + (toB - toA);
+    toA = from;
+  } else if (toB < from) {
+    let move = preferredPos <= from && preferredPos >= toB ? from - preferredPos : 0;
+    from -= move;
+    toA = from + (toA - toB);
+    toB = from;
+  }
+  return { from, toA, toB };
+}
+function selectionPoints(view) {
+  let result = [];
+  if (view.root.activeElement != view.contentDOM)
+    return result;
+  let { anchorNode, anchorOffset, focusNode, focusOffset } = view.observer.selectionRange;
+  if (anchorNode) {
+    result.push(new DOMPoint(anchorNode, anchorOffset));
+    if (focusNode != anchorNode || focusOffset != anchorOffset)
+      result.push(new DOMPoint(focusNode, focusOffset));
+  }
+  return result;
+}
+function selectionFromPoints(points, base2) {
+  if (points.length == 0)
+    return null;
+  let anchor = points[0].pos, head = points.length == 2 ? points[1].pos : anchor;
+  return anchor > -1 && head > -1 ? EditorSelection.single(anchor + base2, head + base2) : null;
+}
+function sameSelPos(selection, range) {
+  return range.head == selection.main.head && range.anchor == selection.main.anchor;
+}
+class InputState {
+  setSelectionOrigin(origin) {
+    this.lastSelectionOrigin = origin;
+    this.lastSelectionTime = Date.now();
+  }
+  constructor(view) {
+    this.view = view;
+    this.lastKeyCode = 0;
+    this.lastKeyTime = 0;
+    this.touchActive = false;
+    this.lastTouchTime = 0;
+    this.lastTouchX = 0;
+    this.lastTouchY = 0;
+    this.lastFocusTime = 0;
+    this.lastScrollTop = 0;
+    this.lastScrollLeft = 0;
+    this.lastWheelEvent = 0;
+    this.pendingIOSKey = void 0;
+    this.lastIOSMomentumScroll = 0;
+    this.tabFocusMode = -1;
+    this.lastSelectionOrigin = null;
+    this.lastSelectionTime = 0;
+    this.lastContextMenu = 0;
+    this.scrollHandlers = [];
+    this.handlers = /* @__PURE__ */ Object.create(null);
+    this.composing = -1;
+    this.compositionFirstChange = null;
+    this.compositionEndedAt = 0;
+    this.compositionPendingKey = false;
+    this.compositionPendingChange = false;
+    this.insertingText = "";
+    this.insertingTextAt = 0;
+    this.mouseSelection = null;
+    this.draggedContent = null;
+    this.handleEvent = this.handleEvent.bind(this);
+    this.notifiedFocused = view.hasFocus;
+    if (browser.safari)
+      view.contentDOM.addEventListener("input", () => null);
+    if (browser.gecko)
+      firefoxCopyCutHack(view.contentDOM.ownerDocument);
+  }
+  handleEvent(event) {
+    if (!eventBelongsToEditor(this.view, event) || this.ignoreDuringComposition(event))
+      return;
+    if (event.type == "keydown" && this.keydown(event))
+      return;
+    if (this.view.updateState != 0)
+      Promise.resolve().then(() => this.runHandlers(event.type, event));
+    else
+      this.runHandlers(event.type, event);
+  }
+  runHandlers(type, event) {
+    let handlers2 = this.handlers[type];
+    if (handlers2) {
+      for (let observer of handlers2.observers)
+        observer(this.view, event);
+      for (let handler of handlers2.handlers) {
+        if (event.defaultPrevented)
+          break;
+        if (handler(this.view, event)) {
+          event.preventDefault();
+          break;
+        }
+      }
+    }
+  }
+  ensureHandlers(plugins) {
+    let handlers2 = computeHandlers(plugins), prev = this.handlers, dom = this.view.contentDOM;
+    for (let type in handlers2)
+      if (type != "scroll") {
+        let passive2 = !handlers2[type].handlers.length;
+        let exists = prev[type];
+        if (exists && passive2 != !exists.handlers.length) {
+          dom.removeEventListener(type, this.handleEvent);
+          exists = null;
+        }
+        if (!exists)
+          dom.addEventListener(type, this.handleEvent, { passive: passive2 });
+      }
+    for (let type in prev)
+      if (type != "scroll" && !handlers2[type])
+        dom.removeEventListener(type, this.handleEvent);
+    this.handlers = handlers2;
+  }
+  keydown(event) {
+    this.lastKeyCode = event.keyCode;
+    this.lastKeyTime = Date.now();
+    if (event.keyCode == 9 && this.tabFocusMode > -1 && (!this.tabFocusMode || Date.now() <= this.tabFocusMode))
+      return true;
+    if (this.tabFocusMode > 0 && event.keyCode != 27 && modifierCodes.indexOf(event.keyCode) < 0)
+      this.tabFocusMode = -1;
+    if (browser.android && browser.chrome && !event.synthetic && (event.keyCode == 13 || event.keyCode == 8)) {
+      this.view.observer.delayAndroidKey(event.key, event.keyCode);
+      return true;
+    }
+    if (browser.ios && !event.synthetic && !event.altKey && !event.metaKey && (PendingKeys.some((key) => key.keyCode == event.keyCode) && !event.ctrlKey || EmacsyPendingKeys.indexOf(event.key) > -1 && event.ctrlKey)) {
+      let mods = { ctrlKey: event.ctrlKey, altKey: event.altKey, metaKey: event.metaKey, shiftKey: event.shiftKey };
+      if (mods.shiftKey && browser.ios && !/^(off|none)$/.test(this.view.contentDOM.autocapitalize) && iosVirtualKeyboardOpen(this.view.win))
+        mods.shiftKey = false;
+      this.pendingIOSKey = { key: event.key, keyCode: event.keyCode, mods };
+      setTimeout(() => this.flushIOSKey(), 50);
+      return true;
+    }
+    if (event.keyCode != 229)
+      this.view.observer.forceFlush();
+    return false;
+  }
+  flushIOSKey(change) {
+    let key = this.pendingIOSKey;
+    if (!key || this.view.observer.pendingRecords().length)
+      return false;
+    if (key.key == "Enter" && change && change.from < change.to && /^\S+$/.test(change.insert.toString()))
+      return false;
+    this.pendingIOSKey = void 0;
+    return dispatchKey(this.view.contentDOM, key.key, key.keyCode, key.mods);
+  }
+  ignoreDuringComposition(event) {
+    if (!/^key/.test(event.type) || event.synthetic)
+      return false;
+    if (this.composing > 0)
+      return true;
+    if (browser.safari && !browser.ios && this.compositionPendingKey && Date.now() - this.compositionEndedAt < 100) {
+      this.compositionPendingKey = false;
+      return true;
+    }
+    return false;
+  }
+  startMouseSelection(mouseSelection) {
+    if (this.mouseSelection)
+      this.mouseSelection.destroy();
+    this.mouseSelection = mouseSelection;
+  }
+  update(update) {
+    this.view.observer.update(update);
+    if (this.mouseSelection)
+      this.mouseSelection.update(update);
+    if (this.draggedContent && update.docChanged)
+      this.draggedContent = this.draggedContent.map(update.changes);
+    if (update.transactions.length)
+      this.lastKeyCode = this.lastSelectionTime = 0;
+  }
+  destroy() {
+    if (this.mouseSelection)
+      this.mouseSelection.destroy();
+  }
+}
+function iosVirtualKeyboardOpen(win) {
+  if (!win.visualViewport)
+    return false;
+  return win.visualViewport.height * win.visualViewport.scale / win.document.documentElement.clientHeight < 0.85;
+}
+function bindHandler(plugin, handler) {
+  return (view, event) => {
+    try {
+      return handler.call(plugin, event, view);
+    } catch (e) {
+      logException(view.state, e);
+    }
+  };
+}
+function computeHandlers(plugins) {
+  let result = /* @__PURE__ */ Object.create(null);
+  function record(type) {
+    return result[type] || (result[type] = { observers: [], handlers: [] });
+  }
+  for (let plugin of plugins) {
+    let spec = plugin.spec, handlers2 = spec && spec.plugin.domEventHandlers, observers2 = spec && spec.plugin.domEventObservers;
+    if (handlers2)
+      for (let type in handlers2) {
+        let f2 = handlers2[type];
+        if (f2)
+          record(type).handlers.push(bindHandler(plugin.value, f2));
+      }
+    if (observers2)
+      for (let type in observers2) {
+        let f2 = observers2[type];
+        if (f2)
+          record(type).observers.push(bindHandler(plugin.value, f2));
+      }
+  }
+  for (let type in handlers)
+    record(type).handlers.push(handlers[type]);
+  for (let type in observers)
+    record(type).observers.push(observers[type]);
+  return result;
+}
+const PendingKeys = [
+  { key: "Backspace", keyCode: 8, inputType: "deleteContentBackward" },
+  { key: "Enter", keyCode: 13, inputType: "insertParagraph" },
+  { key: "Enter", keyCode: 13, inputType: "insertLineBreak" },
+  { key: "Delete", keyCode: 46, inputType: "deleteContentForward" }
+];
+const EmacsyPendingKeys = "dthko";
+const modifierCodes = [16, 17, 18, 20, 91, 92, 224, 225];
+const dragScrollMargin = 6;
+function dragScrollSpeed(dist2) {
+  return Math.max(0, dist2) * 0.7 + 8;
+}
+function dist(a, b) {
+  return Math.max(Math.abs(a.clientX - b.clientX), Math.abs(a.clientY - b.clientY));
+}
+class MouseSelection {
+  constructor(view, startEvent, style, mustSelect) {
+    this.view = view;
+    this.startEvent = startEvent;
+    this.style = style;
+    this.mustSelect = mustSelect;
+    this.scrollSpeed = { x: 0, y: 0 };
+    this.scrolling = -1;
+    this.lastEvent = startEvent;
+    this.scrollParents = scrollableParents(view.contentDOM);
+    this.atoms = view.state.facet(atomicRanges).map((f2) => f2(view));
+    let doc2 = view.contentDOM.ownerDocument;
+    doc2.addEventListener("mousemove", this.move = this.move.bind(this));
+    doc2.addEventListener("mouseup", this.up = this.up.bind(this));
+    this.extend = startEvent.shiftKey;
+    this.multiple = view.state.facet(EditorState.allowMultipleSelections) && addsSelectionRange(view, startEvent);
+    this.dragging = isInPrimarySelection(view, startEvent) && getClickType(startEvent) == 1 ? null : false;
+  }
+  start(event) {
+    if (this.dragging === false)
+      this.select(event);
+  }
+  move(event) {
+    if (event.buttons == 0)
+      return this.destroy();
+    if (this.dragging || this.dragging == null && dist(this.startEvent, event) < 10)
+      return;
+    this.select(this.lastEvent = event);
+    let sx = 0, sy = 0;
+    let left2 = 0, top2 = 0, right2 = this.view.win.innerWidth, bottom2 = this.view.win.innerHeight;
+    if (this.scrollParents.x)
+      ({ left: left2, right: right2 } = this.scrollParents.x.getBoundingClientRect());
+    if (this.scrollParents.y)
+      ({ top: top2, bottom: bottom2 } = this.scrollParents.y.getBoundingClientRect());
+    let margins = getScrollMargins(this.view);
+    if (event.clientX - margins.left <= left2 + dragScrollMargin)
+      sx = -dragScrollSpeed(left2 - event.clientX);
+    else if (event.clientX + margins.right >= right2 - dragScrollMargin)
+      sx = dragScrollSpeed(event.clientX - right2);
+    if (event.clientY - margins.top <= top2 + dragScrollMargin)
+      sy = -dragScrollSpeed(top2 - event.clientY);
+    else if (event.clientY + margins.bottom >= bottom2 - dragScrollMargin)
+      sy = dragScrollSpeed(event.clientY - bottom2);
+    this.setScrollSpeed(sx, sy);
+  }
+  up(event) {
+    if (this.dragging == null)
+      this.select(this.lastEvent);
+    if (!this.dragging)
+      event.preventDefault();
+    this.destroy();
+  }
+  destroy() {
+    this.setScrollSpeed(0, 0);
+    let doc2 = this.view.contentDOM.ownerDocument;
+    doc2.removeEventListener("mousemove", this.move);
+    doc2.removeEventListener("mouseup", this.up);
+    this.view.inputState.mouseSelection = this.view.inputState.draggedContent = null;
+  }
+  setScrollSpeed(sx, sy) {
+    this.scrollSpeed = { x: sx, y: sy };
+    if (sx || sy) {
+      if (this.scrolling < 0)
+        this.scrolling = setInterval(() => this.scroll(), 50);
+    } else if (this.scrolling > -1) {
+      clearInterval(this.scrolling);
+      this.scrolling = -1;
+    }
+  }
+  scroll() {
+    let { x: x2, y: y2 } = this.scrollSpeed;
+    if (x2 && this.scrollParents.x) {
+      this.scrollParents.x.scrollLeft += x2;
+      x2 = 0;
+    }
+    if (y2 && this.scrollParents.y) {
+      this.scrollParents.y.scrollTop += y2;
+      y2 = 0;
+    }
+    if (x2 || y2)
+      this.view.win.scrollBy(x2, y2);
+    if (this.dragging === false)
+      this.select(this.lastEvent);
+  }
+  select(event) {
+    let { view } = this, selection = skipAtomsForSelection(this.atoms, this.style.get(event, this.extend, this.multiple));
+    if (this.mustSelect || !selection.eq(view.state.selection, this.dragging === false))
+      this.view.dispatch({
+        selection,
+        userEvent: "select.pointer"
+      });
+    this.mustSelect = false;
+  }
+  update(update) {
+    if (update.transactions.some((tr2) => tr2.isUserEvent("input.type")))
+      this.destroy();
+    else if (this.style.update(update))
+      setTimeout(() => this.select(this.lastEvent), 20);
+  }
+}
+function addsSelectionRange(view, event) {
+  let facet = view.state.facet(clickAddsSelectionRange);
+  return facet.length ? facet[0](event) : browser.mac ? event.metaKey : event.ctrlKey;
+}
+function dragMovesSelection(view, event) {
+  let facet = view.state.facet(dragMovesSelection$1);
+  return facet.length ? facet[0](event) : browser.mac ? !event.altKey : !event.ctrlKey;
+}
+function isInPrimarySelection(view, event) {
+  let { main: main2 } = view.state.selection;
+  if (main2.empty)
+    return false;
+  let sel = getSelection(view.root);
+  if (!sel || sel.rangeCount == 0)
+    return true;
+  let rects = sel.getRangeAt(0).getClientRects();
+  for (let i2 = 0; i2 < rects.length; i2++) {
+    let rect = rects[i2];
+    if (rect.left <= event.clientX && rect.right >= event.clientX && rect.top <= event.clientY && rect.bottom >= event.clientY)
+      return true;
+  }
+  return false;
+}
+function eventBelongsToEditor(view, event) {
+  if (!event.bubbles)
+    return true;
+  if (event.defaultPrevented)
+    return false;
+  for (let node = event.target, tile; node != view.contentDOM; node = node.parentNode)
+    if (!node || node.nodeType == 11 || (tile = Tile.get(node)) && tile.isWidget() && !tile.isHidden && tile.widget.ignoreEvent(event))
+      return false;
+  return true;
+}
+const handlers = /* @__PURE__ */ Object.create(null);
+const observers = /* @__PURE__ */ Object.create(null);
+const brokenClipboardAPI = browser.ie && browser.ie_version < 15 || browser.ios && browser.webkit_version < 604;
+function capturePaste(view) {
+  let parent = view.dom.parentNode;
+  if (!parent)
+    return;
+  let target = parent.appendChild(document.createElement("textarea"));
+  target.style.cssText = "position: fixed; left: -10000px; top: 10px";
+  target.focus();
+  setTimeout(() => {
+    view.focus();
+    target.remove();
+    doPaste(view, target.value);
+  }, 50);
+}
+function textFilter(state, facet, text) {
+  for (let filter of state.facet(facet))
+    text = filter(text, state);
+  return text;
+}
+function doPaste(view, input) {
+  input = textFilter(view.state, clipboardInputFilter, input);
+  let { state } = view, changes, i2 = 1, text = state.toText(input);
+  let byLine = text.lines == state.selection.ranges.length;
+  let linewise = lastLinewiseCopy != null && state.selection.ranges.every((r2) => r2.empty) && lastLinewiseCopy == text.toString();
+  if (linewise) {
+    let lastLine = -1;
+    changes = state.changeByRange((range) => {
+      let line = state.doc.lineAt(range.from);
+      if (line.from == lastLine)
+        return { range };
+      lastLine = line.from;
+      let insert2 = state.toText((byLine ? text.line(i2++).text : input) + state.lineBreak);
+      return {
+        changes: { from: line.from, insert: insert2 },
+        range: EditorSelection.cursor(range.from + insert2.length)
+      };
+    });
+  } else if (byLine) {
+    changes = state.changeByRange((range) => {
+      let line = text.line(i2++);
+      return {
+        changes: { from: range.from, to: range.to, insert: line.text },
+        range: EditorSelection.cursor(range.from + line.length)
+      };
+    });
+  } else {
+    changes = state.replaceSelection(text);
+  }
+  view.dispatch(changes, {
+    userEvent: "input.paste",
+    scrollIntoView: true
+  });
+}
+observers.scroll = (view) => {
+  let iState = view.inputState;
+  iState.lastScrollTop = view.scrollDOM.scrollTop;
+  iState.lastScrollLeft = view.scrollDOM.scrollLeft;
+  if (browser.ios && !iState.touchActive)
+    iState.lastIOSMomentumScroll = Date.now();
+};
+observers.wheel = observers.mousewheel = (view) => {
+  view.inputState.lastWheelEvent = Date.now();
+};
+handlers.keydown = (view, event) => {
+  view.inputState.setSelectionOrigin("select");
+  if (event.keyCode == 27 && view.inputState.tabFocusMode != 0)
+    view.inputState.tabFocusMode = Date.now() + 2e3;
+  return false;
+};
+observers.touchstart = (view, e) => {
+  let iState = view.inputState, touch = e.targetTouches[0];
+  iState.touchActive = true;
+  iState.lastTouchTime = Date.now();
+  if (touch) {
+    iState.lastTouchX = touch.clientX;
+    iState.lastTouchY = touch.clientY;
+  }
+  iState.setSelectionOrigin("select.pointer");
+};
+observers.touchmove = (view) => {
+  view.inputState.setSelectionOrigin("select.pointer");
+};
+observers.touchend = (view, e) => {
+  view.inputState.touchActive = false;
+};
+handlers.mousedown = (view, event) => {
+  view.observer.flush();
+  if (view.inputState.lastTouchTime > Date.now() - 2e3)
+    return false;
+  let style = null;
+  for (let makeStyle of view.state.facet(mouseSelectionStyle)) {
+    style = makeStyle(view, event);
+    if (style)
+      break;
+  }
+  if (!style && event.button == 0)
+    style = basicMouseSelection(view, event);
+  if (style) {
+    let mustFocus = !view.hasFocus;
+    view.inputState.startMouseSelection(new MouseSelection(view, event, style, mustFocus));
+    if (mustFocus)
+      view.observer.ignore(() => {
+        focusPreventScroll(view.contentDOM);
+        let active = view.root.activeElement;
+        if (active && !active.contains(view.contentDOM))
+          active.blur();
+      });
+    let mouseSel = view.inputState.mouseSelection;
+    if (mouseSel) {
+      mouseSel.start(event);
+      return mouseSel.dragging === false;
+    }
+  } else {
+    view.inputState.setSelectionOrigin("select.pointer");
+  }
+  return false;
+};
+function rangeForClick(view, pos, bias, type) {
+  if (type == 1) {
+    return EditorSelection.cursor(pos, bias);
+  } else if (type == 2) {
+    return groupAt(view.state, pos, bias);
+  } else {
+    let visual = view.docView.lineAt(pos, bias), line = view.state.doc.lineAt(visual ? visual.posAtEnd : pos);
+    let from = visual ? visual.posAtStart : line.from, to = visual ? visual.posAtEnd : line.to;
+    if (to < view.state.doc.length && to == line.to)
+      to++;
+    return EditorSelection.undirectionalRange(from, to);
+  }
+}
+const BadMouseDetail = browser.ie && browser.ie_version <= 11;
+let lastMouseDown = null, lastMouseDownCount = 0, lastMouseDownTime = 0;
+function getClickType(event) {
+  if (!BadMouseDetail)
+    return event.detail;
+  let last2 = lastMouseDown, lastTime = lastMouseDownTime;
+  lastMouseDown = event;
+  lastMouseDownTime = Date.now();
+  return lastMouseDownCount = !last2 || lastTime > Date.now() - 400 && Math.abs(last2.clientX - event.clientX) < 2 && Math.abs(last2.clientY - event.clientY) < 2 ? (lastMouseDownCount + 1) % 3 : 1;
+}
+function basicMouseSelection(view, event) {
+  let start2 = view.posAndSideAtCoords({ x: event.clientX, y: event.clientY }, false), type = getClickType(event);
+  let startSel = view.state.selection;
+  return {
+    update(update) {
+      if (update.docChanged) {
+        start2.pos = update.changes.mapPos(start2.pos);
+        startSel = startSel.map(update.changes);
+      }
+    },
+    get(event2, extend, multiple) {
+      let cur2 = view.posAndSideAtCoords({ x: event2.clientX, y: event2.clientY }, false), removed;
+      let range = rangeForClick(view, cur2.pos, cur2.assoc, type);
+      if (start2.pos != cur2.pos && !extend) {
+        let startRange = rangeForClick(view, start2.pos, start2.assoc, type);
+        let from = Math.min(startRange.from, range.from), to = Math.max(startRange.to, range.to);
+        range = from < range.from ? EditorSelection.range(from, to, range.assoc) : EditorSelection.range(to, from, range.assoc);
+      }
+      if (extend)
+        return startSel.replaceRange(startSel.main.extend(range.from, range.to, range.assoc));
+      else if (multiple && type == 1 && startSel.ranges.length > 1 && (removed = removeRangeAround(startSel, cur2.pos)))
+        return removed;
+      else if (multiple)
+        return startSel.addRange(range);
+      else
+        return EditorSelection.create([range]);
+    }
+  };
+}
+function removeRangeAround(sel, pos) {
+  for (let i2 = 0; i2 < sel.ranges.length; i2++) {
+    let { from, to } = sel.ranges[i2];
+    if (from <= pos && to >= pos)
+      return EditorSelection.create(sel.ranges.slice(0, i2).concat(sel.ranges.slice(i2 + 1)), sel.mainIndex == i2 ? 0 : sel.mainIndex - (sel.mainIndex > i2 ? 1 : 0));
+  }
+  return null;
+}
+handlers.dragstart = (view, event) => {
+  let { selection: { main: range } } = view.state;
+  if (event.target.draggable) {
+    let tile = view.docView.tile.nearest(event.target);
+    if (tile && tile.isWidget()) {
+      let from = tile.posAtStart, to = from + tile.length;
+      if (from >= range.to || to <= range.from)
+        range = EditorSelection.undirectionalRange(from, to);
+    }
+  }
+  let { inputState } = view;
+  if (inputState.mouseSelection)
+    inputState.mouseSelection.dragging = true;
+  inputState.draggedContent = range;
+  if (event.dataTransfer) {
+    event.dataTransfer.setData("Text", textFilter(view.state, clipboardOutputFilter, view.state.sliceDoc(range.from, range.to)));
+    event.dataTransfer.effectAllowed = "copyMove";
+  }
+  return false;
+};
+handlers.dragend = (view) => {
+  view.inputState.draggedContent = null;
+  return false;
+};
+function dropText(view, event, text, direct) {
+  text = textFilter(view.state, clipboardInputFilter, text);
+  if (!text)
+    return;
+  let dropPos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
+  let { draggedContent } = view.inputState;
+  let del = direct && draggedContent && dragMovesSelection(view, event) ? { from: draggedContent.from, to: draggedContent.to } : null;
+  let ins = { from: dropPos, insert: text };
+  let changes = view.state.changes(del ? [del, ins] : ins);
+  view.focus();
+  view.dispatch({
+    changes,
+    selection: { anchor: changes.mapPos(dropPos, -1), head: changes.mapPos(dropPos, 1) },
+    userEvent: del ? "move.drop" : "input.drop"
+  });
+  view.inputState.draggedContent = null;
+}
+handlers.drop = (view, event) => {
+  if (!event.dataTransfer)
+    return false;
+  if (view.state.readOnly)
+    return true;
+  let files = event.dataTransfer.files;
+  if (files && files.length) {
+    let text = Array(files.length), read2 = 0;
+    let finishFile = () => {
+      if (++read2 == files.length)
+        dropText(view, event, text.filter((s) => s != null).join(view.state.lineBreak), false);
+    };
+    for (let i2 = 0; i2 < files.length; i2++) {
+      let reader = new FileReader();
+      reader.onerror = finishFile;
+      reader.onload = () => {
+        if (!/[\x00-\x08\x0e-\x1f]{2}/.test(reader.result))
+          text[i2] = reader.result;
+        finishFile();
+      };
+      reader.readAsText(files[i2]);
+    }
+    return true;
+  } else {
+    let text = event.dataTransfer.getData("Text");
+    if (text) {
+      dropText(view, event, text, true);
+      return true;
+    }
+  }
+  return false;
+};
+handlers.paste = (view, event) => {
+  if (view.state.readOnly)
+    return true;
+  view.observer.flush();
+  let data = brokenClipboardAPI ? null : event.clipboardData;
+  if (data) {
+    doPaste(view, data.getData("text/plain") || data.getData("text/uri-list"));
+    return true;
+  } else {
+    capturePaste(view);
+    return false;
+  }
+};
+function captureCopy(view, text) {
+  let parent = view.dom.parentNode;
+  if (!parent)
+    return;
+  let target = parent.appendChild(document.createElement("textarea"));
+  target.style.cssText = "position: fixed; left: -10000px; top: 10px";
+  target.value = text;
+  target.focus();
+  target.selectionEnd = text.length;
+  target.selectionStart = 0;
+  setTimeout(() => {
+    target.remove();
+    view.focus();
+  }, 50);
+}
+function copiedRange(state) {
+  let content2 = [], ranges = [], linewise = false;
+  for (let range of state.selection.ranges)
+    if (!range.empty) {
+      content2.push(state.sliceDoc(range.from, range.to));
+      ranges.push(range);
+    }
+  if (!content2.length) {
+    let upto = -1;
+    for (let { from } of state.selection.ranges) {
+      let line = state.doc.lineAt(from);
+      if (line.number > upto) {
+        content2.push(line.text);
+        ranges.push({ from: line.from, to: Math.min(state.doc.length, line.to + 1) });
+      }
+      upto = line.number;
+    }
+    linewise = true;
+  }
+  return { text: textFilter(state, clipboardOutputFilter, content2.join(state.lineBreak)), ranges, linewise };
+}
+let lastLinewiseCopy = null;
+handlers.copy = handlers.cut = (view, event) => {
+  if (!hasSelection(view.contentDOM, view.observer.selectionRange))
+    return false;
+  let { text, ranges, linewise } = copiedRange(view.state);
+  if (!text && !linewise)
+    return false;
+  lastLinewiseCopy = linewise ? text : null;
+  if (event.type == "cut" && !view.state.readOnly)
+    view.dispatch({
+      changes: ranges,
+      scrollIntoView: true,
+      userEvent: "delete.cut"
+    });
+  let data = brokenClipboardAPI ? null : event.clipboardData;
+  if (data) {
+    data.clearData();
+    data.setData("text/plain", text);
+    return true;
+  } else {
+    captureCopy(view, text);
+    return false;
+  }
+};
+const isFocusChange = /* @__PURE__ */ Annotation.define();
+function focusChangeTransaction(state, focus) {
+  let effects = [];
+  for (let getEffect of state.facet(focusChangeEffect)) {
+    let effect2 = getEffect(state, focus);
+    if (effect2)
+      effects.push(effect2);
+  }
+  return effects.length ? state.update({ effects, annotations: isFocusChange.of(true) }) : null;
+}
+function updateForFocusChange(view) {
+  setTimeout(() => {
+    let focus = view.hasFocus;
+    if (focus != view.inputState.notifiedFocused) {
+      let tr2 = focusChangeTransaction(view.state, focus);
+      if (tr2)
+        view.dispatch(tr2);
+      else
+        view.update([]);
+    }
+  }, 10);
+}
+observers.focus = (view) => {
+  view.inputState.lastFocusTime = Date.now();
+  if (!view.scrollDOM.scrollTop && (view.inputState.lastScrollTop || view.inputState.lastScrollLeft)) {
+    view.scrollDOM.scrollTop = view.inputState.lastScrollTop;
+    view.scrollDOM.scrollLeft = view.inputState.lastScrollLeft;
+  }
+  updateForFocusChange(view);
+};
+observers.blur = (view) => {
+  view.observer.clearSelectionRange();
+  updateForFocusChange(view);
+};
+observers.compositionstart = observers.compositionupdate = (view) => {
+  if (view.observer.editContext)
+    return;
+  if (view.inputState.compositionFirstChange == null)
+    view.inputState.compositionFirstChange = true;
+  if (view.inputState.composing < 0) {
+    view.inputState.composing = 0;
+  }
+};
+observers.compositionend = (view) => {
+  if (view.observer.editContext)
+    return;
+  view.inputState.composing = -1;
+  view.inputState.compositionEndedAt = Date.now();
+  view.inputState.compositionPendingKey = true;
+  view.inputState.compositionPendingChange = view.observer.pendingRecords().length > 0;
+  view.inputState.compositionFirstChange = null;
+  if (browser.chrome && browser.android) {
+    view.observer.flushSoon();
+  } else if (view.inputState.compositionPendingChange) {
+    Promise.resolve().then(() => view.observer.flush());
+  } else {
+    setTimeout(() => {
+      if (view.inputState.composing < 0 && view.docView.hasComposition)
+        view.update([]);
+    }, 50);
+  }
+};
+observers.contextmenu = (view) => {
+  view.inputState.lastContextMenu = Date.now();
+};
+handlers.beforeinput = (view, event) => {
+  var _a2, _b;
+  if (event.inputType == "insertText" || event.inputType == "insertCompositionText") {
+    view.inputState.insertingText = event.data;
+    view.inputState.insertingTextAt = Date.now();
+  }
+  if (event.inputType == "insertReplacementText" && view.observer.editContext) {
+    let text = (_a2 = event.dataTransfer) === null || _a2 === void 0 ? void 0 : _a2.getData("text/plain"), ranges = event.getTargetRanges();
+    if (text && ranges.length) {
+      let r2 = ranges[0];
+      let from = view.posAtDOM(r2.startContainer, r2.startOffset), to = view.posAtDOM(r2.endContainer, r2.endOffset);
+      applyDOMChangeInner(view, { from, to, insert: view.state.toText(text) }, null);
+      return true;
+    }
+  }
+  let pending;
+  if (browser.chrome && browser.android && (pending = PendingKeys.find((key) => key.inputType == event.inputType))) {
+    view.observer.delayAndroidKey(pending.key, pending.keyCode);
+    if (pending.key == "Backspace" || pending.key == "Delete") {
+      let startViewHeight = ((_b = window.visualViewport) === null || _b === void 0 ? void 0 : _b.height) || 0;
+      setTimeout(() => {
+        var _a3;
+        if ((((_a3 = window.visualViewport) === null || _a3 === void 0 ? void 0 : _a3.height) || 0) > startViewHeight + 10 && view.hasFocus) {
+          view.contentDOM.blur();
+          view.focus();
+        }
+      }, 100);
+    }
+  }
+  if (browser.ios && event.inputType == "deleteContentForward") {
+    view.observer.flushSoon();
+  }
+  if (browser.safari && event.inputType == "insertText" && view.inputState.composing >= 0) {
+    setTimeout(() => observers.compositionend(view, event), 20);
+  }
+  return false;
+};
+const appliedFirefoxHack = /* @__PURE__ */ new Set();
+function firefoxCopyCutHack(doc2) {
+  if (!appliedFirefoxHack.has(doc2)) {
+    appliedFirefoxHack.add(doc2);
+    doc2.addEventListener("copy", () => {
+    });
+    doc2.addEventListener("cut", () => {
+    });
+  }
+}
+const wrappingWhiteSpace = ["pre-wrap", "normal", "pre-line", "break-spaces"];
+let heightChangeFlag = false;
+function clearHeightChangeFlag() {
+  heightChangeFlag = false;
+}
+class HeightOracle {
+  constructor(lineWrapping) {
+    this.lineWrapping = lineWrapping;
+    this.doc = Text.empty;
+    this.heightSamples = {};
+    this.lineHeight = 14;
+    this.charWidth = 7;
+    this.textHeight = 14;
+    this.lineLength = 30;
+  }
+  heightForGap(from, to) {
+    let lines = this.doc.lineAt(to).number - this.doc.lineAt(from).number + 1;
+    if (this.lineWrapping)
+      lines += Math.max(0, Math.ceil((to - from - lines * this.lineLength * 0.5) / this.lineLength));
+    return this.lineHeight * lines;
+  }
+  heightForLine(length) {
+    if (!this.lineWrapping)
+      return this.lineHeight;
+    let lines = 1 + Math.max(0, Math.ceil((length - this.lineLength) / Math.max(1, this.lineLength - 5)));
+    return lines * this.lineHeight;
+  }
+  setDoc(doc2) {
+    this.doc = doc2;
+    return this;
+  }
+  mustRefreshForWrapping(whiteSpace) {
+    return wrappingWhiteSpace.indexOf(whiteSpace) > -1 != this.lineWrapping;
+  }
+  mustRefreshForHeights(lineHeights) {
+    let newHeight = false;
+    for (let i2 = 0; i2 < lineHeights.length; i2++) {
+      let h2 = lineHeights[i2];
+      if (h2 < 0) {
+        i2++;
+      } else if (!this.heightSamples[Math.floor(h2 * 10)]) {
+        newHeight = true;
+        this.heightSamples[Math.floor(h2 * 10)] = true;
+      }
+    }
+    return newHeight;
+  }
+  refresh(whiteSpace, lineHeight, charWidth, textHeight, lineLength, knownHeights) {
+    let lineWrapping = wrappingWhiteSpace.indexOf(whiteSpace) > -1;
+    let changed = Math.abs(lineHeight - this.lineHeight) > 0.3 || this.lineWrapping != lineWrapping;
+    this.lineWrapping = lineWrapping;
+    this.lineHeight = lineHeight;
+    this.charWidth = charWidth;
+    this.textHeight = textHeight;
+    this.lineLength = lineLength;
+    if (changed) {
+      this.heightSamples = {};
+      for (let i2 = 0; i2 < knownHeights.length; i2++) {
+        let h2 = knownHeights[i2];
+        if (h2 < 0)
+          i2++;
+        else
+          this.heightSamples[Math.floor(h2 * 10)] = true;
+      }
+    }
+    return changed;
+  }
+}
+class MeasuredHeights {
+  constructor(from, heights) {
+    this.from = from;
+    this.heights = heights;
+    this.index = 0;
+  }
+  get more() {
+    return this.index < this.heights.length;
+  }
+}
+class BlockInfo {
+  constructor(from, length, top2, height, _content) {
+    this.from = from;
+    this.length = length;
+    this.top = top2;
+    this.height = height;
+    this._content = _content;
+  }
+  get type() {
+    return typeof this._content == "number" ? BlockType.Text : Array.isArray(this._content) ? this._content : this._content.type;
+  }
+  get to() {
+    return this.from + this.length;
+  }
+  get bottom() {
+    return this.top + this.height;
+  }
+  get widget() {
+    return this._content instanceof PointDecoration ? this._content.widget : null;
+  }
+  get widgetLineBreaks() {
+    return typeof this._content == "number" ? this._content : 0;
+  }
+  join(other) {
+    let content2 = (Array.isArray(this._content) ? this._content : [this]).concat(Array.isArray(other._content) ? other._content : [other]);
+    return new BlockInfo(this.from, this.length + other.length, this.top, this.height + other.height, content2);
+  }
+}
+var QueryType = /* @__PURE__ */ function(QueryType2) {
+  QueryType2[QueryType2["ByPos"] = 0] = "ByPos";
+  QueryType2[QueryType2["ByHeight"] = 1] = "ByHeight";
+  QueryType2[QueryType2["ByPosNoHeight"] = 2] = "ByPosNoHeight";
+  return QueryType2;
+}(QueryType || (QueryType = {}));
+const Epsilon = 1e-3;
+class HeightMap {
+  constructor(length, height, flags = 2) {
+    this.length = length;
+    this.height = height;
+    this.flags = flags;
+  }
+  get outdated() {
+    return (this.flags & 2) > 0;
+  }
+  set outdated(value) {
+    this.flags = (value ? 2 : 0) | this.flags & ~2;
+  }
+  setHeight(height) {
+    if (this.height != height) {
+      if (Math.abs(this.height - height) > Epsilon)
+        heightChangeFlag = true;
+      this.height = height;
+    }
+  }
+  replace(_from, _to, nodes) {
+    return HeightMap.of(nodes);
+  }
+  decomposeLeft(_to, result) {
+    result.push(this);
+  }
+  decomposeRight(_from, result) {
+    result.push(this);
+  }
+  applyChanges(decorations2, oldDoc, oracle, changes) {
+    let me2 = this, doc2 = oracle.doc;
+    for (let i2 = changes.length - 1; i2 >= 0; i2--) {
+      let { fromA, toA, fromB, toB } = changes[i2];
+      let start2 = me2.lineAt(fromA, QueryType.ByPosNoHeight, oracle.setDoc(oldDoc), 0, 0);
+      let end2 = start2.to >= toA ? start2 : me2.lineAt(toA, QueryType.ByPosNoHeight, oracle, 0, 0);
+      toB += end2.to - toA;
+      toA = end2.to;
+      while (i2 > 0 && start2.from <= changes[i2 - 1].toA) {
+        fromA = changes[i2 - 1].fromA;
+        fromB = changes[i2 - 1].fromB;
+        i2--;
+        if (fromA < start2.from)
+          start2 = me2.lineAt(fromA, QueryType.ByPosNoHeight, oracle, 0, 0);
+      }
+      fromB += start2.from - fromA;
+      fromA = start2.from;
+      let nodes = NodeBuilder.build(oracle.setDoc(doc2), decorations2, fromB, toB);
+      me2 = replace(me2, me2.replace(fromA, toA, nodes));
+    }
+    return me2.updateHeight(oracle, 0);
+  }
+  static empty() {
+    return new HeightMapText(0, 0, 0);
+  }
+  static of(nodes) {
+    if (nodes.length == 1)
+      return nodes[0];
+    let i2 = 0, j = nodes.length, before = 0, after = 0;
+    for (; ; ) {
+      if (i2 == j) {
+        if (before > after * 2) {
+          let split = nodes[i2 - 1];
+          if (split.break)
+            nodes.splice(--i2, 1, split.left, null, split.right);
+          else
+            nodes.splice(--i2, 1, split.left, split.right);
+          j += 1 + split.break;
+          before -= split.size;
+        } else if (after > before * 2) {
+          let split = nodes[j];
+          if (split.break)
+            nodes.splice(j, 1, split.left, null, split.right);
+          else
+            nodes.splice(j, 1, split.left, split.right);
+          j += 2 + split.break;
+          after -= split.size;
+        } else {
+          break;
+        }
+      } else if (before < after) {
+        let next = nodes[i2++];
+        if (next)
+          before += next.size;
+      } else {
+        let next = nodes[--j];
+        if (next)
+          after += next.size;
+      }
+    }
+    let brk = 0;
+    if (nodes[i2 - 1] == null) {
+      brk = 1;
+      i2--;
+    } else if (nodes[i2] == null) {
+      brk = 1;
+      j++;
+    }
+    return new HeightMapBranch(HeightMap.of(nodes.slice(0, i2)), brk, HeightMap.of(nodes.slice(j)));
+  }
+}
+function replace(old, val) {
+  if (old == val)
+    return old;
+  if (old.constructor != val.constructor)
+    heightChangeFlag = true;
+  return val;
+}
+HeightMap.prototype.size = 1;
+const SpaceDeco = /* @__PURE__ */ Decoration.replace({});
+class HeightMapBlock extends HeightMap {
+  constructor(length, height, deco) {
+    super(length, height);
+    this.deco = deco;
+    this.spaceAbove = 0;
+  }
+  mainBlock(top2, offset2) {
+    return new BlockInfo(offset2, this.length, top2 + this.spaceAbove, this.height - this.spaceAbove, this.deco || 0);
+  }
+  blockAt(height, _oracle, top2, offset2) {
+    return this.spaceAbove && height < top2 + this.spaceAbove ? new BlockInfo(offset2, 0, top2, this.spaceAbove, SpaceDeco) : this.mainBlock(top2, offset2);
+  }
+  lineAt(_value, _type, oracle, top2, offset2) {
+    let main2 = this.mainBlock(top2, offset2);
+    return this.spaceAbove ? this.blockAt(0, oracle, top2, offset2).join(main2) : main2;
+  }
+  forEachLine(from, to, oracle, top2, offset2, f2) {
+    if (from <= offset2 + this.length && to >= offset2)
+      f2(this.lineAt(0, QueryType.ByPos, oracle, top2, offset2));
+  }
+  setMeasuredHeight(measured) {
+    let next = measured.heights[measured.index++];
+    if (next < 0) {
+      this.spaceAbove = -next;
+      next = measured.heights[measured.index++];
+    } else {
+      this.spaceAbove = 0;
+    }
+    this.setHeight(next);
+  }
+  updateHeight(oracle, offset2 = 0, _force = false, measured) {
+    if (measured && measured.from <= offset2 && measured.more)
+      this.setMeasuredHeight(measured);
+    this.outdated = false;
+    return this;
+  }
+  toString() {
+    return `block(${this.length})`;
+  }
+}
+class HeightMapText extends HeightMapBlock {
+  constructor(length, height, above) {
+    super(length, height, null);
+    this.collapsed = 0;
+    this.widgetHeight = 0;
+    this.breaks = 0;
+    this.spaceAbove = above;
+  }
+  mainBlock(top2, offset2) {
+    return new BlockInfo(offset2, this.length, top2 + this.spaceAbove, this.height - this.spaceAbove, this.breaks);
+  }
+  replace(_from, _to, nodes) {
+    let node = nodes[0];
+    if (nodes.length == 1 && (node instanceof HeightMapText || node instanceof HeightMapGap && node.flags & 4) && Math.abs(this.length - node.length) < 10) {
+      if (node instanceof HeightMapGap)
+        node = new HeightMapText(node.length, this.height, this.spaceAbove);
+      else
+        node.height = this.height;
+      if (!this.outdated)
+        node.outdated = false;
+      return node;
+    } else {
+      return HeightMap.of(nodes);
+    }
+  }
+  updateHeight(oracle, offset2 = 0, force = false, measured) {
+    if (measured && measured.from <= offset2 && measured.more) {
+      this.setMeasuredHeight(measured);
+    } else if (force || this.outdated) {
+      this.spaceAbove = 0;
+      this.setHeight(Math.max(this.widgetHeight, oracle.heightForLine(this.length - this.collapsed)) + this.breaks * oracle.lineHeight);
+    }
+    this.outdated = false;
+    return this;
+  }
+  toString() {
+    return `line(${this.length}${this.collapsed ? -this.collapsed : ""}${this.widgetHeight ? ":" + this.widgetHeight : ""})`;
+  }
+}
+class HeightMapGap extends HeightMap {
+  constructor(length) {
+    super(length, 0);
+  }
+  heightMetrics(oracle, offset2) {
+    let firstLine = oracle.doc.lineAt(offset2).number, lastLine = oracle.doc.lineAt(offset2 + this.length).number;
+    let lines = lastLine - firstLine + 1;
+    let perLine, perChar = 0;
+    if (oracle.lineWrapping) {
+      let totalPerLine = Math.min(this.height, oracle.lineHeight * lines);
+      perLine = totalPerLine / lines;
+      if (this.length > lines + 1)
+        perChar = (this.height - totalPerLine) / (this.length - lines - 1);
+    } else {
+      perLine = this.height / lines;
+    }
+    return { firstLine, lastLine, perLine, perChar };
+  }
+  blockAt(height, oracle, top2, offset2) {
+    let { firstLine, lastLine, perLine, perChar } = this.heightMetrics(oracle, offset2);
+    if (oracle.lineWrapping) {
+      let guess = offset2 + (height < oracle.lineHeight ? 0 : Math.round(Math.max(0, Math.min(1, (height - top2) / this.height)) * this.length));
+      let line = oracle.doc.lineAt(guess), lineHeight = perLine + line.length * perChar;
+      let lineTop = Math.max(top2, height - lineHeight / 2);
+      return new BlockInfo(line.from, line.length, lineTop, lineHeight, 0);
+    } else {
+      let line = Math.max(0, Math.min(lastLine - firstLine, Math.floor((height - top2) / perLine)));
+      let { from, length } = oracle.doc.line(firstLine + line);
+      return new BlockInfo(from, length, top2 + perLine * line, perLine, 0);
+    }
+  }
+  lineAt(value, type, oracle, top2, offset2) {
+    if (type == QueryType.ByHeight)
+      return this.blockAt(value, oracle, top2, offset2);
+    if (type == QueryType.ByPosNoHeight) {
+      let { from, to } = oracle.doc.lineAt(value);
+      return new BlockInfo(from, to - from, 0, 0, 0);
+    }
+    let { firstLine, perLine, perChar } = this.heightMetrics(oracle, offset2);
+    let line = oracle.doc.lineAt(value), lineHeight = perLine + line.length * perChar;
+    let linesAbove = line.number - firstLine;
+    let lineTop = top2 + perLine * linesAbove + perChar * (line.from - offset2 - linesAbove);
+    return new BlockInfo(line.from, line.length, Math.max(top2, Math.min(lineTop, top2 + this.height - lineHeight)), lineHeight, 0);
+  }
+  forEachLine(from, to, oracle, top2, offset2, f2) {
+    from = Math.max(from, offset2);
+    to = Math.min(to, offset2 + this.length);
+    let { firstLine, perLine, perChar } = this.heightMetrics(oracle, offset2);
+    for (let pos = from, lineTop = top2; pos <= to; ) {
+      let line = oracle.doc.lineAt(pos);
+      if (pos == from) {
+        let linesAbove = line.number - firstLine;
+        lineTop += perLine * linesAbove + perChar * (from - offset2 - linesAbove);
+      }
+      let lineHeight = perLine + perChar * line.length;
+      f2(new BlockInfo(line.from, line.length, lineTop, lineHeight, 0));
+      lineTop += lineHeight;
+      pos = line.to + 1;
+    }
+  }
+  replace(from, to, nodes) {
+    let after = this.length - to;
+    if (after > 0) {
+      let last2 = nodes[nodes.length - 1];
+      if (last2 instanceof HeightMapGap)
+        nodes[nodes.length - 1] = new HeightMapGap(last2.length + after);
+      else
+        nodes.push(null, new HeightMapGap(after - 1));
+    }
+    if (from > 0) {
+      let first = nodes[0];
+      if (first instanceof HeightMapGap)
+        nodes[0] = new HeightMapGap(from + first.length);
+      else
+        nodes.unshift(new HeightMapGap(from - 1), null);
+    }
+    return HeightMap.of(nodes);
+  }
+  decomposeLeft(to, result) {
+    result.push(new HeightMapGap(to - 1), null);
+  }
+  decomposeRight(from, result) {
+    result.push(null, new HeightMapGap(this.length - from - 1));
+  }
+  updateHeight(oracle, offset2 = 0, force = false, measured) {
+    let end2 = offset2 + this.length;
+    if (measured && measured.from <= offset2 + this.length && measured.more) {
+      let nodes = [], pos = Math.max(offset2, measured.from), singleHeight = -1;
+      if (measured.from > offset2)
+        nodes.push(new HeightMapGap(measured.from - offset2 - 1).updateHeight(oracle, offset2));
+      while (pos <= end2 && measured.more) {
+        let len = oracle.doc.lineAt(pos).length;
+        if (nodes.length)
+          nodes.push(null);
+        let height = measured.heights[measured.index++], above = 0;
+        if (height < 0) {
+          above = -height;
+          height = measured.heights[measured.index++];
+        }
+        if (singleHeight == -1)
+          singleHeight = height;
+        else if (Math.abs(height - singleHeight) >= Epsilon)
+          singleHeight = -2;
+        let line = new HeightMapText(len, height, above);
+        line.outdated = false;
+        nodes.push(line);
+        pos += len + 1;
+      }
+      if (pos <= end2)
+        nodes.push(null, new HeightMapGap(end2 - pos).updateHeight(oracle, pos));
+      let result = HeightMap.of(nodes);
+      if (singleHeight < 0 || Math.abs(result.height - this.height) >= Epsilon || Math.abs(singleHeight - this.heightMetrics(oracle, offset2).perLine) >= Epsilon)
+        heightChangeFlag = true;
+      return replace(this, result);
+    } else if (force || this.outdated) {
+      this.setHeight(oracle.heightForGap(offset2, offset2 + this.length));
+      this.outdated = false;
+    }
+    return this;
+  }
+  toString() {
+    return `gap(${this.length})`;
+  }
+}
+class HeightMapBranch extends HeightMap {
+  constructor(left2, brk, right2) {
+    super(left2.length + brk + right2.length, left2.height + right2.height, brk | (left2.outdated || right2.outdated ? 2 : 0));
+    this.left = left2;
+    this.right = right2;
+    this.size = left2.size + right2.size;
+  }
+  get break() {
+    return this.flags & 1;
+  }
+  blockAt(height, oracle, top2, offset2) {
+    let mid = top2 + this.left.height;
+    return height < mid ? this.left.blockAt(height, oracle, top2, offset2) : this.right.blockAt(height, oracle, mid, offset2 + this.left.length + this.break);
+  }
+  lineAt(value, type, oracle, top2, offset2) {
+    let rightTop = top2 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
+    let left2 = type == QueryType.ByHeight ? value < rightTop : value < rightOffset;
+    let base2 = left2 ? this.left.lineAt(value, type, oracle, top2, offset2) : this.right.lineAt(value, type, oracle, rightTop, rightOffset);
+    if (this.break || (left2 ? base2.to < rightOffset : base2.from > rightOffset))
+      return base2;
+    let subQuery = type == QueryType.ByPosNoHeight ? QueryType.ByPosNoHeight : QueryType.ByPos;
+    if (left2)
+      return base2.join(this.right.lineAt(rightOffset, subQuery, oracle, rightTop, rightOffset));
+    else
+      return this.left.lineAt(rightOffset, subQuery, oracle, top2, offset2).join(base2);
+  }
+  forEachLine(from, to, oracle, top2, offset2, f2) {
+    let rightTop = top2 + this.left.height, rightOffset = offset2 + this.left.length + this.break;
+    if (this.break) {
+      if (from < rightOffset)
+        this.left.forEachLine(from, to, oracle, top2, offset2, f2);
+      if (to >= rightOffset)
+        this.right.forEachLine(from, to, oracle, rightTop, rightOffset, f2);
+    } else {
+      let mid = this.lineAt(rightOffset, QueryType.ByPos, oracle, top2, offset2);
+      if (from < mid.from)
+        this.left.forEachLine(from, mid.from - 1, oracle, top2, offset2, f2);
+      if (mid.to >= from && mid.from <= to)
+        f2(mid);
+      if (to > mid.to)
+        this.right.forEachLine(mid.to + 1, to, oracle, rightTop, rightOffset, f2);
+    }
+  }
+  replace(from, to, nodes) {
+    let rightStart = this.left.length + this.break;
+    if (to < rightStart)
+      return this.balanced(this.left.replace(from, to, nodes), this.right);
+    if (from > this.left.length)
+      return this.balanced(this.left, this.right.replace(from - rightStart, to - rightStart, nodes));
+    let result = [];
+    if (from > 0)
+      this.decomposeLeft(from, result);
+    let left2 = result.length;
+    for (let node of nodes)
+      result.push(node);
+    if (from > 0)
+      mergeGaps(result, left2 - 1);
+    if (to < this.length) {
+      let right2 = result.length;
+      this.decomposeRight(to, result);
+      mergeGaps(result, right2);
+    }
+    return HeightMap.of(result);
+  }
+  decomposeLeft(to, result) {
+    let left2 = this.left.length;
+    if (to <= left2)
+      return this.left.decomposeLeft(to, result);
+    result.push(this.left);
+    if (this.break) {
+      left2++;
+      if (to >= left2)
+        result.push(null);
+    }
+    if (to > left2)
+      this.right.decomposeLeft(to - left2, result);
+  }
+  decomposeRight(from, result) {
+    let left2 = this.left.length, right2 = left2 + this.break;
+    if (from >= right2)
+      return this.right.decomposeRight(from - right2, result);
+    if (from < left2)
+      this.left.decomposeRight(from, result);
+    if (this.break && from < right2)
+      result.push(null);
+    result.push(this.right);
+  }
+  balanced(left2, right2) {
+    if (left2.size > 2 * right2.size || right2.size > 2 * left2.size)
+      return HeightMap.of(this.break ? [left2, null, right2] : [left2, right2]);
+    this.left = replace(this.left, left2);
+    this.right = replace(this.right, right2);
+    this.setHeight(left2.height + right2.height);
+    this.outdated = left2.outdated || right2.outdated;
+    this.size = left2.size + right2.size;
+    this.length = left2.length + this.break + right2.length;
+    return this;
+  }
+  updateHeight(oracle, offset2 = 0, force = false, measured) {
+    let { left: left2, right: right2 } = this, rightStart = offset2 + left2.length + this.break, rebalance = null;
+    if (measured && measured.from <= offset2 + left2.length && measured.more)
+      rebalance = left2 = left2.updateHeight(oracle, offset2, force, measured);
+    else
+      left2.updateHeight(oracle, offset2, force);
+    if (measured && measured.from <= rightStart + right2.length && measured.more)
+      rebalance = right2 = right2.updateHeight(oracle, rightStart, force, measured);
+    else
+      right2.updateHeight(oracle, rightStart, force);
+    if (rebalance)
+      return this.balanced(left2, right2);
+    this.height = this.left.height + this.right.height;
+    this.outdated = false;
+    return this;
+  }
+  toString() {
+    return this.left + (this.break ? " " : "-") + this.right;
+  }
+}
+function mergeGaps(nodes, around) {
+  let before, after;
+  if (nodes[around] == null && (before = nodes[around - 1]) instanceof HeightMapGap && (after = nodes[around + 1]) instanceof HeightMapGap)
+    nodes.splice(around - 1, 3, new HeightMapGap(before.length + 1 + after.length));
+}
+const relevantWidgetHeight = 5;
+class NodeBuilder {
+  constructor(pos, oracle) {
+    this.pos = pos;
+    this.oracle = oracle;
+    this.nodes = [];
+    this.lineStart = -1;
+    this.lineEnd = -1;
+    this.covering = null;
+    this.writtenTo = pos;
+  }
+  get isCovered() {
+    return this.covering && this.nodes[this.nodes.length - 1] == this.covering;
+  }
+  span(_from, to) {
+    if (this.lineStart > -1) {
+      let end2 = Math.min(to, this.lineEnd), last2 = this.nodes[this.nodes.length - 1];
+      if (last2 instanceof HeightMapText)
+        last2.length += end2 - this.pos;
+      else if (end2 > this.pos || !this.isCovered)
+        this.nodes.push(new HeightMapText(end2 - this.pos, -1, 0));
+      this.writtenTo = end2;
+      if (to > end2) {
+        this.nodes.push(null);
+        this.writtenTo++;
+        this.lineStart = -1;
+      }
+    }
+    this.pos = to;
+  }
+  point(from, to, deco) {
+    if (from < to || deco.heightRelevant) {
+      let height = deco.widget ? deco.widget.estimatedHeight : 0;
+      let breaks = deco.widget ? deco.widget.lineBreaks : 0;
+      if (height < 0)
+        height = this.oracle.lineHeight;
+      let len = to - from;
+      if (deco.block) {
+        this.addBlock(new HeightMapBlock(len, height, deco));
+      } else if (len || breaks || height >= relevantWidgetHeight) {
+        this.addLineDeco(height, breaks, len);
+      }
+    } else if (to > from) {
+      this.span(from, to);
+    }
+    if (this.lineEnd > -1 && this.lineEnd < this.pos)
+      this.lineEnd = this.oracle.doc.lineAt(this.pos).to;
+  }
+  enterLine() {
+    if (this.lineStart > -1)
+      return;
+    let { from, to } = this.oracle.doc.lineAt(this.pos);
+    this.lineStart = from;
+    this.lineEnd = to;
+    if (this.writtenTo < from) {
+      if (this.writtenTo < from - 1 || this.nodes[this.nodes.length - 1] == null)
+        this.nodes.push(this.blankContent(this.writtenTo, from - 1));
+      this.nodes.push(null);
+    }
+    if (this.pos > from)
+      this.nodes.push(new HeightMapText(this.pos - from, -1, 0));
+    this.writtenTo = this.pos;
+  }
+  blankContent(from, to) {
+    let gap = new HeightMapGap(to - from);
+    if (this.oracle.doc.lineAt(from).to == to)
+      gap.flags |= 4;
+    return gap;
+  }
+  ensureLine() {
+    this.enterLine();
+    let last2 = this.nodes.length ? this.nodes[this.nodes.length - 1] : null;
+    if (last2 instanceof HeightMapText)
+      return last2;
+    let line = new HeightMapText(0, -1, 0);
+    this.nodes.push(line);
+    return line;
+  }
+  addBlock(block) {
+    this.enterLine();
+    let deco = block.deco;
+    if (deco && deco.startSide > 0 && !this.isCovered)
+      this.ensureLine();
+    this.nodes.push(block);
+    this.writtenTo = this.pos = this.pos + block.length;
+    if (deco && deco.endSide > 0)
+      this.covering = block;
+  }
+  addLineDeco(height, breaks, length) {
+    let line = this.ensureLine();
+    line.length += length;
+    line.collapsed += length;
+    line.widgetHeight = Math.max(line.widgetHeight, height);
+    line.breaks += breaks;
+    this.writtenTo = this.pos = this.pos + length;
+  }
+  finish(from) {
+    let last2 = this.nodes.length == 0 ? null : this.nodes[this.nodes.length - 1];
+    if (this.lineStart > -1 && !(last2 instanceof HeightMapText) && !this.isCovered)
+      this.nodes.push(new HeightMapText(0, -1, 0));
+    else if (this.writtenTo < this.pos || last2 == null)
+      this.nodes.push(this.blankContent(this.writtenTo, this.pos));
+    let pos = from;
+    for (let node of this.nodes) {
+      if (node instanceof HeightMapText)
+        node.updateHeight(this.oracle, pos);
+      pos += node ? node.length : 1;
+    }
+    return this.nodes;
+  }
+  static build(oracle, decorations2, from, to) {
+    let builder = new NodeBuilder(from, oracle);
+    RangeSet.spans(decorations2, from, to, builder, 0);
+    return builder.finish(from);
+  }
+}
+function heightRelevantDecoChanges(a, b, diff) {
+  let comp = new DecorationComparator();
+  RangeSet.compare(a, b, diff, comp, 0);
+  return comp.changes;
+}
+class DecorationComparator {
+  constructor() {
+    this.changes = [];
+  }
+  compareRange() {
+  }
+  comparePoint(from, to, a, b) {
+    if (from < to || a && a.heightRelevant || b && b.heightRelevant)
+      addRange(from, to, this.changes, 5);
+  }
+}
+function visiblePixelRange(dom, paddingTop) {
+  let rect = dom.getBoundingClientRect();
+  let doc2 = dom.ownerDocument, win = doc2.defaultView || window;
+  let left2 = Math.max(0, rect.left), right2 = Math.min(win.innerWidth, rect.right);
+  let top2 = Math.max(0, rect.top), bottom2 = Math.min(win.innerHeight, rect.bottom);
+  for (let parent = dom.parentNode; parent && parent != doc2.body; ) {
+    if (parent.nodeType == 1) {
+      let elt = parent;
+      let style = window.getComputedStyle(elt);
+      if ((elt.scrollHeight > elt.clientHeight || elt.scrollWidth > elt.clientWidth) && style.overflow != "visible") {
+        let parentRect = elt.getBoundingClientRect();
+        left2 = Math.max(left2, parentRect.left);
+        right2 = Math.min(right2, parentRect.right);
+        top2 = Math.max(top2, parentRect.top);
+        bottom2 = Math.min(parent == dom.parentNode ? win.innerHeight : bottom2, parentRect.bottom);
+      }
+      parent = style.position == "absolute" || style.position == "fixed" ? elt.offsetParent : elt.parentNode;
+    } else if (parent.nodeType == 11) {
+      parent = parent.host;
+    } else {
+      break;
+    }
+  }
+  return {
+    left: left2 - rect.left,
+    right: Math.max(left2, right2) - rect.left,
+    top: top2 - (rect.top + paddingTop),
+    bottom: Math.max(top2, bottom2) - (rect.top + paddingTop)
+  };
+}
+function inWindow(elt) {
+  let rect = elt.getBoundingClientRect(), win = elt.ownerDocument.defaultView || window;
+  return rect.left < win.innerWidth && rect.right > 0 && rect.top < win.innerHeight && rect.bottom > 0;
+}
+function fullPixelRange(dom, paddingTop) {
+  let rect = dom.getBoundingClientRect();
+  return {
+    left: 0,
+    right: rect.right - rect.left,
+    top: paddingTop,
+    bottom: rect.bottom - (rect.top + paddingTop)
+  };
+}
+class LineGap {
+  constructor(from, to, size, displaySize) {
+    this.from = from;
+    this.to = to;
+    this.size = size;
+    this.displaySize = displaySize;
+  }
+  static same(a, b) {
+    if (a.length != b.length)
+      return false;
+    for (let i2 = 0; i2 < a.length; i2++) {
+      let gA = a[i2], gB = b[i2];
+      if (gA.from != gB.from || gA.to != gB.to || gA.size != gB.size)
+        return false;
+    }
+    return true;
+  }
+  draw(viewState, wrapping) {
+    return Decoration.replace({
+      widget: new LineGapWidget(this.displaySize * (wrapping ? viewState.scaleY : viewState.scaleX), wrapping)
+    }).range(this.from, this.to);
+  }
+}
+class LineGapWidget extends WidgetType {
+  constructor(size, vertical) {
+    super();
+    this.size = size;
+    this.vertical = vertical;
+  }
+  eq(other) {
+    return other.size == this.size && other.vertical == this.vertical;
+  }
+  toDOM() {
+    let elt = document.createElement("div");
+    if (this.vertical) {
+      elt.style.height = this.size + "px";
+    } else {
+      elt.style.width = this.size + "px";
+      elt.style.height = "2px";
+      elt.style.display = "inline-block";
+    }
+    return elt;
+  }
+  get estimatedHeight() {
+    return this.vertical ? this.size : -1;
+  }
+}
+class ViewState {
+  constructor(view, state) {
+    this.view = view;
+    this.state = state;
+    this.pixelViewport = { left: 0, right: window.innerWidth, top: 0, bottom: 0 };
+    this.inView = true;
+    this.paddingTop = 0;
+    this.paddingBottom = 0;
+    this.contentDOMWidth = 0;
+    this.contentDOMHeight = 0;
+    this.editorHeight = 0;
+    this.editorWidth = 0;
+    this.scaleX = 1;
+    this.scaleY = 1;
+    this.scrollOffset = 0;
+    this.scrolledToBottom = false;
+    this.scrollAnchorPos = 0;
+    this.scrollAnchorHeight = -1;
+    this.scaler = IdScaler;
+    this.scrollTarget = null;
+    this.printing = false;
+    this.mustMeasureContent = true;
+    this.defaultTextDirection = Direction.LTR;
+    this.visibleRanges = [];
+    this.mustEnforceCursorAssoc = false;
+    let guessWrapping = state.facet(contentAttributes).some((v2) => typeof v2 != "function" && v2.class == "cm-lineWrapping");
+    this.heightOracle = new HeightOracle(guessWrapping);
+    this.stateDeco = staticDeco(state);
+    this.heightMap = HeightMap.empty().applyChanges(this.stateDeco, Text.empty, this.heightOracle.setDoc(state.doc), [new ChangedRange(0, 0, 0, state.doc.length)]);
+    for (let i2 = 0; i2 < 2; i2++) {
+      this.viewport = this.getViewport(0, null);
+      if (!this.updateForViewport())
+        break;
+    }
+    this.updateViewportLines();
+    this.lineGaps = this.ensureLineGaps([]);
+    this.lineGapDeco = Decoration.set(this.lineGaps.map((gap) => gap.draw(this, false)));
+    this.scrollParent = view.scrollDOM;
+    this.computeVisibleRanges();
+  }
+  updateForViewport() {
+    let viewports = [this.viewport], { main: main2 } = this.state.selection;
+    for (let i2 = 0; i2 <= 1; i2++) {
+      let pos = i2 ? main2.head : main2.anchor;
+      if (!viewports.some(({ from, to }) => pos >= from && pos <= to)) {
+        let { from, to } = this.lineBlockAt(pos);
+        viewports.push(new Viewport(from, to));
+      }
+    }
+    this.viewports = viewports.sort((a, b) => a.from - b.from);
+    return this.updateScaler();
+  }
+  updateScaler() {
+    let scaler = this.scaler;
+    this.scaler = this.heightMap.height <= 7e6 ? IdScaler : new BigScaler(this.heightOracle, this.heightMap, this.viewports);
+    return scaler.eq(this.scaler) ? 0 : 2;
+  }
+  updateViewportLines() {
+    this.viewportLines = [];
+    this.heightMap.forEachLine(this.viewport.from, this.viewport.to, this.heightOracle.setDoc(this.state.doc), 0, 0, (block) => {
+      this.viewportLines.push(scaleBlock(block, this.scaler));
+    });
+  }
+  update(update, scrollTarget = null) {
+    this.state = update.state;
+    let prevDeco = this.stateDeco;
+    this.stateDeco = staticDeco(this.state);
+    let contentChanges = update.changedRanges;
+    let heightChanges = ChangedRange.extendWithRanges(contentChanges, heightRelevantDecoChanges(prevDeco, this.stateDeco, update ? update.changes : ChangeSet.empty(this.state.doc.length)));
+    let prevHeight = this.heightMap.height;
+    let scrollAnchor = this.scrolledToBottom ? null : this.scrollAnchorAt(this.scrollOffset);
+    clearHeightChangeFlag();
+    this.heightMap = this.heightMap.applyChanges(this.stateDeco, update.startState.doc, this.heightOracle.setDoc(this.state.doc), heightChanges);
+    if (this.heightMap.height != prevHeight || heightChangeFlag)
+      update.flags |= 2;
+    if (scrollAnchor) {
+      this.scrollAnchorPos = update.changes.mapPos(scrollAnchor.from, -1);
+      this.scrollAnchorHeight = scrollAnchor.top;
+    } else {
+      this.scrollAnchorPos = -1;
+      this.scrollAnchorHeight = prevHeight;
+    }
+    let viewport2 = heightChanges.length ? this.mapViewport(this.viewport, update.changes) : this.viewport;
+    if (scrollTarget && (scrollTarget.range.head < viewport2.from || scrollTarget.range.head > viewport2.to) || !this.viewportIsAppropriate(viewport2))
+      viewport2 = this.getViewport(0, scrollTarget);
+    let viewportChange = viewport2.from != this.viewport.from || viewport2.to != this.viewport.to;
+    this.viewport = viewport2;
+    update.flags |= this.updateForViewport();
+    if (viewportChange || !update.changes.empty || update.flags & 2)
+      this.updateViewportLines();
+    if (this.lineGaps.length || this.viewport.to - this.viewport.from > 2e3 << 1)
+      this.updateLineGaps(this.ensureLineGaps(this.mapLineGaps(this.lineGaps, update.changes)));
+    update.flags |= this.computeVisibleRanges(update.changes);
+    if (scrollTarget)
+      this.scrollTarget = scrollTarget;
+    if (!this.mustEnforceCursorAssoc && (update.selectionSet || update.focusChanged) && update.view.lineWrapping && update.state.selection.main.empty && update.state.selection.main.assoc && !update.state.facet(nativeSelectionHidden))
+      this.mustEnforceCursorAssoc = true;
+  }
+  measure() {
+    let { view } = this, dom = view.contentDOM, style = window.getComputedStyle(dom);
+    let oracle = this.heightOracle;
+    let whiteSpace = style.whiteSpace;
+    this.defaultTextDirection = style.direction == "rtl" ? Direction.RTL : Direction.LTR;
+    let refresh = this.heightOracle.mustRefreshForWrapping(whiteSpace) || this.mustMeasureContent === "refresh";
+    let domRect = dom.getBoundingClientRect();
+    let measureContent = refresh || this.mustMeasureContent || this.contentDOMHeight != domRect.height;
+    this.contentDOMHeight = domRect.height;
+    this.mustMeasureContent = false;
+    let result = 0, bias = 0;
+    if (domRect.width && domRect.height) {
+      let { scaleX, scaleY } = getScale(dom, domRect);
+      if (scaleX > 5e-3 && Math.abs(this.scaleX - scaleX) > 5e-3 || scaleY > 5e-3 && Math.abs(this.scaleY - scaleY) > 5e-3) {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+        result |= 16;
+        refresh = measureContent = true;
+      }
+    }
+    let paddingTop = (parseInt(style.paddingTop) || 0) * this.scaleY;
+    let paddingBottom = (parseInt(style.paddingBottom) || 0) * this.scaleY;
+    if (this.paddingTop != paddingTop || this.paddingBottom != paddingBottom) {
+      this.paddingTop = paddingTop;
+      this.paddingBottom = paddingBottom;
+      result |= 16 | 2;
+    }
+    if (this.editorWidth != view.scrollDOM.clientWidth) {
+      if (oracle.lineWrapping)
+        measureContent = true;
+      this.editorWidth = view.scrollDOM.clientWidth;
+      result |= 16;
+    }
+    let scrollParent = scrollableParents(this.view.contentDOM, false).y;
+    if (scrollParent != this.scrollParent) {
+      this.scrollParent = scrollParent;
+      this.scrollAnchorHeight = -1;
+      this.scrollOffset = 0;
+    }
+    let scrollOffset = this.getScrollOffset();
+    if (this.scrollOffset != scrollOffset) {
+      this.scrollAnchorHeight = -1;
+      this.scrollOffset = scrollOffset;
+    }
+    this.scrolledToBottom = isScrolledToBottom(this.scrollParent || view.win);
+    let pixelViewport = (this.printing ? fullPixelRange : visiblePixelRange)(dom, this.paddingTop);
+    let dTop = pixelViewport.top - this.pixelViewport.top, dBottom = pixelViewport.bottom - this.pixelViewport.bottom;
+    this.pixelViewport = pixelViewport;
+    let inView = this.pixelViewport.bottom > this.pixelViewport.top && this.pixelViewport.right > this.pixelViewport.left;
+    if (inView != this.inView) {
+      this.inView = inView;
+      if (inView)
+        measureContent = true;
+    }
+    if (!this.inView && !this.scrollTarget && !inWindow(view.dom))
+      return 0;
+    let contentWidth = domRect.width;
+    if (this.contentDOMWidth != contentWidth || this.editorHeight != view.scrollDOM.clientHeight) {
+      this.contentDOMWidth = domRect.width;
+      this.editorHeight = view.scrollDOM.clientHeight;
+      result |= 16;
+    }
+    if (measureContent) {
+      let lineHeights = view.docView.measureVisibleLineHeights(this.viewport);
+      if (oracle.mustRefreshForHeights(lineHeights))
+        refresh = true;
+      if (refresh || oracle.lineWrapping && Math.abs(contentWidth - this.contentDOMWidth) > oracle.charWidth) {
+        let { lineHeight, charWidth, textHeight } = view.docView.measureTextSize();
+        refresh = lineHeight > 0 && oracle.refresh(whiteSpace, lineHeight, charWidth, textHeight, Math.max(5, contentWidth / charWidth), lineHeights);
+        if (refresh) {
+          view.docView.minWidth = 0;
+          result |= 16;
+        }
+      }
+      if (dTop > 0 && dBottom > 0)
+        bias = Math.max(dTop, dBottom);
+      else if (dTop < 0 && dBottom < 0)
+        bias = Math.min(dTop, dBottom);
+      clearHeightChangeFlag();
+      for (let vp of this.viewports) {
+        let heights = vp.from == this.viewport.from ? lineHeights : view.docView.measureVisibleLineHeights(vp);
+        this.heightMap = (refresh ? HeightMap.empty().applyChanges(this.stateDeco, Text.empty, this.heightOracle, [new ChangedRange(0, 0, 0, view.state.doc.length)]) : this.heightMap).updateHeight(oracle, 0, refresh, new MeasuredHeights(vp.from, heights));
+      }
+      if (heightChangeFlag)
+        result |= 2;
+    }
+    let viewportChange = !this.viewportIsAppropriate(this.viewport, bias) || this.scrollTarget && (this.scrollTarget.range.head < this.viewport.from || this.scrollTarget.range.head > this.viewport.to);
+    if (viewportChange) {
+      if (result & 2)
+        result |= this.updateScaler();
+      this.viewport = this.getViewport(bias, this.scrollTarget);
+      result |= this.updateForViewport();
+    }
+    if (result & 2 || viewportChange)
+      this.updateViewportLines();
+    if (this.lineGaps.length || this.viewport.to - this.viewport.from > 2e3 << 1)
+      this.updateLineGaps(this.ensureLineGaps(refresh ? [] : this.lineGaps, view));
+    result |= this.computeVisibleRanges();
+    if (this.mustEnforceCursorAssoc) {
+      this.mustEnforceCursorAssoc = false;
+      view.docView.enforceCursorAssoc();
+    }
+    return result;
+  }
+  get visibleTop() {
+    return this.scaler.fromDOM(this.pixelViewport.top);
+  }
+  get visibleBottom() {
+    return this.scaler.fromDOM(this.pixelViewport.bottom);
+  }
+  getViewport(bias, scrollTarget) {
+    let marginTop = 0.5 - Math.max(-0.5, Math.min(0.5, bias / 1e3 / 2));
+    let map = this.heightMap, oracle = this.heightOracle;
+    let { visibleTop, visibleBottom } = this;
+    let viewport2 = new Viewport(map.lineAt(visibleTop - marginTop * 1e3, QueryType.ByHeight, oracle, 0, 0).from, map.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType.ByHeight, oracle, 0, 0).to);
+    if (scrollTarget) {
+      let { head } = scrollTarget.range;
+      if (head < viewport2.from || head > viewport2.to) {
+        let viewHeight = Math.min(this.editorHeight, this.pixelViewport.bottom - this.pixelViewport.top);
+        let block = map.lineAt(head, QueryType.ByPos, oracle, 0, 0), topPos;
+        if (scrollTarget.y == "center")
+          topPos = (block.top + block.bottom) / 2 - viewHeight / 2;
+        else if (scrollTarget.y == "start" || scrollTarget.y == "nearest" && head < viewport2.from)
+          topPos = block.top;
+        else
+          topPos = block.bottom - viewHeight;
+        viewport2 = new Viewport(map.lineAt(topPos - 1e3 / 2, QueryType.ByHeight, oracle, 0, 0).from, map.lineAt(topPos + viewHeight + 1e3 / 2, QueryType.ByHeight, oracle, 0, 0).to);
+      }
+    }
+    return viewport2;
+  }
+  mapViewport(viewport2, changes) {
+    let from = changes.mapPos(viewport2.from, -1), to = changes.mapPos(viewport2.to, 1);
+    return new Viewport(this.heightMap.lineAt(from, QueryType.ByPos, this.heightOracle, 0, 0).from, this.heightMap.lineAt(to, QueryType.ByPos, this.heightOracle, 0, 0).to);
+  }
+  viewportIsAppropriate({ from, to }, bias = 0) {
+    if (!this.inView)
+      return true;
+    let { top: top2 } = this.heightMap.lineAt(from, QueryType.ByPos, this.heightOracle, 0, 0);
+    let { bottom: bottom2 } = this.heightMap.lineAt(to, QueryType.ByPos, this.heightOracle, 0, 0);
+    let { visibleTop, visibleBottom } = this;
+    return (from == 0 || top2 <= visibleTop - Math.max(10, Math.min(-bias, 250))) && (to == this.state.doc.length || bottom2 >= visibleBottom + Math.max(10, Math.min(bias, 250))) && (top2 > visibleTop - 2 * 1e3 && bottom2 < visibleBottom + 2 * 1e3);
+  }
+  mapLineGaps(gaps, changes) {
+    if (!gaps.length || changes.empty)
+      return gaps;
+    let mapped = [];
+    for (let gap of gaps)
+      if (!changes.touchesRange(gap.from, gap.to))
+        mapped.push(new LineGap(changes.mapPos(gap.from), changes.mapPos(gap.to), gap.size, gap.displaySize));
+    return mapped;
+  }
+  ensureLineGaps(current, mayMeasure) {
+    let wrapping = this.heightOracle.lineWrapping;
+    let margin = wrapping ? 1e4 : 2e3, halfMargin = margin >> 1, doubleMargin = margin << 1;
+    if (this.defaultTextDirection != Direction.LTR && !wrapping)
+      return [];
+    let gaps = [];
+    let addGap = (from, to, line, structure) => {
+      if (to - from < halfMargin)
+        return;
+      let sel = this.state.selection.main, avoid = [sel.from];
+      if (!sel.empty)
+        avoid.push(sel.to);
+      for (let pos of avoid) {
+        if (pos > from && pos < to) {
+          addGap(from, pos - 10, line, structure);
+          addGap(pos + 10, to, line, structure);
+          return;
+        }
+      }
+      let gap = find(current, (gap2) => gap2.from >= line.from && gap2.to <= line.to && Math.abs(gap2.from - from) < halfMargin && Math.abs(gap2.to - to) < halfMargin && !avoid.some((pos) => gap2.from < pos && gap2.to > pos));
+      if (!gap) {
+        if (to < line.to && mayMeasure && wrapping && mayMeasure.visibleRanges.some((r2) => r2.from <= to && r2.to >= to)) {
+          let lineStart = mayMeasure.moveToLineBoundary(EditorSelection.cursor(to), false, true).head;
+          if (lineStart > from)
+            to = lineStart;
+        }
+        let size = this.gapSize(line, from, to, structure);
+        let displaySize = wrapping || size < 2e6 ? size : 2e6;
+        gap = new LineGap(from, to, size, displaySize);
+      }
+      gaps.push(gap);
+    };
+    let checkLine = (line) => {
+      if (line.length < doubleMargin || line.type != BlockType.Text)
+        return;
+      let structure = lineStructure(line.from, line.to, this.stateDeco);
+      if (structure.total < doubleMargin)
+        return;
+      let target = this.scrollTarget ? this.scrollTarget.range.head : null;
+      let viewFrom, viewTo;
+      if (wrapping) {
+        let marginHeight = margin / this.heightOracle.lineLength * this.heightOracle.lineHeight;
+        let top2, bot;
+        if (target != null) {
+          let targetFrac = findFraction(structure, target);
+          let spaceFrac = ((this.visibleBottom - this.visibleTop) / 2 + marginHeight) / line.height;
+          top2 = targetFrac - spaceFrac;
+          bot = targetFrac + spaceFrac;
+        } else {
+          top2 = (this.visibleTop - line.top - marginHeight) / line.height;
+          bot = (this.visibleBottom - line.top + marginHeight) / line.height;
+        }
+        viewFrom = findPosition(structure, top2);
+        viewTo = findPosition(structure, bot);
+      } else {
+        let totalWidth = structure.total * this.heightOracle.charWidth;
+        let marginWidth = margin * this.heightOracle.charWidth;
+        let horizOffset = 0;
+        if (totalWidth > 2e6)
+          for (let old of current) {
+            if (old.from >= line.from && old.from < line.to && old.size != old.displaySize && old.from * this.heightOracle.charWidth + horizOffset < this.pixelViewport.left)
+              horizOffset = old.size - old.displaySize;
+          }
+        let pxLeft = this.pixelViewport.left + horizOffset, pxRight = this.pixelViewport.right + horizOffset;
+        let left2, right2;
+        if (target != null) {
+          let targetFrac = findFraction(structure, target);
+          let spaceFrac = ((pxRight - pxLeft) / 2 + marginWidth) / totalWidth;
+          left2 = targetFrac - spaceFrac;
+          right2 = targetFrac + spaceFrac;
+        } else {
+          left2 = (pxLeft - marginWidth) / totalWidth;
+          right2 = (pxRight + marginWidth) / totalWidth;
+        }
+        viewFrom = findPosition(structure, left2);
+        viewTo = findPosition(structure, right2);
+      }
+      if (viewFrom > line.from)
+        addGap(line.from, viewFrom, line, structure);
+      if (viewTo < line.to)
+        addGap(viewTo, line.to, line, structure);
+    };
+    for (let line of this.viewportLines) {
+      if (Array.isArray(line.type))
+        line.type.forEach(checkLine);
+      else
+        checkLine(line);
+    }
+    return gaps;
+  }
+  gapSize(line, from, to, structure) {
+    let fraction = findFraction(structure, to) - findFraction(structure, from);
+    if (this.heightOracle.lineWrapping) {
+      return line.height * fraction;
+    } else {
+      return structure.total * this.heightOracle.charWidth * fraction;
+    }
+  }
+  updateLineGaps(gaps) {
+    if (!LineGap.same(gaps, this.lineGaps)) {
+      this.lineGaps = gaps;
+      this.lineGapDeco = Decoration.set(gaps.map((gap) => gap.draw(this, this.heightOracle.lineWrapping)));
+    }
+  }
+  computeVisibleRanges(changes) {
+    let deco = this.stateDeco;
+    if (this.lineGaps.length)
+      deco = deco.concat(this.lineGapDeco);
+    let ranges = [];
+    RangeSet.spans(deco, this.viewport.from, this.viewport.to, {
+      span(from, to) {
+        ranges.push({ from, to });
+      },
+      point() {
+      }
+    }, 20);
+    let changed = 0;
+    if (ranges.length != this.visibleRanges.length) {
+      changed = 8 | 4;
+    } else {
+      for (let i2 = 0; i2 < ranges.length && !(changed & 8); i2++) {
+        let old = this.visibleRanges[i2], nw = ranges[i2];
+        if (old.from != nw.from || old.to != nw.to) {
+          changed |= 4;
+          if (!(changes && changes.mapPos(old.from, -1) == nw.from && changes.mapPos(old.to, 1) == nw.to))
+            changed |= 8;
+        }
+      }
+    }
+    this.visibleRanges = ranges;
+    return changed;
+  }
+  lineBlockAt(pos) {
+    return pos >= this.viewport.from && pos <= this.viewport.to && this.viewportLines.find((b) => b.from <= pos && b.to >= pos) || scaleBlock(this.heightMap.lineAt(pos, QueryType.ByPos, this.heightOracle, 0, 0), this.scaler);
+  }
+  lineBlockAtHeight(height) {
+    return height >= this.viewportLines[0].top && height <= this.viewportLines[this.viewportLines.length - 1].bottom && this.viewportLines.find((l2) => l2.top <= height && l2.bottom >= height) || scaleBlock(this.heightMap.lineAt(this.scaler.fromDOM(height), QueryType.ByHeight, this.heightOracle, 0, 0), this.scaler);
+  }
+  getScrollOffset() {
+    return this.scrollParent == this.view.scrollDOM ? this.scrollParent.scrollTop * this.scaleY : (this.scrollParent ? this.scrollParent.getBoundingClientRect().top : 0) - this.view.contentDOM.getBoundingClientRect().top;
+  }
+  scrollAnchorAt(scrollOffset) {
+    let block = this.lineBlockAtHeight(scrollOffset + 8);
+    return block.from >= this.viewport.from || this.viewportLines[0].top - scrollOffset > 200 ? block : this.viewportLines[0];
+  }
+  elementAtHeight(height) {
+    return scaleBlock(this.heightMap.blockAt(this.scaler.fromDOM(height), this.heightOracle, 0, 0), this.scaler);
+  }
+  get docHeight() {
+    return this.scaler.toDOM(this.heightMap.height);
+  }
+  get contentHeight() {
+    return this.docHeight + this.paddingTop + this.paddingBottom;
+  }
+}
+class Viewport {
+  constructor(from, to) {
+    this.from = from;
+    this.to = to;
+  }
+}
+function lineStructure(from, to, stateDeco) {
+  let ranges = [], pos = from, total = 0;
+  RangeSet.spans(stateDeco, from, to, {
+    span() {
+    },
+    point(from2, to2) {
+      if (from2 > pos) {
+        ranges.push({ from: pos, to: from2 });
+        total += from2 - pos;
+      }
+      pos = to2;
+    }
+  }, 20);
+  if (pos < to) {
+    ranges.push({ from: pos, to });
+    total += to - pos;
+  }
+  return { total, ranges };
+}
+function findPosition({ total, ranges }, ratio) {
+  if (ratio <= 0)
+    return ranges[0].from;
+  if (ratio >= 1)
+    return ranges[ranges.length - 1].to;
+  let dist2 = Math.floor(total * ratio);
+  for (let i2 = 0; ; i2++) {
+    let { from, to } = ranges[i2], size = to - from;
+    if (dist2 <= size)
+      return from + dist2;
+    dist2 -= size;
+  }
+}
+function findFraction(structure, pos) {
+  let counted = 0;
+  for (let { from, to } of structure.ranges) {
+    if (pos <= to) {
+      counted += pos - from;
+      break;
+    }
+    counted += to - from;
+  }
+  return counted / structure.total;
+}
+function find(array, f2) {
+  for (let val of array)
+    if (f2(val))
+      return val;
+  return void 0;
+}
+const IdScaler = {
+  toDOM(n2) {
+    return n2;
+  },
+  fromDOM(n2) {
+    return n2;
+  },
+  scale: 1,
+  eq(other) {
+    return other == this;
+  }
+};
+function staticDeco(state) {
+  let deco = state.facet(decorations).filter((d) => typeof d != "function");
+  let outer = state.facet(outerDecorations).filter((d) => typeof d != "function");
+  if (outer.length)
+    deco.push(RangeSet.join(outer));
+  return deco;
+}
+class BigScaler {
+  constructor(oracle, heightMap, viewports) {
+    let vpHeight = 0, base2 = 0, domBase = 0;
+    this.viewports = viewports.map(({ from, to }) => {
+      let top2 = heightMap.lineAt(from, QueryType.ByPos, oracle, 0, 0).top;
+      let bottom2 = heightMap.lineAt(to, QueryType.ByPos, oracle, 0, 0).bottom;
+      vpHeight += bottom2 - top2;
+      return { from, to, top: top2, bottom: bottom2, domTop: 0, domBottom: 0 };
+    });
+    this.scale = (7e6 - vpHeight) / (heightMap.height - vpHeight);
+    for (let obj of this.viewports) {
+      obj.domTop = domBase + (obj.top - base2) * this.scale;
+      domBase = obj.domBottom = obj.domTop + (obj.bottom - obj.top);
+      base2 = obj.bottom;
+    }
+  }
+  toDOM(n2) {
+    for (let i2 = 0, base2 = 0, domBase = 0; ; i2++) {
+      let vp = i2 < this.viewports.length ? this.viewports[i2] : null;
+      if (!vp || n2 < vp.top)
+        return domBase + (n2 - base2) * this.scale;
+      if (n2 <= vp.bottom)
+        return vp.domTop + (n2 - vp.top);
+      base2 = vp.bottom;
+      domBase = vp.domBottom;
+    }
+  }
+  fromDOM(n2) {
+    for (let i2 = 0, base2 = 0, domBase = 0; ; i2++) {
+      let vp = i2 < this.viewports.length ? this.viewports[i2] : null;
+      if (!vp || n2 < vp.domTop)
+        return base2 + (n2 - domBase) / this.scale;
+      if (n2 <= vp.domBottom)
+        return vp.top + (n2 - vp.domTop);
+      base2 = vp.bottom;
+      domBase = vp.domBottom;
+    }
+  }
+  eq(other) {
+    if (!(other instanceof BigScaler))
+      return false;
+    return this.scale == other.scale && this.viewports.length == other.viewports.length && this.viewports.every((vp, i2) => vp.from == other.viewports[i2].from && vp.to == other.viewports[i2].to);
+  }
+}
+function scaleBlock(block, scaler) {
+  if (scaler.scale == 1)
+    return block;
+  let bTop = scaler.toDOM(block.top), bBottom = scaler.toDOM(block.bottom);
+  return new BlockInfo(block.from, block.length, bTop, bBottom - bTop, Array.isArray(block._content) ? block._content.map((b) => scaleBlock(b, scaler)) : block._content);
+}
+const theme = /* @__PURE__ */ Facet.define({ combine: (strs) => strs.join(" ") });
+const darkTheme = /* @__PURE__ */ Facet.define({ combine: (values) => values.indexOf(true) > -1 });
+const baseThemeID = /* @__PURE__ */ StyleModule.newName(), baseLightID = /* @__PURE__ */ StyleModule.newName(), baseDarkID = /* @__PURE__ */ StyleModule.newName();
+const lightDarkIDs = { "&light": "." + baseLightID, "&dark": "." + baseDarkID };
+function buildTheme(main2, spec, scopes) {
+  return new StyleModule(spec, {
+    finish(sel) {
+      return /&/.test(sel) ? sel.replace(/&\w*/, (m2) => {
+        if (m2 == "&")
+          return main2;
+        if (!scopes || !scopes[m2])
+          throw new RangeError(`Unsupported selector: ${m2}`);
+        return scopes[m2];
+      }) : main2 + " " + sel;
+    }
+  });
+}
+const baseTheme$1 = /* @__PURE__ */ buildTheme("." + baseThemeID, {
+  "&": {
+    position: "relative !important",
+    boxSizing: "border-box",
+    "&.cm-focused": {
+      outline: "1px dotted #212121"
+    },
+    display: "flex !important",
+    flexDirection: "column"
+  },
+  ".cm-scroller": {
+    display: "flex !important",
+    alignItems: "flex-start !important",
+    fontFamily: "monospace",
+    lineHeight: 1.4,
+    height: "100%",
+    overflowX: "auto",
+    position: "relative",
+    zIndex: 0,
+    overflowAnchor: "none"
+  },
+  ".cm-content": {
+    margin: 0,
+    flexGrow: 2,
+    flexShrink: 0,
+    display: "block",
+    whiteSpace: "pre",
+    wordWrap: "normal",
+    boxSizing: "border-box",
+    minHeight: "100%",
+    padding: "4px 0",
+    outline: "none",
+    "&[contenteditable=true]": {
+      WebkitUserModify: "read-write-plaintext-only"
+    }
+  },
+  ".cm-lineWrapping": {
+    whiteSpace_fallback: "pre-wrap",
+    whiteSpace: "break-spaces",
+    wordBreak: "break-word",
+    overflowWrap: "anywhere",
+    flexShrink: 1
+  },
+  "&light .cm-content": { caretColor: "black" },
+  "&dark .cm-content": { caretColor: "white" },
+  ".cm-line": {
+    display: "block",
+    padding: "0 2px 0 6px"
+  },
+  ".cm-layer": {
+    userSelect: "none",
+    position: "absolute",
+    left: 0,
+    top: 0,
+    contain: "size style",
+    "& > *": {
+      position: "absolute"
+    }
+  },
+  "&light .cm-selectionBackground": {
+    background: "#d9d9d9"
+  },
+  "&dark .cm-selectionBackground": {
+    background: "#222"
+  },
+  "&light.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground": {
+    background: "#d7d4f0"
+  },
+  "&dark.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground": {
+    background: "#233"
+  },
+  ".cm-cursorLayer": {
+    pointerEvents: "none"
+  },
+  "&.cm-focused > .cm-scroller > .cm-cursorLayer": {
+    animation: "steps(1) cm-blink 1.2s infinite"
+  },
+  "@keyframes cm-blink": { "0%": {}, "50%": { opacity: 0 }, "100%": {} },
+  "@keyframes cm-blink2": { "0%": {}, "50%": { opacity: 0 }, "100%": {} },
+  ".cm-cursor, .cm-dropCursor": {
+    borderLeft: "1.2px solid black",
+    marginLeft: "-0.6px",
+    pointerEvents: "none"
+  },
+  ".cm-cursor": {
+    display: "none"
+  },
+  "&dark .cm-cursor": {
+    borderLeftColor: "#ddd"
+  },
+  ".cm-selectionHandle": {
+    backgroundColor: "currentColor",
+    width: "1.5px"
+  },
+  ".cm-selectionHandle-start::before, .cm-selectionHandle-end::before": {
+    content: '""',
+    backgroundColor: "inherit",
+    borderRadius: "50%",
+    width: "8px",
+    height: "8px",
+    position: "absolute",
+    left: "-3.25px"
+  },
+  ".cm-selectionHandle-start::before": { top: "-8px" },
+  ".cm-selectionHandle-end::before": { bottom: "-8px" },
+  ".cm-dropCursor": {
+    position: "absolute"
+  },
+  "&.cm-focused > .cm-scroller > .cm-cursorLayer .cm-cursor": {
+    display: "block"
+  },
+  ".cm-iso": {
+    unicodeBidi: "isolate"
+  },
+  ".cm-announced": {
+    position: "fixed",
+    top: "-10000px"
+  },
+  "@media print": {
+    ".cm-announced": { display: "none" }
+  },
+  "&light .cm-activeLine": { backgroundColor: "#cceeff44" },
+  "&dark .cm-activeLine": { backgroundColor: "#99eeff33" },
+  "&light .cm-specialChar": { color: "red" },
+  "&dark .cm-specialChar": { color: "#f78" },
+  ".cm-gutters": {
+    flexShrink: 0,
+    display: "flex",
+    height: "100%",
+    boxSizing: "border-box",
+    zIndex: 200
+  },
+  ".cm-gutters-before": { insetInlineStart: 0 },
+  ".cm-gutters-after": { insetInlineEnd: 0 },
+  "&light .cm-gutters": {
+    backgroundColor: "#f5f5f5",
+    color: "#6c6c6c",
+    border: "0px solid #ddd",
+    "&.cm-gutters-before": { borderRightWidth: "1px" },
+    "&.cm-gutters-after": { borderLeftWidth: "1px" }
+  },
+  "&dark .cm-gutters": {
+    backgroundColor: "#333338",
+    color: "#ccc"
+  },
+  ".cm-gutter": {
+    display: "flex !important",
+    flexDirection: "column",
+    flexShrink: 0,
+    boxSizing: "border-box",
+    minHeight: "100%",
+    overflow: "hidden"
+  },
+  ".cm-gutterElement": {
+    boxSizing: "border-box"
+  },
+  ".cm-lineNumbers .cm-gutterElement": {
+    padding: "0 3px 0 5px",
+    minWidth: "20px",
+    textAlign: "right",
+    whiteSpace: "nowrap"
+  },
+  "&light .cm-activeLineGutter": {
+    backgroundColor: "#e2f2ff"
+  },
+  "&dark .cm-activeLineGutter": {
+    backgroundColor: "#222227"
+  },
+  ".cm-panels": {
+    boxSizing: "border-box",
+    position: "sticky",
+    left: 0,
+    right: 0,
+    zIndex: 300
+  },
+  "&light .cm-panels": {
+    backgroundColor: "#f5f5f5",
+    color: "black"
+  },
+  ".cm-panels-top": { top: "0" },
+  ".cm-panels-bottom": { bottom: "0" },
+  "&light .cm-panels-top": {
+    borderBottom: "1px solid #ddd"
+  },
+  "&light .cm-panels-bottom": {
+    borderTop: "1px solid #ddd"
+  },
+  "&dark .cm-panels": {
+    backgroundColor: "#333338",
+    color: "white"
+  },
+  ".cm-dialog": {
+    padding: "2px 19px 4px 6px",
+    position: "relative",
+    "& label": { fontSize: "80%" }
+  },
+  ".cm-dialog-close": {
+    position: "absolute",
+    top: "3px",
+    right: "4px",
+    backgroundColor: "inherit",
+    border: "none",
+    font: "inherit",
+    fontSize: "14px",
+    padding: "0"
+  },
+  ".cm-tab": {
+    display: "inline-block",
+    overflow: "hidden",
+    verticalAlign: "bottom"
+  },
+  ".cm-widgetBuffer": {
+    verticalAlign: "text-top",
+    height: "1em",
+    width: 0,
+    display: "inline"
+  },
+  ".cm-placeholder": {
+    color: "#888",
+    display: "inline-block",
+    verticalAlign: "top",
+    userSelect: "none"
+  },
+  ".cm-highlightSpace": {
+    background: "radial-gradient(circle at 50% 55%, #aaa 20%, transparent 0) no-repeat",
+    backgroundSize: ".4em",
+    backgroundPosition: "calc(min(50%, 0px)) center"
+  },
+  ".cm-highlightTab": {
+    backgroundImage: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20"><path stroke="%23888" stroke-width="1" fill="none" d="M1 10H196L190 5M190 15L196 10M197 4L197 16"/></svg>')`,
+    backgroundSize: "auto 100%",
+    backgroundPosition: "right 90%",
+    backgroundRepeat: "no-repeat"
+  },
+  ".cm-trailingSpace": {
+    backgroundColor: "#ff332255"
+  },
+  ".cm-button": {
+    verticalAlign: "middle",
+    color: "inherit",
+    fontSize: "70%",
+    padding: ".2em 1em",
+    borderRadius: "1px"
+  },
+  "&light .cm-button": {
+    backgroundImage: "linear-gradient(#eff1f5, #d9d9df)",
+    border: "1px solid #888",
+    "&:active": {
+      backgroundImage: "linear-gradient(#b4b4b4, #d0d3d6)"
+    }
+  },
+  "&dark .cm-button": {
+    backgroundImage: "linear-gradient(#393939, #111)",
+    border: "1px solid #888",
+    "&:active": {
+      backgroundImage: "linear-gradient(#111, #333)"
+    }
+  },
+  ".cm-textfield": {
+    verticalAlign: "middle",
+    color: "inherit",
+    fontSize: "70%",
+    border: "1px solid silver",
+    padding: ".2em .5em"
+  },
+  "&light .cm-textfield": {
+    backgroundColor: "white"
+  },
+  "&dark .cm-textfield": {
+    border: "1px solid #555",
+    backgroundColor: "inherit"
+  }
+}, lightDarkIDs);
+const observeOptions = {
+  childList: true,
+  characterData: true,
+  subtree: true,
+  attributes: true,
+  characterDataOldValue: true
+};
+const useCharData = browser.ie && browser.ie_version <= 11;
+class DOMObserver {
+  constructor(view) {
+    this.view = view;
+    this.active = false;
+    this.editContext = null;
+    this.selectionRange = new DOMSelectionState();
+    this.selectionChanged = false;
+    this.delayedFlush = -1;
+    this.resizeTimeout = -1;
+    this.queue = [];
+    this.delayedAndroidKey = null;
+    this.flushingAndroidKey = -1;
+    this.lastChange = 0;
+    this.scrollTargets = [];
+    this.intersection = null;
+    this.resizeScroll = null;
+    this.intersecting = false;
+    this.gapIntersection = null;
+    this.gaps = [];
+    this.printQuery = null;
+    this.parentCheck = -1;
+    this.dom = view.contentDOM;
+    this.observer = new MutationObserver((mutations) => {
+      for (let mut of mutations)
+        this.queue.push(mut);
+      if ((browser.ie && browser.ie_version <= 11 || browser.ios && view.composing) && mutations.some((m2) => m2.type == "childList" && m2.removedNodes.length || m2.type == "characterData" && m2.oldValue.length > m2.target.nodeValue.length))
+        this.flushSoon();
+      else
+        this.flush();
+    });
+    if (window.EditContext && browser.android && view.constructor.EDIT_CONTEXT !== false && !(browser.chrome && browser.chrome_version < 126)) {
+      this.editContext = new EditContextManager(view);
+      if (view.state.facet(editable))
+        view.contentDOM.editContext = this.editContext.editContext;
+    }
+    if (useCharData)
+      this.onCharData = (event) => {
+        this.queue.push({
+          target: event.target,
+          type: "characterData",
+          oldValue: event.prevValue
+        });
+        this.flushSoon();
+      };
+    this.onSelectionChange = this.onSelectionChange.bind(this);
+    this.onResize = this.onResize.bind(this);
+    this.onPrint = this.onPrint.bind(this);
+    this.onScroll = this.onScroll.bind(this);
+    if (window.matchMedia)
+      this.printQuery = window.matchMedia("print");
+    if (typeof ResizeObserver == "function") {
+      this.resizeScroll = new ResizeObserver(() => {
+        var _a2;
+        if (((_a2 = this.view.docView) === null || _a2 === void 0 ? void 0 : _a2.lastUpdate) < Date.now() - 75)
+          this.onResize();
+      });
+      this.resizeScroll.observe(view.scrollDOM);
+    }
+    this.addWindowListeners(this.win = view.win);
+    this.start();
+    if (typeof IntersectionObserver == "function") {
+      this.intersection = new IntersectionObserver((entries) => {
+        if (this.parentCheck < 0)
+          this.parentCheck = setTimeout(this.listenForScroll.bind(this), 1e3);
+        if (entries.length > 0 && entries[entries.length - 1].intersectionRatio > 0 != this.intersecting) {
+          this.intersecting = !this.intersecting;
+          if (this.intersecting != this.view.inView)
+            this.onScrollChanged(document.createEvent("Event"));
+        }
+      }, { threshold: [0, 1e-3] });
+      this.intersection.observe(this.dom);
+      this.gapIntersection = new IntersectionObserver((entries) => {
+        if (entries.length > 0 && entries[entries.length - 1].intersectionRatio > 0)
+          this.onScrollChanged(document.createEvent("Event"));
+      }, {});
+    }
+    this.listenForScroll();
+    this.readSelectionRange();
+  }
+  onScrollChanged(e) {
+    this.view.inputState.runHandlers("scroll", e);
+    if (this.intersecting)
+      this.view.measure();
+  }
+  onScroll(e) {
+    if (this.intersecting)
+      this.flush(false);
+    if (this.editContext)
+      this.view.requestMeasure(this.editContext.measureReq);
+    this.onScrollChanged(e);
+  }
+  onResize() {
+    if (this.resizeTimeout < 0)
+      this.resizeTimeout = setTimeout(() => {
+        this.resizeTimeout = -1;
+        this.view.requestMeasure();
+      }, 50);
+  }
+  onPrint(event) {
+    if ((event.type == "change" || !event.type) && !event.matches)
+      return;
+    this.view.viewState.printing = true;
+    this.view.measure();
+    setTimeout(() => {
+      this.view.viewState.printing = false;
+      this.view.requestMeasure();
+    }, 500);
+  }
+  updateGaps(gaps) {
+    if (this.gapIntersection && (gaps.length != this.gaps.length || this.gaps.some((g2, i2) => g2 != gaps[i2]))) {
+      this.gapIntersection.disconnect();
+      for (let gap of gaps)
+        this.gapIntersection.observe(gap);
+      this.gaps = gaps;
+    }
+  }
+  onSelectionChange(event) {
+    let wasChanged = this.selectionChanged;
+    if (!this.readSelectionRange() || this.delayedAndroidKey)
+      return;
+    let { view } = this, sel = this.selectionRange;
+    if (view.state.facet(editable) ? view.root.activeElement != this.dom : !hasSelection(this.dom, sel))
+      return;
+    let context = sel.anchorNode && view.docView.tile.nearest(sel.anchorNode);
+    if (context && context.isWidget() && context.widget.ignoreEvent(event)) {
+      if (!wasChanged)
+        this.selectionChanged = false;
+      return;
+    }
+    if ((browser.ie && browser.ie_version <= 11 || browser.android && browser.chrome) && !view.state.selection.main.empty && sel.focusNode && isEquivalentPosition(sel.focusNode, sel.focusOffset, sel.anchorNode, sel.anchorOffset))
+      this.flushSoon();
+    else
+      this.flush(false);
+  }
+  readSelectionRange() {
+    let { view } = this;
+    let selection = getSelection(view.root);
+    if (!selection)
+      return false;
+    let range = browser.safari && view.root.nodeType == 11 && view.root.activeElement == this.dom && safariSelectionRangeHack(this.view, selection) || selection;
+    if (!range || this.selectionRange.eq(range))
+      return false;
+    let local = hasSelection(this.dom, range);
+    if (local && !this.selectionChanged && view.inputState.lastFocusTime > Date.now() - 200 && view.inputState.lastTouchTime < Date.now() - 300 && atElementStart(this.dom, range)) {
+      this.view.inputState.lastFocusTime = 0;
+      view.docView.updateSelection();
       return false;
     }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this2 = this;
-      var _this$props2 = this.props, Component = _this$props2.component, style = _this$props2.style, onClickHandler = _this$props2.onClickHandler, item = _this$props2.item, selected = _this$props2.selected, className = _this$props2.className, innerRef = _this$props2.innerRef;
-      return React.createElement("li", {
-        className: "rta__item  ".concat(selected === true ? "rta__item--selected" : "", " ").concat(className || ""),
-        style
-      }, React.createElement("div", {
-        className: "rta__entity ".concat(selected === true ? "rta__entity--selected" : ""),
-        role: "button",
-        tabIndex: 0,
-        onClick: onClickHandler,
-        onFocus: this.selectItem,
-        onMouseEnter: this.selectItem,
-        onTouchStart: function onTouchStart() {
-          _this2.clicked = true;
-          _this2.selectItem();
-        },
-        onTouchEnd: function onTouchEnd(e) {
-          e.preventDefault();
-          if (_this2.clicked) {
-            onClickHandler(e);
-          }
-        },
-        onTouchMove: function onTouchMove() {
-          _this2.clicked = false;
-        },
-        onTouchCancel: function onTouchCancel() {
-          _this2.clicked = false;
-        },
-        ref: innerRef
-      }, React.createElement(Component, {
-        selected,
-        entity: item
-      })));
-    }
-  }]);
-  return Item2;
-}(React.Component);
-var List = /* @__PURE__ */ function(_React$Component) {
-  _inherits(List2, _React$Component);
-  function List2() {
-    var _getPrototypeOf2;
-    var _this;
-    _classCallCheck(this, List2);
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(List2)).call.apply(_getPrototypeOf2, [this].concat(args)));
-    _this.state = {
-      selectedItem: null
-    };
-    _this.cachedIdOfItems = /* @__PURE__ */ new Map();
-    _this.onPressEnter = function(e) {
-      if (typeof e !== "undefined") {
-        e.preventDefault();
+    this.selectionRange.setRange(range);
+    if (local)
+      this.selectionChanged = true;
+    return true;
+  }
+  setSelectionRange(anchor, head) {
+    this.selectionRange.set(anchor.node, anchor.offset, head.node, head.offset);
+    this.selectionChanged = false;
+  }
+  clearSelectionRange() {
+    this.selectionRange.set(null, 0, null, 0);
+  }
+  listenForScroll() {
+    this.parentCheck = -1;
+    let i2 = 0, changed = null;
+    for (let dom = this.dom; dom; ) {
+      if (dom.nodeType == 1) {
+        if (!changed && i2 < this.scrollTargets.length && this.scrollTargets[i2] == dom)
+          i2++;
+        else if (!changed)
+          changed = this.scrollTargets.slice(0, i2);
+        if (changed)
+          changed.push(dom);
+        dom = dom.assignedSlot || dom.parentNode;
+      } else if (dom.nodeType == 11) {
+        dom = dom.host;
+      } else {
+        break;
       }
-      var values = _this.props.values;
-      _this.modifyText(values[_this.getPositionInList()]);
-    };
-    _this.getPositionInList = function() {
-      var values = _this.props.values;
-      var selectedItem = _this.state.selectedItem;
-      if (!selectedItem)
-        return 0;
-      return values.findIndex(function(a) {
-        return _this.getId(a) === _this.getId(selectedItem);
-      });
-    };
-    _this.getId = function(item) {
-      if (_this.cachedIdOfItems.has(item)) {
-        return _this.cachedIdOfItems.get(item);
-      }
-      var textToReplace = _this.props.getTextToReplace(item);
-      var computeId = function computeId2() {
-        if (textToReplace) {
-          if (textToReplace.key) {
-            return textToReplace.key;
-          }
-          if (typeof item === "string" || !item.key) {
-            return textToReplace.text;
-          }
+    }
+    if (i2 < this.scrollTargets.length && !changed)
+      changed = this.scrollTargets.slice(0, i2);
+    if (changed) {
+      for (let dom of this.scrollTargets)
+        dom.removeEventListener("scroll", this.onScroll);
+      for (let dom of this.scrollTargets = changed)
+        dom.addEventListener("scroll", this.onScroll);
+    }
+  }
+  ignore(f2) {
+    if (!this.active)
+      return f2();
+    try {
+      this.stop();
+      return f2();
+    } finally {
+      this.start();
+      this.clear();
+    }
+  }
+  start() {
+    if (this.active)
+      return;
+    this.observer.observe(this.dom, observeOptions);
+    if (useCharData)
+      this.dom.addEventListener("DOMCharacterDataModified", this.onCharData);
+    this.active = true;
+  }
+  stop() {
+    if (!this.active)
+      return;
+    this.active = false;
+    this.observer.disconnect();
+    if (useCharData)
+      this.dom.removeEventListener("DOMCharacterDataModified", this.onCharData);
+  }
+  clear() {
+    this.processRecords();
+    this.queue.length = 0;
+    this.selectionChanged = false;
+  }
+  delayAndroidKey(key, keyCode) {
+    var _a2;
+    if (!this.delayedAndroidKey) {
+      let flush = () => {
+        let key2 = this.delayedAndroidKey;
+        if (key2) {
+          this.clearDelayedAndroidKey();
+          this.view.inputState.lastKeyCode = key2.keyCode;
+          this.view.inputState.lastKeyTime = Date.now();
+          let flushed = this.flush();
+          if (!flushed && key2.force)
+            dispatchKey(this.dom, key2.key, key2.keyCode);
         }
-        if (!item.key) {
-          throw new Error("Item ".concat(JSON.stringify(item), ' has to have defined "key" property'));
-        }
-        return item.key;
       };
-      var id2 = computeId();
-      _this.cachedIdOfItems.set(item, id2);
-      return id2;
-    };
-    _this.listeners = [];
-    _this.itemsRef = {};
-    _this.modifyText = function(value) {
-      if (!value)
-        return;
-      var onSelect = _this.props.onSelect;
-      onSelect(value);
-    };
-    _this.selectItem = function(item) {
-      var keyboard = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : false;
-      var onItemHighlighted = _this.props.onItemHighlighted;
-      if (_this.state.selectedItem === item)
-        return;
-      _this.setState({
-        selectedItem: item
-      }, function() {
-        onItemHighlighted(item);
-        if (keyboard) {
-          _this.props.dropdownScroll(_this.itemsRef[_this.getId(item)]);
-        }
+      this.flushingAndroidKey = this.view.win.requestAnimationFrame(flush);
+    }
+    if (!this.delayedAndroidKey || key == "Enter")
+      this.delayedAndroidKey = {
+        key,
+        keyCode,
+        force: this.lastChange < Date.now() - 50 || !!((_a2 = this.delayedAndroidKey) === null || _a2 === void 0 ? void 0 : _a2.force)
+      };
+  }
+  clearDelayedAndroidKey() {
+    this.win.cancelAnimationFrame(this.flushingAndroidKey);
+    this.delayedAndroidKey = null;
+    this.flushingAndroidKey = -1;
+  }
+  flushSoon() {
+    if (this.delayedFlush < 0)
+      this.delayedFlush = this.view.win.requestAnimationFrame(() => {
+        this.delayedFlush = -1;
+        this.flush();
       });
-    };
-    _this.scroll = function(e) {
-      e.preventDefault();
-      var values = _this.props.values;
-      var code = e.keyCode || e.which;
-      var oldPosition = _this.getPositionInList();
-      var newPosition;
-      switch (code) {
-        case KEY_CODES.DOWN:
-          newPosition = oldPosition + 1;
-          break;
-        case KEY_CODES.UP:
-          newPosition = oldPosition - 1;
-          break;
-        default:
-          newPosition = oldPosition;
-          break;
-      }
-      newPosition = (newPosition % values.length + values.length) % values.length;
-      _this.selectItem(values[newPosition], [KEY_CODES.DOWN, KEY_CODES.UP].includes(code));
-    };
-    _this.isSelected = function(item) {
-      var selectedItem = _this.state.selectedItem;
-      if (!selectedItem)
-        return false;
-      return _this.getId(selectedItem) === _this.getId(item);
-    };
-    return _this;
   }
-  _createClass(List2, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.listeners.push(Listeners.add([KEY_CODES.DOWN, KEY_CODES.UP], this.scroll), Listeners.add([KEY_CODES.ENTER, KEY_CODES.TAB], this.onPressEnter));
-      var values = this.props.values;
-      if (values && values[0])
-        this.selectItem(values[0]);
+  forceFlush() {
+    if (this.delayedFlush >= 0) {
+      this.view.win.cancelAnimationFrame(this.delayedFlush);
+      this.delayedFlush = -1;
     }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(_ref) {
-      var _this2 = this;
-      var oldValues = _ref.values;
-      var values = this.props.values;
-      var oldValuesSerialized = oldValues.map(function(val) {
-        return _this2.getId(val);
-      }).join("");
-      var newValuesSerialized = values.map(function(val) {
-        return _this2.getId(val);
-      }).join("");
-      if (oldValuesSerialized !== newValuesSerialized && values && values[0]) {
-        this.selectItem(values[0]);
-      }
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      var listener;
-      while (this.listeners.length) {
-        listener = this.listeners.pop();
-        Listeners.remove(listener);
-      }
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this3 = this;
-      var _this$props = this.props, values = _this$props.values, component = _this$props.component, style = _this$props.style, itemClassName = _this$props.itemClassName, className = _this$props.className, itemStyle = _this$props.itemStyle;
-      return React.createElement("ul", {
-        className: "rta__list ".concat(className || ""),
-        style
-      }, values.map(function(item) {
-        return React.createElement(Item, {
-          key: _this3.getId(item),
-          innerRef: function innerRef(ref) {
-            _this3.itemsRef[_this3.getId(item)] = ref;
-          },
-          selected: _this3.isSelected(item),
-          item,
-          className: itemClassName,
-          style: itemStyle,
-          onClickHandler: _this3.onPressEnter,
-          onSelectHandler: _this3.selectItem,
-          component
-        });
-      }));
-    }
-  }]);
-  return List2;
-}(React.Component);
-function defaultScrollToItem(container, item) {
-  var itemHeight = parseInt(getComputedStyle(item).getPropertyValue("height"), 10);
-  var containerHight = parseInt(getComputedStyle(container).getPropertyValue("height"), 10) - itemHeight;
-  var itemOffsetTop = item.offsetTop;
-  var actualScrollTop = container.scrollTop;
-  if (itemOffsetTop < actualScrollTop + containerHight && actualScrollTop < itemOffsetTop) {
-    return;
+    this.flush();
   }
-  container.scrollTop = itemOffsetTop;
-}
-var DEFAULT_CARET_POSITION = "next";
-var POSITION_CONFIGURATION = {
-  X: {
-    LEFT: "rta__autocomplete--left",
-    RIGHT: "rta__autocomplete--right"
-  },
-  Y: {
-    TOP: "rta__autocomplete--top",
-    BOTTOM: "rta__autocomplete--bottom"
+  pendingRecords() {
+    for (let mut of this.observer.takeRecords())
+      this.queue.push(mut);
+    return this.queue;
   }
-};
-var errorMessage = function errorMessage2(message) {
-  return console.error("RTA: dataProvider fails: ".concat(message, "\n    \nCheck the documentation or create issue if you think it's bug. https://github.com/webscopeio/react-textarea-autocomplete/issues"));
-};
-var reservedRegexChars = [".", "^", "$", "*", "+", "-", "?", "(", ")", "[", "]", "{", "}", "\\", "|"];
-var escapeRegex = function escapeRegex2(text) {
-  return _toConsumableArray(text).map(function(character) {
-    return reservedRegexChars.includes(character) ? "\\".concat(character) : character;
-  }).join("");
-};
-var Autocomplete = /* @__PURE__ */ function(_React$Component) {
-  _inherits(Autocomplete2, _React$Component);
-  function Autocomplete2() {
-    _classCallCheck(this, Autocomplete2);
-    return _possibleConstructorReturn(this, _getPrototypeOf(Autocomplete2).apply(this, arguments));
-  }
-  _createClass(Autocomplete2, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      var boundariesElement = this.props.boundariesElement;
-      if (typeof boundariesElement === "string") {
-        var elem = document.querySelector(boundariesElement);
-        if (!elem) {
-          throw new Error("RTA: Invalid prop boundariesElement: it has to be string or HTMLElement.");
-        }
-        this.containerElem = elem;
-      } else if (boundariesElement instanceof HTMLElement) {
-        this.containerElem = boundariesElement;
+  processRecords() {
+    let records = this.pendingRecords();
+    if (records.length)
+      this.queue = [];
+    let from = -1, to = -1, typeOver = false;
+    for (let record of records) {
+      let range = this.readMutation(record);
+      if (!range)
+        continue;
+      if (range.typeOver)
+        typeOver = true;
+      if (from == -1) {
+        ({ from, to } = range);
       } else {
-        throw new Error("RTA: Invalid prop boundariesElement: it has to be string or HTMLElement.");
-      }
-      if (!this.containerElem || !this.containerElem.contains(this.ref)) {
-        {
-          throw new Error("RTA: Invalid prop boundariesElement: it has to be one of the parents of the RTA.");
-        }
+        from = Math.min(range.from, from);
+        to = Math.max(range.to, to);
       }
     }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      var _this$ref$classList, _this$ref$classList2;
-      var top2 = this.props.top || 0;
-      var left2 = this.props.left || 0;
-      var usedClasses = [];
-      var unusedClasses = [];
-      var topPosition = 0;
-      var leftPosition = 0;
-      var containerBounds = this.containerElem.getBoundingClientRect();
-      var dropdownBounds = this.ref.getBoundingClientRect();
-      var textareaBounds = this.props.textareaRef.getBoundingClientRect();
-      var computedStyle = window.getComputedStyle(this.ref);
-      var marginTop = parseInt(computedStyle.getPropertyValue("margin-top"), 10);
-      var marginBottom = parseInt(computedStyle.getPropertyValue("margin-bottom"), 10);
-      var marginLeft = parseInt(computedStyle.getPropertyValue("margin-left"), 10);
-      var marginRight = parseInt(computedStyle.getPropertyValue("margin-right"), 10);
-      var dropdownBottom = marginTop + marginBottom + textareaBounds.top + top2 + dropdownBounds.height;
-      var dropdownRight = marginLeft + marginRight + textareaBounds.left + left2 + dropdownBounds.width;
-      if (dropdownRight > containerBounds.right && textareaBounds.left + left2 > dropdownBounds.width) {
-        leftPosition = left2 - dropdownBounds.width;
-        usedClasses.push(POSITION_CONFIGURATION.X.LEFT);
-        unusedClasses.push(POSITION_CONFIGURATION.X.RIGHT);
-      } else {
-        leftPosition = left2;
-        usedClasses.push(POSITION_CONFIGURATION.X.RIGHT);
-        unusedClasses.push(POSITION_CONFIGURATION.X.LEFT);
-      }
-      if (dropdownBottom > containerBounds.bottom && textareaBounds.top + top2 > dropdownBounds.height) {
-        topPosition = top2 - dropdownBounds.height;
-        usedClasses.push(POSITION_CONFIGURATION.Y.TOP);
-        unusedClasses.push(POSITION_CONFIGURATION.Y.BOTTOM);
-      } else {
-        topPosition = top2;
-        usedClasses.push(POSITION_CONFIGURATION.Y.BOTTOM);
-        unusedClasses.push(POSITION_CONFIGURATION.Y.TOP);
-      }
-      if (this.props.renderToBody) {
-        topPosition += textareaBounds.top;
-        leftPosition += textareaBounds.left;
-      }
-      this.ref.style.top = "".concat(topPosition, "px");
-      this.ref.style.left = "".concat(leftPosition, "px");
-      (_this$ref$classList = this.ref.classList).remove.apply(_this$ref$classList, unusedClasses);
-      (_this$ref$classList2 = this.ref.classList).add.apply(_this$ref$classList2, usedClasses);
+    return { from, to, typeOver };
+  }
+  readChange() {
+    let { from, to, typeOver } = this.processRecords();
+    let newSel = this.selectionChanged && hasSelection(this.dom, this.selectionRange);
+    if (from < 0 && !newSel)
+      return null;
+    if (from > -1)
+      this.lastChange = Date.now();
+    this.view.inputState.lastFocusTime = 0;
+    this.selectionChanged = false;
+    let change = new DOMChange(this.view, from, to, typeOver);
+    this.view.docView.domChanged = { newSel: change.newSel ? change.newSel.main : null };
+    return change;
+  }
+  flush(readSelection = true) {
+    if (this.delayedFlush >= 0 || this.delayedAndroidKey)
+      return false;
+    if (readSelection)
+      this.readSelectionRange();
+    let domChange = this.readChange();
+    if (!domChange) {
+      this.view.requestMeasure();
+      return false;
     }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this = this;
-      var _this$props = this.props, style = _this$props.style, className = _this$props.className, innerRef = _this$props.innerRef, children = _this$props.children, renderToBody = _this$props.renderToBody;
-      var body = document.body;
-      var autocompleteContainer = React.createElement("div", {
-        ref: function ref(_ref) {
-          _this.ref = _ref;
-          innerRef(_ref);
-        },
-        className: "rta__autocomplete ".concat(className || ""),
-        style
-      }, children);
-      return renderToBody && body !== null ? ReactDOM.createPortal(autocompleteContainer, body) : autocompleteContainer;
-    }
-  }]);
-  return Autocomplete2;
-}(React.Component);
-var ReactTextareaAutocomplete = /* @__PURE__ */ function(_React$Component2) {
-  _inherits(ReactTextareaAutocomplete2, _React$Component2);
-  function ReactTextareaAutocomplete2(_props) {
-    var _this2;
-    _classCallCheck(this, ReactTextareaAutocomplete2);
-    _this2 = _possibleConstructorReturn(this, _getPrototypeOf(ReactTextareaAutocomplete2).call(this, _props));
-    _this2.state = {
-      top: null,
-      left: null,
-      currentTrigger: null,
-      actualToken: "",
-      data: null,
-      value: "",
-      dataLoading: false,
-      selectionEnd: 0,
-      component: null,
-      textToReplace: null
-    };
-    _this2.escListenerInit = function() {
-      if (!_this2.escListener) {
-        _this2.escListener = Listeners.add(KEY_CODES.ESC, _this2._closeAutocomplete);
-      }
-    };
-    _this2.escListenerDestroy = function() {
-      if (_this2.escListener) {
-        Listeners.remove(_this2.escListener);
-        _this2.escListener = null;
-      }
-    };
-    _this2.getSelectionPosition = function() {
-      if (!_this2.textareaRef)
-        return null;
+    let startState = this.view.state;
+    let handled = applyDOMChange(this.view, domChange);
+    if (this.view.state == startState && (domChange.domChanged || domChange.newSel && !sameSelPos(this.view.state.selection, domChange.newSel.main)))
+      this.view.update([]);
+    return handled;
+  }
+  readMutation(rec) {
+    let tile = this.view.docView.tile.nearest(rec.target);
+    if (!tile || tile.isWidget())
+      return null;
+    tile.markDirty(rec.type == "attributes");
+    if (rec.type == "childList") {
+      let childBefore = findChild(tile, rec.previousSibling || rec.target.previousSibling, -1);
+      let childAfter = findChild(tile, rec.nextSibling || rec.target.nextSibling, 1);
       return {
-        selectionStart: _this2.textareaRef.selectionStart,
-        selectionEnd: _this2.textareaRef.selectionEnd
+        from: childBefore ? tile.posAfter(childBefore) : tile.posAtStart,
+        to: childAfter ? tile.posBefore(childAfter) : tile.posAtEnd,
+        typeOver: false
       };
-    };
-    _this2.getSelectedText = function() {
-      if (!_this2.textareaRef)
-        return null;
-      var _this2$textareaRef = _this2.textareaRef, selectionStart = _this2$textareaRef.selectionStart, selectionEnd = _this2$textareaRef.selectionEnd;
-      if (selectionStart === selectionEnd)
-        return null;
-      return _this2.state.value.substr(selectionStart, selectionEnd - selectionStart);
-    };
-    _this2.setCaretPosition = function() {
-      var position = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : 0;
-      if (!_this2.textareaRef)
+    } else if (rec.type == "characterData") {
+      return { from: tile.posAtStart, to: tile.posAtEnd, typeOver: rec.target.nodeValue == rec.oldValue };
+    } else {
+      return null;
+    }
+  }
+  setWindow(win) {
+    if (win != this.win) {
+      this.removeWindowListeners(this.win);
+      this.win = win;
+      this.addWindowListeners(this.win);
+    }
+  }
+  addWindowListeners(win) {
+    win.addEventListener("resize", this.onResize);
+    if (this.printQuery) {
+      if (this.printQuery.addEventListener)
+        this.printQuery.addEventListener("change", this.onPrint);
+      else
+        this.printQuery.addListener(this.onPrint);
+    } else
+      win.addEventListener("beforeprint", this.onPrint);
+    win.addEventListener("scroll", this.onScroll);
+    win.document.addEventListener("selectionchange", this.onSelectionChange);
+  }
+  removeWindowListeners(win) {
+    win.removeEventListener("scroll", this.onScroll);
+    win.removeEventListener("resize", this.onResize);
+    if (this.printQuery) {
+      if (this.printQuery.removeEventListener)
+        this.printQuery.removeEventListener("change", this.onPrint);
+      else
+        this.printQuery.removeListener(this.onPrint);
+    } else
+      win.removeEventListener("beforeprint", this.onPrint);
+    win.document.removeEventListener("selectionchange", this.onSelectionChange);
+  }
+  update(update) {
+    if (this.editContext) {
+      this.editContext.update(update);
+      if (update.startState.facet(editable) != update.state.facet(editable))
+        update.view.contentDOM.editContext = update.state.facet(editable) ? this.editContext.editContext : null;
+    }
+  }
+  destroy() {
+    var _a2, _b, _c;
+    this.stop();
+    (_a2 = this.intersection) === null || _a2 === void 0 ? void 0 : _a2.disconnect();
+    (_b = this.gapIntersection) === null || _b === void 0 ? void 0 : _b.disconnect();
+    (_c = this.resizeScroll) === null || _c === void 0 ? void 0 : _c.disconnect();
+    for (let dom of this.scrollTargets)
+      dom.removeEventListener("scroll", this.onScroll);
+    this.removeWindowListeners(this.win);
+    clearTimeout(this.parentCheck);
+    clearTimeout(this.resizeTimeout);
+    this.win.cancelAnimationFrame(this.delayedFlush);
+    this.win.cancelAnimationFrame(this.flushingAndroidKey);
+    if (this.editContext) {
+      this.view.contentDOM.editContext = null;
+      this.editContext.destroy();
+    }
+  }
+}
+function findChild(tile, dom, dir) {
+  while (dom) {
+    let curTile = Tile.get(dom);
+    if (curTile && curTile.parent == tile)
+      return curTile;
+    let parent = dom.parentNode;
+    dom = parent != tile.dom ? parent : dir > 0 ? dom.nextSibling : dom.previousSibling;
+  }
+  return null;
+}
+function buildSelectionRangeFromRange(view, range) {
+  let anchorNode = range.startContainer, anchorOffset = range.startOffset;
+  let focusNode = range.endContainer, focusOffset = range.endOffset;
+  let curAnchor = view.docView.domAtPos(view.state.selection.main.anchor, 1);
+  if (isEquivalentPosition(curAnchor.node, curAnchor.offset, focusNode, focusOffset))
+    [anchorNode, anchorOffset, focusNode, focusOffset] = [focusNode, focusOffset, anchorNode, anchorOffset];
+  return { anchorNode, anchorOffset, focusNode, focusOffset };
+}
+function safariSelectionRangeHack(view, selection) {
+  if (selection.getComposedRanges) {
+    let range = selection.getComposedRanges(view.root)[0];
+    if (range)
+      return buildSelectionRangeFromRange(view, range);
+  }
+  let found = null;
+  function read2(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    found = event.getTargetRanges()[0];
+  }
+  view.contentDOM.addEventListener("beforeinput", read2, true);
+  view.dom.ownerDocument.execCommand("indent");
+  view.contentDOM.removeEventListener("beforeinput", read2, true);
+  return found ? buildSelectionRangeFromRange(view, found) : null;
+}
+class EditContextManager {
+  constructor(view) {
+    this.from = 0;
+    this.to = 0;
+    this.pendingContextChange = null;
+    this.handlers = /* @__PURE__ */ Object.create(null);
+    this.composing = null;
+    this.resetRange(view.state);
+    let context = this.editContext = new window.EditContext({
+      text: view.state.doc.sliceString(this.from, this.to),
+      selectionStart: this.toContextPos(Math.max(this.from, Math.min(this.to, view.state.selection.main.anchor))),
+      selectionEnd: this.toContextPos(view.state.selection.main.head)
+    });
+    this.handlers.textupdate = (e) => {
+      let main2 = view.state.selection.main, { anchor, head } = main2;
+      let from = this.toEditorPos(e.updateRangeStart), to = this.toEditorPos(e.updateRangeEnd);
+      if (view.inputState.composing >= 0 && !this.composing)
+        this.composing = { contextBase: e.updateRangeStart, editorBase: from, drifted: false };
+      let deletes = to - from > e.text.length;
+      if (from == this.from && anchor < this.from)
+        from = anchor;
+      else if (to == this.to && anchor > this.to)
+        to = anchor;
+      let diff = findDiff(view.state.sliceDoc(from, to), e.text, (deletes ? main2.from : main2.to) - from, deletes ? "end" : null);
+      if (!diff) {
+        let newSel = EditorSelection.single(this.toEditorPos(e.selectionStart), this.toEditorPos(e.selectionEnd));
+        if (!sameSelPos(newSel, main2))
+          view.dispatch({ selection: newSel, userEvent: "select" });
         return;
-      _this2.textareaRef.focus();
-      _this2.textareaRef.setSelectionRange(position, position);
-    };
-    _this2.getCaretPosition = function() {
-      if (!_this2.textareaRef) {
-        return 0;
       }
-      var position = _this2.textareaRef.selectionEnd;
-      return position;
-    };
-    _this2._handleCaretChange = function(e) {
-      var cleanLastTrigger = function cleanLastTrigger2() {
-        var beforeHandle = _this2.getCaretPosition() - 1;
-        _this2.lastTrigger = _this2.lastTrigger ? beforeHandle : 0;
+      let change = {
+        from: diff.from + from,
+        to: diff.toA + from,
+        insert: Text.of(e.text.slice(diff.from, diff.toB).split("\n"))
       };
-      if (e.type === "keydown") {
-        var code = e.keyCode || e.which;
-        switch (code) {
-          case KEY_CODES.UP:
-          case KEY_CODES.DOWN:
-            if (!_this2._isAutocompleteOpen()) {
-              cleanLastTrigger();
-            }
-            break;
-          case KEY_CODES.LEFT:
-          case KEY_CODES.RIGHT:
-            cleanLastTrigger();
-            break;
+      if ((browser.mac || browser.android) && change.from == head - 1 && /^\. ?$/.test(e.text) && view.contentDOM.getAttribute("autocorrect") == "off")
+        change = { from, to, insert: Text.of([e.text.replace(".", " ")]) };
+      this.pendingContextChange = change;
+      if (!view.state.readOnly) {
+        let newLen = this.to - this.from + (change.to - change.from + change.insert.length);
+        applyDOMChangeInner(view, change, EditorSelection.single(this.toEditorPos(e.selectionStart, newLen), this.toEditorPos(e.selectionEnd, newLen)));
+      }
+      if (this.pendingContextChange) {
+        this.revertPending(view.state);
+        this.setSelection(view.state);
+      }
+      if (change.from < change.to && !change.insert.length && view.inputState.composing >= 0 && !/[\\p{Alphabetic}\\p{Number}_]/.test(context.text.slice(Math.max(0, e.updateRangeStart - 1), Math.min(context.text.length, e.updateRangeStart + 1))))
+        this.handlers.compositionend(e);
+    };
+    this.handlers.characterboundsupdate = (e) => {
+      let rects = [], prev = null;
+      for (let i2 = this.toEditorPos(e.rangeStart), end2 = this.toEditorPos(e.rangeEnd); i2 < end2; i2++) {
+        let rect = view.coordsForChar(i2);
+        prev = rect && new DOMRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top) || prev || new DOMRect();
+        rects.push(prev);
+      }
+      context.updateCharacterBounds(e.rangeStart, rects);
+    };
+    this.handlers.textformatupdate = (e) => {
+      let deco = [];
+      for (let format of e.getTextFormats()) {
+        let lineStyle = format.underlineStyle, thickness = format.underlineThickness;
+        if (!/none/i.test(lineStyle) && !/none/i.test(thickness)) {
+          let from = this.toEditorPos(format.rangeStart), to = this.toEditorPos(format.rangeEnd);
+          if (from < to) {
+            let style = `text-decoration: underline ${/^[a-z]/.test(lineStyle) ? lineStyle + " " : lineStyle == "Dashed" ? "dashed " : lineStyle == "Squiggle" ? "wavy " : ""}${/thin/i.test(thickness) ? 1 : 2}px`;
+            deco.push(Decoration.mark({ attributes: { style } }).range(from, to));
+          }
         }
-        return;
       }
-      cleanLastTrigger();
+      view.dispatch({ effects: setEditContextFormatting.of(Decoration.set(deco)) });
     };
-    _this2._onSelect = function(item) {
-      var _this2$state = _this2.state, selectionEnd = _this2$state.selectionEnd, currentTrigger = _this2$state.currentTrigger, textareaValue = _this2$state.value;
-      var onItemSelected = _this2.props.onItemSelected;
-      if (!currentTrigger)
-        return;
-      var getTextToReplaceForCurrentTrigger = _this2._getTextToReplace(currentTrigger);
-      if (!getTextToReplaceForCurrentTrigger) {
-        _this2._closeAutocomplete();
-        return;
+    this.handlers.compositionstart = () => {
+      if (view.inputState.composing < 0) {
+        view.inputState.composing = 0;
+        view.inputState.compositionFirstChange = true;
       }
-      var newToken = getTextToReplaceForCurrentTrigger(item);
-      if (!newToken) {
-        _this2._closeAutocomplete();
+    };
+    this.handlers.compositionend = () => {
+      view.inputState.composing = -1;
+      view.inputState.compositionFirstChange = null;
+      if (this.composing) {
+        let { drifted } = this.composing;
+        this.composing = null;
+        if (drifted)
+          this.reset(view.state);
+      }
+    };
+    for (let event in this.handlers)
+      context.addEventListener(event, this.handlers[event]);
+    this.measureReq = { read: (view2) => {
+      let sel = getSelection(view2.root);
+      if (sel && sel.rangeCount)
+        this.editContext.updateSelectionBounds(sel.getRangeAt(0).getBoundingClientRect());
+    } };
+  }
+  applyEdits(update) {
+    let off = 0, abort = false, pending = this.pendingContextChange;
+    update.changes.iterChanges((fromA, toA, _fromB, _toB, insert2) => {
+      if (abort)
         return;
-      }
-      if (onItemSelected) {
-        onItemSelected({
-          currentTrigger,
-          item
-        });
-      }
-      var computeCaretPosition = function computeCaretPosition2(position, token, startToken) {
-        switch (position) {
-          case "start":
-            return startToken;
-          case "next":
-          case "end":
-            return startToken + token.length;
-          default:
-            if (!Number.isInteger(position)) {
-              throw new Error('RTA: caretPosition should be "start", "next", "end" or number.');
-            }
-            return position;
+      let dLen = insert2.length - (toA - fromA);
+      if (pending && toA >= pending.to) {
+        if (pending.from == fromA && pending.to == toA && pending.insert.eq(insert2)) {
+          pending = this.pendingContextChange = null;
+          off += dLen;
+          this.to += dLen;
+          return;
+        } else {
+          pending = null;
+          this.revertPending(update.state);
         }
-      };
-      var textToModify = textareaValue.slice(0, selectionEnd);
-      var escapedCurrentTrigger = escapeRegex(currentTrigger);
-      var triggerOffset = textToModify.length - textToModify.lastIndexOf(currentTrigger);
-      var startOfTokenPosition = textToModify.search(new RegExp("(?!".concat(escapedCurrentTrigger, ")$"))) - triggerOffset;
-      var newTokenString = newToken.caretPosition === "next" ? "".concat(newToken.text, " ") : newToken.text;
-      var newCaretPosition = computeCaretPosition(newToken.caretPosition, newTokenString, startOfTokenPosition);
-      var modifiedText = textToModify.substring(0, startOfTokenPosition) + newTokenString;
-      var newValue = textareaValue.replace(textToModify, modifiedText);
-      _this2.setState({
-        value: newValue,
-        dataLoading: false
-      }, function() {
-        var insertedTrigger = _this2.tokenRegExpEnding.exec(newTokenString);
-        var insertedTriggerModifier = insertedTrigger ? insertedTrigger[0].length : 1;
-        _this2.lastTrigger = newCaretPosition ? newCaretPosition - insertedTriggerModifier : newCaretPosition;
-        _this2.textareaRef.value = newValue;
-        _this2.textareaRef.selectionEnd = newCaretPosition;
-        _this2._changeHandler();
-        var scrollTop = _this2.textareaRef.scrollTop;
-        _this2.setCaretPosition(newCaretPosition);
-        if (window.chrome) {
-          _this2.textareaRef.scrollTop = scrollTop;
+      }
+      fromA += off;
+      toA += off;
+      if (toA <= this.from) {
+        this.from += dLen;
+        this.to += dLen;
+      } else if (fromA < this.to) {
+        if (fromA < this.from || toA > this.to || this.to - this.from + insert2.length > 3e4) {
+          abort = true;
+          return;
+        }
+        this.editContext.updateText(this.toContextPos(fromA), this.toContextPos(toA), insert2.toString());
+        this.to += dLen;
+      }
+      off += dLen;
+    });
+    if (pending && !abort)
+      this.revertPending(update.state);
+    return !abort;
+  }
+  update(update) {
+    let reverted = this.pendingContextChange, startSel = update.startState.selection.main;
+    if (this.composing && (this.composing.drifted || !update.changes.touchesRange(startSel.from, startSel.to) && update.transactions.some((tr2) => !tr2.isUserEvent("input.type") && tr2.changes.touchesRange(this.from, this.to)))) {
+      this.composing.drifted = true;
+      this.composing.editorBase = update.changes.mapPos(this.composing.editorBase);
+    } else if (!this.applyEdits(update) || !this.rangeIsValid(update.state)) {
+      this.pendingContextChange = null;
+      this.reset(update.state);
+    } else if (update.docChanged || update.selectionSet || reverted) {
+      this.setSelection(update.state);
+    }
+    if (update.geometryChanged || update.docChanged || update.selectionSet)
+      update.view.requestMeasure(this.measureReq);
+  }
+  resetRange(state) {
+    let { head } = state.selection.main;
+    this.from = Math.max(0, head - 1e4);
+    this.to = Math.min(state.doc.length, head + 1e4);
+  }
+  reset(state) {
+    this.resetRange(state);
+    this.editContext.updateText(0, this.editContext.text.length, state.doc.sliceString(this.from, this.to));
+    this.setSelection(state);
+  }
+  revertPending(state) {
+    let pending = this.pendingContextChange;
+    this.pendingContextChange = null;
+    this.editContext.updateText(this.toContextPos(pending.from), this.toContextPos(pending.from + pending.insert.length), state.doc.sliceString(pending.from, pending.to));
+  }
+  setSelection(state) {
+    let { main: main2 } = state.selection;
+    let start2 = this.toContextPos(Math.max(this.from, Math.min(this.to, main2.anchor)));
+    let end2 = this.toContextPos(main2.head);
+    if (this.editContext.selectionStart != start2 || this.editContext.selectionEnd != end2)
+      this.editContext.updateSelection(start2, end2);
+  }
+  rangeIsValid(state) {
+    let { head } = state.selection.main;
+    return !(this.from > 0 && head - this.from < 500 || this.to < state.doc.length && this.to - head < 500 || this.to - this.from > 1e4 * 3);
+  }
+  toEditorPos(contextPos, clipLen = this.to - this.from) {
+    contextPos = Math.min(contextPos, clipLen);
+    let c = this.composing;
+    return c && c.drifted ? c.editorBase + (contextPos - c.contextBase) : contextPos + this.from;
+  }
+  toContextPos(editorPos) {
+    let c = this.composing;
+    return c && c.drifted ? c.contextBase + (editorPos - c.editorBase) : editorPos - this.from;
+  }
+  destroy() {
+    for (let event in this.handlers)
+      this.editContext.removeEventListener(event, this.handlers[event]);
+  }
+}
+class EditorView {
+  get state() {
+    return this.viewState.state;
+  }
+  get viewport() {
+    return this.viewState.viewport;
+  }
+  get visibleRanges() {
+    return this.viewState.visibleRanges;
+  }
+  get inView() {
+    return this.viewState.inView;
+  }
+  get composing() {
+    return !!this.inputState && this.inputState.composing > 0;
+  }
+  get compositionStarted() {
+    return !!this.inputState && this.inputState.composing >= 0;
+  }
+  get root() {
+    return this._root;
+  }
+  get win() {
+    return this.dom.ownerDocument.defaultView || window;
+  }
+  constructor(config = {}) {
+    var _a2;
+    this.plugins = [];
+    this.pluginMap = /* @__PURE__ */ new Map();
+    this.editorAttrs = {};
+    this.contentAttrs = {};
+    this.bidiCache = [];
+    this.destroyed = false;
+    this.updateState = 2;
+    this.measureScheduled = -1;
+    this.measureRequests = [];
+    this.contentDOM = document.createElement("div");
+    this.scrollDOM = document.createElement("div");
+    this.scrollDOM.tabIndex = -1;
+    this.scrollDOM.className = "cm-scroller";
+    this.scrollDOM.appendChild(this.contentDOM);
+    this.announceDOM = document.createElement("div");
+    this.announceDOM.className = "cm-announced";
+    this.announceDOM.setAttribute("aria-live", "polite");
+    this.dom = document.createElement("div");
+    this.dom.appendChild(this.announceDOM);
+    this.dom.appendChild(this.scrollDOM);
+    if (config.parent)
+      config.parent.appendChild(this.dom);
+    let { dispatch } = config;
+    this.dispatchTransactions = config.dispatchTransactions || dispatch && ((trs) => trs.forEach((tr2) => dispatch(tr2, this))) || ((trs) => this.update(trs));
+    this.dispatch = this.dispatch.bind(this);
+    this._root = config.root || getRoot(config.parent) || document;
+    this.viewState = new ViewState(this, config.state || EditorState.create(config));
+    if (config.scrollTo && config.scrollTo.is(scrollIntoView$1))
+      this.viewState.scrollTarget = config.scrollTo.value.clip(this.viewState.state);
+    this.plugins = this.state.facet(viewPlugin).map((spec) => new PluginInstance(spec));
+    for (let plugin of this.plugins)
+      plugin.update(this);
+    this.observer = new DOMObserver(this);
+    this.inputState = new InputState(this);
+    this.inputState.ensureHandlers(this.plugins);
+    this.docView = new DocView(this);
+    this.mountStyles();
+    this.updateAttrs();
+    this.updateState = 0;
+    this.requestMeasure();
+    if ((_a2 = document.fonts) === null || _a2 === void 0 ? void 0 : _a2.ready)
+      document.fonts.ready.then(() => {
+        this.viewState.mustMeasureContent = "refresh";
+        this.requestMeasure();
+      });
+  }
+  dispatch(...input) {
+    let trs = input.length == 1 && input[0] instanceof Transaction ? input : input.length == 1 && Array.isArray(input[0]) ? input[0] : [this.state.update(...input)];
+    this.dispatchTransactions(trs, this);
+  }
+  update(transactions) {
+    if (this.updateState != 0)
+      throw new Error("Calls to EditorView.update are not allowed while an update is in progress");
+    let redrawn = false, attrsChanged = false, update;
+    let state = this.state;
+    for (let tr2 of transactions) {
+      if (tr2.startState != state)
+        throw new RangeError("Trying to update state with a transaction that doesn't start from the previous state.");
+      state = tr2.state;
+    }
+    if (this.destroyed) {
+      this.viewState.state = state;
+      return;
+    }
+    let focus = this.hasFocus, focusFlag = 0, dispatchFocus = null;
+    if (transactions.some((tr2) => tr2.annotation(isFocusChange))) {
+      this.inputState.notifiedFocused = focus;
+      focusFlag = 1;
+    } else if (focus != this.inputState.notifiedFocused) {
+      this.inputState.notifiedFocused = focus;
+      dispatchFocus = focusChangeTransaction(state, focus);
+      if (!dispatchFocus)
+        focusFlag = 1;
+    }
+    let pendingKey = this.observer.delayedAndroidKey, domChange = null;
+    if (pendingKey) {
+      this.observer.clearDelayedAndroidKey();
+      domChange = this.observer.readChange();
+      if (domChange && !this.state.doc.eq(state.doc) || !this.state.selection.eq(state.selection))
+        domChange = null;
+    } else {
+      this.observer.clear();
+    }
+    if (state.facet(EditorState.phrases) != this.state.facet(EditorState.phrases))
+      return this.setState(state);
+    update = ViewUpdate.create(this, state, transactions);
+    update.flags |= focusFlag;
+    let scrollTarget = this.viewState.scrollTarget;
+    try {
+      this.updateState = 2;
+      for (let tr2 of transactions) {
+        if (scrollTarget)
+          scrollTarget = scrollTarget.map(tr2.changes);
+        if (tr2.scrollIntoView) {
+          let { main: main2 } = tr2.state.selection;
+          let { x: x2, y: y2 } = this.state.facet(EditorView.cursorScrollMargin);
+          scrollTarget = new ScrollTarget(main2.empty ? main2 : EditorSelection.cursor(main2.head, main2.head > main2.anchor ? -1 : 1), "nearest", "nearest", y2, x2);
+        }
+        for (let e of tr2.effects)
+          if (e.is(scrollIntoView$1))
+            scrollTarget = e.value.clip(this.state);
+      }
+      this.viewState.update(update, scrollTarget);
+      this.bidiCache = CachedOrder.update(this.bidiCache, update.changes);
+      if (!update.empty) {
+        this.updatePlugins(update);
+        this.inputState.update(update);
+      }
+      redrawn = this.docView.update(update);
+      if (this.state.facet(styleModule) != this.styleModules)
+        this.mountStyles();
+      attrsChanged = this.updateAttrs();
+      this.showAnnouncements(transactions);
+      this.docView.updateSelection(redrawn, transactions.some((tr2) => tr2.isUserEvent("select.pointer")));
+    } finally {
+      this.updateState = 0;
+    }
+    if (update.startState.facet(theme) != update.state.facet(theme))
+      this.viewState.mustMeasureContent = true;
+    if (redrawn || attrsChanged || scrollTarget || this.viewState.mustEnforceCursorAssoc || this.viewState.mustMeasureContent)
+      this.requestMeasure();
+    if (redrawn)
+      this.docViewUpdate();
+    if (!update.empty)
+      for (let listener of this.state.facet(updateListener)) {
+        try {
+          listener(update);
+        } catch (e) {
+          logException(this.state, e, "update listener");
+        }
+      }
+    if (dispatchFocus || domChange)
+      Promise.resolve().then(() => {
+        if (dispatchFocus && this.state == dispatchFocus.startState)
+          this.dispatch(dispatchFocus);
+        if (domChange) {
+          if (!applyDOMChange(this, domChange) && pendingKey.force)
+            dispatchKey(this.contentDOM, pendingKey.key, pendingKey.keyCode);
         }
       });
-    };
-    _this2._getTextToReplace = function(currentTrigger) {
-      var triggerSettings = _this2.props.trigger[currentTrigger];
-      if (!currentTrigger || !triggerSettings)
-        return null;
-      var output = triggerSettings.output;
-      return function(item) {
-        if (typeof item === "object" && (!output || typeof output !== "function")) {
-          throw new Error('Output functor is not defined! If you are using items as object you have to define "output" function. https://github.com/webscopeio/react-textarea-autocomplete#trigger-type');
+  }
+  setState(newState) {
+    if (this.updateState != 0)
+      throw new Error("Calls to EditorView.setState are not allowed while an update is in progress");
+    if (this.destroyed) {
+      this.viewState.state = newState;
+      return;
+    }
+    this.updateState = 2;
+    let hadFocus = this.hasFocus;
+    try {
+      for (let plugin of this.plugins)
+        plugin.destroy(this);
+      this.viewState = new ViewState(this, newState);
+      this.plugins = newState.facet(viewPlugin).map((spec) => new PluginInstance(spec));
+      this.pluginMap.clear();
+      for (let plugin of this.plugins)
+        plugin.update(this);
+      this.docView.destroy();
+      this.docView = new DocView(this);
+      this.inputState.ensureHandlers(this.plugins);
+      this.mountStyles();
+      this.updateAttrs();
+      this.bidiCache = [];
+    } finally {
+      this.updateState = 0;
+    }
+    if (hadFocus)
+      this.focus();
+    this.requestMeasure();
+  }
+  updatePlugins(update) {
+    let prevSpecs = update.startState.facet(viewPlugin), specs = update.state.facet(viewPlugin);
+    if (prevSpecs != specs) {
+      let newPlugins = [];
+      for (let spec of specs) {
+        let found = prevSpecs.indexOf(spec);
+        if (found < 0) {
+          newPlugins.push(new PluginInstance(spec));
+        } else {
+          let plugin = this.plugins[found];
+          plugin.mustUpdate = update;
+          newPlugins.push(plugin);
         }
-        if (output) {
-          var textToReplace = output(item, currentTrigger);
-          if (textToReplace === void 0 || typeof textToReplace === "number") {
-            throw new Error('Output functor should return string or object in shape {text: string, caretPosition: string | number}.\nGot "'.concat(String(textToReplace), '". Check the implementation for trigger "').concat(currentTrigger, '"\n\nSee https://github.com/webscopeio/react-textarea-autocomplete#trigger-type for more information.\n'));
+      }
+      for (let plugin of this.plugins)
+        if (plugin.mustUpdate != update)
+          plugin.destroy(this);
+      this.plugins = newPlugins;
+      this.pluginMap.clear();
+    } else {
+      for (let p2 of this.plugins)
+        p2.mustUpdate = update;
+    }
+    for (let i2 = 0; i2 < this.plugins.length; i2++)
+      this.plugins[i2].update(this);
+    if (prevSpecs != specs)
+      this.inputState.ensureHandlers(this.plugins);
+  }
+  docViewUpdate() {
+    for (let plugin of this.plugins) {
+      let val = plugin.value;
+      if (val && val.docViewUpdate) {
+        try {
+          val.docViewUpdate(this);
+        } catch (e) {
+          logException(this.state, e, "doc view update listener");
+        }
+      }
+    }
+  }
+  measure(flush = true) {
+    if (this.destroyed)
+      return;
+    if (this.measureScheduled > -1)
+      this.win.cancelAnimationFrame(this.measureScheduled);
+    if (this.observer.delayedAndroidKey) {
+      this.measureScheduled = -1;
+      this.requestMeasure();
+      return;
+    }
+    this.measureScheduled = 0;
+    if (flush)
+      this.observer.forceFlush();
+    let updated = null;
+    let scroll = this.viewState.scrollParent, scrollOffset = this.viewState.getScrollOffset();
+    let { scrollAnchorPos, scrollAnchorHeight, scaleY: scrollScale } = this.viewState;
+    if (Math.abs(scrollOffset - this.viewState.scrollOffset) > 1)
+      scrollAnchorHeight = -1;
+    this.viewState.scrollAnchorHeight = -1;
+    try {
+      for (let i2 = 0; ; i2++) {
+        if (scrollAnchorHeight < 0) {
+          if (isScrolledToBottom(scroll || this.win)) {
+            scrollAnchorPos = -1;
+            scrollAnchorHeight = this.viewState.heightMap.height / this.viewState.scaleY;
+          } else {
+            let block = this.viewState.scrollAnchorAt(scrollOffset);
+            scrollAnchorPos = block.from;
+            scrollAnchorHeight = block.top;
           }
-          if (textToReplace === null)
-            return null;
-          if (typeof textToReplace === "string") {
+          scrollScale = this.viewState.scaleY;
+        }
+        this.updateState = 1;
+        let changed = this.viewState.measure();
+        if (!changed && !this.measureRequests.length && this.viewState.scrollTarget == null)
+          break;
+        if (i2 > 5) {
+          console.warn(this.measureRequests.length ? "Measure loop restarted more than 5 times" : "Viewport failed to stabilize");
+          break;
+        }
+        let measuring = [];
+        if (!(changed & 4))
+          [this.measureRequests, measuring] = [measuring, this.measureRequests];
+        let measured = measuring.map((m2) => {
+          try {
+            return m2.read(this);
+          } catch (e) {
+            logException(this.state, e);
+            return BadMeasure;
+          }
+        });
+        let update = ViewUpdate.create(this, this.state, []), redrawn = false;
+        update.flags |= changed;
+        if (!updated)
+          updated = update;
+        else
+          updated.flags |= changed;
+        this.updateState = 2;
+        if (!update.empty) {
+          this.updatePlugins(update);
+          this.inputState.update(update);
+          this.updateAttrs();
+          redrawn = this.docView.update(update);
+          if (redrawn)
+            this.docViewUpdate();
+        }
+        for (let i3 = 0; i3 < measuring.length; i3++)
+          if (measured[i3] != BadMeasure) {
+            try {
+              let m2 = measuring[i3];
+              if (m2.write)
+                m2.write(measured[i3], this);
+            } catch (e) {
+              logException(this.state, e);
+            }
+          }
+        if (redrawn)
+          this.docView.updateSelection(true);
+        if (!update.viewportChanged && this.measureRequests.length == 0) {
+          if (this.viewState.editorHeight) {
+            if (this.viewState.scrollTarget) {
+              this.docView.scrollIntoView(this.viewState.scrollTarget);
+              this.viewState.scrollTarget = null;
+              scrollAnchorHeight = -1;
+              continue;
+            } else {
+              let newAnchorHeight = scrollAnchorPos < 0 ? this.viewState.heightMap.height : this.viewState.lineBlockAt(scrollAnchorPos).top;
+              let diff = newAnchorHeight / this.viewState.scaleY - scrollAnchorHeight / scrollScale;
+              if ((diff > 1 || diff < -1) && !(browser.ios && this.inputState.lastIOSMomentumScroll > Date.now() - 100) && (scroll == this.scrollDOM || this.hasFocus || Math.max(this.inputState.lastWheelEvent, this.inputState.lastTouchTime) > Date.now() - 100)) {
+                scrollOffset = scrollOffset + diff;
+                if (!scroll)
+                  this.win.scrollBy(0, diff);
+                else if (scrollAnchorPos < 0)
+                  scroll.scrollTop = scroll.scrollHeight;
+                else
+                  scroll.scrollTop += diff;
+                scrollAnchorHeight = -1;
+                continue;
+              }
+            }
+          }
+          break;
+        }
+      }
+    } finally {
+      this.updateState = 0;
+      this.measureScheduled = -1;
+    }
+    if (updated && !updated.empty)
+      for (let listener of this.state.facet(updateListener))
+        listener(updated);
+  }
+  get themeClasses() {
+    return baseThemeID + " " + (this.state.facet(darkTheme) ? baseDarkID : baseLightID) + " " + this.state.facet(theme);
+  }
+  updateAttrs() {
+    let editorAttrs = attrsFromFacet(this, editorAttributes, {
+      class: "cm-editor" + (this.hasFocus ? " cm-focused " : " ") + this.themeClasses
+    });
+    let contentAttrs = {
+      spellcheck: "false",
+      autocorrect: "off",
+      autocapitalize: "off",
+      writingsuggestions: "false",
+      translate: "no",
+      contenteditable: !this.state.facet(editable) ? "false" : "true",
+      class: "cm-content",
+      style: `${browser.tabSize}: ${this.state.tabSize}`,
+      role: "textbox",
+      "aria-multiline": "true"
+    };
+    if (this.state.readOnly)
+      contentAttrs["aria-readonly"] = "true";
+    attrsFromFacet(this, contentAttributes, contentAttrs);
+    let changed = this.observer.ignore(() => {
+      let changedContent = updateAttrs(this.contentDOM, this.contentAttrs, contentAttrs);
+      let changedEditor = updateAttrs(this.dom, this.editorAttrs, editorAttrs);
+      return changedContent || changedEditor;
+    });
+    this.editorAttrs = editorAttrs;
+    this.contentAttrs = contentAttrs;
+    return changed;
+  }
+  showAnnouncements(trs) {
+    let first = true;
+    for (let tr2 of trs)
+      for (let effect2 of tr2.effects)
+        if (effect2.is(EditorView.announce)) {
+          if (first)
+            this.announceDOM.textContent = "";
+          first = false;
+          let div = this.announceDOM.appendChild(document.createElement("div"));
+          div.textContent = effect2.value;
+        }
+  }
+  mountStyles() {
+    this.styleModules = this.state.facet(styleModule);
+    let nonce = this.state.facet(EditorView.cspNonce);
+    StyleModule.mount(this.root, this.styleModules.concat(baseTheme$1).reverse(), nonce ? { nonce } : void 0);
+  }
+  readMeasured() {
+    if (this.updateState == 2)
+      throw new Error("Reading the editor layout isn't allowed during an update");
+    if (this.updateState == 0 && this.measureScheduled > -1)
+      this.measure(false);
+  }
+  requestMeasure(request) {
+    if (this.measureScheduled < 0)
+      this.measureScheduled = this.win.requestAnimationFrame(() => this.measure());
+    if (request) {
+      if (this.measureRequests.indexOf(request) > -1)
+        return;
+      if (request.key != null)
+        for (let i2 = 0; i2 < this.measureRequests.length; i2++) {
+          if (this.measureRequests[i2].key === request.key) {
+            this.measureRequests[i2] = request;
+            return;
+          }
+        }
+      this.measureRequests.push(request);
+    }
+  }
+  plugin(plugin) {
+    let known = this.pluginMap.get(plugin);
+    if (known === void 0 || known && known.plugin != plugin)
+      this.pluginMap.set(plugin, known = this.plugins.find((p2) => p2.plugin == plugin) || null);
+    return known && known.update(this).value;
+  }
+  get documentTop() {
+    return this.contentDOM.getBoundingClientRect().top + this.viewState.paddingTop;
+  }
+  get documentPadding() {
+    return { top: this.viewState.paddingTop, bottom: this.viewState.paddingBottom };
+  }
+  get scaleX() {
+    return this.viewState.scaleX;
+  }
+  get scaleY() {
+    return this.viewState.scaleY;
+  }
+  elementAtHeight(height) {
+    this.readMeasured();
+    return this.viewState.elementAtHeight(height);
+  }
+  lineBlockAtHeight(height) {
+    this.readMeasured();
+    return this.viewState.lineBlockAtHeight(height);
+  }
+  get viewportLineBlocks() {
+    return this.viewState.viewportLines;
+  }
+  lineBlockAt(pos) {
+    return this.viewState.lineBlockAt(pos);
+  }
+  get contentHeight() {
+    return this.viewState.contentHeight;
+  }
+  moveByChar(start2, forward, by) {
+    return skipAtoms(this, start2, moveByChar(this, start2, forward, by));
+  }
+  moveByGroup(start2, forward) {
+    return skipAtoms(this, start2, moveByChar(this, start2, forward, (initial) => byGroup(this, start2.head, initial)));
+  }
+  visualLineSide(line, end2) {
+    let order2 = this.bidiSpans(line), dir = this.textDirectionAt(line.from);
+    let span = order2[end2 ? order2.length - 1 : 0];
+    return EditorSelection.cursor(span.side(end2, dir) + line.from, span.forward(!end2, dir) ? 1 : -1);
+  }
+  moveToLineBoundary(start2, forward, includeWrap = true) {
+    return moveToLineBoundary(this, start2, forward, includeWrap);
+  }
+  moveVertically(start2, forward, distance2) {
+    return skipAtoms(this, start2, moveVertically(this, start2, forward, distance2));
+  }
+  domAtPos(pos, side = 1) {
+    return this.docView.domAtPos(pos, side);
+  }
+  posAtDOM(node, offset2 = 0) {
+    return this.docView.posFromDOM(node, offset2);
+  }
+  posAtCoords(coords, precise = true) {
+    this.readMeasured();
+    let found = posAtCoords(this, coords, precise);
+    return found && found.pos;
+  }
+  posAndSideAtCoords(coords, precise = true) {
+    this.readMeasured();
+    return posAtCoords(this, coords, precise);
+  }
+  coordsAtPos(pos, side = 1) {
+    this.readMeasured();
+    let line = this.state.doc.lineAt(pos), order2 = this.bidiSpans(line);
+    let span = order2[BidiSpan.find(order2, pos - line.from, -1, side)];
+    return this.docView.coordsAt(pos, side, span.dir == Direction.RTL);
+  }
+  coordsForChar(pos) {
+    this.readMeasured();
+    return this.docView.coordsForChar(pos);
+  }
+  get defaultCharacterWidth() {
+    return this.viewState.heightOracle.charWidth;
+  }
+  get defaultLineHeight() {
+    return this.viewState.heightOracle.lineHeight;
+  }
+  get textDirection() {
+    return this.viewState.defaultTextDirection;
+  }
+  textDirectionAt(pos) {
+    let perLine = this.state.facet(perLineTextDirection);
+    if (!perLine || pos < this.viewport.from || pos > this.viewport.to)
+      return this.textDirection;
+    this.readMeasured();
+    return this.docView.textDirectionAt(pos);
+  }
+  get lineWrapping() {
+    return this.viewState.heightOracle.lineWrapping;
+  }
+  bidiSpans(line) {
+    if (line.length > MaxBidiLine)
+      return trivialOrder(line.length);
+    let dir = this.textDirectionAt(line.from), isolates;
+    for (let entry of this.bidiCache) {
+      if (entry.from == line.from && entry.dir == dir && (entry.fresh || isolatesEq(entry.isolates, isolates = getIsolatedRanges(this, line))))
+        return entry.order;
+    }
+    if (!isolates)
+      isolates = getIsolatedRanges(this, line);
+    let order2 = computeOrder(line.text, dir, isolates);
+    this.bidiCache.push(new CachedOrder(line.from, line.to, dir, isolates, true, order2));
+    return order2;
+  }
+  get hasFocus() {
+    var _a2;
+    return (this.dom.ownerDocument.hasFocus() || browser.safari && ((_a2 = this.inputState) === null || _a2 === void 0 ? void 0 : _a2.lastContextMenu) > Date.now() - 3e4) && this.root.activeElement == this.contentDOM;
+  }
+  focus() {
+    this.observer.ignore(() => {
+      focusPreventScroll(this.contentDOM);
+      this.docView.updateSelection();
+    });
+  }
+  setRoot(root) {
+    if (this._root != root) {
+      this._root = root;
+      this.observer.setWindow((root.nodeType == 9 ? root : root.ownerDocument).defaultView || window);
+      this.mountStyles();
+    }
+  }
+  destroy() {
+    if (this.root.activeElement == this.contentDOM)
+      this.contentDOM.blur();
+    for (let plugin of this.plugins)
+      plugin.destroy(this);
+    this.plugins = [];
+    this.inputState.destroy();
+    this.docView.destroy();
+    this.dom.remove();
+    this.observer.destroy();
+    if (this.measureScheduled > -1)
+      this.win.cancelAnimationFrame(this.measureScheduled);
+    this.destroyed = true;
+  }
+  static scrollIntoView(pos, options = {}) {
+    var _a2, _b, _c, _d;
+    return scrollIntoView$1.of(new ScrollTarget(typeof pos == "number" ? EditorSelection.cursor(pos) : pos, (_a2 = options.y) !== null && _a2 !== void 0 ? _a2 : "nearest", (_b = options.x) !== null && _b !== void 0 ? _b : "nearest", (_c = options.yMargin) !== null && _c !== void 0 ? _c : 5, (_d = options.xMargin) !== null && _d !== void 0 ? _d : 5));
+  }
+  scrollSnapshot() {
+    let { scrollTop, scrollLeft } = this.scrollDOM;
+    let ref = this.viewState.scrollAnchorAt(scrollTop);
+    return scrollIntoView$1.of(new ScrollTarget(EditorSelection.cursor(ref.from), "start", "start", ref.top - scrollTop, scrollLeft, true));
+  }
+  setTabFocusMode(to) {
+    if (to == null)
+      this.inputState.tabFocusMode = this.inputState.tabFocusMode < 0 ? 0 : -1;
+    else if (typeof to == "boolean")
+      this.inputState.tabFocusMode = to ? 0 : -1;
+    else if (this.inputState.tabFocusMode != 0)
+      this.inputState.tabFocusMode = Date.now() + to;
+  }
+  static domEventHandlers(handlers2) {
+    return ViewPlugin.define(() => ({}), { eventHandlers: handlers2 });
+  }
+  static domEventObservers(observers2) {
+    return ViewPlugin.define(() => ({}), { eventObservers: observers2 });
+  }
+  static theme(spec, options) {
+    let prefix = StyleModule.newName();
+    let result = [theme.of(prefix), styleModule.of(buildTheme(`.${prefix}`, spec))];
+    if (options && options.dark)
+      result.push(darkTheme.of(true));
+    return result;
+  }
+  static baseTheme(spec) {
+    return Prec.lowest(styleModule.of(buildTheme("." + baseThemeID, spec, lightDarkIDs)));
+  }
+  static findFromDOM(dom) {
+    var _a2;
+    let content2 = dom.querySelector(".cm-content");
+    let tile = content2 && Tile.get(content2) || Tile.get(dom);
+    return ((_a2 = tile === null || tile === void 0 ? void 0 : tile.root) === null || _a2 === void 0 ? void 0 : _a2.view) || null;
+  }
+}
+EditorView.styleModule = styleModule;
+EditorView.inputHandler = inputHandler;
+EditorView.clipboardInputFilter = clipboardInputFilter;
+EditorView.clipboardOutputFilter = clipboardOutputFilter;
+EditorView.scrollHandler = scrollHandler;
+EditorView.focusChangeEffect = focusChangeEffect;
+EditorView.perLineTextDirection = perLineTextDirection;
+EditorView.exceptionSink = exceptionSink;
+EditorView.updateListener = updateListener;
+EditorView.editable = editable;
+EditorView.mouseSelectionStyle = mouseSelectionStyle;
+EditorView.dragMovesSelection = dragMovesSelection$1;
+EditorView.clickAddsSelectionRange = clickAddsSelectionRange;
+EditorView.decorations = decorations;
+EditorView.blockWrappers = blockWrappers;
+EditorView.outerDecorations = outerDecorations;
+EditorView.atomicRanges = atomicRanges;
+EditorView.bidiIsolatedRanges = bidiIsolatedRanges;
+EditorView.cursorScrollMargin = /* @__PURE__ */ Facet.define({
+  combine: (inputs) => {
+    let x2 = 5, y2 = 5;
+    for (let i2 of inputs) {
+      if (typeof i2 == "number")
+        x2 = y2 = i2;
+      else
+        ({ x: x2, y: y2 } = i2);
+    }
+    return { x: x2, y: y2 };
+  }
+});
+EditorView.scrollMargins = scrollMargins;
+EditorView.darkTheme = darkTheme;
+EditorView.cspNonce = /* @__PURE__ */ Facet.define({ combine: (values) => values.length ? values[0] : "" });
+EditorView.contentAttributes = contentAttributes;
+EditorView.editorAttributes = editorAttributes;
+EditorView.lineWrapping = /* @__PURE__ */ EditorView.contentAttributes.of({ "class": "cm-lineWrapping" });
+EditorView.announce = /* @__PURE__ */ StateEffect.define();
+const MaxBidiLine = 4096;
+const BadMeasure = {};
+class CachedOrder {
+  constructor(from, to, dir, isolates, fresh, order2) {
+    this.from = from;
+    this.to = to;
+    this.dir = dir;
+    this.isolates = isolates;
+    this.fresh = fresh;
+    this.order = order2;
+  }
+  static update(cache, changes) {
+    if (changes.empty && !cache.some((c) => c.fresh))
+      return cache;
+    let result = [], lastDir = cache.length ? cache[cache.length - 1].dir : Direction.LTR;
+    for (let i2 = Math.max(0, cache.length - 10); i2 < cache.length; i2++) {
+      let entry = cache[i2];
+      if (entry.dir == lastDir && !changes.touchesRange(entry.from, entry.to))
+        result.push(new CachedOrder(changes.mapPos(entry.from, 1), changes.mapPos(entry.to, -1), entry.dir, entry.isolates, false, entry.order));
+    }
+    return result;
+  }
+}
+function attrsFromFacet(view, facet, base2) {
+  for (let sources = view.state.facet(facet), i2 = sources.length - 1; i2 >= 0; i2--) {
+    let source = sources[i2], value = typeof source == "function" ? source(view) : source;
+    if (value)
+      combineAttrs(value, base2);
+  }
+  return base2;
+}
+const currentPlatform = browser.mac ? "mac" : browser.windows ? "win" : browser.linux ? "linux" : "key";
+function normalizeKeyName(name2, platform) {
+  const parts = name2.split(/-(?!$)/);
+  let result = parts[parts.length - 1];
+  if (result == "Space")
+    result = " ";
+  let alt, ctrl, shift2, meta2;
+  for (let i2 = 0; i2 < parts.length - 1; ++i2) {
+    const mod = parts[i2];
+    if (/^(cmd|meta|m)$/i.test(mod))
+      meta2 = true;
+    else if (/^a(lt)?$/i.test(mod))
+      alt = true;
+    else if (/^(c|ctrl|control)$/i.test(mod))
+      ctrl = true;
+    else if (/^s(hift)?$/i.test(mod))
+      shift2 = true;
+    else if (/^mod$/i.test(mod)) {
+      if (platform == "mac")
+        meta2 = true;
+      else
+        ctrl = true;
+    } else
+      throw new Error("Unrecognized modifier name: " + mod);
+  }
+  if (alt)
+    result = "Alt-" + result;
+  if (ctrl)
+    result = "Ctrl-" + result;
+  if (meta2)
+    result = "Meta-" + result;
+  if (shift2)
+    result = "Shift-" + result;
+  return result;
+}
+function modifiers(name2, event, shift2) {
+  if (event.altKey)
+    name2 = "Alt-" + name2;
+  if (event.ctrlKey)
+    name2 = "Ctrl-" + name2;
+  if (event.metaKey)
+    name2 = "Meta-" + name2;
+  if (shift2 !== false && event.shiftKey)
+    name2 = "Shift-" + name2;
+  return name2;
+}
+const handleKeyEvents = /* @__PURE__ */ Prec.default(/* @__PURE__ */ EditorView.domEventHandlers({
+  keydown(event, view) {
+    return runHandlers(getKeymap(view.state), event, view, "editor");
+  }
+}));
+const keymap = /* @__PURE__ */ Facet.define({ enables: handleKeyEvents });
+const Keymaps = /* @__PURE__ */ new WeakMap();
+function getKeymap(state) {
+  let bindings = state.facet(keymap);
+  let map = Keymaps.get(bindings);
+  if (!map)
+    Keymaps.set(bindings, map = buildKeymap(bindings.reduce((a, b) => a.concat(b), [])));
+  return map;
+}
+let storedPrefix = null;
+const PrefixTimeout = 4e3;
+function buildKeymap(bindings, platform = currentPlatform) {
+  let bound = /* @__PURE__ */ Object.create(null);
+  let isPrefix = /* @__PURE__ */ Object.create(null);
+  let checkPrefix = (name2, is) => {
+    let current = isPrefix[name2];
+    if (current == null)
+      isPrefix[name2] = is;
+    else if (current != is)
+      throw new Error("Key binding " + name2 + " is used both as a regular binding and as a multi-stroke prefix");
+  };
+  let add = (scope, key, command2, preventDefault, stopPropagation) => {
+    var _a2, _b;
+    let scopeObj = bound[scope] || (bound[scope] = /* @__PURE__ */ Object.create(null));
+    let parts = key.split(/ (?!$)/).map((k) => normalizeKeyName(k, platform));
+    for (let i2 = 1; i2 < parts.length; i2++) {
+      let prefix = parts.slice(0, i2).join(" ");
+      checkPrefix(prefix, true);
+      if (!scopeObj[prefix])
+        scopeObj[prefix] = {
+          preventDefault: true,
+          stopPropagation: false,
+          run: [(view) => {
+            let ourObj = storedPrefix = { view, prefix, scope };
+            setTimeout(() => {
+              if (storedPrefix == ourObj)
+                storedPrefix = null;
+            }, PrefixTimeout);
+            return true;
+          }]
+        };
+    }
+    let full = parts.join(" ");
+    checkPrefix(full, false);
+    let binding = scopeObj[full] || (scopeObj[full] = {
+      preventDefault: false,
+      stopPropagation: false,
+      run: ((_b = (_a2 = scopeObj._any) === null || _a2 === void 0 ? void 0 : _a2.run) === null || _b === void 0 ? void 0 : _b.slice()) || []
+    });
+    if (command2)
+      binding.run.push(command2);
+    if (preventDefault)
+      binding.preventDefault = true;
+    if (stopPropagation)
+      binding.stopPropagation = true;
+  };
+  for (let b of bindings) {
+    let scopes = b.scope ? b.scope.split(" ") : ["editor"];
+    if (b.any)
+      for (let scope of scopes) {
+        let scopeObj = bound[scope] || (bound[scope] = /* @__PURE__ */ Object.create(null));
+        if (!scopeObj._any)
+          scopeObj._any = { preventDefault: false, stopPropagation: false, run: [] };
+        let { any } = b;
+        for (let key in scopeObj)
+          scopeObj[key].run.push((view) => any(view, currentKeyEvent));
+      }
+    let name2 = b[platform] || b.key;
+    if (!name2)
+      continue;
+    for (let scope of scopes) {
+      add(scope, name2, b.run, b.preventDefault, b.stopPropagation);
+      if (b.shift)
+        add(scope, "Shift-" + name2, b.shift, b.preventDefault, b.stopPropagation);
+    }
+  }
+  return bound;
+}
+let currentKeyEvent = null;
+function runHandlers(map, event, view, scope) {
+  currentKeyEvent = event;
+  let name2 = keyName(event);
+  let charCode = codePointAt(name2, 0), isChar = codePointSize(charCode) == name2.length && name2 != " ";
+  let prefix = "", handled = false, prevented = false, stopPropagation = false;
+  if (storedPrefix && storedPrefix.view == view && storedPrefix.scope == scope) {
+    prefix = storedPrefix.prefix + " ";
+    if (modifierCodes.indexOf(event.keyCode) < 0) {
+      prevented = true;
+      storedPrefix = null;
+    }
+  }
+  let ran = /* @__PURE__ */ new Set();
+  let runFor = (binding) => {
+    if (binding) {
+      for (let cmd2 of binding.run)
+        if (!ran.has(cmd2)) {
+          ran.add(cmd2);
+          if (cmd2(view)) {
+            if (binding.stopPropagation)
+              stopPropagation = true;
+            return true;
+          }
+        }
+      if (binding.preventDefault) {
+        if (binding.stopPropagation)
+          stopPropagation = true;
+        prevented = true;
+      }
+    }
+    return false;
+  };
+  let scopeObj = map[scope], baseName, shiftName;
+  if (scopeObj) {
+    if (runFor(scopeObj[prefix + modifiers(name2, event, !isChar)])) {
+      handled = true;
+    } else if (isChar && (event.altKey || event.metaKey || event.ctrlKey) && !(browser.windows && event.ctrlKey && event.altKey) && !(browser.mac && event.altKey && !(event.ctrlKey || event.metaKey)) && (baseName = base[event.keyCode]) && baseName != name2) {
+      if (runFor(scopeObj[prefix + modifiers(baseName, event, true)])) {
+        handled = true;
+      } else if (event.shiftKey && (shiftName = shift[event.keyCode]) != name2 && shiftName != baseName && runFor(scopeObj[prefix + modifiers(shiftName, event, false)])) {
+        handled = true;
+      }
+    } else if (isChar && event.shiftKey && runFor(scopeObj[prefix + modifiers(name2, event, true)])) {
+      handled = true;
+    }
+    if (!handled && runFor(scopeObj._any))
+      handled = true;
+  }
+  if (prevented)
+    handled = true;
+  if (handled && stopPropagation)
+    event.stopPropagation();
+  currentKeyEvent = null;
+  return handled;
+}
+class Placeholder extends WidgetType {
+  constructor(content2) {
+    super();
+    this.content = content2;
+  }
+  toDOM(view) {
+    let wrap = document.createElement("span");
+    wrap.className = "cm-placeholder";
+    wrap.style.pointerEvents = "none";
+    wrap.appendChild(typeof this.content == "string" ? document.createTextNode(this.content) : typeof this.content == "function" ? this.content(view) : this.content.cloneNode(true));
+    wrap.setAttribute("aria-hidden", "true");
+    return wrap;
+  }
+  coordsAt(dom) {
+    let rects = dom.firstChild ? clientRectsFor(dom.firstChild) : [];
+    if (!rects.length)
+      return null;
+    let style = window.getComputedStyle(dom.parentNode);
+    let rect = flattenRect(rects[0], style.direction != "rtl");
+    let lineHeight = parseInt(style.lineHeight);
+    if (rect.bottom - rect.top > lineHeight * 1.5)
+      return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.top + lineHeight };
+    return rect;
+  }
+  ignoreEvent() {
+    return false;
+  }
+}
+function placeholder(content2) {
+  let plugin = ViewPlugin.fromClass(class {
+    constructor(view) {
+      this.view = view;
+      this.placeholder = content2 ? Decoration.set([Decoration.widget({ widget: new Placeholder(content2), side: 1 }).range(0)]) : Decoration.none;
+    }
+    get decorations() {
+      return this.view.state.doc.length ? Decoration.none : this.placeholder;
+    }
+  }, { decorations: (v2) => v2.decorations });
+  return typeof content2 == "string" ? [
+    plugin,
+    EditorView.contentAttributes.of({ "aria-placeholder": content2 })
+  ] : plugin;
+}
+const Outside = "-10000px";
+class TooltipViewManager {
+  constructor(view, facet, createTooltipView, removeTooltipView) {
+    this.facet = facet;
+    this.createTooltipView = createTooltipView;
+    this.removeTooltipView = removeTooltipView;
+    this.input = view.state.facet(facet);
+    this.tooltips = this.input.filter((t2) => t2);
+    let prev = null;
+    this.tooltipViews = this.tooltips.map((t2) => prev = createTooltipView(t2, prev));
+  }
+  update(update, above) {
+    var _a2;
+    let input = update.state.facet(this.facet);
+    let tooltips = input.filter((x2) => x2);
+    if (input === this.input) {
+      for (let t2 of this.tooltipViews)
+        if (t2.update)
+          t2.update(update);
+      return false;
+    }
+    let tooltipViews = [], newAbove = above ? [] : null;
+    for (let i2 = 0; i2 < tooltips.length; i2++) {
+      let tip = tooltips[i2], known = -1;
+      if (!tip)
+        continue;
+      for (let i3 = 0; i3 < this.tooltips.length; i3++) {
+        let other = this.tooltips[i3];
+        if (other && other.create == tip.create)
+          known = i3;
+      }
+      if (known < 0) {
+        tooltipViews[i2] = this.createTooltipView(tip, i2 ? tooltipViews[i2 - 1] : null);
+        if (newAbove)
+          newAbove[i2] = !!tip.above;
+      } else {
+        let tooltipView = tooltipViews[i2] = this.tooltipViews[known];
+        if (newAbove)
+          newAbove[i2] = above[known];
+        if (tooltipView.update)
+          tooltipView.update(update);
+      }
+    }
+    for (let t2 of this.tooltipViews)
+      if (tooltipViews.indexOf(t2) < 0) {
+        this.removeTooltipView(t2);
+        (_a2 = t2.destroy) === null || _a2 === void 0 ? void 0 : _a2.call(t2);
+      }
+    if (above) {
+      newAbove.forEach((val, i2) => above[i2] = val);
+      above.length = newAbove.length;
+    }
+    this.input = input;
+    this.tooltips = tooltips;
+    this.tooltipViews = tooltipViews;
+    return true;
+  }
+}
+function windowSpace(view) {
+  let docElt = view.dom.ownerDocument.documentElement;
+  return { top: 0, left: 0, bottom: docElt.clientHeight, right: docElt.clientWidth };
+}
+const tooltipConfig = /* @__PURE__ */ Facet.define({
+  combine: (values) => {
+    var _a2, _b, _c;
+    return {
+      position: browser.ios ? "absolute" : ((_a2 = values.find((conf) => conf.position)) === null || _a2 === void 0 ? void 0 : _a2.position) || "fixed",
+      parent: ((_b = values.find((conf) => conf.parent)) === null || _b === void 0 ? void 0 : _b.parent) || null,
+      tooltipSpace: ((_c = values.find((conf) => conf.tooltipSpace)) === null || _c === void 0 ? void 0 : _c.tooltipSpace) || windowSpace
+    };
+  }
+});
+const knownHeight = /* @__PURE__ */ new WeakMap();
+const tooltipPlugin = /* @__PURE__ */ ViewPlugin.fromClass(class {
+  constructor(view) {
+    this.view = view;
+    this.above = [];
+    this.inView = true;
+    this.madeAbsolute = false;
+    this.lastTransaction = 0;
+    this.measureTimeout = -1;
+    let config = view.state.facet(tooltipConfig);
+    this.position = config.position;
+    this.parent = config.parent;
+    this.classes = view.themeClasses;
+    this.createContainer();
+    this.measureReq = { read: this.readMeasure.bind(this), write: this.writeMeasure.bind(this), key: this };
+    this.resizeObserver = typeof ResizeObserver == "function" ? new ResizeObserver(() => this.measureSoon()) : null;
+    this.manager = new TooltipViewManager(view, showTooltip, (t2, p2) => this.createTooltip(t2, p2), (t2) => {
+      if (this.resizeObserver)
+        this.resizeObserver.unobserve(t2.dom);
+      t2.dom.remove();
+    });
+    this.above = this.manager.tooltips.map((t2) => !!t2.above);
+    this.intersectionObserver = typeof IntersectionObserver == "function" ? new IntersectionObserver((entries) => {
+      if (Date.now() > this.lastTransaction - 50 && entries.length > 0 && entries[entries.length - 1].intersectionRatio < 1)
+        this.measureSoon();
+    }, { threshold: [1] }) : null;
+    this.observeIntersection();
+    view.win.addEventListener("resize", this.measureSoon = this.measureSoon.bind(this));
+    this.maybeMeasure();
+  }
+  createContainer() {
+    if (this.parent) {
+      this.container = document.createElement("div");
+      this.container.style.position = "relative";
+      this.container.className = this.view.themeClasses;
+      this.parent.appendChild(this.container);
+    } else {
+      this.container = this.view.dom;
+    }
+  }
+  observeIntersection() {
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      for (let tooltip of this.manager.tooltipViews)
+        this.intersectionObserver.observe(tooltip.dom);
+    }
+  }
+  measureSoon() {
+    if (this.measureTimeout < 0)
+      this.measureTimeout = setTimeout(() => {
+        this.measureTimeout = -1;
+        this.maybeMeasure();
+      }, 50);
+  }
+  update(update) {
+    if (update.transactions.length)
+      this.lastTransaction = Date.now();
+    let updated = this.manager.update(update, this.above);
+    if (updated)
+      this.observeIntersection();
+    let shouldMeasure = updated || update.geometryChanged;
+    let newConfig = update.state.facet(tooltipConfig);
+    if (newConfig.position != this.position && !this.madeAbsolute) {
+      this.position = newConfig.position;
+      for (let t2 of this.manager.tooltipViews)
+        t2.dom.style.position = this.position;
+      shouldMeasure = true;
+    }
+    if (newConfig.parent != this.parent) {
+      if (this.parent)
+        this.container.remove();
+      this.parent = newConfig.parent;
+      this.createContainer();
+      for (let t2 of this.manager.tooltipViews)
+        this.container.appendChild(t2.dom);
+      shouldMeasure = true;
+    } else if (this.parent && this.view.themeClasses != this.classes) {
+      this.classes = this.container.className = this.view.themeClasses;
+    }
+    if (shouldMeasure)
+      this.maybeMeasure();
+  }
+  createTooltip(tooltip, prev) {
+    let tooltipView = tooltip.create(this.view);
+    let before = prev ? prev.dom : null;
+    tooltipView.dom.classList.add("cm-tooltip");
+    if (tooltip.arrow && !tooltipView.dom.querySelector(".cm-tooltip > .cm-tooltip-arrow")) {
+      let arrow2 = document.createElement("div");
+      arrow2.className = "cm-tooltip-arrow";
+      tooltipView.dom.appendChild(arrow2);
+    }
+    tooltipView.dom.style.position = this.position;
+    tooltipView.dom.style.top = Outside;
+    tooltipView.dom.style.left = "0px";
+    this.container.insertBefore(tooltipView.dom, before);
+    if (tooltipView.mount)
+      tooltipView.mount(this.view);
+    if (this.resizeObserver)
+      this.resizeObserver.observe(tooltipView.dom);
+    return tooltipView;
+  }
+  destroy() {
+    var _a2, _b, _c;
+    this.view.win.removeEventListener("resize", this.measureSoon);
+    for (let tooltipView of this.manager.tooltipViews) {
+      tooltipView.dom.remove();
+      (_a2 = tooltipView.destroy) === null || _a2 === void 0 ? void 0 : _a2.call(tooltipView);
+    }
+    if (this.parent)
+      this.container.remove();
+    (_b = this.resizeObserver) === null || _b === void 0 ? void 0 : _b.disconnect();
+    (_c = this.intersectionObserver) === null || _c === void 0 ? void 0 : _c.disconnect();
+    clearTimeout(this.measureTimeout);
+  }
+  readMeasure() {
+    let scaleX = 1, scaleY = 1, makeAbsolute = false;
+    if (this.position == "fixed" && this.manager.tooltipViews.length) {
+      let { dom } = this.manager.tooltipViews[0];
+      if (browser.safari) {
+        let rect = dom.getBoundingClientRect();
+        makeAbsolute = Math.abs(rect.top + 1e4) > 1 || Math.abs(rect.left) > 1;
+      } else {
+        makeAbsolute = !!dom.offsetParent && dom.offsetParent != this.container.ownerDocument.body;
+      }
+    }
+    if (makeAbsolute || this.position == "absolute") {
+      if (this.parent) {
+        let rect = this.parent.getBoundingClientRect();
+        if (rect.width && rect.height) {
+          scaleX = rect.width / this.parent.offsetWidth;
+          scaleY = rect.height / this.parent.offsetHeight;
+        }
+      } else {
+        ({ scaleX, scaleY } = this.view.viewState);
+      }
+    }
+    let visible = this.view.scrollDOM.getBoundingClientRect(), margins = getScrollMargins(this.view);
+    return {
+      visible: {
+        left: visible.left + margins.left,
+        top: visible.top + margins.top,
+        right: visible.right - margins.right,
+        bottom: visible.bottom - margins.bottom
+      },
+      parent: this.parent ? this.container.getBoundingClientRect() : this.view.dom.getBoundingClientRect(),
+      pos: this.manager.tooltips.map((t2, i2) => {
+        let tv = this.manager.tooltipViews[i2];
+        return tv.getCoords ? tv.getCoords(t2.pos) : this.view.coordsAtPos(t2.pos);
+      }),
+      size: this.manager.tooltipViews.map(({ dom }) => dom.getBoundingClientRect()),
+      space: this.view.state.facet(tooltipConfig).tooltipSpace(this.view),
+      scaleX,
+      scaleY,
+      makeAbsolute
+    };
+  }
+  writeMeasure(measured) {
+    var _a2;
+    if (measured.makeAbsolute) {
+      this.madeAbsolute = true;
+      this.position = "absolute";
+      for (let t2 of this.manager.tooltipViews)
+        t2.dom.style.position = "absolute";
+    }
+    let { visible, space, scaleX, scaleY } = measured;
+    let others = [];
+    for (let i2 = 0; i2 < this.manager.tooltips.length; i2++) {
+      let tooltip = this.manager.tooltips[i2], tView = this.manager.tooltipViews[i2], { dom } = tView;
+      let pos = measured.pos[i2], size = measured.size[i2];
+      if (!pos || tooltip.clip !== false && (pos.bottom <= Math.max(visible.top, space.top) || pos.top >= Math.min(visible.bottom, space.bottom) || pos.right < Math.max(visible.left, space.left) - 0.1 || pos.left > Math.min(visible.right, space.right) + 0.1)) {
+        dom.style.top = Outside;
+        continue;
+      }
+      let arrow2 = tooltip.arrow ? tView.dom.querySelector(".cm-tooltip-arrow") : null;
+      let arrowHeight = arrow2 ? 7 : 0;
+      let width = size.right - size.left, height = (_a2 = knownHeight.get(tView)) !== null && _a2 !== void 0 ? _a2 : size.bottom - size.top;
+      let offset2 = tView.offset || noOffset, ltr = this.view.textDirection == Direction.LTR;
+      let left2 = size.width > space.right - space.left ? ltr ? space.left : space.right - size.width : ltr ? Math.max(space.left, Math.min(pos.left - (arrow2 ? 14 : 0) + offset2.x, space.right - width)) : Math.min(Math.max(space.left, pos.left - width + (arrow2 ? 14 : 0) - offset2.x), space.right - width);
+      let above = this.above[i2];
+      if (!tooltip.strictSide && (above ? pos.top - height - arrowHeight - offset2.y < space.top : pos.bottom + height + arrowHeight + offset2.y > space.bottom) && above == space.bottom - pos.bottom > pos.top - space.top)
+        above = this.above[i2] = !above;
+      let spaceVert = (above ? pos.top - space.top : space.bottom - pos.bottom) - arrowHeight;
+      if (spaceVert < height && tView.resize !== false) {
+        if (spaceVert < this.view.defaultLineHeight) {
+          dom.style.top = Outside;
+          continue;
+        }
+        knownHeight.set(tView, height);
+        dom.style.height = (height = spaceVert) / scaleY + "px";
+      } else if (dom.style.height) {
+        dom.style.height = "";
+      }
+      let top2 = above ? pos.top - height - arrowHeight - offset2.y : pos.bottom + arrowHeight + offset2.y;
+      let right2 = left2 + width;
+      if (tView.overlap !== true) {
+        for (let r2 of others)
+          if (r2.left < right2 && r2.right > left2 && r2.top < top2 + height && r2.bottom > top2)
+            top2 = above ? r2.top - height - 2 - arrowHeight : r2.bottom + arrowHeight + 2;
+      }
+      if (this.position == "absolute") {
+        dom.style.top = (top2 - measured.parent.top) / scaleY + "px";
+        setLeftStyle(dom, (left2 - measured.parent.left) / scaleX);
+      } else {
+        dom.style.top = top2 / scaleY + "px";
+        setLeftStyle(dom, left2 / scaleX);
+      }
+      if (arrow2) {
+        let arrowLeft = pos.left + (ltr ? offset2.x : -offset2.x) - (left2 + 14 - 7);
+        arrow2.style.left = arrowLeft / scaleX + "px";
+      }
+      if (tView.overlap !== true)
+        others.push({ left: left2, top: top2, right: right2, bottom: top2 + height });
+      dom.classList.toggle("cm-tooltip-above", above);
+      dom.classList.toggle("cm-tooltip-below", !above);
+      if (tView.positioned)
+        tView.positioned(measured.space);
+    }
+  }
+  maybeMeasure() {
+    if (this.manager.tooltips.length) {
+      if (this.view.inView)
+        this.view.requestMeasure(this.measureReq);
+      if (this.inView != this.view.inView) {
+        this.inView = this.view.inView;
+        if (!this.inView)
+          for (let tv of this.manager.tooltipViews)
+            tv.dom.style.top = Outside;
+      }
+    }
+  }
+}, {
+  eventObservers: {
+    scroll() {
+      this.maybeMeasure();
+    }
+  }
+});
+function setLeftStyle(elt, value) {
+  let current = parseInt(elt.style.left, 10);
+  if (isNaN(current) || Math.abs(value - current) > 1)
+    elt.style.left = value + "px";
+}
+const baseTheme$2 = /* @__PURE__ */ EditorView.baseTheme({
+  ".cm-tooltip": {
+    zIndex: 500,
+    boxSizing: "border-box"
+  },
+  "&light .cm-tooltip": {
+    border: "1px solid #bbb",
+    backgroundColor: "#f5f5f5"
+  },
+  "&light .cm-tooltip-section:not(:first-child)": {
+    borderTop: "1px solid #bbb"
+  },
+  "&dark .cm-tooltip": {
+    backgroundColor: "#333338",
+    color: "white"
+  },
+  ".cm-tooltip-arrow": {
+    height: `${7}px`,
+    width: `${7 * 2}px`,
+    position: "absolute",
+    zIndex: -1,
+    overflow: "hidden",
+    "&:before, &:after": {
+      content: "''",
+      position: "absolute",
+      width: 0,
+      height: 0,
+      borderLeft: `${7}px solid transparent`,
+      borderRight: `${7}px solid transparent`
+    },
+    ".cm-tooltip-above &": {
+      bottom: `-${7}px`,
+      "&:before": {
+        borderTop: `${7}px solid #bbb`
+      },
+      "&:after": {
+        borderTop: `${7}px solid #f5f5f5`,
+        bottom: "1px"
+      }
+    },
+    ".cm-tooltip-below &": {
+      top: `-${7}px`,
+      "&:before": {
+        borderBottom: `${7}px solid #bbb`
+      },
+      "&:after": {
+        borderBottom: `${7}px solid #f5f5f5`,
+        top: "1px"
+      }
+    }
+  },
+  "&dark .cm-tooltip .cm-tooltip-arrow": {
+    "&:before": {
+      borderTopColor: "#333338",
+      borderBottomColor: "#333338"
+    },
+    "&:after": {
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent"
+    }
+  }
+});
+const noOffset = { x: 0, y: 0 };
+const showTooltip = /* @__PURE__ */ Facet.define({
+  enables: [tooltipPlugin, baseTheme$2]
+});
+function getTooltip(view, tooltip) {
+  let plugin = view.plugin(tooltipPlugin);
+  if (!plugin)
+    return null;
+  let found = plugin.manager.tooltips.indexOf(tooltip);
+  return found < 0 ? null : plugin.manager.tooltipViews[found];
+}
+class GutterMarker extends RangeValue {
+  compare(other) {
+    return this == other || this.constructor == other.constructor && this.eq(other);
+  }
+  eq(other) {
+    return false;
+  }
+  destroy(dom) {
+  }
+}
+GutterMarker.prototype.elementClass = "";
+GutterMarker.prototype.toDOM = void 0;
+GutterMarker.prototype.mapMode = MapMode.TrackBefore;
+GutterMarker.prototype.startSide = GutterMarker.prototype.endSide = -1;
+GutterMarker.prototype.point = true;
+const DefaultBufferLength = 1024;
+let nextPropID = 0;
+class Range {
+  constructor(from, to) {
+    this.from = from;
+    this.to = to;
+  }
+}
+class NodeProp {
+  constructor(config = {}) {
+    this.id = nextPropID++;
+    this.perNode = !!config.perNode;
+    this.deserialize = config.deserialize || (() => {
+      throw new Error("This node type doesn't define a deserialize function");
+    });
+    this.combine = config.combine || null;
+  }
+  add(match) {
+    if (this.perNode)
+      throw new RangeError("Can't add per-node props to node types");
+    if (typeof match != "function")
+      match = NodeType.match(match);
+    return (type) => {
+      let result = match(type);
+      return result === void 0 ? null : [this, result];
+    };
+  }
+}
+NodeProp.closedBy = new NodeProp({ deserialize: (str) => str.split(" ") });
+NodeProp.openedBy = new NodeProp({ deserialize: (str) => str.split(" ") });
+NodeProp.group = new NodeProp({ deserialize: (str) => str.split(" ") });
+NodeProp.isolate = new NodeProp({ deserialize: (value) => {
+  if (value && value != "rtl" && value != "ltr" && value != "auto")
+    throw new RangeError("Invalid value for isolate: " + value);
+  return value || "auto";
+} });
+NodeProp.contextHash = new NodeProp({ perNode: true });
+NodeProp.lookAhead = new NodeProp({ perNode: true });
+NodeProp.mounted = new NodeProp({ perNode: true });
+class MountedTree {
+  constructor(tree, overlay, parser, bracketed = false) {
+    this.tree = tree;
+    this.overlay = overlay;
+    this.parser = parser;
+    this.bracketed = bracketed;
+  }
+  static get(tree) {
+    return tree && tree.props && tree.props[NodeProp.mounted.id];
+  }
+}
+const noProps = /* @__PURE__ */ Object.create(null);
+class NodeType {
+  constructor(name2, props, id2, flags = 0) {
+    this.name = name2;
+    this.props = props;
+    this.id = id2;
+    this.flags = flags;
+  }
+  static define(spec) {
+    let props = spec.props && spec.props.length ? /* @__PURE__ */ Object.create(null) : noProps;
+    let flags = (spec.top ? 1 : 0) | (spec.skipped ? 2 : 0) | (spec.error ? 4 : 0) | (spec.name == null ? 8 : 0);
+    let type = new NodeType(spec.name || "", props, spec.id, flags);
+    if (spec.props)
+      for (let src of spec.props) {
+        if (!Array.isArray(src))
+          src = src(type);
+        if (src) {
+          if (src[0].perNode)
+            throw new RangeError("Can't store a per-node prop on a node type");
+          props[src[0].id] = src[1];
+        }
+      }
+    return type;
+  }
+  prop(prop) {
+    return this.props[prop.id];
+  }
+  get isTop() {
+    return (this.flags & 1) > 0;
+  }
+  get isSkipped() {
+    return (this.flags & 2) > 0;
+  }
+  get isError() {
+    return (this.flags & 4) > 0;
+  }
+  get isAnonymous() {
+    return (this.flags & 8) > 0;
+  }
+  is(name2) {
+    if (typeof name2 == "string") {
+      if (this.name == name2)
+        return true;
+      let group = this.prop(NodeProp.group);
+      return group ? group.indexOf(name2) > -1 : false;
+    }
+    return this.id == name2;
+  }
+  static match(map) {
+    let direct = /* @__PURE__ */ Object.create(null);
+    for (let prop in map)
+      for (let name2 of prop.split(" "))
+        direct[name2] = map[prop];
+    return (node) => {
+      for (let groups = node.prop(NodeProp.group), i2 = -1; i2 < (groups ? groups.length : 0); i2++) {
+        let found = direct[i2 < 0 ? node.name : groups[i2]];
+        if (found)
+          return found;
+      }
+    };
+  }
+}
+NodeType.none = new NodeType("", /* @__PURE__ */ Object.create(null), 0, 8);
+const CachedNode = /* @__PURE__ */ new WeakMap(), CachedInnerNode = /* @__PURE__ */ new WeakMap();
+var IterMode;
+(function(IterMode2) {
+  IterMode2[IterMode2["ExcludeBuffers"] = 1] = "ExcludeBuffers";
+  IterMode2[IterMode2["IncludeAnonymous"] = 2] = "IncludeAnonymous";
+  IterMode2[IterMode2["IgnoreMounts"] = 4] = "IgnoreMounts";
+  IterMode2[IterMode2["IgnoreOverlays"] = 8] = "IgnoreOverlays";
+  IterMode2[IterMode2["EnterBracketed"] = 16] = "EnterBracketed";
+})(IterMode || (IterMode = {}));
+class Tree {
+  constructor(type, children, positions, length, props) {
+    this.type = type;
+    this.children = children;
+    this.positions = positions;
+    this.length = length;
+    this.props = null;
+    if (props && props.length) {
+      this.props = /* @__PURE__ */ Object.create(null);
+      for (let [prop, value] of props)
+        this.props[typeof prop == "number" ? prop : prop.id] = value;
+    }
+  }
+  toString() {
+    let mounted = MountedTree.get(this);
+    if (mounted && !mounted.overlay)
+      return mounted.tree.toString();
+    let children = "";
+    for (let ch2 of this.children) {
+      let str = ch2.toString();
+      if (str) {
+        if (children)
+          children += ",";
+        children += str;
+      }
+    }
+    return !this.type.name ? children : (/\W/.test(this.type.name) && !this.type.isError ? JSON.stringify(this.type.name) : this.type.name) + (children.length ? "(" + children + ")" : "");
+  }
+  cursor(mode = 0) {
+    return new TreeCursor(this.topNode, mode);
+  }
+  cursorAt(pos, side = 0, mode = 0) {
+    let scope = CachedNode.get(this) || this.topNode;
+    let cursor = new TreeCursor(scope);
+    cursor.moveTo(pos, side);
+    CachedNode.set(this, cursor._tree);
+    return cursor;
+  }
+  get topNode() {
+    return new TreeNode(this, 0, 0, null);
+  }
+  resolve(pos, side = 0) {
+    let node = resolveNode(CachedNode.get(this) || this.topNode, pos, side, false);
+    CachedNode.set(this, node);
+    return node;
+  }
+  resolveInner(pos, side = 0) {
+    let node = resolveNode(CachedInnerNode.get(this) || this.topNode, pos, side, true);
+    CachedInnerNode.set(this, node);
+    return node;
+  }
+  resolveStack(pos, side = 0) {
+    return stackIterator(this, pos, side);
+  }
+  iterate(spec) {
+    let { enter, leave, from = 0, to = this.length } = spec;
+    let mode = spec.mode || 0, anon = (mode & IterMode.IncludeAnonymous) > 0;
+    for (let c = this.cursor(mode | IterMode.IncludeAnonymous); ; ) {
+      let entered = false;
+      if (c.from <= to && c.to >= from && (!anon && c.type.isAnonymous || enter(c) !== false)) {
+        if (c.firstChild())
+          continue;
+        entered = true;
+      }
+      for (; ; ) {
+        if (entered && leave && (anon || !c.type.isAnonymous))
+          leave(c);
+        if (c.nextSibling())
+          break;
+        if (!c.parent())
+          return;
+        entered = true;
+      }
+    }
+  }
+  prop(prop) {
+    return !prop.perNode ? this.type.prop(prop) : this.props ? this.props[prop.id] : void 0;
+  }
+  get propValues() {
+    let result = [];
+    if (this.props)
+      for (let id2 in this.props)
+        result.push([+id2, this.props[id2]]);
+    return result;
+  }
+  balance(config = {}) {
+    return this.children.length <= 8 ? this : balanceRange(NodeType.none, this.children, this.positions, 0, this.children.length, 0, this.length, (children, positions, length) => new Tree(this.type, children, positions, length, this.propValues), config.makeTree || ((children, positions, length) => new Tree(NodeType.none, children, positions, length)));
+  }
+  static build(data) {
+    return buildTree(data);
+  }
+}
+Tree.empty = new Tree(NodeType.none, [], [], 0);
+class FlatBufferCursor {
+  constructor(buffer, index) {
+    this.buffer = buffer;
+    this.index = index;
+  }
+  get id() {
+    return this.buffer[this.index - 4];
+  }
+  get start() {
+    return this.buffer[this.index - 3];
+  }
+  get end() {
+    return this.buffer[this.index - 2];
+  }
+  get size() {
+    return this.buffer[this.index - 1];
+  }
+  get pos() {
+    return this.index;
+  }
+  next() {
+    this.index -= 4;
+  }
+  fork() {
+    return new FlatBufferCursor(this.buffer, this.index);
+  }
+}
+class TreeBuffer {
+  constructor(buffer, length, set) {
+    this.buffer = buffer;
+    this.length = length;
+    this.set = set;
+  }
+  get type() {
+    return NodeType.none;
+  }
+  toString() {
+    let result = [];
+    for (let index = 0; index < this.buffer.length; ) {
+      result.push(this.childString(index));
+      index = this.buffer[index + 3];
+    }
+    return result.join(",");
+  }
+  childString(index) {
+    let id2 = this.buffer[index], endIndex = this.buffer[index + 3];
+    let type = this.set.types[id2], result = type.name;
+    if (/\W/.test(result) && !type.isError)
+      result = JSON.stringify(result);
+    index += 4;
+    if (endIndex == index)
+      return result;
+    let children = [];
+    while (index < endIndex) {
+      children.push(this.childString(index));
+      index = this.buffer[index + 3];
+    }
+    return result + "(" + children.join(",") + ")";
+  }
+  findChild(startIndex, endIndex, dir, pos, side) {
+    let { buffer } = this, pick = -1;
+    for (let i2 = startIndex; i2 != endIndex; i2 = buffer[i2 + 3]) {
+      if (checkSide(side, pos, buffer[i2 + 1], buffer[i2 + 2])) {
+        pick = i2;
+        if (dir > 0)
+          break;
+      }
+    }
+    return pick;
+  }
+  slice(startI, endI, from) {
+    let b = this.buffer;
+    let copy = new Uint16Array(endI - startI), len = 0;
+    for (let i2 = startI, j = 0; i2 < endI; ) {
+      copy[j++] = b[i2++];
+      copy[j++] = b[i2++] - from;
+      let to = copy[j++] = b[i2++] - from;
+      copy[j++] = b[i2++] - startI;
+      len = Math.max(len, to);
+    }
+    return new TreeBuffer(copy, len, this.set);
+  }
+}
+function checkSide(side, pos, from, to) {
+  switch (side) {
+    case -2:
+      return from < pos;
+    case -1:
+      return to >= pos && from < pos;
+    case 0:
+      return from < pos && to > pos;
+    case 1:
+      return from <= pos && to > pos;
+    case 2:
+      return to > pos;
+    case 4:
+      return true;
+  }
+}
+function resolveNode(node, pos, side, overlays) {
+  var _a2;
+  while (node.from == node.to || (side < 1 ? node.from >= pos : node.from > pos) || (side > -1 ? node.to <= pos : node.to < pos)) {
+    let parent = !overlays && node instanceof TreeNode && node.index < 0 ? null : node.parent;
+    if (!parent)
+      return node;
+    node = parent;
+  }
+  let mode = overlays ? 0 : IterMode.IgnoreOverlays;
+  if (overlays)
+    for (let scan = node, parent = scan.parent; parent; scan = parent, parent = scan.parent) {
+      if (scan instanceof TreeNode && scan.index < 0 && ((_a2 = parent.enter(pos, side, mode)) === null || _a2 === void 0 ? void 0 : _a2.from) != scan.from)
+        node = parent;
+    }
+  for (; ; ) {
+    let inner = node.enter(pos, side, mode);
+    if (!inner)
+      return node;
+    node = inner;
+  }
+}
+class BaseNode {
+  cursor(mode = 0) {
+    return new TreeCursor(this, mode);
+  }
+  getChild(type, before = null, after = null) {
+    let r2 = getChildren(this, type, before, after);
+    return r2.length ? r2[0] : null;
+  }
+  getChildren(type, before = null, after = null) {
+    return getChildren(this, type, before, after);
+  }
+  resolve(pos, side = 0) {
+    return resolveNode(this, pos, side, false);
+  }
+  resolveInner(pos, side = 0) {
+    return resolveNode(this, pos, side, true);
+  }
+  matchContext(context) {
+    return matchNodeContext(this.parent, context);
+  }
+  enterUnfinishedNodesBefore(pos) {
+    let scan = this.childBefore(pos), node = this;
+    while (scan) {
+      let last2 = scan.lastChild;
+      if (!last2 || last2.to != scan.to)
+        break;
+      if (last2.type.isError && last2.from == last2.to) {
+        node = scan;
+        scan = last2.prevSibling;
+      } else {
+        scan = last2;
+      }
+    }
+    return node;
+  }
+  get node() {
+    return this;
+  }
+  get next() {
+    return this.parent;
+  }
+}
+class TreeNode extends BaseNode {
+  constructor(_tree, from, index, _parent) {
+    super();
+    this._tree = _tree;
+    this.from = from;
+    this.index = index;
+    this._parent = _parent;
+  }
+  get type() {
+    return this._tree.type;
+  }
+  get name() {
+    return this._tree.type.name;
+  }
+  get to() {
+    return this.from + this._tree.length;
+  }
+  nextChild(i2, dir, pos, side, mode = 0) {
+    for (let parent = this; ; ) {
+      for (let { children, positions } = parent._tree, e = dir > 0 ? children.length : -1; i2 != e; i2 += dir) {
+        let next = children[i2], start2 = positions[i2] + parent.from, mounted;
+        if (!(mode & IterMode.EnterBracketed && next instanceof Tree && (mounted = MountedTree.get(next)) && !mounted.overlay && mounted.bracketed && pos >= start2 && pos <= start2 + next.length) && !checkSide(side, pos, start2, start2 + next.length))
+          continue;
+        if (next instanceof TreeBuffer) {
+          if (mode & IterMode.ExcludeBuffers)
+            continue;
+          let index = next.findChild(0, next.buffer.length, dir, pos - start2, side);
+          if (index > -1)
+            return new BufferNode(new BufferContext(parent, next, i2, start2), null, index);
+        } else if (mode & IterMode.IncludeAnonymous || (!next.type.isAnonymous || hasChild(next))) {
+          let mounted2;
+          if (!(mode & IterMode.IgnoreMounts) && (mounted2 = MountedTree.get(next)) && !mounted2.overlay)
+            return new TreeNode(mounted2.tree, start2, i2, parent);
+          let inner = new TreeNode(next, start2, i2, parent);
+          return mode & IterMode.IncludeAnonymous || !inner.type.isAnonymous ? inner : inner.nextChild(dir < 0 ? next.children.length - 1 : 0, dir, pos, side, mode);
+        }
+      }
+      if (mode & IterMode.IncludeAnonymous || !parent.type.isAnonymous)
+        return null;
+      if (parent.index >= 0)
+        i2 = parent.index + dir;
+      else
+        i2 = dir < 0 ? -1 : parent._parent._tree.children.length;
+      parent = parent._parent;
+      if (!parent)
+        return null;
+    }
+  }
+  get firstChild() {
+    return this.nextChild(0, 1, 0, 4);
+  }
+  get lastChild() {
+    return this.nextChild(this._tree.children.length - 1, -1, 0, 4);
+  }
+  childAfter(pos) {
+    return this.nextChild(0, 1, pos, 2);
+  }
+  childBefore(pos) {
+    return this.nextChild(this._tree.children.length - 1, -1, pos, -2);
+  }
+  prop(prop) {
+    return this._tree.prop(prop);
+  }
+  enter(pos, side, mode = 0) {
+    let mounted;
+    if (!(mode & IterMode.IgnoreOverlays) && (mounted = MountedTree.get(this._tree)) && mounted.overlay) {
+      let rPos = pos - this.from, enterBracketed = mode & IterMode.EnterBracketed && mounted.bracketed;
+      for (let { from, to } of mounted.overlay) {
+        if ((side > 0 || enterBracketed ? from <= rPos : from < rPos) && (side < 0 || enterBracketed ? to >= rPos : to > rPos))
+          return new TreeNode(mounted.tree, mounted.overlay[0].from + this.from, -1, this);
+      }
+    }
+    return this.nextChild(0, 1, pos, side, mode);
+  }
+  nextSignificantParent() {
+    let val = this;
+    while (val.type.isAnonymous && val._parent)
+      val = val._parent;
+    return val;
+  }
+  get parent() {
+    return this._parent ? this._parent.nextSignificantParent() : null;
+  }
+  get nextSibling() {
+    return this._parent && this.index >= 0 ? this._parent.nextChild(this.index + 1, 1, 0, 4) : null;
+  }
+  get prevSibling() {
+    return this._parent && this.index >= 0 ? this._parent.nextChild(this.index - 1, -1, 0, 4) : null;
+  }
+  get tree() {
+    return this._tree;
+  }
+  toTree() {
+    return this._tree;
+  }
+  toString() {
+    return this._tree.toString();
+  }
+}
+function getChildren(node, type, before, after) {
+  let cur2 = node.cursor(), result = [];
+  if (!cur2.firstChild())
+    return result;
+  if (before != null)
+    for (let found = false; !found; ) {
+      found = cur2.type.is(before);
+      if (!cur2.nextSibling())
+        return result;
+    }
+  for (; ; ) {
+    if (after != null && cur2.type.is(after))
+      return result;
+    if (cur2.type.is(type))
+      result.push(cur2.node);
+    if (!cur2.nextSibling())
+      return after == null ? result : [];
+  }
+}
+function matchNodeContext(node, context, i2 = context.length - 1) {
+  for (let p2 = node; i2 >= 0; p2 = p2.parent) {
+    if (!p2)
+      return false;
+    if (!p2.type.isAnonymous) {
+      if (context[i2] && context[i2] != p2.name)
+        return false;
+      i2--;
+    }
+  }
+  return true;
+}
+class BufferContext {
+  constructor(parent, buffer, index, start2) {
+    this.parent = parent;
+    this.buffer = buffer;
+    this.index = index;
+    this.start = start2;
+  }
+}
+class BufferNode extends BaseNode {
+  get name() {
+    return this.type.name;
+  }
+  get from() {
+    return this.context.start + this.context.buffer.buffer[this.index + 1];
+  }
+  get to() {
+    return this.context.start + this.context.buffer.buffer[this.index + 2];
+  }
+  constructor(context, _parent, index) {
+    super();
+    this.context = context;
+    this._parent = _parent;
+    this.index = index;
+    this.type = context.buffer.set.types[context.buffer.buffer[index]];
+  }
+  child(dir, pos, side) {
+    let { buffer } = this.context;
+    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, pos - this.context.start, side);
+    return index < 0 ? null : new BufferNode(this.context, this, index);
+  }
+  get firstChild() {
+    return this.child(1, 0, 4);
+  }
+  get lastChild() {
+    return this.child(-1, 0, 4);
+  }
+  childAfter(pos) {
+    return this.child(1, pos, 2);
+  }
+  childBefore(pos) {
+    return this.child(-1, pos, -2);
+  }
+  prop(prop) {
+    return this.type.prop(prop);
+  }
+  enter(pos, side, mode = 0) {
+    if (mode & IterMode.ExcludeBuffers)
+      return null;
+    let { buffer } = this.context;
+    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], side > 0 ? 1 : -1, pos - this.context.start, side);
+    return index < 0 ? null : new BufferNode(this.context, this, index);
+  }
+  get parent() {
+    return this._parent || this.context.parent.nextSignificantParent();
+  }
+  externalSibling(dir) {
+    return this._parent ? null : this.context.parent.nextChild(this.context.index + dir, dir, 0, 4);
+  }
+  get nextSibling() {
+    let { buffer } = this.context;
+    let after = buffer.buffer[this.index + 3];
+    if (after < (this._parent ? buffer.buffer[this._parent.index + 3] : buffer.buffer.length))
+      return new BufferNode(this.context, this._parent, after);
+    return this.externalSibling(1);
+  }
+  get prevSibling() {
+    let { buffer } = this.context;
+    let parentStart = this._parent ? this._parent.index + 4 : 0;
+    if (this.index == parentStart)
+      return this.externalSibling(-1);
+    return new BufferNode(this.context, this._parent, buffer.findChild(parentStart, this.index, -1, 0, 4));
+  }
+  get tree() {
+    return null;
+  }
+  toTree() {
+    let children = [], positions = [];
+    let { buffer } = this.context;
+    let startI = this.index + 4, endI = buffer.buffer[this.index + 3];
+    if (endI > startI) {
+      let from = buffer.buffer[this.index + 1];
+      children.push(buffer.slice(startI, endI, from));
+      positions.push(0);
+    }
+    return new Tree(this.type, children, positions, this.to - this.from);
+  }
+  toString() {
+    return this.context.buffer.childString(this.index);
+  }
+}
+function iterStack(heads) {
+  if (!heads.length)
+    return null;
+  let pick = 0, picked = heads[0];
+  for (let i2 = 1; i2 < heads.length; i2++) {
+    let node = heads[i2];
+    if (node.from > picked.from || node.to < picked.to) {
+      picked = node;
+      pick = i2;
+    }
+  }
+  let next = picked instanceof TreeNode && picked.index < 0 ? null : picked.parent;
+  let newHeads = heads.slice();
+  if (next)
+    newHeads[pick] = next;
+  else
+    newHeads.splice(pick, 1);
+  return new StackIterator(newHeads, picked);
+}
+class StackIterator {
+  constructor(heads, node) {
+    this.heads = heads;
+    this.node = node;
+  }
+  get next() {
+    return iterStack(this.heads);
+  }
+}
+function stackIterator(tree, pos, side) {
+  let inner = tree.resolveInner(pos, side), layers = null;
+  for (let scan = inner instanceof TreeNode ? inner : inner.context.parent; scan; scan = scan.parent) {
+    if (scan.index < 0) {
+      let parent = scan.parent;
+      (layers || (layers = [inner])).push(parent.resolve(pos, side));
+      scan = parent;
+    } else {
+      let mount = MountedTree.get(scan.tree);
+      if (mount && mount.overlay && mount.overlay[0].from <= pos && mount.overlay[mount.overlay.length - 1].to >= pos) {
+        let root = new TreeNode(mount.tree, mount.overlay[0].from + scan.from, -1, scan);
+        (layers || (layers = [inner])).push(resolveNode(root, pos, side, false));
+      }
+    }
+  }
+  return layers ? iterStack(layers) : inner;
+}
+class TreeCursor {
+  get name() {
+    return this.type.name;
+  }
+  constructor(node, mode = 0) {
+    this.buffer = null;
+    this.stack = [];
+    this.index = 0;
+    this.bufferNode = null;
+    this.mode = mode & ~IterMode.EnterBracketed;
+    if (node instanceof TreeNode) {
+      this.yieldNode(node);
+    } else {
+      this._tree = node.context.parent;
+      this.buffer = node.context;
+      for (let n2 = node._parent; n2; n2 = n2._parent)
+        this.stack.unshift(n2.index);
+      this.bufferNode = node;
+      this.yieldBuf(node.index);
+    }
+  }
+  yieldNode(node) {
+    if (!node)
+      return false;
+    this._tree = node;
+    this.type = node.type;
+    this.from = node.from;
+    this.to = node.to;
+    return true;
+  }
+  yieldBuf(index, type) {
+    this.index = index;
+    let { start: start2, buffer } = this.buffer;
+    this.type = type || buffer.set.types[buffer.buffer[index]];
+    this.from = start2 + buffer.buffer[index + 1];
+    this.to = start2 + buffer.buffer[index + 2];
+    return true;
+  }
+  yield(node) {
+    if (!node)
+      return false;
+    if (node instanceof TreeNode) {
+      this.buffer = null;
+      return this.yieldNode(node);
+    }
+    this.buffer = node.context;
+    return this.yieldBuf(node.index, node.type);
+  }
+  toString() {
+    return this.buffer ? this.buffer.buffer.childString(this.index) : this._tree.toString();
+  }
+  enterChild(dir, pos, side) {
+    if (!this.buffer)
+      return this.yield(this._tree.nextChild(dir < 0 ? this._tree._tree.children.length - 1 : 0, dir, pos, side, this.mode));
+    let { buffer } = this.buffer;
+    let index = buffer.findChild(this.index + 4, buffer.buffer[this.index + 3], dir, pos - this.buffer.start, side);
+    if (index < 0)
+      return false;
+    this.stack.push(this.index);
+    return this.yieldBuf(index);
+  }
+  firstChild() {
+    return this.enterChild(1, 0, 4);
+  }
+  lastChild() {
+    return this.enterChild(-1, 0, 4);
+  }
+  childAfter(pos) {
+    return this.enterChild(1, pos, 2);
+  }
+  childBefore(pos) {
+    return this.enterChild(-1, pos, -2);
+  }
+  enter(pos, side, mode = this.mode) {
+    if (!this.buffer)
+      return this.yield(this._tree.enter(pos, side, mode));
+    return mode & IterMode.ExcludeBuffers ? false : this.enterChild(1, pos, side);
+  }
+  parent() {
+    if (!this.buffer)
+      return this.yieldNode(this.mode & IterMode.IncludeAnonymous ? this._tree._parent : this._tree.parent);
+    if (this.stack.length)
+      return this.yieldBuf(this.stack.pop());
+    let parent = this.mode & IterMode.IncludeAnonymous ? this.buffer.parent : this.buffer.parent.nextSignificantParent();
+    this.buffer = null;
+    return this.yieldNode(parent);
+  }
+  sibling(dir) {
+    if (!this.buffer)
+      return !this._tree._parent ? false : this.yield(this._tree.index < 0 ? null : this._tree._parent.nextChild(this._tree.index + dir, dir, 0, 4, this.mode));
+    let { buffer } = this.buffer, d = this.stack.length - 1;
+    if (dir < 0) {
+      let parentStart = d < 0 ? 0 : this.stack[d] + 4;
+      if (this.index != parentStart)
+        return this.yieldBuf(buffer.findChild(parentStart, this.index, -1, 0, 4));
+    } else {
+      let after = buffer.buffer[this.index + 3];
+      if (after < (d < 0 ? buffer.buffer.length : buffer.buffer[this.stack[d] + 3]))
+        return this.yieldBuf(after);
+    }
+    return d < 0 ? this.yield(this.buffer.parent.nextChild(this.buffer.index + dir, dir, 0, 4, this.mode)) : false;
+  }
+  nextSibling() {
+    return this.sibling(1);
+  }
+  prevSibling() {
+    return this.sibling(-1);
+  }
+  atLastNode(dir) {
+    let index, parent, { buffer } = this;
+    if (buffer) {
+      if (dir > 0) {
+        if (this.index < buffer.buffer.buffer.length)
+          return false;
+      } else {
+        for (let i2 = 0; i2 < this.index; i2++)
+          if (buffer.buffer.buffer[i2 + 3] < this.index)
+            return false;
+      }
+      ({ index, parent } = buffer);
+    } else {
+      ({ index, _parent: parent } = this._tree);
+    }
+    for (; parent; { index, _parent: parent } = parent) {
+      if (index > -1)
+        for (let i2 = index + dir, e = dir < 0 ? -1 : parent._tree.children.length; i2 != e; i2 += dir) {
+          let child = parent._tree.children[i2];
+          if (this.mode & IterMode.IncludeAnonymous || child instanceof TreeBuffer || !child.type.isAnonymous || hasChild(child))
+            return false;
+        }
+    }
+    return true;
+  }
+  move(dir, enter) {
+    if (enter && this.enterChild(dir, 0, 4))
+      return true;
+    for (; ; ) {
+      if (this.sibling(dir))
+        return true;
+      if (this.atLastNode(dir) || !this.parent())
+        return false;
+    }
+  }
+  next(enter = true) {
+    return this.move(1, enter);
+  }
+  prev(enter = true) {
+    return this.move(-1, enter);
+  }
+  moveTo(pos, side = 0) {
+    while (this.from == this.to || (side < 1 ? this.from >= pos : this.from > pos) || (side > -1 ? this.to <= pos : this.to < pos))
+      if (!this.parent())
+        break;
+    while (this.enterChild(1, pos, side)) {
+    }
+    return this;
+  }
+  get node() {
+    if (!this.buffer)
+      return this._tree;
+    let cache = this.bufferNode, result = null, depth = 0;
+    if (cache && cache.context == this.buffer) {
+      scan:
+        for (let index = this.index, d = this.stack.length; d >= 0; ) {
+          for (let c = cache; c; c = c._parent)
+            if (c.index == index) {
+              if (index == this.index)
+                return c;
+              result = c;
+              depth = d + 1;
+              break scan;
+            }
+          index = this.stack[--d];
+        }
+    }
+    for (let i2 = depth; i2 < this.stack.length; i2++)
+      result = new BufferNode(this.buffer, result, this.stack[i2]);
+    return this.bufferNode = new BufferNode(this.buffer, result, this.index);
+  }
+  get tree() {
+    return this.buffer ? null : this._tree._tree;
+  }
+  iterate(enter, leave) {
+    for (let depth = 0; ; ) {
+      let mustLeave = false;
+      if (this.type.isAnonymous || enter(this) !== false) {
+        if (this.firstChild()) {
+          depth++;
+          continue;
+        }
+        if (!this.type.isAnonymous)
+          mustLeave = true;
+      }
+      for (; ; ) {
+        if (mustLeave && leave)
+          leave(this);
+        mustLeave = this.type.isAnonymous;
+        if (!depth)
+          return;
+        if (this.nextSibling())
+          break;
+        this.parent();
+        depth--;
+        mustLeave = true;
+      }
+    }
+  }
+  matchContext(context) {
+    if (!this.buffer)
+      return matchNodeContext(this.node.parent, context);
+    let { buffer } = this.buffer, { types: types2 } = buffer.set;
+    for (let i2 = context.length - 1, d = this.stack.length - 1; i2 >= 0; d--) {
+      if (d < 0)
+        return matchNodeContext(this._tree, context, i2);
+      let type = types2[buffer.buffer[this.stack[d]]];
+      if (!type.isAnonymous) {
+        if (context[i2] && context[i2] != type.name)
+          return false;
+        i2--;
+      }
+    }
+    return true;
+  }
+}
+function hasChild(tree) {
+  return tree.children.some((ch2) => ch2 instanceof TreeBuffer || !ch2.type.isAnonymous || hasChild(ch2));
+}
+function buildTree(data) {
+  var _a2;
+  let { buffer, nodeSet, maxBufferLength = DefaultBufferLength, reused = [], minRepeatType = nodeSet.types.length } = data;
+  let cursor = Array.isArray(buffer) ? new FlatBufferCursor(buffer, buffer.length) : buffer;
+  let types2 = nodeSet.types;
+  let contextHash = 0, lookAhead = 0;
+  function takeNode(parentStart, minPos, children2, positions2, inRepeat, depth) {
+    let { id: id2, start: start2, end: end2, size } = cursor;
+    let lookAheadAtStart = lookAhead, contextAtStart = contextHash;
+    if (size < 0) {
+      cursor.next();
+      if (size == -1) {
+        let node2 = reused[id2];
+        children2.push(node2);
+        positions2.push(start2 - parentStart);
+        return;
+      } else if (size == -3) {
+        contextHash = id2;
+        return;
+      } else if (size == -4) {
+        lookAhead = id2;
+        return;
+      } else {
+        throw new RangeError(`Unrecognized record size: ${size}`);
+      }
+    }
+    let type = types2[id2], node, buffer2;
+    let startPos = start2 - parentStart;
+    if (end2 - start2 <= maxBufferLength && (buffer2 = findBufferSize(cursor.pos - minPos, inRepeat))) {
+      let data2 = new Uint16Array(buffer2.size - buffer2.skip);
+      let endPos = cursor.pos - buffer2.size, index = data2.length;
+      while (cursor.pos > endPos)
+        index = copyToBuffer(buffer2.start, data2, index);
+      node = new TreeBuffer(data2, end2 - buffer2.start, nodeSet);
+      startPos = buffer2.start - parentStart;
+    } else {
+      let endPos = cursor.pos - size;
+      cursor.next();
+      let localChildren = [], localPositions = [];
+      let localInRepeat = id2 >= minRepeatType ? id2 : -1;
+      let lastGroup = 0, lastEnd = end2;
+      while (cursor.pos > endPos) {
+        if (localInRepeat >= 0 && cursor.id == localInRepeat && cursor.size >= 0) {
+          if (cursor.end <= lastEnd - maxBufferLength) {
+            makeRepeatLeaf(localChildren, localPositions, start2, lastGroup, cursor.end, lastEnd, localInRepeat, lookAheadAtStart, contextAtStart);
+            lastGroup = localChildren.length;
+            lastEnd = cursor.end;
+          }
+          cursor.next();
+        } else if (depth > 2500) {
+          takeFlatNode(start2, endPos, localChildren, localPositions);
+        } else {
+          takeNode(start2, endPos, localChildren, localPositions, localInRepeat, depth + 1);
+        }
+      }
+      if (localInRepeat >= 0 && lastGroup > 0 && lastGroup < localChildren.length)
+        makeRepeatLeaf(localChildren, localPositions, start2, lastGroup, start2, lastEnd, localInRepeat, lookAheadAtStart, contextAtStart);
+      localChildren.reverse();
+      localPositions.reverse();
+      if (localInRepeat > -1 && lastGroup > 0) {
+        let make = makeBalanced(type, contextAtStart);
+        node = balanceRange(type, localChildren, localPositions, 0, localChildren.length, 0, end2 - start2, make, make);
+      } else {
+        node = makeTree(type, localChildren, localPositions, end2 - start2, lookAheadAtStart - end2, contextAtStart);
+      }
+    }
+    children2.push(node);
+    positions2.push(startPos);
+  }
+  function takeFlatNode(parentStart, minPos, children2, positions2) {
+    let nodes = [];
+    let nodeCount = 0, stopAt = -1;
+    while (cursor.pos > minPos) {
+      let { id: id2, start: start2, end: end2, size } = cursor;
+      if (size > 4) {
+        cursor.next();
+      } else if (stopAt > -1 && start2 < stopAt) {
+        break;
+      } else {
+        if (stopAt < 0)
+          stopAt = end2 - maxBufferLength;
+        nodes.push(id2, start2, end2);
+        nodeCount++;
+        cursor.next();
+      }
+    }
+    if (nodeCount) {
+      let buffer2 = new Uint16Array(nodeCount * 4);
+      let start2 = nodes[nodes.length - 2];
+      for (let i2 = nodes.length - 3, j = 0; i2 >= 0; i2 -= 3) {
+        buffer2[j++] = nodes[i2];
+        buffer2[j++] = nodes[i2 + 1] - start2;
+        buffer2[j++] = nodes[i2 + 2] - start2;
+        buffer2[j++] = j;
+      }
+      children2.push(new TreeBuffer(buffer2, nodes[2] - start2, nodeSet));
+      positions2.push(start2 - parentStart);
+    }
+  }
+  function makeBalanced(type, contextHash2) {
+    return (children2, positions2, length2) => {
+      let lookAhead2 = 0, lastI = children2.length - 1, last2, lookAheadProp;
+      if (lastI >= 0 && (last2 = children2[lastI]) instanceof Tree) {
+        if (!lastI && last2.type == type && last2.length == length2)
+          return last2;
+        if (lookAheadProp = last2.prop(NodeProp.lookAhead))
+          lookAhead2 = positions2[lastI] + last2.length + lookAheadProp;
+      }
+      return makeTree(type, children2, positions2, length2, lookAhead2, contextHash2);
+    };
+  }
+  function makeRepeatLeaf(children2, positions2, base2, i2, from, to, type, lookAhead2, contextHash2) {
+    let localChildren = [], localPositions = [];
+    while (children2.length > i2) {
+      localChildren.push(children2.pop());
+      localPositions.push(positions2.pop() + base2 - from);
+    }
+    children2.push(makeTree(nodeSet.types[type], localChildren, localPositions, to - from, lookAhead2 - to, contextHash2));
+    positions2.push(from - base2);
+  }
+  function makeTree(type, children2, positions2, length2, lookAhead2, contextHash2, props) {
+    if (contextHash2) {
+      let pair = [NodeProp.contextHash, contextHash2];
+      props = props ? [pair].concat(props) : [pair];
+    }
+    if (lookAhead2 > 25) {
+      let pair = [NodeProp.lookAhead, lookAhead2];
+      props = props ? [pair].concat(props) : [pair];
+    }
+    return new Tree(type, children2, positions2, length2, props);
+  }
+  function findBufferSize(maxSize, inRepeat) {
+    let fork = cursor.fork();
+    let size = 0, start2 = 0, skip = 0, minStart = fork.end - maxBufferLength;
+    let result = { size: 0, start: 0, skip: 0 };
+    scan:
+      for (let minPos = fork.pos - maxSize; fork.pos > minPos; ) {
+        let nodeSize2 = fork.size;
+        if (fork.id == inRepeat && nodeSize2 >= 0) {
+          result.size = size;
+          result.start = start2;
+          result.skip = skip;
+          skip += 4;
+          size += 4;
+          fork.next();
+          continue;
+        }
+        let startPos = fork.pos - nodeSize2;
+        if (nodeSize2 < 0 || startPos < minPos || fork.start < minStart)
+          break;
+        let localSkipped = fork.id >= minRepeatType ? 4 : 0;
+        let nodeStart = fork.start;
+        fork.next();
+        while (fork.pos > startPos) {
+          if (fork.size < 0) {
+            if (fork.size == -3 || fork.size == -4)
+              localSkipped += 4;
+            else
+              break scan;
+          } else if (fork.id >= minRepeatType) {
+            localSkipped += 4;
+          }
+          fork.next();
+        }
+        start2 = nodeStart;
+        size += nodeSize2;
+        skip += localSkipped;
+      }
+    if (inRepeat < 0 || size == maxSize) {
+      result.size = size;
+      result.start = start2;
+      result.skip = skip;
+    }
+    return result.size > 4 ? result : void 0;
+  }
+  function copyToBuffer(bufferStart, buffer2, index) {
+    let { id: id2, start: start2, end: end2, size } = cursor;
+    cursor.next();
+    if (size >= 0 && id2 < minRepeatType) {
+      let startIndex = index;
+      if (size > 4) {
+        let endPos = cursor.pos - (size - 4);
+        while (cursor.pos > endPos)
+          index = copyToBuffer(bufferStart, buffer2, index);
+      }
+      buffer2[--index] = startIndex;
+      buffer2[--index] = end2 - bufferStart;
+      buffer2[--index] = start2 - bufferStart;
+      buffer2[--index] = id2;
+    } else if (size == -3) {
+      contextHash = id2;
+    } else if (size == -4) {
+      lookAhead = id2;
+    }
+    return index;
+  }
+  let children = [], positions = [];
+  while (cursor.pos > 0)
+    takeNode(data.start || 0, data.bufferStart || 0, children, positions, -1, 0);
+  let length = (_a2 = data.length) !== null && _a2 !== void 0 ? _a2 : children.length ? positions[0] + children[0].length : 0;
+  return new Tree(types2[data.topID], children.reverse(), positions.reverse(), length);
+}
+const nodeSizeCache = /* @__PURE__ */ new WeakMap();
+function nodeSize(balanceType, node) {
+  if (!balanceType.isAnonymous || node instanceof TreeBuffer || node.type != balanceType)
+    return 1;
+  let size = nodeSizeCache.get(node);
+  if (size == null) {
+    size = 1;
+    for (let child of node.children) {
+      if (child.type != balanceType || !(child instanceof Tree)) {
+        size = 1;
+        break;
+      }
+      size += nodeSize(balanceType, child);
+    }
+    nodeSizeCache.set(node, size);
+  }
+  return size;
+}
+function balanceRange(balanceType, children, positions, from, to, start2, length, mkTop, mkTree) {
+  let total = 0;
+  for (let i2 = from; i2 < to; i2++)
+    total += nodeSize(balanceType, children[i2]);
+  let maxChild = Math.ceil(total * 1.5 / 8);
+  let localChildren = [], localPositions = [];
+  function divide(children2, positions2, from2, to2, offset2) {
+    for (let i2 = from2; i2 < to2; ) {
+      let groupFrom = i2, groupStart = positions2[i2], groupSize = nodeSize(balanceType, children2[i2]);
+      i2++;
+      for (; i2 < to2; i2++) {
+        let nextSize = nodeSize(balanceType, children2[i2]);
+        if (groupSize + nextSize >= maxChild)
+          break;
+        groupSize += nextSize;
+      }
+      if (i2 == groupFrom + 1) {
+        if (groupSize > maxChild) {
+          let only = children2[groupFrom];
+          divide(only.children, only.positions, 0, only.children.length, positions2[groupFrom] + offset2);
+          continue;
+        }
+        localChildren.push(children2[groupFrom]);
+      } else {
+        let length2 = positions2[i2 - 1] + children2[i2 - 1].length - groupStart;
+        localChildren.push(balanceRange(balanceType, children2, positions2, groupFrom, i2, groupStart, length2, null, mkTree));
+      }
+      localPositions.push(groupStart + offset2 - start2);
+    }
+  }
+  divide(children, positions, from, to, 0);
+  return (mkTop || mkTree)(localChildren, localPositions, length);
+}
+class TreeFragment {
+  constructor(from, to, tree, offset2, openStart = false, openEnd = false) {
+    this.from = from;
+    this.to = to;
+    this.tree = tree;
+    this.offset = offset2;
+    this.open = (openStart ? 1 : 0) | (openEnd ? 2 : 0);
+  }
+  get openStart() {
+    return (this.open & 1) > 0;
+  }
+  get openEnd() {
+    return (this.open & 2) > 0;
+  }
+  static addTree(tree, fragments = [], partial = false) {
+    let result = [new TreeFragment(0, tree.length, tree, 0, false, partial)];
+    for (let f2 of fragments)
+      if (f2.to > tree.length)
+        result.push(f2);
+    return result;
+  }
+  static applyChanges(fragments, changes, minGap = 128) {
+    if (!changes.length)
+      return fragments;
+    let result = [];
+    let fI = 1, nextF = fragments.length ? fragments[0] : null;
+    for (let cI = 0, pos = 0, off = 0; ; cI++) {
+      let nextC = cI < changes.length ? changes[cI] : null;
+      let nextPos = nextC ? nextC.fromA : 1e9;
+      if (nextPos - pos >= minGap)
+        while (nextF && nextF.from < nextPos) {
+          let cut = nextF;
+          if (pos >= cut.from || nextPos <= cut.to || off) {
+            let fFrom = Math.max(cut.from, pos) - off, fTo = Math.min(cut.to, nextPos) - off;
+            cut = fFrom >= fTo ? null : new TreeFragment(fFrom, fTo, cut.tree, cut.offset + off, cI > 0, !!nextC);
+          }
+          if (cut)
+            result.push(cut);
+          if (nextF.to > nextPos)
+            break;
+          nextF = fI < fragments.length ? fragments[fI++] : null;
+        }
+      if (!nextC)
+        break;
+      pos = nextC.toA;
+      off = nextC.toA - nextC.toB;
+    }
+    return result;
+  }
+}
+class Parser {
+  startParse(input, fragments, ranges) {
+    if (typeof input == "string")
+      input = new StringInput(input);
+    ranges = !ranges ? [new Range(0, input.length)] : ranges.length ? ranges.map((r2) => new Range(r2.from, r2.to)) : [new Range(0, 0)];
+    return this.createParse(input, fragments || [], ranges);
+  }
+  parse(input, fragments, ranges) {
+    let parse = this.startParse(input, fragments, ranges);
+    for (; ; ) {
+      let done = parse.advance();
+      if (done)
+        return done;
+    }
+  }
+}
+class StringInput {
+  constructor(string2) {
+    this.string = string2;
+  }
+  get length() {
+    return this.string.length;
+  }
+  chunk(from) {
+    return this.string.slice(from);
+  }
+  get lineChunks() {
+    return false;
+  }
+  read(from, to) {
+    return this.string.slice(from, to);
+  }
+}
+new NodeProp({ perNode: true });
+let nextTagID = 0;
+class Tag {
+  constructor(name2, set, base2, modified) {
+    this.name = name2;
+    this.set = set;
+    this.base = base2;
+    this.modified = modified;
+    this.id = nextTagID++;
+  }
+  toString() {
+    let { name: name2 } = this;
+    for (let mod of this.modified)
+      if (mod.name)
+        name2 = `${mod.name}(${name2})`;
+    return name2;
+  }
+  static define(nameOrParent, parent) {
+    let name2 = typeof nameOrParent == "string" ? nameOrParent : "?";
+    if (nameOrParent instanceof Tag)
+      parent = nameOrParent;
+    if (parent === null || parent === void 0 ? void 0 : parent.base)
+      throw new Error("Can not derive from a modified tag");
+    let tag = new Tag(name2, [], null, []);
+    tag.set.push(tag);
+    if (parent)
+      for (let t2 of parent.set)
+        tag.set.push(t2);
+    return tag;
+  }
+  static defineModifier(name2) {
+    let mod = new Modifier(name2);
+    return (tag) => {
+      if (tag.modified.indexOf(mod) > -1)
+        return tag;
+      return Modifier.get(tag.base || tag, tag.modified.concat(mod).sort((a, b) => a.id - b.id));
+    };
+  }
+}
+let nextModifierID = 0;
+class Modifier {
+  constructor(name2) {
+    this.name = name2;
+    this.instances = [];
+    this.id = nextModifierID++;
+  }
+  static get(base2, mods) {
+    if (!mods.length)
+      return base2;
+    let exists = mods[0].instances.find((t2) => t2.base == base2 && sameArray(mods, t2.modified));
+    if (exists)
+      return exists;
+    let set = [], tag = new Tag(base2.name, set, base2, mods);
+    for (let m2 of mods)
+      m2.instances.push(tag);
+    let configs = powerSet(mods);
+    for (let parent of base2.set)
+      if (!parent.modified.length)
+        for (let config of configs)
+          set.push(Modifier.get(parent, config));
+    return tag;
+  }
+}
+function sameArray(a, b) {
+  return a.length == b.length && a.every((x2, i2) => x2 == b[i2]);
+}
+function powerSet(array) {
+  let sets = [[]];
+  for (let i2 = 0; i2 < array.length; i2++) {
+    for (let j = 0, e = sets.length; j < e; j++) {
+      sets.push(sets[j].concat(array[i2]));
+    }
+  }
+  return sets.sort((a, b) => b.length - a.length);
+}
+function styleTags(spec) {
+  let byName = /* @__PURE__ */ Object.create(null);
+  for (let prop in spec) {
+    let tags2 = spec[prop];
+    if (!Array.isArray(tags2))
+      tags2 = [tags2];
+    for (let part of prop.split(" "))
+      if (part) {
+        let pieces = [], mode = 2, rest = part;
+        for (let pos = 0; ; ) {
+          if (rest == "..." && pos > 0 && pos + 3 == part.length) {
+            mode = 1;
+            break;
+          }
+          let m2 = /^"(?:[^"\\]|\\.)*?"|[^\/!]+/.exec(rest);
+          if (!m2)
+            throw new RangeError("Invalid path: " + part);
+          pieces.push(m2[0] == "*" ? "" : m2[0][0] == '"' ? JSON.parse(m2[0]) : m2[0]);
+          pos += m2[0].length;
+          if (pos == part.length)
+            break;
+          let next = part[pos++];
+          if (pos == part.length && next == "!") {
+            mode = 0;
+            break;
+          }
+          if (next != "/")
+            throw new RangeError("Invalid path: " + part);
+          rest = part.slice(pos);
+        }
+        let last2 = pieces.length - 1, inner = pieces[last2];
+        if (!inner)
+          throw new RangeError("Invalid path: " + part);
+        let rule = new Rule(tags2, mode, last2 > 0 ? pieces.slice(0, last2) : null);
+        byName[inner] = rule.sort(byName[inner]);
+      }
+  }
+  return ruleNodeProp.add(byName);
+}
+const ruleNodeProp = new NodeProp({
+  combine(a, b) {
+    let cur2, root, take;
+    while (a || b) {
+      if (!a || b && a.depth >= b.depth) {
+        take = b;
+        b = b.next;
+      } else {
+        take = a;
+        a = a.next;
+      }
+      if (cur2 && cur2.mode == take.mode && !take.context && !cur2.context)
+        continue;
+      let copy = new Rule(take.tags, take.mode, take.context);
+      if (cur2)
+        cur2.next = copy;
+      else
+        root = copy;
+      cur2 = copy;
+    }
+    return root;
+  }
+});
+class Rule {
+  constructor(tags2, mode, context, next) {
+    this.tags = tags2;
+    this.mode = mode;
+    this.context = context;
+    this.next = next;
+  }
+  get opaque() {
+    return this.mode == 0;
+  }
+  get inherit() {
+    return this.mode == 1;
+  }
+  sort(other) {
+    if (!other || other.depth < this.depth) {
+      this.next = other;
+      return this;
+    }
+    other.next = this.sort(other.next);
+    return other;
+  }
+  get depth() {
+    return this.context ? this.context.length : 0;
+  }
+}
+Rule.empty = new Rule([], 2, null);
+function tagHighlighter(tags2, options) {
+  let map = /* @__PURE__ */ Object.create(null);
+  for (let style of tags2) {
+    if (!Array.isArray(style.tag))
+      map[style.tag.id] = style.class;
+    else
+      for (let tag of style.tag)
+        map[tag.id] = style.class;
+  }
+  let { scope, all = null } = options || {};
+  return {
+    style: (tags3) => {
+      let cls = all;
+      for (let tag of tags3) {
+        for (let sub of tag.set) {
+          let tagClass = map[sub.id];
+          if (tagClass) {
+            cls = cls ? cls + " " + tagClass : tagClass;
+            break;
+          }
+        }
+      }
+      return cls;
+    },
+    scope
+  };
+}
+const t$1 = Tag.define;
+const comment = t$1(), name = t$1(), typeName = t$1(name), propertyName = t$1(name), literal = t$1(), string = t$1(literal), number = t$1(literal), content = t$1(), heading = t$1(content), keyword = t$1(), operator = t$1(), punctuation = t$1(), bracket = t$1(punctuation), meta = t$1();
+const tags = {
+  comment,
+  lineComment: t$1(comment),
+  blockComment: t$1(comment),
+  docComment: t$1(comment),
+  name,
+  variableName: t$1(name),
+  typeName,
+  tagName: t$1(typeName),
+  propertyName,
+  attributeName: t$1(propertyName),
+  className: t$1(name),
+  labelName: t$1(name),
+  namespace: t$1(name),
+  macroName: t$1(name),
+  literal,
+  string,
+  docString: t$1(string),
+  character: t$1(string),
+  attributeValue: t$1(string),
+  number,
+  integer: t$1(number),
+  float: t$1(number),
+  bool: t$1(literal),
+  regexp: t$1(literal),
+  escape: t$1(literal),
+  color: t$1(literal),
+  url: t$1(literal),
+  keyword,
+  self: t$1(keyword),
+  null: t$1(keyword),
+  atom: t$1(keyword),
+  unit: t$1(keyword),
+  modifier: t$1(keyword),
+  operatorKeyword: t$1(keyword),
+  controlKeyword: t$1(keyword),
+  definitionKeyword: t$1(keyword),
+  moduleKeyword: t$1(keyword),
+  operator,
+  derefOperator: t$1(operator),
+  arithmeticOperator: t$1(operator),
+  logicOperator: t$1(operator),
+  bitwiseOperator: t$1(operator),
+  compareOperator: t$1(operator),
+  updateOperator: t$1(operator),
+  definitionOperator: t$1(operator),
+  typeOperator: t$1(operator),
+  controlOperator: t$1(operator),
+  punctuation,
+  separator: t$1(punctuation),
+  bracket,
+  angleBracket: t$1(bracket),
+  squareBracket: t$1(bracket),
+  paren: t$1(bracket),
+  brace: t$1(bracket),
+  content,
+  heading,
+  heading1: t$1(heading),
+  heading2: t$1(heading),
+  heading3: t$1(heading),
+  heading4: t$1(heading),
+  heading5: t$1(heading),
+  heading6: t$1(heading),
+  contentSeparator: t$1(content),
+  list: t$1(content),
+  quote: t$1(content),
+  emphasis: t$1(content),
+  strong: t$1(content),
+  link: t$1(content),
+  monospace: t$1(content),
+  strikethrough: t$1(content),
+  inserted: t$1(),
+  deleted: t$1(),
+  changed: t$1(),
+  invalid: t$1(),
+  meta,
+  documentMeta: t$1(meta),
+  annotation: t$1(meta),
+  processingInstruction: t$1(meta),
+  definition: Tag.defineModifier("definition"),
+  constant: Tag.defineModifier("constant"),
+  function: Tag.defineModifier("function"),
+  standard: Tag.defineModifier("standard"),
+  local: Tag.defineModifier("local"),
+  special: Tag.defineModifier("special")
+};
+for (let name2 in tags) {
+  let val = tags[name2];
+  if (val instanceof Tag)
+    val.name = name2;
+}
+tagHighlighter([
+  { tag: tags.link, class: "tok-link" },
+  { tag: tags.heading, class: "tok-heading" },
+  { tag: tags.emphasis, class: "tok-emphasis" },
+  { tag: tags.strong, class: "tok-strong" },
+  { tag: tags.keyword, class: "tok-keyword" },
+  { tag: tags.atom, class: "tok-atom" },
+  { tag: tags.bool, class: "tok-bool" },
+  { tag: tags.url, class: "tok-url" },
+  { tag: tags.labelName, class: "tok-labelName" },
+  { tag: tags.inserted, class: "tok-inserted" },
+  { tag: tags.deleted, class: "tok-deleted" },
+  { tag: tags.literal, class: "tok-literal" },
+  { tag: tags.string, class: "tok-string" },
+  { tag: tags.number, class: "tok-number" },
+  { tag: [tags.regexp, tags.escape, tags.special(tags.string)], class: "tok-string2" },
+  { tag: tags.variableName, class: "tok-variableName" },
+  { tag: tags.local(tags.variableName), class: "tok-variableName tok-local" },
+  { tag: tags.definition(tags.variableName), class: "tok-variableName tok-definition" },
+  { tag: tags.special(tags.variableName), class: "tok-variableName2" },
+  { tag: tags.definition(tags.propertyName), class: "tok-propertyName tok-definition" },
+  { tag: tags.typeName, class: "tok-typeName" },
+  { tag: tags.namespace, class: "tok-namespace" },
+  { tag: tags.className, class: "tok-className" },
+  { tag: tags.macroName, class: "tok-macroName" },
+  { tag: tags.propertyName, class: "tok-propertyName" },
+  { tag: tags.operator, class: "tok-operator" },
+  { tag: tags.comment, class: "tok-comment" },
+  { tag: tags.meta, class: "tok-meta" },
+  { tag: tags.invalid, class: "tok-invalid" },
+  { tag: tags.punctuation, class: "tok-punctuation" }
+]);
+var _a;
+const languageDataProp = /* @__PURE__ */ new NodeProp();
+const sublanguageProp = /* @__PURE__ */ new NodeProp();
+class Language {
+  constructor(data, parser, extraExtensions = [], name2 = "") {
+    this.data = data;
+    this.name = name2;
+    if (!EditorState.prototype.hasOwnProperty("tree"))
+      Object.defineProperty(EditorState.prototype, "tree", { get() {
+        return syntaxTree(this);
+      } });
+    this.parser = parser;
+    this.extension = [
+      language.of(this),
+      EditorState.languageData.of((state, pos, side) => {
+        let top2 = topNodeAt(state, pos, side), data2 = top2.type.prop(languageDataProp);
+        if (!data2)
+          return [];
+        let base2 = state.facet(data2), sub = top2.type.prop(sublanguageProp);
+        if (sub) {
+          let innerNode = top2.resolve(pos - top2.from, side);
+          for (let sublang of sub)
+            if (sublang.test(innerNode, state)) {
+              let data3 = state.facet(sublang.facet);
+              return sublang.type == "replace" ? data3 : data3.concat(base2);
+            }
+        }
+        return base2;
+      })
+    ].concat(extraExtensions);
+  }
+  isActiveAt(state, pos, side = -1) {
+    return topNodeAt(state, pos, side).type.prop(languageDataProp) == this.data;
+  }
+  findRegions(state) {
+    let lang = state.facet(language);
+    if ((lang === null || lang === void 0 ? void 0 : lang.data) == this.data)
+      return [{ from: 0, to: state.doc.length }];
+    if (!lang || !lang.allowsNesting)
+      return [];
+    let result = [];
+    let explore = (tree, from) => {
+      if (tree.prop(languageDataProp) == this.data) {
+        result.push({ from, to: from + tree.length });
+        return;
+      }
+      let mount = tree.prop(NodeProp.mounted);
+      if (mount) {
+        if (mount.tree.prop(languageDataProp) == this.data) {
+          if (mount.overlay)
+            for (let r2 of mount.overlay)
+              result.push({ from: r2.from + from, to: r2.to + from });
+          else
+            result.push({ from, to: from + tree.length });
+          return;
+        } else if (mount.overlay) {
+          let size = result.length;
+          explore(mount.tree, mount.overlay[0].from + from);
+          if (result.length > size)
+            return;
+        }
+      }
+      for (let i2 = 0; i2 < tree.children.length; i2++) {
+        let ch2 = tree.children[i2];
+        if (ch2 instanceof Tree)
+          explore(ch2, tree.positions[i2] + from);
+      }
+    };
+    explore(syntaxTree(state), 0);
+    return result;
+  }
+  get allowsNesting() {
+    return true;
+  }
+}
+Language.setState = /* @__PURE__ */ StateEffect.define();
+function topNodeAt(state, pos, side) {
+  let topLang = state.facet(language), tree = syntaxTree(state).topNode;
+  if (!topLang || topLang.allowsNesting) {
+    for (let node = tree; node; node = node.enter(pos, side, IterMode.ExcludeBuffers | IterMode.EnterBracketed))
+      if (node.type.isTop)
+        tree = node;
+  }
+  return tree;
+}
+function syntaxTree(state) {
+  let field = state.field(Language.state, false);
+  return field ? field.tree : Tree.empty;
+}
+class DocInput {
+  constructor(doc2) {
+    this.doc = doc2;
+    this.cursorPos = 0;
+    this.string = "";
+    this.cursor = doc2.iter();
+  }
+  get length() {
+    return this.doc.length;
+  }
+  syncTo(pos) {
+    this.string = this.cursor.next(pos - this.cursorPos).value;
+    this.cursorPos = pos + this.string.length;
+    return this.cursorPos - this.string.length;
+  }
+  chunk(pos) {
+    this.syncTo(pos);
+    return this.string;
+  }
+  get lineChunks() {
+    return true;
+  }
+  read(from, to) {
+    let stringStart = this.cursorPos - this.string.length;
+    if (from < stringStart || to >= this.cursorPos)
+      return this.doc.sliceString(from, to);
+    else
+      return this.string.slice(from - stringStart, to - stringStart);
+  }
+}
+let currentContext = null;
+class ParseContext {
+  constructor(parser, state, fragments = [], tree, treeLen, viewport2, skipped, scheduleOn) {
+    this.parser = parser;
+    this.state = state;
+    this.fragments = fragments;
+    this.tree = tree;
+    this.treeLen = treeLen;
+    this.viewport = viewport2;
+    this.skipped = skipped;
+    this.scheduleOn = scheduleOn;
+    this.parse = null;
+    this.tempSkipped = [];
+  }
+  static create(parser, state, viewport2) {
+    return new ParseContext(parser, state, [], Tree.empty, 0, viewport2, [], null);
+  }
+  startParse() {
+    return this.parser.startParse(new DocInput(this.state.doc), this.fragments);
+  }
+  work(until, upto) {
+    if (upto != null && upto >= this.state.doc.length)
+      upto = void 0;
+    if (this.tree != Tree.empty && this.isDone(upto !== null && upto !== void 0 ? upto : this.state.doc.length)) {
+      this.takeTree();
+      return true;
+    }
+    return this.withContext(() => {
+      var _a2;
+      if (typeof until == "number") {
+        let endTime = Date.now() + until;
+        until = () => Date.now() > endTime;
+      }
+      if (!this.parse)
+        this.parse = this.startParse();
+      if (upto != null && (this.parse.stoppedAt == null || this.parse.stoppedAt > upto) && upto < this.state.doc.length)
+        this.parse.stopAt(upto);
+      for (; ; ) {
+        let done = this.parse.advance();
+        if (done) {
+          this.fragments = this.withoutTempSkipped(TreeFragment.addTree(done, this.fragments, this.parse.stoppedAt != null));
+          this.treeLen = (_a2 = this.parse.stoppedAt) !== null && _a2 !== void 0 ? _a2 : this.state.doc.length;
+          this.tree = done;
+          this.parse = null;
+          if (this.treeLen < (upto !== null && upto !== void 0 ? upto : this.state.doc.length))
+            this.parse = this.startParse();
+          else
+            return true;
+        }
+        if (until())
+          return false;
+      }
+    });
+  }
+  takeTree() {
+    let pos, tree;
+    if (this.parse && (pos = this.parse.parsedPos) >= this.treeLen) {
+      if (this.parse.stoppedAt == null || this.parse.stoppedAt > pos)
+        this.parse.stopAt(pos);
+      this.withContext(() => {
+        while (!(tree = this.parse.advance())) {
+        }
+      });
+      this.treeLen = pos;
+      this.tree = tree;
+      this.fragments = this.withoutTempSkipped(TreeFragment.addTree(this.tree, this.fragments, true));
+      this.parse = null;
+    }
+  }
+  withContext(f2) {
+    let prev = currentContext;
+    currentContext = this;
+    try {
+      return f2();
+    } finally {
+      currentContext = prev;
+    }
+  }
+  withoutTempSkipped(fragments) {
+    for (let r2; r2 = this.tempSkipped.pop(); )
+      fragments = cutFragments(fragments, r2.from, r2.to);
+    return fragments;
+  }
+  changes(changes, newState) {
+    let { fragments, tree, treeLen, viewport: viewport2, skipped } = this;
+    this.takeTree();
+    if (!changes.empty) {
+      let ranges = [];
+      changes.iterChangedRanges((fromA, toA, fromB, toB) => ranges.push({ fromA, toA, fromB, toB }));
+      fragments = TreeFragment.applyChanges(fragments, ranges);
+      tree = Tree.empty;
+      treeLen = 0;
+      viewport2 = { from: changes.mapPos(viewport2.from, -1), to: changes.mapPos(viewport2.to, 1) };
+      if (this.skipped.length) {
+        skipped = [];
+        for (let r2 of this.skipped) {
+          let from = changes.mapPos(r2.from, 1), to = changes.mapPos(r2.to, -1);
+          if (from < to)
+            skipped.push({ from, to });
+        }
+      }
+    }
+    return new ParseContext(this.parser, newState, fragments, tree, treeLen, viewport2, skipped, this.scheduleOn);
+  }
+  updateViewport(viewport2) {
+    if (this.viewport.from == viewport2.from && this.viewport.to == viewport2.to)
+      return false;
+    this.viewport = viewport2;
+    let startLen = this.skipped.length;
+    for (let i2 = 0; i2 < this.skipped.length; i2++) {
+      let { from, to } = this.skipped[i2];
+      if (from < viewport2.to && to > viewport2.from) {
+        this.fragments = cutFragments(this.fragments, from, to);
+        this.skipped.splice(i2--, 1);
+      }
+    }
+    if (this.skipped.length >= startLen)
+      return false;
+    this.reset();
+    return true;
+  }
+  reset() {
+    if (this.parse) {
+      this.takeTree();
+      this.parse = null;
+    }
+  }
+  skipUntilInView(from, to) {
+    this.skipped.push({ from, to });
+  }
+  static getSkippingParser(until) {
+    return new class extends Parser {
+      createParse(input, fragments, ranges) {
+        let from = ranges[0].from, to = ranges[ranges.length - 1].to;
+        let parser = {
+          parsedPos: from,
+          advance() {
+            let cx = currentContext;
+            if (cx) {
+              for (let r2 of ranges)
+                cx.tempSkipped.push(r2);
+              if (until)
+                cx.scheduleOn = cx.scheduleOn ? Promise.all([cx.scheduleOn, until]) : until;
+            }
+            this.parsedPos = to;
+            return new Tree(NodeType.none, [], [], to - from);
+          },
+          stoppedAt: null,
+          stopAt() {
+          }
+        };
+        return parser;
+      }
+    }();
+  }
+  isDone(upto) {
+    upto = Math.min(upto, this.state.doc.length);
+    let frags = this.fragments;
+    return this.treeLen >= upto && frags.length && frags[0].from == 0 && frags[0].to >= upto;
+  }
+  static get() {
+    return currentContext;
+  }
+}
+function cutFragments(fragments, from, to) {
+  return TreeFragment.applyChanges(fragments, [{ fromA: from, toA: to, fromB: from, toB: to }]);
+}
+class LanguageState {
+  constructor(context) {
+    this.context = context;
+    this.tree = context.tree;
+  }
+  apply(tr2) {
+    if (!tr2.docChanged && this.tree == this.context.tree)
+      return this;
+    let newCx = this.context.changes(tr2.changes, tr2.state);
+    let upto = this.context.treeLen == tr2.startState.doc.length ? void 0 : Math.max(tr2.changes.mapPos(this.context.treeLen), newCx.viewport.to);
+    if (!newCx.work(20, upto))
+      newCx.takeTree();
+    return new LanguageState(newCx);
+  }
+  static init(state) {
+    let vpTo = Math.min(3e3, state.doc.length);
+    let parseState = ParseContext.create(state.facet(language).parser, state, { from: 0, to: vpTo });
+    if (!parseState.work(20, vpTo))
+      parseState.takeTree();
+    return new LanguageState(parseState);
+  }
+}
+Language.state = /* @__PURE__ */ StateField.define({
+  create: LanguageState.init,
+  update(value, tr2) {
+    for (let e of tr2.effects)
+      if (e.is(Language.setState))
+        return e.value;
+    if (tr2.startState.facet(language) != tr2.state.facet(language))
+      return LanguageState.init(tr2.state);
+    return value.apply(tr2);
+  }
+});
+let requestIdle = (callback) => {
+  let timeout = setTimeout(() => callback(), 500);
+  return () => clearTimeout(timeout);
+};
+if (typeof requestIdleCallback != "undefined")
+  requestIdle = (callback) => {
+    let idle = -1, timeout = setTimeout(() => {
+      idle = requestIdleCallback(callback, { timeout: 500 - 100 });
+    }, 100);
+    return () => idle < 0 ? clearTimeout(timeout) : cancelIdleCallback(idle);
+  };
+const isInputPending = typeof navigator != "undefined" && ((_a = navigator.scheduling) === null || _a === void 0 ? void 0 : _a.isInputPending) ? () => navigator.scheduling.isInputPending() : null;
+const parseWorker = /* @__PURE__ */ ViewPlugin.fromClass(class ParseWorker {
+  constructor(view) {
+    this.view = view;
+    this.working = null;
+    this.workScheduled = 0;
+    this.chunkEnd = -1;
+    this.chunkBudget = -1;
+    this.work = this.work.bind(this);
+    this.scheduleWork();
+  }
+  update(update) {
+    let cx = this.view.state.field(Language.state).context;
+    if (cx.updateViewport(update.view.viewport) || this.view.viewport.to > cx.treeLen)
+      this.scheduleWork();
+    if (update.docChanged || update.selectionSet) {
+      if (this.view.hasFocus)
+        this.chunkBudget += 50;
+      this.scheduleWork();
+    }
+    this.checkAsyncSchedule(cx);
+  }
+  scheduleWork() {
+    if (this.working)
+      return;
+    let { state } = this.view, field = state.field(Language.state);
+    if (field.tree != field.context.tree || !field.context.isDone(state.doc.length))
+      this.working = requestIdle(this.work);
+  }
+  work(deadline) {
+    this.working = null;
+    let now = Date.now();
+    if (this.chunkEnd < now && (this.chunkEnd < 0 || this.view.hasFocus)) {
+      this.chunkEnd = now + 3e4;
+      this.chunkBudget = 3e3;
+    }
+    if (this.chunkBudget <= 0)
+      return;
+    let { state, viewport: { to: vpTo } } = this.view, field = state.field(Language.state);
+    if (field.tree == field.context.tree && field.context.isDone(vpTo + 1e5))
+      return;
+    let endTime = Date.now() + Math.min(this.chunkBudget, 100, deadline && !isInputPending ? Math.max(25, deadline.timeRemaining() - 5) : 1e9);
+    let viewportFirst = field.context.treeLen < vpTo && state.doc.length > vpTo + 1e3;
+    let done = field.context.work(() => {
+      return isInputPending && isInputPending() || Date.now() > endTime;
+    }, vpTo + (viewportFirst ? 0 : 1e5));
+    this.chunkBudget -= Date.now() - now;
+    if (done || this.chunkBudget <= 0) {
+      field.context.takeTree();
+      this.view.dispatch({ effects: Language.setState.of(new LanguageState(field.context)) });
+    }
+    if (this.chunkBudget > 0 && !(done && !viewportFirst))
+      this.scheduleWork();
+    this.checkAsyncSchedule(field.context);
+  }
+  checkAsyncSchedule(cx) {
+    if (cx.scheduleOn) {
+      this.workScheduled++;
+      cx.scheduleOn.then(() => this.scheduleWork()).catch((err) => logException(this.view.state, err)).then(() => this.workScheduled--);
+      cx.scheduleOn = null;
+    }
+  }
+  destroy() {
+    if (this.working)
+      this.working();
+  }
+  isWorking() {
+    return !!(this.working || this.workScheduled > 0);
+  }
+}, {
+  eventHandlers: { focus() {
+    this.scheduleWork();
+  } }
+});
+const language = /* @__PURE__ */ Facet.define({
+  combine(languages) {
+    return languages.length ? languages[0] : null;
+  },
+  enables: (language2) => [
+    Language.state,
+    parseWorker,
+    EditorView.contentAttributes.compute([language2], (state) => {
+      let lang = state.facet(language2);
+      return lang && lang.name ? { "data-language": lang.name } : {};
+    })
+  ]
+});
+const indentService = /* @__PURE__ */ Facet.define();
+const indentUnit = /* @__PURE__ */ Facet.define({
+  combine: (values) => {
+    if (!values.length)
+      return "  ";
+    let unit = values[0];
+    if (!unit || /\S/.test(unit) || Array.from(unit).some((e) => e != unit[0]))
+      throw new Error("Invalid indent unit: " + JSON.stringify(values[0]));
+    return unit;
+  }
+});
+function getIndentUnit(state) {
+  let unit = state.facet(indentUnit);
+  return unit.charCodeAt(0) == 9 ? state.tabSize * unit.length : unit.length;
+}
+function indentString(state, cols) {
+  let result = "", ts = state.tabSize, ch2 = state.facet(indentUnit)[0];
+  if (ch2 == "	") {
+    while (cols >= ts) {
+      result += "	";
+      cols -= ts;
+    }
+    ch2 = " ";
+  }
+  for (let i2 = 0; i2 < cols; i2++)
+    result += ch2;
+  return result;
+}
+function getIndentation(context, pos) {
+  if (context instanceof EditorState)
+    context = new IndentContext(context);
+  for (let service of context.state.facet(indentService)) {
+    let result = service(context, pos);
+    if (result !== void 0)
+      return result;
+  }
+  let tree = syntaxTree(context.state);
+  return tree.length >= pos ? syntaxIndentation(context, tree, pos) : null;
+}
+class IndentContext {
+  constructor(state, options = {}) {
+    this.state = state;
+    this.options = options;
+    this.unit = getIndentUnit(state);
+  }
+  lineAt(pos, bias = 1) {
+    let line = this.state.doc.lineAt(pos);
+    let { simulateBreak, simulateDoubleBreak } = this.options;
+    if (simulateBreak != null && simulateBreak >= line.from && simulateBreak <= line.to) {
+      if (simulateDoubleBreak && simulateBreak == pos)
+        return { text: "", from: pos };
+      else if (bias < 0 ? simulateBreak < pos : simulateBreak <= pos)
+        return { text: line.text.slice(simulateBreak - line.from), from: simulateBreak };
+      else
+        return { text: line.text.slice(0, simulateBreak - line.from), from: line.from };
+    }
+    return line;
+  }
+  textAfterPos(pos, bias = 1) {
+    if (this.options.simulateDoubleBreak && pos == this.options.simulateBreak)
+      return "";
+    let { text, from } = this.lineAt(pos, bias);
+    return text.slice(pos - from, Math.min(text.length, pos + 100 - from));
+  }
+  column(pos, bias = 1) {
+    let { text, from } = this.lineAt(pos, bias);
+    let result = this.countColumn(text, pos - from);
+    let override = this.options.overrideIndentation ? this.options.overrideIndentation(from) : -1;
+    if (override > -1)
+      result += override - this.countColumn(text, text.search(/\S|$/));
+    return result;
+  }
+  countColumn(line, pos = line.length) {
+    return countColumn(line, this.state.tabSize, pos);
+  }
+  lineIndent(pos, bias = 1) {
+    let { text, from } = this.lineAt(pos, bias);
+    let override = this.options.overrideIndentation;
+    if (override) {
+      let overriden = override(from);
+      if (overriden > -1)
+        return overriden;
+    }
+    return this.countColumn(text, text.search(/\S|$/));
+  }
+  get simulatedBreak() {
+    return this.options.simulateBreak || null;
+  }
+}
+const indentNodeProp = /* @__PURE__ */ new NodeProp();
+function syntaxIndentation(cx, ast, pos) {
+  let stack = ast.resolveStack(pos);
+  let inner = ast.resolveInner(pos, -1).resolve(pos, 0).enterUnfinishedNodesBefore(pos);
+  if (inner != stack.node) {
+    let add = [];
+    for (let cur2 = inner; cur2 && !(cur2.from < stack.node.from || cur2.to > stack.node.to || cur2.from == stack.node.from && cur2.type == stack.node.type); cur2 = cur2.parent)
+      add.push(cur2);
+    for (let i2 = add.length - 1; i2 >= 0; i2--)
+      stack = { node: add[i2], next: stack };
+  }
+  return indentFor(stack, cx, pos);
+}
+function indentFor(stack, cx, pos) {
+  for (let cur2 = stack; cur2; cur2 = cur2.next) {
+    let strategy = indentStrategy(cur2.node);
+    if (strategy)
+      return strategy(TreeIndentContext.create(cx, pos, cur2));
+  }
+  return 0;
+}
+function ignoreClosed(cx) {
+  return cx.pos == cx.options.simulateBreak && cx.options.simulateDoubleBreak;
+}
+function indentStrategy(tree) {
+  let strategy = tree.type.prop(indentNodeProp);
+  if (strategy)
+    return strategy;
+  let first = tree.firstChild, close;
+  if (first && (close = first.type.prop(NodeProp.closedBy))) {
+    let last2 = tree.lastChild, closed = last2 && close.indexOf(last2.name) > -1;
+    return (cx) => delimitedStrategy(cx, true, 1, void 0, closed && !ignoreClosed(cx) ? last2.from : void 0);
+  }
+  return tree.parent == null ? topIndent : null;
+}
+function topIndent() {
+  return 0;
+}
+class TreeIndentContext extends IndentContext {
+  constructor(base2, pos, context) {
+    super(base2.state, base2.options);
+    this.base = base2;
+    this.pos = pos;
+    this.context = context;
+  }
+  get node() {
+    return this.context.node;
+  }
+  static create(base2, pos, context) {
+    return new TreeIndentContext(base2, pos, context);
+  }
+  get textAfter() {
+    return this.textAfterPos(this.pos);
+  }
+  get baseIndent() {
+    return this.baseIndentFor(this.node);
+  }
+  baseIndentFor(node) {
+    let line = this.state.doc.lineAt(node.from);
+    for (; ; ) {
+      let atBreak = node.resolve(line.from);
+      while (atBreak.parent && atBreak.parent.from == atBreak.from)
+        atBreak = atBreak.parent;
+      if (isParent(atBreak, node))
+        break;
+      line = this.state.doc.lineAt(atBreak.from);
+    }
+    return this.lineIndent(line.from);
+  }
+  continue() {
+    return indentFor(this.context.next, this.base, this.pos);
+  }
+}
+function isParent(parent, of2) {
+  for (let cur2 = of2; cur2; cur2 = cur2.parent)
+    if (parent == cur2)
+      return true;
+  return false;
+}
+function bracketedAligned(context) {
+  let tree = context.node;
+  let openToken = tree.childAfter(tree.from), last2 = tree.lastChild;
+  if (!openToken)
+    return null;
+  let sim = context.options.simulateBreak;
+  let openLine = context.state.doc.lineAt(openToken.from);
+  let lineEnd = sim == null || sim <= openLine.from ? openLine.to : Math.min(openLine.to, sim);
+  for (let pos = openToken.to; ; ) {
+    let next = tree.childAfter(pos);
+    if (!next || next == last2)
+      return null;
+    if (!next.type.isSkipped) {
+      if (next.from >= lineEnd)
+        return null;
+      let space = /^ */.exec(openLine.text.slice(openToken.to - openLine.from))[0].length;
+      return { from: openToken.from, to: openToken.to + space };
+    }
+    pos = next.to;
+  }
+}
+function delimitedStrategy(context, align, units, closing, closedAt) {
+  let after = context.textAfter, space = after.match(/^\s*/)[0].length;
+  let closed = closing && after.slice(space, space + closing.length) == closing || closedAt == context.pos + space;
+  let aligned = align ? bracketedAligned(context) : null;
+  if (aligned)
+    return closed ? context.column(aligned.from) : context.column(aligned.to);
+  return context.baseIndent + (closed ? 0 : context.unit * units);
+}
+class HighlightStyle {
+  constructor(specs, options) {
+    this.specs = specs;
+    let modSpec;
+    function def(spec) {
+      let cls = StyleModule.newName();
+      (modSpec || (modSpec = /* @__PURE__ */ Object.create(null)))["." + cls] = spec;
+      return cls;
+    }
+    const all = typeof options.all == "string" ? options.all : options.all ? def(options.all) : void 0;
+    const scopeOpt = options.scope;
+    this.scope = scopeOpt instanceof Language ? (type) => type.prop(languageDataProp) == scopeOpt.data : scopeOpt ? (type) => type == scopeOpt : void 0;
+    this.style = tagHighlighter(specs.map((style) => ({
+      tag: style.tag,
+      class: style.class || def(Object.assign({}, style, { tag: null }))
+    })), {
+      all
+    }).style;
+    this.module = modSpec ? new StyleModule(modSpec) : null;
+    this.themeType = options.themeType;
+  }
+  static define(specs, options) {
+    return new HighlightStyle(specs, options || {});
+  }
+}
+/* @__PURE__ */ HighlightStyle.define([
+  {
+    tag: tags.meta,
+    color: "#404740"
+  },
+  {
+    tag: tags.link,
+    textDecoration: "underline"
+  },
+  {
+    tag: tags.heading,
+    textDecoration: "underline",
+    fontWeight: "bold"
+  },
+  {
+    tag: tags.emphasis,
+    fontStyle: "italic"
+  },
+  {
+    tag: tags.strong,
+    fontWeight: "bold"
+  },
+  {
+    tag: tags.strikethrough,
+    textDecoration: "line-through"
+  },
+  {
+    tag: tags.keyword,
+    color: "#708"
+  },
+  {
+    tag: [tags.atom, tags.bool, tags.url, tags.contentSeparator, tags.labelName],
+    color: "#219"
+  },
+  {
+    tag: [tags.literal, tags.inserted],
+    color: "#164"
+  },
+  {
+    tag: [tags.string, tags.deleted],
+    color: "#a11"
+  },
+  {
+    tag: [tags.regexp, tags.escape, /* @__PURE__ */ tags.special(tags.string)],
+    color: "#e40"
+  },
+  {
+    tag: /* @__PURE__ */ tags.definition(tags.variableName),
+    color: "#00f"
+  },
+  {
+    tag: /* @__PURE__ */ tags.local(tags.variableName),
+    color: "#30a"
+  },
+  {
+    tag: [tags.typeName, tags.namespace],
+    color: "#085"
+  },
+  {
+    tag: tags.className,
+    color: "#167"
+  },
+  {
+    tag: [/* @__PURE__ */ tags.special(tags.variableName), tags.macroName],
+    color: "#256"
+  },
+  {
+    tag: /* @__PURE__ */ tags.definition(tags.propertyName),
+    color: "#00c"
+  },
+  {
+    tag: tags.comment,
+    color: "#940"
+  },
+  {
+    tag: tags.invalid,
+    color: "#f00"
+  }
+]);
+const DefaultScanDist = 1e4, DefaultBrackets = "()[]{}";
+const bracketMatchingHandle = /* @__PURE__ */ new NodeProp();
+function matchingNodes(node, dir, brackets) {
+  let byProp = node.prop(dir < 0 ? NodeProp.openedBy : NodeProp.closedBy);
+  if (byProp)
+    return byProp;
+  if (node.name.length == 1) {
+    let index = brackets.indexOf(node.name);
+    if (index > -1 && index % 2 == (dir < 0 ? 1 : 0))
+      return [brackets[index + dir]];
+  }
+  return null;
+}
+function findHandle(node) {
+  let hasHandle = node.type.prop(bracketMatchingHandle);
+  return hasHandle ? hasHandle(node.node) : node;
+}
+function matchBrackets(state, pos, dir, config = {}) {
+  let maxScanDistance = config.maxScanDistance || DefaultScanDist, brackets = config.brackets || DefaultBrackets;
+  let tree = syntaxTree(state), node = tree.resolveInner(pos, dir);
+  for (let cur2 = node; cur2; cur2 = cur2.parent) {
+    let matches = matchingNodes(cur2.type, dir, brackets);
+    if (matches && cur2.from < cur2.to) {
+      let handle = findHandle(cur2);
+      if (handle && (dir > 0 ? pos >= handle.from && pos < handle.to : pos > handle.from && pos <= handle.to))
+        return matchMarkedBrackets(state, pos, dir, cur2, handle, matches, brackets);
+    }
+  }
+  return matchPlainBrackets(state, pos, dir, tree, node.type, maxScanDistance, brackets);
+}
+function matchMarkedBrackets(_state, _pos, dir, token, handle, matching, brackets) {
+  let parent = token.parent, firstToken = { from: handle.from, to: handle.to };
+  let depth = 0, cursor = parent === null || parent === void 0 ? void 0 : parent.cursor();
+  if (cursor && (dir < 0 ? cursor.childBefore(token.from) : cursor.childAfter(token.to)))
+    do {
+      if (dir < 0 ? cursor.to <= token.from : cursor.from >= token.to) {
+        if (depth == 0 && matching.indexOf(cursor.type.name) > -1 && cursor.from < cursor.to) {
+          let endHandle = findHandle(cursor);
+          return { start: firstToken, end: endHandle ? { from: endHandle.from, to: endHandle.to } : void 0, matched: true };
+        } else if (matchingNodes(cursor.type, dir, brackets)) {
+          depth++;
+        } else if (matchingNodes(cursor.type, -dir, brackets)) {
+          if (depth == 0) {
+            let endHandle = findHandle(cursor);
             return {
-              text: textToReplace,
-              caretPosition: DEFAULT_CARET_POSITION
+              start: firstToken,
+              end: endHandle && endHandle.from < endHandle.to ? { from: endHandle.from, to: endHandle.to } : void 0,
+              matched: false
             };
           }
-          if (!textToReplace.text && typeof textToReplace.text !== "string") {
-            throw new Error('Output "text" is not defined! Object should has shape {text: string, caretPosition: string | number}. Check the implementation for trigger "'.concat(currentTrigger, '"\n'));
-          }
-          if (!textToReplace.caretPosition) {
-            throw new Error('Output "caretPosition" is not defined! Object should has shape {text: string, caretPosition: string | number}. Check the implementation for trigger "'.concat(currentTrigger, '"\n'));
-          }
-          return textToReplace;
-        }
-        if (typeof item !== "string") {
-          throw new Error("Output item should be string\n");
-        }
-        return {
-          text: "".concat(currentTrigger).concat(item).concat(currentTrigger),
-          caretPosition: DEFAULT_CARET_POSITION
-        };
-      };
-    };
-    _this2._getCurrentTriggerSettings = function() {
-      var currentTrigger = _this2.state.currentTrigger;
-      if (!currentTrigger)
-        return null;
-      return _this2.props.trigger[currentTrigger];
-    };
-    _this2._getValuesFromProvider = function() {
-      var _this2$state2 = _this2.state, currentTrigger = _this2$state2.currentTrigger, actualToken2 = _this2$state2.actualToken;
-      var triggerSettings = _this2._getCurrentTriggerSettings();
-      if (!currentTrigger || !triggerSettings) {
-        return;
-      }
-      var dataProvider = triggerSettings.dataProvider, component = triggerSettings.component;
-      if (typeof dataProvider !== "function") {
-        throw new Error("Trigger provider has to be a function!");
-      }
-      _this2.setState({
-        dataLoading: true
-      });
-      var providedData = dataProvider(actualToken2);
-      if (!(providedData instanceof Promise)) {
-        providedData = Promise.resolve(providedData);
-      }
-      providedData.then(function(data) {
-        if (!Array.isArray(data)) {
-          throw new Error("Trigger provider has to provide an array!");
-        }
-        if (typeof component !== "function") {
-          throw new Error("Component should be defined!");
-        }
-        if (currentTrigger !== _this2.state.currentTrigger)
-          return;
-        if (!data.length) {
-          _this2._closeAutocomplete();
-          return;
-        }
-        _this2.setState({
-          dataLoading: false,
-          data,
-          component
-        });
-      }).catch(function(e) {
-        return errorMessage(e.message);
-      });
-    };
-    _this2._getSuggestions = function() {
-      var _this2$state3 = _this2.state, currentTrigger = _this2$state3.currentTrigger, data = _this2$state3.data;
-      if (!currentTrigger || !data || data && !data.length)
-        return null;
-      return data;
-    };
-    _this2._createRegExp = function() {
-      var trigger = _this2.props.trigger;
-      _this2.tokenRegExp = new RegExp("(".concat(Object.keys(trigger).sort(function(a, b) {
-        if (a < b) {
-          return 1;
-        }
-        if (a > b) {
-          return -1;
-        }
-        return 0;
-      }).map(function(a) {
-        return escapeRegex(a);
-      }).join("|"), ")((?:(?!\\1)[^\\s])*$)"));
-      _this2.tokenRegExpEnding = new RegExp("(".concat(Object.keys(trigger).sort(function(a, b) {
-        if (a < b) {
-          return 1;
-        }
-        if (a > b) {
-          return -1;
-        }
-        return 0;
-      }).map(function(a) {
-        return escapeRegex(a);
-      }).join("|"), ")$"));
-    };
-    _this2._closeAutocomplete = function() {
-      var currentTrigger = _this2.state.currentTrigger;
-      _this2.escListenerDestroy();
-      _this2.setState({
-        data: null,
-        dataLoading: false,
-        currentTrigger: null
-      }, function() {
-        if (currentTrigger)
-          _this2._onItemHighlightedHandler(null);
-      });
-    };
-    _this2._cleanUpProps = function() {
-      var props = _objectSpread({}, _this2.props);
-      var notSafe = ["loadingComponent", "boundariesElement", "containerStyle", "minChar", "scrollToItem", "ref", "innerRef", "onChange", "onCaretPositionChange", "className", "value", "trigger", "listStyle", "itemStyle", "containerStyle", "loaderStyle", "className", "containerClassName", "listClassName", "itemClassName", "loaderClassName", "dropdownStyle", "dropdownClassName", "movePopupAsYouType", "textAreaComponent", "renderToBody", "onItemSelected", "onItemHighlighted"];
-      for (var prop in props) {
-        if (notSafe.includes(prop))
-          delete props[prop];
-      }
-      return props;
-    };
-    _this2._changeHandler = function(e) {
-      var _this2$props = _this2.props, trigger = _this2$props.trigger, onChange = _this2$props.onChange, minChar = _this2$props.minChar, onCaretPositionChange = _this2$props.onCaretPositionChange, movePopupAsYouType = _this2$props.movePopupAsYouType;
-      var _this2$state4 = _this2.state, top2 = _this2$state4.top, left2 = _this2$state4.left;
-      var event = e;
-      if (!event) {
-        event = new customEvent("change", {
-          bubbles: true
-        });
-        _this2.textareaRef.dispatchEvent(event);
-      }
-      var textarea = event.target || _this2.textareaRef;
-      var selectionEnd = textarea.selectionEnd;
-      var value = textarea.value;
-      _this2.lastValueBubbledEvent = value;
-      if (onChange && event) {
-        event.persist && event.persist();
-        onChange(new Proxy(event, {
-          get: function get(original, prop, receiver) {
-            if (prop === "target") {
-              return textarea;
-            }
-            return Reflect.get(original, prop, receiver);
-          }
-        }));
-      }
-      if (onCaretPositionChange) {
-        var caretPosition = _this2.getCaretPosition();
-        onCaretPositionChange(caretPosition);
-      }
-      _this2.setState({
-        value
-      });
-      var setTopLeft = function setTopLeft2() {
-        var _getCaretCoordinates = getCaretCoordinates(textarea, selectionEnd), newTop = _getCaretCoordinates.top, newLeft = _getCaretCoordinates.left;
-        _this2.setState({
-          top: newTop - _this2.textareaRef.scrollTop || 0,
-          left: newLeft
-        });
-      };
-      var cleanLastTrigger = function cleanLastTrigger2(triggerLength) {
-        _this2.lastTrigger = selectionEnd - triggerLength;
-        _this2._closeAutocomplete();
-        setTopLeft();
-      };
-      if (selectionEnd <= _this2.lastTrigger) {
-        var _affectedTextareaValue = value.slice(0, selectionEnd);
-        var _newTrigger = _this2.tokenRegExp.exec(_affectedTextareaValue);
-        cleanLastTrigger(_newTrigger ? _newTrigger[0].length : 0);
-      }
-      var affectedTextareaValue = value.slice(_this2.lastTrigger, selectionEnd);
-      var tokenMatch = _this2.tokenRegExp.exec(affectedTextareaValue);
-      var lastToken = tokenMatch && tokenMatch[0];
-      var currentTrigger = tokenMatch && tokenMatch[1] || null;
-      var currentTriggerLength = currentTrigger ? currentTrigger.length - 1 : 0;
-      var newTrigger = _this2.tokenRegExpEnding.exec(affectedTextareaValue);
-      if (newTrigger) {
-        cleanLastTrigger(newTrigger[0].length);
-      } else if (!_this2._isAutocompleteOpen()) {
-        _this2._closeAutocomplete();
-      }
-      if ((!lastToken || lastToken.length <= minChar + currentTriggerLength) && (_this2.state.currentTrigger && !trigger[_this2.state.currentTrigger].allowWhitespace || !_this2.state.currentTrigger)) {
-        _this2._closeAutocomplete();
-        return;
-      }
-      if (currentTrigger && trigger[currentTrigger].afterWhitespace && !/\s/.test(value[selectionEnd - lastToken.length - 1]) && value[selectionEnd - lastToken.length - 1] !== void 0) {
-        _this2._closeAutocomplete();
-        return;
-      }
-      if (_this2.state.currentTrigger && trigger[_this2.state.currentTrigger].allowWhitespace) {
-        tokenMatch = new RegExp("".concat(escapeRegex(_this2.state.currentTrigger), ".*$")).exec(value.slice(0, selectionEnd));
-        lastToken = tokenMatch && tokenMatch[0];
-        if (!lastToken) {
-          _this2._closeAutocomplete();
-          return;
-        }
-        currentTrigger = Object.keys(trigger).find(function(a) {
-          return a.slice(0, currentTriggerLength + 1) === lastToken.slice(0, currentTriggerLength + 1);
-        }) || null;
-      }
-      var actualToken2 = lastToken.slice(1);
-      if (!currentTrigger) {
-        return;
-      }
-      if (movePopupAsYouType || top2 === null && left2 === null || _this2.state.currentTrigger !== currentTrigger) {
-        setTopLeft();
-      }
-      _this2.escListenerInit();
-      var textToReplace = _this2._getTextToReplace(currentTrigger);
-      _this2.setState({
-        selectionEnd,
-        currentTrigger,
-        textToReplace,
-        actualToken: actualToken2
-      }, function() {
-        try {
-          _this2._getValuesFromProvider();
-        } catch (err) {
-          errorMessage(err.message);
-        }
-      });
-    };
-    _this2._selectHandler = function(e) {
-      var _this2$props2 = _this2.props, onCaretPositionChange = _this2$props2.onCaretPositionChange, onSelect = _this2$props2.onSelect;
-      if (onCaretPositionChange) {
-        var caretPosition = _this2.getCaretPosition();
-        onCaretPositionChange(caretPosition);
-      }
-      if (onSelect) {
-        e.persist();
-        onSelect(e);
-      }
-    };
-    _this2._shouldStayOpen = function(e) {
-      var el = e.relatedTarget;
-      if (el === null) {
-        el = document.activeElement;
-      }
-      if (_this2.dropdownRef && el instanceof Node && _this2.dropdownRef.contains(el)) {
-        return true;
-      }
-      return false;
-    };
-    _this2._onClick = function(e) {
-      var onClick = _this2.props.onClick;
-      if (onClick) {
-        e.persist();
-        onClick(e);
-      }
-      if (_this2._shouldStayOpen(e)) {
-        return;
-      }
-      _this2._closeAutocomplete();
-    };
-    _this2._onBlur = function(e) {
-      var onBlur = _this2.props.onBlur;
-      if (onBlur) {
-        e.persist();
-        onBlur(e);
-      }
-      if (_this2._shouldStayOpen(e)) {
-        return;
-      }
-      _this2._closeAutocomplete();
-    };
-    _this2._onScrollHandler = function() {
-      _this2._closeAutocomplete();
-    };
-    _this2._onItemHighlightedHandler = function(item) {
-      var onItemHighlighted = _this2.props.onItemHighlighted;
-      var currentTrigger = _this2.state.currentTrigger;
-      if (onItemHighlighted) {
-        if (typeof onItemHighlighted === "function") {
-          onItemHighlighted({
-            currentTrigger,
-            item
-          });
-        } else {
-          throw new Error("`onItemHighlighted` has to be a function");
+          depth--;
         }
       }
-    };
-    _this2._dropdownScroll = function(item) {
-      var scrollToItem = _this2.props.scrollToItem;
-      if (!scrollToItem)
-        return;
-      if (scrollToItem === true) {
-        defaultScrollToItem(_this2.dropdownRef, item);
-        return;
-      }
-      if (typeof scrollToItem !== "function" || scrollToItem.length !== 2) {
-        throw new Error("`scrollToItem` has to be boolean (true for default implementation) or function with two parameters: container, item.");
-      }
-      scrollToItem(_this2.dropdownRef, item);
-    };
-    _this2._isAutocompleteOpen = function() {
-      var _this2$state5 = _this2.state, dataLoading = _this2$state5.dataLoading, currentTrigger = _this2$state5.currentTrigger;
-      var suggestionData = _this2._getSuggestions();
-      return !!((dataLoading || suggestionData) && currentTrigger);
-    };
-    _this2._textareaRef = function(ref) {
-      _this2.props.innerRef && _this2.props.innerRef(ref);
-      _this2.textareaRef = ref;
-    };
-    _this2.lastTrigger = 0;
-    _this2.escListener = null;
-    var _this2$props3 = _this2.props, loadingComponent = _this2$props3.loadingComponent, _trigger = _this2$props3.trigger, _value = _this2$props3.value;
-    if (_value)
-      _this2.state.value = _value;
-    _this2._createRegExp();
-    if (!loadingComponent) {
-      throw new Error("RTA: loadingComponent is not defined");
-    }
-    if (!_trigger) {
-      throw new Error("RTA: trigger is not defined");
-    }
-    return _this2;
-  }
-  _createClass(ReactTextareaAutocomplete2, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      Listeners.startListen(this.textareaRef);
-      this.textareaRef && this.textareaRef.addEventListener("focus", this._handleCaretChange);
-      this.textareaRef && this.textareaRef.addEventListener("click", this._handleCaretChange);
-      this.textareaRef && this.textareaRef.addEventListener("keydown", this._handleCaretChange);
-    }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(_ref2) {
-      var oldTrigger = _ref2.trigger, oldValue = _ref2.value;
-      var _this$props2 = this.props, trigger = _this$props2.trigger, value = _this$props2.value;
-      if (Object.keys(trigger).join("") !== Object.keys(oldTrigger).join("")) {
-        this._createRegExp();
-      }
-      if (oldValue !== value && this.lastValueBubbledEvent !== value) {
-        this.lastTrigger = 0;
-        this._changeHandler();
-      }
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      this.escListenerDestroy();
-      Listeners.stopListen(this.textareaRef);
-      this.textareaRef && this.textareaRef.removeEventListener("focus", this._handleCaretChange);
-      this.textareaRef && this.textareaRef.removeEventListener("click", this._handleCaretChange);
-      this.textareaRef && this.textareaRef.removeEventListener("keydown", this._handleCaretChange);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this3 = this;
-      var _this$props3 = this.props, Loader = _this$props3.loadingComponent, style = _this$props3.style, className = _this$props3.className, listStyle = _this$props3.listStyle, itemStyle = _this$props3.itemStyle, boundariesElement = _this$props3.boundariesElement, movePopupAsYouType = _this$props3.movePopupAsYouType, listClassName = _this$props3.listClassName, itemClassName = _this$props3.itemClassName, dropdownClassName = _this$props3.dropdownClassName, dropdownStyle = _this$props3.dropdownStyle, containerStyle = _this$props3.containerStyle, containerClassName = _this$props3.containerClassName, loaderStyle = _this$props3.loaderStyle, loaderClassName = _this$props3.loaderClassName, textAreaComponent = _this$props3.textAreaComponent, renderToBody = _this$props3.renderToBody;
-      var _this$state = this.state, left2 = _this$state.left, top2 = _this$state.top, dataLoading = _this$state.dataLoading, component = _this$state.component, value = _this$state.value, textToReplace = _this$state.textToReplace;
-      var isAutocompleteOpen = this._isAutocompleteOpen();
-      var suggestionData = this._getSuggestions();
-      var extraAttrs = {};
-      var TextAreaComponent;
-      if (textAreaComponent.component) {
-        TextAreaComponent = textAreaComponent.component;
-        extraAttrs[textAreaComponent.ref] = this._textareaRef;
+    } while (dir < 0 ? cursor.prevSibling() : cursor.nextSibling());
+  return { start: firstToken, matched: false };
+}
+function matchPlainBrackets(state, pos, dir, tree, tokenType, maxScanDistance, brackets) {
+  if (dir < 0 ? !pos : pos == state.doc.length)
+    return null;
+  let startCh = dir < 0 ? state.sliceDoc(pos - 1, pos) : state.sliceDoc(pos, pos + 1);
+  let bracket2 = brackets.indexOf(startCh);
+  if (bracket2 < 0 || bracket2 % 2 == 0 != dir > 0)
+    return null;
+  let startToken = { from: dir < 0 ? pos - 1 : pos, to: dir > 0 ? pos + 1 : pos };
+  let iter = state.doc.iterRange(pos, dir > 0 ? state.doc.length : 0), depth = 0;
+  for (let distance2 = 0; !iter.next().done && distance2 <= maxScanDistance; ) {
+    let text = iter.value;
+    if (dir < 0)
+      distance2 += text.length;
+    let basePos = pos + distance2 * dir;
+    for (let pos2 = dir > 0 ? 0 : text.length - 1, end2 = dir > 0 ? text.length : -1; pos2 != end2; pos2 += dir) {
+      let found = brackets.indexOf(text[pos2]);
+      if (found < 0 || tree.resolveInner(basePos + pos2, 1).type != tokenType)
+        continue;
+      if (found % 2 == 0 == dir > 0) {
+        depth++;
+      } else if (depth == 1) {
+        return { start: startToken, end: { from: basePos + pos2, to: basePos + pos2 + 1 }, matched: found >> 1 == bracket2 >> 1 };
       } else {
-        TextAreaComponent = textAreaComponent;
-        extraAttrs.ref = this._textareaRef;
+        depth--;
       }
-      return React.createElement("div", {
-        className: "rta ".concat(dataLoading === true ? "rta--loading" : "", " ").concat(containerClassName || ""),
-        style: containerStyle
-      }, React.createElement(TextAreaComponent, Object.assign({}, this._cleanUpProps(), {
-        className: "rta__textarea ".concat(className || ""),
-        onChange: this._changeHandler,
-        onSelect: this._selectHandler,
-        onScroll: this._onScrollHandler,
-        onClick: this._onClick,
-        onBlur: this._onBlur,
-        value,
-        style
-      }, extraAttrs)), isAutocompleteOpen && React.createElement(Autocomplete, {
-        innerRef: function innerRef(ref) {
-          _this3.dropdownRef = ref;
-        },
-        top: top2,
-        left: left2,
-        style: dropdownStyle,
-        className: dropdownClassName,
-        movePopupAsYouType,
-        boundariesElement,
-        textareaRef: this.textareaRef,
-        renderToBody
-      }, suggestionData && component && textToReplace && React.createElement(List, {
-        values: suggestionData,
-        component,
-        style: listStyle,
-        className: listClassName,
-        itemClassName,
-        itemStyle,
-        getTextToReplace: textToReplace,
-        onItemHighlighted: this._onItemHighlightedHandler,
-        onSelect: this._onSelect,
-        dropdownScroll: this._dropdownScroll
-      }), dataLoading && React.createElement("div", {
-        className: "rta__loader ".concat(suggestionData !== null ? "rta__loader--suggestion-data" : "rta__loader--empty-suggestion-data", " ").concat(loaderClassName || ""),
-        style: loaderStyle
-      }, React.createElement(Loader, {
-        data: suggestionData
-      }))));
     }
-  }], [{
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(_ref3) {
-      var value = _ref3.value;
-      if (value === null || value === void 0)
-        return null;
-      return {
-        value
-      };
+    if (dir > 0)
+      distance2 += text.length;
+  }
+  return iter.done ? { start: startToken, matched: false } : null;
+}
+const noTokens = /* @__PURE__ */ Object.create(null);
+const typeArray = [NodeType.none];
+const warned = [];
+const byTag = /* @__PURE__ */ Object.create(null);
+const defaultTable = /* @__PURE__ */ Object.create(null);
+for (let [legacyName, name2] of [
+  ["variable", "variableName"],
+  ["variable-2", "variableName.special"],
+  ["string-2", "string.special"],
+  ["def", "variableName.definition"],
+  ["tag", "tagName"],
+  ["attribute", "attributeName"],
+  ["type", "typeName"],
+  ["builtin", "variableName.standard"],
+  ["qualifier", "modifier"],
+  ["error", "invalid"],
+  ["header", "heading"],
+  ["property", "propertyName"]
+])
+  defaultTable[legacyName] = /* @__PURE__ */ createTokenType(noTokens, name2);
+function warnForPart(part, msg) {
+  if (warned.indexOf(part) > -1)
+    return;
+  warned.push(part);
+  console.warn(msg);
+}
+function createTokenType(extra, tagStr) {
+  let tags$1 = [];
+  for (let name3 of tagStr.split(" ")) {
+    let found = [];
+    for (let part of name3.split(".")) {
+      let value = extra[part] || tags[part];
+      if (!value) {
+        warnForPart(part, `Unknown highlighting tag ${part}`);
+      } else if (typeof value == "function") {
+        if (!found.length)
+          warnForPart(part, `Modifier ${part} used at start of tag`);
+        else
+          found = found.map(value);
+      } else {
+        if (found.length)
+          warnForPart(part, `Tag ${part} used as modifier`);
+        else
+          found = Array.isArray(value) ? value : [value];
+      }
     }
-  }]);
-  return ReactTextareaAutocomplete2;
-}(React.Component);
-ReactTextareaAutocomplete.defaultProps = {
-  movePopupAsYouType: false,
-  value: null,
-  minChar: 1,
-  boundariesElement: "body",
-  scrollToItem: true,
-  textAreaComponent: "textarea",
-  renderToBody: false
+    for (let tag of found)
+      tags$1.push(tag);
+  }
+  if (!tags$1.length)
+    return 0;
+  let name2 = tagStr.replace(/ /g, "_"), key = name2 + " " + tags$1.map((t2) => t2.id);
+  let known = byTag[key];
+  if (known)
+    return known.id;
+  let type = byTag[key] = NodeType.define({
+    id: typeArray.length,
+    name: name2,
+    props: [styleTags({ [name2]: tags$1 })]
+  });
+  typeArray.push(type);
+  return type.id;
+}
+({
+  rtl: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "rtl" }, bidiIsolate: Direction.RTL }),
+  ltr: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "ltr" }, bidiIsolate: Direction.LTR }),
+  auto: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "auto" }, bidiIsolate: null })
+});
+const toggleComment = (target) => {
+  let { state } = target, line = state.doc.lineAt(state.selection.main.from), config = getConfig(target.state, line.from);
+  return config.line ? toggleLineComment(target) : config.block ? toggleBlockCommentByLine(target) : false;
 };
+function command(f2, option) {
+  return ({ state, dispatch }) => {
+    if (state.readOnly)
+      return false;
+    let tr2 = f2(option, state);
+    if (!tr2)
+      return false;
+    dispatch(state.update(tr2));
+    return true;
+  };
+}
+const toggleLineComment = /* @__PURE__ */ command(changeLineComment, 0);
+const toggleBlockComment = /* @__PURE__ */ command(changeBlockComment, 0);
+const toggleBlockCommentByLine = /* @__PURE__ */ command((o, s) => changeBlockComment(o, s, selectedLineRanges(s)), 0);
+function getConfig(state, pos) {
+  let data = state.languageDataAt("commentTokens", pos, 1);
+  return data.length ? data[0] : {};
+}
+const SearchMargin = 50;
+function findBlockComment(state, { open, close }, from, to) {
+  let textBefore = state.sliceDoc(from - SearchMargin, from);
+  let textAfter = state.sliceDoc(to, to + SearchMargin);
+  let spaceBefore = /\s*$/.exec(textBefore)[0].length, spaceAfter = /^\s*/.exec(textAfter)[0].length;
+  let beforeOff = textBefore.length - spaceBefore;
+  if (textBefore.slice(beforeOff - open.length, beforeOff) == open && textAfter.slice(spaceAfter, spaceAfter + close.length) == close) {
+    return {
+      open: { pos: from - spaceBefore, margin: spaceBefore && 1 },
+      close: { pos: to + spaceAfter, margin: spaceAfter && 1 }
+    };
+  }
+  let startText, endText;
+  if (to - from <= 2 * SearchMargin) {
+    startText = endText = state.sliceDoc(from, to);
+  } else {
+    startText = state.sliceDoc(from, from + SearchMargin);
+    endText = state.sliceDoc(to - SearchMargin, to);
+  }
+  let startSpace = /^\s*/.exec(startText)[0].length, endSpace = /\s*$/.exec(endText)[0].length;
+  let endOff = endText.length - endSpace - close.length;
+  if (startText.slice(startSpace, startSpace + open.length) == open && endText.slice(endOff, endOff + close.length) == close) {
+    return {
+      open: {
+        pos: from + startSpace + open.length,
+        margin: /\s/.test(startText.charAt(startSpace + open.length)) ? 1 : 0
+      },
+      close: {
+        pos: to - endSpace - close.length,
+        margin: /\s/.test(endText.charAt(endOff - 1)) ? 1 : 0
+      }
+    };
+  }
+  return null;
+}
+function selectedLineRanges(state) {
+  let ranges = [];
+  for (let r2 of state.selection.ranges) {
+    let fromLine = state.doc.lineAt(r2.from);
+    let toLine = r2.to <= fromLine.to ? fromLine : state.doc.lineAt(r2.to);
+    if (toLine.from > fromLine.from && toLine.from == r2.to)
+      toLine = r2.to == fromLine.to + 1 ? fromLine : state.doc.lineAt(r2.to - 1);
+    let last2 = ranges.length - 1;
+    if (last2 >= 0 && ranges[last2].to > fromLine.from)
+      ranges[last2].to = toLine.to;
+    else
+      ranges.push({ from: fromLine.from + /^\s*/.exec(fromLine.text)[0].length, to: toLine.to });
+  }
+  return ranges;
+}
+function changeBlockComment(option, state, ranges = state.selection.ranges) {
+  let tokens = ranges.map((r2) => getConfig(state, r2.from).block);
+  if (!tokens.every((c) => c))
+    return null;
+  let comments = ranges.map((r2, i2) => findBlockComment(state, tokens[i2], r2.from, r2.to));
+  if (option != 2 && !comments.every((c) => c)) {
+    return { changes: state.changes(ranges.map((range, i2) => {
+      if (comments[i2])
+        return [];
+      return [{ from: range.from, insert: tokens[i2].open + " " }, { from: range.to, insert: " " + tokens[i2].close }];
+    })) };
+  } else if (option != 1 && comments.some((c) => c)) {
+    let changes = [];
+    for (let i2 = 0, comment2; i2 < comments.length; i2++)
+      if (comment2 = comments[i2]) {
+        let token = tokens[i2], { open, close } = comment2;
+        changes.push({ from: open.pos - token.open.length, to: open.pos + open.margin }, { from: close.pos - close.margin, to: close.pos + token.close.length });
+      }
+    return { changes };
+  }
+  return null;
+}
+function changeLineComment(option, state, ranges = state.selection.ranges) {
+  let lines = [];
+  let prevLine = -1;
+  ranges:
+    for (let { from, to } of ranges) {
+      let startI = lines.length, minIndent = 1e9, token;
+      for (let pos = from; pos <= to; ) {
+        let line = state.doc.lineAt(pos);
+        if (token == void 0) {
+          token = getConfig(state, line.from).line;
+          if (!token)
+            continue ranges;
+        }
+        if (line.from > prevLine && (from == to || to > line.from)) {
+          prevLine = line.from;
+          let indent = /^\s*/.exec(line.text)[0].length;
+          let empty = indent == line.length;
+          let comment2 = line.text.slice(indent, indent + token.length) == token ? indent : -1;
+          if (indent < line.text.length && indent < minIndent)
+            minIndent = indent;
+          lines.push({ line, comment: comment2, token, indent, empty, single: false });
+        }
+        pos = line.to + 1;
+      }
+      if (minIndent < 1e9) {
+        for (let i2 = startI; i2 < lines.length; i2++)
+          if (lines[i2].indent < lines[i2].line.text.length)
+            lines[i2].indent = minIndent;
+      }
+      if (lines.length == startI + 1)
+        lines[startI].single = true;
+    }
+  if (option != 2 && lines.some((l2) => l2.comment < 0 && (!l2.empty || l2.single))) {
+    let changes = [];
+    for (let { line, token, indent, empty, single } of lines)
+      if (single || !empty)
+        changes.push({ from: line.from + indent, insert: token + " " });
+    let changeSet = state.changes(changes);
+    return { changes: changeSet, selection: state.selection.map(changeSet, 1) };
+  } else if (option != 1 && lines.some((l2) => l2.comment >= 0)) {
+    let changes = [];
+    for (let { line, comment: comment2, token } of lines)
+      if (comment2 >= 0) {
+        let from = line.from + comment2, to = from + token.length;
+        if (line.text[to - line.from] == " ")
+          to++;
+        changes.push({ from, to });
+      }
+    return { changes };
+  }
+  return null;
+}
+const fromHistory = /* @__PURE__ */ Annotation.define();
+const isolateHistory = /* @__PURE__ */ Annotation.define();
+const invertedEffects = /* @__PURE__ */ Facet.define();
+const historyConfig = /* @__PURE__ */ Facet.define({
+  combine(configs) {
+    return combineConfig(configs, {
+      minDepth: 100,
+      newGroupDelay: 500,
+      joinToEvent: (_t, isAdjacent2) => isAdjacent2
+    }, {
+      minDepth: Math.max,
+      newGroupDelay: Math.min,
+      joinToEvent: (a, b) => (tr2, adj) => a(tr2, adj) || b(tr2, adj)
+    });
+  }
+});
+const historyField_ = /* @__PURE__ */ StateField.define({
+  create() {
+    return HistoryState.empty;
+  },
+  update(state, tr2) {
+    let config = tr2.state.facet(historyConfig);
+    let fromHist = tr2.annotation(fromHistory);
+    if (fromHist) {
+      let item = HistEvent.fromTransaction(tr2, fromHist.selection), from = fromHist.side;
+      let other = from == 0 ? state.undone : state.done;
+      if (item)
+        other = updateBranch(other, other.length, config.minDepth, item);
+      else
+        other = addSelection(other, tr2.startState.selection);
+      return new HistoryState(from == 0 ? fromHist.rest : other, from == 0 ? other : fromHist.rest);
+    }
+    let isolate = tr2.annotation(isolateHistory);
+    if (isolate == "full" || isolate == "before")
+      state = state.isolate();
+    if (tr2.annotation(Transaction.addToHistory) === false)
+      return !tr2.changes.empty ? state.addMapping(tr2.changes.desc) : state;
+    let event = HistEvent.fromTransaction(tr2);
+    let time = tr2.annotation(Transaction.time), userEvent = tr2.annotation(Transaction.userEvent);
+    if (event)
+      state = state.addChanges(event, time, userEvent, config, tr2);
+    else if (tr2.selection)
+      state = state.addSelection(tr2.startState.selection, time, userEvent, config.newGroupDelay);
+    if (isolate == "full" || isolate == "after")
+      state = state.isolate();
+    return state;
+  },
+  toJSON(value) {
+    return { done: value.done.map((e) => e.toJSON()), undone: value.undone.map((e) => e.toJSON()) };
+  },
+  fromJSON(json) {
+    return new HistoryState(json.done.map(HistEvent.fromJSON), json.undone.map(HistEvent.fromJSON));
+  }
+});
+function history(config = {}) {
+  return [
+    historyField_,
+    historyConfig.of(config),
+    EditorView.domEventHandlers({
+      beforeinput(e, view) {
+        let command2 = e.inputType == "historyUndo" ? undo : e.inputType == "historyRedo" ? redo : null;
+        if (!command2)
+          return false;
+        e.preventDefault();
+        return command2(view);
+      }
+    })
+  ];
+}
+function cmd(side, selection) {
+  return function({ state, dispatch }) {
+    if (!selection && state.readOnly)
+      return false;
+    let historyState = state.field(historyField_, false);
+    if (!historyState)
+      return false;
+    let tr2 = historyState.pop(side, state, selection);
+    if (!tr2)
+      return false;
+    dispatch(tr2);
+    return true;
+  };
+}
+const undo = /* @__PURE__ */ cmd(0, false);
+const redo = /* @__PURE__ */ cmd(1, false);
+const undoSelection = /* @__PURE__ */ cmd(0, true);
+const redoSelection = /* @__PURE__ */ cmd(1, true);
+class HistEvent {
+  constructor(changes, effects, mapped, startSelection, selectionsAfter) {
+    this.changes = changes;
+    this.effects = effects;
+    this.mapped = mapped;
+    this.startSelection = startSelection;
+    this.selectionsAfter = selectionsAfter;
+  }
+  setSelAfter(after) {
+    return new HistEvent(this.changes, this.effects, this.mapped, this.startSelection, after);
+  }
+  toJSON() {
+    var _a2, _b, _c;
+    return {
+      changes: (_a2 = this.changes) === null || _a2 === void 0 ? void 0 : _a2.toJSON(),
+      mapped: (_b = this.mapped) === null || _b === void 0 ? void 0 : _b.toJSON(),
+      startSelection: (_c = this.startSelection) === null || _c === void 0 ? void 0 : _c.toJSON(),
+      selectionsAfter: this.selectionsAfter.map((s) => s.toJSON())
+    };
+  }
+  static fromJSON(json) {
+    return new HistEvent(json.changes && ChangeSet.fromJSON(json.changes), [], json.mapped && ChangeDesc.fromJSON(json.mapped), json.startSelection && EditorSelection.fromJSON(json.startSelection), json.selectionsAfter.map(EditorSelection.fromJSON));
+  }
+  static fromTransaction(tr2, selection) {
+    let effects = none$1;
+    for (let invert of tr2.startState.facet(invertedEffects)) {
+      let result = invert(tr2);
+      if (result.length)
+        effects = effects.concat(result);
+    }
+    if (!effects.length && tr2.changes.empty)
+      return null;
+    return new HistEvent(tr2.changes.invert(tr2.startState.doc), effects, void 0, selection || tr2.startState.selection, none$1);
+  }
+  static selection(selections) {
+    return new HistEvent(void 0, none$1, void 0, void 0, selections);
+  }
+}
+function updateBranch(branch, to, maxLen, newEvent) {
+  let start2 = to + 1 > maxLen + 20 ? to - maxLen - 1 : 0;
+  let newBranch = branch.slice(start2, to);
+  newBranch.push(newEvent);
+  return newBranch;
+}
+function isAdjacent(a, b) {
+  let ranges = [], isAdjacent2 = false;
+  a.iterChangedRanges((f2, t2) => ranges.push(f2, t2));
+  b.iterChangedRanges((_f, _t, f2, t2) => {
+    for (let i2 = 0; i2 < ranges.length; ) {
+      let from = ranges[i2++], to = ranges[i2++];
+      if (t2 >= from && f2 <= to)
+        isAdjacent2 = true;
+    }
+  });
+  return isAdjacent2;
+}
+function eqSelectionShape(a, b) {
+  return a.ranges.length == b.ranges.length && a.ranges.filter((r2, i2) => r2.empty != b.ranges[i2].empty).length === 0;
+}
+function conc(a, b) {
+  return !a.length ? b : !b.length ? a : a.concat(b);
+}
+const none$1 = [];
+const MaxSelectionsPerEvent = 200;
+function addSelection(branch, selection) {
+  if (!branch.length) {
+    return [HistEvent.selection([selection])];
+  } else {
+    let lastEvent = branch[branch.length - 1];
+    let sels = lastEvent.selectionsAfter.slice(Math.max(0, lastEvent.selectionsAfter.length - MaxSelectionsPerEvent));
+    if (sels.length && sels[sels.length - 1].eq(selection))
+      return branch;
+    sels.push(selection);
+    return updateBranch(branch, branch.length - 1, 1e9, lastEvent.setSelAfter(sels));
+  }
+}
+function popSelection(branch) {
+  let last2 = branch[branch.length - 1];
+  let newBranch = branch.slice();
+  newBranch[branch.length - 1] = last2.setSelAfter(last2.selectionsAfter.slice(0, last2.selectionsAfter.length - 1));
+  return newBranch;
+}
+function addMappingToBranch(branch, mapping) {
+  if (!branch.length)
+    return branch;
+  let length = branch.length, selections = none$1;
+  while (length) {
+    let event = mapEvent(branch[length - 1], mapping, selections);
+    if (event.changes && !event.changes.empty || event.effects.length) {
+      let result = branch.slice(0, length);
+      result[length - 1] = event;
+      return result;
+    } else {
+      mapping = event.mapped;
+      length--;
+      selections = event.selectionsAfter;
+    }
+  }
+  return selections.length ? [HistEvent.selection(selections)] : none$1;
+}
+function mapEvent(event, mapping, extraSelections) {
+  let selections = conc(event.selectionsAfter.length ? event.selectionsAfter.map((s) => s.map(mapping)) : none$1, extraSelections);
+  if (!event.changes)
+    return HistEvent.selection(selections);
+  let mappedChanges = event.changes.map(mapping), before = mapping.mapDesc(event.changes, true);
+  let fullMapping = event.mapped ? event.mapped.composeDesc(before) : before;
+  return new HistEvent(mappedChanges, StateEffect.mapEffects(event.effects, mapping), fullMapping, event.startSelection.map(before), selections);
+}
+const joinableUserEvent = /^(input\.type|delete)($|\.)/;
+class HistoryState {
+  constructor(done, undone, prevTime = 0, prevUserEvent = void 0) {
+    this.done = done;
+    this.undone = undone;
+    this.prevTime = prevTime;
+    this.prevUserEvent = prevUserEvent;
+  }
+  isolate() {
+    return this.prevTime ? new HistoryState(this.done, this.undone) : this;
+  }
+  addChanges(event, time, userEvent, config, tr2) {
+    let done = this.done, lastEvent = done[done.length - 1];
+    if (lastEvent && lastEvent.changes && !lastEvent.changes.empty && event.changes && (!userEvent || joinableUserEvent.test(userEvent)) && (!lastEvent.selectionsAfter.length && time - this.prevTime < config.newGroupDelay && config.joinToEvent(tr2, isAdjacent(lastEvent.changes, event.changes)) || userEvent == "input.type.compose")) {
+      done = updateBranch(done, done.length - 1, config.minDepth, new HistEvent(event.changes.compose(lastEvent.changes), conc(StateEffect.mapEffects(event.effects, lastEvent.changes), lastEvent.effects), lastEvent.mapped, lastEvent.startSelection, none$1));
+    } else {
+      done = updateBranch(done, done.length, config.minDepth, event);
+    }
+    return new HistoryState(done, none$1, time, userEvent);
+  }
+  addSelection(selection, time, userEvent, newGroupDelay) {
+    let last2 = this.done.length ? this.done[this.done.length - 1].selectionsAfter : none$1;
+    if (last2.length > 0 && time - this.prevTime < newGroupDelay && userEvent == this.prevUserEvent && userEvent && /^select($|\.)/.test(userEvent) && eqSelectionShape(last2[last2.length - 1], selection))
+      return this;
+    return new HistoryState(addSelection(this.done, selection), this.undone, time, userEvent);
+  }
+  addMapping(mapping) {
+    return new HistoryState(addMappingToBranch(this.done, mapping), addMappingToBranch(this.undone, mapping), this.prevTime, this.prevUserEvent);
+  }
+  pop(side, state, onlySelection) {
+    let branch = side == 0 ? this.done : this.undone;
+    if (branch.length == 0)
+      return null;
+    let event = branch[branch.length - 1], selection = event.selectionsAfter[0] || (event.startSelection ? event.startSelection.map(event.changes.invertedDesc, 1) : state.selection);
+    if (onlySelection && event.selectionsAfter.length) {
+      return state.update({
+        selection: event.selectionsAfter[event.selectionsAfter.length - 1],
+        annotations: fromHistory.of({ side, rest: popSelection(branch), selection }),
+        userEvent: side == 0 ? "select.undo" : "select.redo",
+        scrollIntoView: true
+      });
+    } else if (!event.changes) {
+      return null;
+    } else {
+      let rest = branch.length == 1 ? none$1 : branch.slice(0, branch.length - 1);
+      if (event.mapped)
+        rest = addMappingToBranch(rest, event.mapped);
+      return state.update({
+        changes: event.changes,
+        selection: event.startSelection,
+        effects: event.effects,
+        annotations: fromHistory.of({ side, rest, selection }),
+        filter: false,
+        userEvent: side == 0 ? "undo" : "redo",
+        scrollIntoView: true
+      });
+    }
+  }
+}
+HistoryState.empty = /* @__PURE__ */ new HistoryState(none$1, none$1);
+const historyKeymap = [
+  { key: "Mod-z", run: undo, preventDefault: true },
+  { key: "Mod-y", mac: "Mod-Shift-z", run: redo, preventDefault: true },
+  { linux: "Ctrl-Shift-z", run: redo, preventDefault: true },
+  { key: "Mod-u", run: undoSelection, preventDefault: true },
+  { key: "Alt-u", mac: "Mod-Shift-u", run: redoSelection, preventDefault: true }
+];
+function updateSel(sel, by) {
+  return EditorSelection.create(sel.ranges.map(by), sel.mainIndex);
+}
+function setSel(state, selection) {
+  return state.update({ selection, scrollIntoView: true, userEvent: "select" });
+}
+function moveSel({ state, dispatch }, how) {
+  let selection = updateSel(state.selection, how);
+  if (selection.eq(state.selection, true))
+    return false;
+  dispatch(setSel(state, selection));
+  return true;
+}
+function rangeEnd(range, forward) {
+  return EditorSelection.cursor(forward ? range.to : range.from);
+}
+function cursorByChar(view, forward) {
+  return moveSel(view, (range) => range.empty ? view.moveByChar(range, forward) : rangeEnd(range, forward));
+}
+function ltrAtCursor(view) {
+  return view.textDirectionAt(view.state.selection.main.head) == Direction.LTR;
+}
+const cursorCharLeft = (view) => cursorByChar(view, !ltrAtCursor(view));
+const cursorCharRight = (view) => cursorByChar(view, ltrAtCursor(view));
+function cursorByGroup(view, forward) {
+  return moveSel(view, (range) => range.empty ? view.moveByGroup(range, forward) : rangeEnd(range, forward));
+}
+const cursorGroupLeft = (view) => cursorByGroup(view, !ltrAtCursor(view));
+const cursorGroupRight = (view) => cursorByGroup(view, ltrAtCursor(view));
+function interestingNode(state, node, bracketProp) {
+  if (node.type.prop(bracketProp))
+    return true;
+  let len = node.to - node.from;
+  return len && (len > 2 || /[^\s,.;:]/.test(state.sliceDoc(node.from, node.to))) || node.firstChild;
+}
+function moveBySyntax(state, start2, forward) {
+  let pos = syntaxTree(state).resolveInner(start2.head);
+  let bracketProp = forward ? NodeProp.closedBy : NodeProp.openedBy;
+  for (let at = start2.head; ; ) {
+    let next = forward ? pos.childAfter(at) : pos.childBefore(at);
+    if (!next)
+      break;
+    if (interestingNode(state, next, bracketProp))
+      pos = next;
+    else
+      at = forward ? next.to : next.from;
+  }
+  let bracket2 = pos.type.prop(bracketProp), match, newPos;
+  if (bracket2 && (match = forward ? matchBrackets(state, pos.from, 1) : matchBrackets(state, pos.to, -1)) && match.matched)
+    newPos = forward ? match.end.to : match.end.from;
+  else
+    newPos = forward ? pos.to : pos.from;
+  return EditorSelection.cursor(newPos, forward ? -1 : 1);
+}
+const cursorSyntaxLeft = (view) => moveSel(view, (range) => moveBySyntax(view.state, range, !ltrAtCursor(view)));
+const cursorSyntaxRight = (view) => moveSel(view, (range) => moveBySyntax(view.state, range, ltrAtCursor(view)));
+function cursorByLine(view, forward) {
+  return moveSel(view, (range) => {
+    if (!range.empty)
+      return rangeEnd(range, forward);
+    let moved = view.moveVertically(range, forward);
+    return moved.head != range.head ? moved : view.moveToLineBoundary(range, forward);
+  });
+}
+const cursorLineUp = (view) => cursorByLine(view, false);
+const cursorLineDown = (view) => cursorByLine(view, true);
+function pageInfo(view) {
+  let selfScroll = view.scrollDOM.clientHeight < view.scrollDOM.scrollHeight - 2;
+  let marginTop = 0, marginBottom = 0, height;
+  if (selfScroll) {
+    for (let source of view.state.facet(EditorView.scrollMargins)) {
+      let margins = source(view);
+      if (margins === null || margins === void 0 ? void 0 : margins.top)
+        marginTop = Math.max(margins === null || margins === void 0 ? void 0 : margins.top, marginTop);
+      if (margins === null || margins === void 0 ? void 0 : margins.bottom)
+        marginBottom = Math.max(margins === null || margins === void 0 ? void 0 : margins.bottom, marginBottom);
+    }
+    height = view.scrollDOM.clientHeight - marginTop - marginBottom;
+  } else {
+    height = (view.dom.ownerDocument.defaultView || window).innerHeight;
+  }
+  return {
+    marginTop,
+    marginBottom,
+    selfScroll,
+    height: Math.max(view.defaultLineHeight, height - 5)
+  };
+}
+function cursorByPage(view, forward) {
+  let page = pageInfo(view);
+  let { state } = view, selection = updateSel(state.selection, (range) => {
+    return range.empty ? view.moveVertically(range, forward, page.height) : rangeEnd(range, forward);
+  });
+  if (selection.eq(state.selection))
+    return false;
+  let effect2;
+  if (page.selfScroll) {
+    let startPos = view.coordsAtPos(state.selection.main.head);
+    let scrollRect = view.scrollDOM.getBoundingClientRect();
+    let scrollTop = scrollRect.top + page.marginTop, scrollBottom = scrollRect.bottom - page.marginBottom;
+    if (startPos && startPos.top > scrollTop && startPos.bottom < scrollBottom)
+      effect2 = EditorView.scrollIntoView(selection.main.head, { y: "start", yMargin: startPos.top - scrollTop });
+  }
+  view.dispatch(setSel(state, selection), { effects: effect2 });
+  return true;
+}
+const cursorPageUp = (view) => cursorByPage(view, false);
+const cursorPageDown = (view) => cursorByPage(view, true);
+function moveByLineBoundary(view, start2, forward) {
+  let line = view.lineBlockAt(start2.head), moved = view.moveToLineBoundary(start2, forward);
+  if (moved.head == start2.head && moved.head != (forward ? line.to : line.from))
+    moved = view.moveToLineBoundary(start2, forward, false);
+  if (!forward && moved.head == line.from && line.length) {
+    let space = /^\s*/.exec(view.state.sliceDoc(line.from, Math.min(line.from + 100, line.to)))[0].length;
+    if (space && start2.head != line.from + space)
+      moved = EditorSelection.cursor(line.from + space);
+  }
+  return moved;
+}
+const cursorLineBoundaryForward = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, true));
+const cursorLineBoundaryBackward = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, false));
+const cursorLineBoundaryLeft = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, !ltrAtCursor(view)));
+const cursorLineBoundaryRight = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, ltrAtCursor(view)));
+const cursorLineStart = (view) => moveSel(view, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).from, 1));
+const cursorLineEnd = (view) => moveSel(view, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).to, -1));
+function toMatchingBracket(state, dispatch, extend) {
+  let found = false, selection = updateSel(state.selection, (range) => {
+    let matching = matchBrackets(state, range.head, -1) || matchBrackets(state, range.head, 1) || range.head > 0 && matchBrackets(state, range.head - 1, 1) || range.head < state.doc.length && matchBrackets(state, range.head + 1, -1);
+    if (!matching || !matching.end)
+      return range;
+    found = true;
+    let head = matching.start.from == range.head ? matching.end.to : matching.end.from;
+    return extend ? EditorSelection.range(range.anchor, head) : EditorSelection.cursor(head);
+  });
+  if (!found)
+    return false;
+  dispatch(setSel(state, selection));
+  return true;
+}
+const cursorMatchingBracket = ({ state, dispatch }) => toMatchingBracket(state, dispatch, false);
+function extendSel(target, forward, how) {
+  let selection = updateSel(target.state.selection, (range) => {
+    if (range.undirectional && range.head >= range.anchor != forward)
+      range = EditorSelection.range(range.head, range.anchor);
+    let head = how(range);
+    return EditorSelection.range(range.anchor, head.head, head.goalColumn, head.bidiLevel || void 0, head.assoc);
+  });
+  if (selection.eq(target.state.selection))
+    return false;
+  target.dispatch(setSel(target.state, selection));
+  return true;
+}
+function selectByChar(view, forward) {
+  return extendSel(view, forward, (range) => view.moveByChar(range, forward));
+}
+const selectCharLeft = (view) => selectByChar(view, !ltrAtCursor(view));
+const selectCharRight = (view) => selectByChar(view, ltrAtCursor(view));
+function selectByGroup(view, forward) {
+  return extendSel(view, forward, (range) => view.moveByGroup(range, forward));
+}
+const selectGroupLeft = (view) => selectByGroup(view, !ltrAtCursor(view));
+const selectGroupRight = (view) => selectByGroup(view, ltrAtCursor(view));
+const selectSyntaxLeft = (view) => {
+  let forward = !ltrAtCursor(view);
+  return extendSel(view, forward, (range) => moveBySyntax(view.state, range, forward));
+};
+const selectSyntaxRight = (view) => {
+  let forward = ltrAtCursor(view);
+  return extendSel(view, forward, (range) => moveBySyntax(view.state, range, forward));
+};
+function selectByLine(view, forward) {
+  return extendSel(view, forward, (range) => view.moveVertically(range, forward));
+}
+const selectLineUp = (view) => selectByLine(view, false);
+const selectLineDown = (view) => selectByLine(view, true);
+function selectByPage(view, forward) {
+  return extendSel(view, forward, (range) => view.moveVertically(range, forward, pageInfo(view).height));
+}
+const selectPageUp = (view) => selectByPage(view, false);
+const selectPageDown = (view) => selectByPage(view, true);
+const selectLineBoundaryForward = (view) => extendSel(view, true, (range) => moveByLineBoundary(view, range, true));
+const selectLineBoundaryBackward = (view) => extendSel(view, false, (range) => moveByLineBoundary(view, range, false));
+const selectLineBoundaryLeft = (view) => {
+  let forward = !ltrAtCursor(view);
+  return extendSel(view, forward, (range) => moveByLineBoundary(view, range, forward));
+};
+const selectLineBoundaryRight = (view) => {
+  let forward = ltrAtCursor(view);
+  return extendSel(view, forward, (range) => moveByLineBoundary(view, range, forward));
+};
+const selectLineStart = (view) => extendSel(view, false, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).from));
+const selectLineEnd = (view) => extendSel(view, true, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).to));
+const cursorDocStart = ({ state, dispatch }) => {
+  dispatch(setSel(state, { anchor: 0 }));
+  return true;
+};
+const cursorDocEnd = ({ state, dispatch }) => {
+  dispatch(setSel(state, { anchor: state.doc.length }));
+  return true;
+};
+const selectDocStart = ({ state, dispatch }) => {
+  dispatch(setSel(state, { anchor: state.selection.main.anchor, head: 0 }));
+  return true;
+};
+const selectDocEnd = ({ state, dispatch }) => {
+  dispatch(setSel(state, { anchor: state.selection.main.anchor, head: state.doc.length }));
+  return true;
+};
+const selectAll = ({ state, dispatch }) => {
+  dispatch(state.update({ selection: { anchor: 0, head: state.doc.length }, userEvent: "select" }));
+  return true;
+};
+const selectLine = ({ state, dispatch }) => {
+  let ranges = selectedLineBlocks(state).map(({ from, to }) => EditorSelection.undirectionalRange(from, Math.min(to + 1, state.doc.length)));
+  dispatch(state.update({ selection: EditorSelection.create(ranges), userEvent: "select" }));
+  return true;
+};
+const selectParentSyntax = ({ state, dispatch }) => {
+  let selection = updateSel(state.selection, (range) => {
+    let tree = syntaxTree(state), stack = tree.resolveStack(range.from, 1);
+    if (range.empty) {
+      let stackBefore = tree.resolveStack(range.from, -1);
+      if (stackBefore.node.from >= stack.node.from && stackBefore.node.to <= stack.node.to)
+        stack = stackBefore;
+    }
+    for (let cur2 = stack; cur2; cur2 = cur2.next) {
+      let { node } = cur2;
+      if ((node.from < range.from && node.to >= range.to || node.to > range.to && node.from <= range.from) && cur2.next)
+        return EditorSelection.undirectionalRange(node.from, node.to);
+    }
+    return range;
+  });
+  if (selection.eq(state.selection))
+    return false;
+  dispatch(setSel(state, selection));
+  return true;
+};
+function addCursorVertically(view, forward) {
+  let { state } = view, sel = state.selection, ranges = state.selection.ranges.slice();
+  for (let range of state.selection.ranges) {
+    let line = state.doc.lineAt(range.head);
+    if (forward ? line.to < view.state.doc.length : line.from > 0)
+      for (let cur2 = range; ; ) {
+        let next = view.moveVertically(cur2, forward);
+        if (next.head < line.from || next.head > line.to) {
+          if (!ranges.some((r2) => r2.head == next.head))
+            ranges.push(next);
+          break;
+        } else if (next.head == cur2.head) {
+          break;
+        } else {
+          cur2 = next;
+        }
+      }
+  }
+  if (ranges.length == sel.ranges.length)
+    return false;
+  view.dispatch(setSel(state, EditorSelection.create(ranges, ranges.length - 1)));
+  return true;
+}
+const addCursorAbove = (view) => addCursorVertically(view, false);
+const addCursorBelow = (view) => addCursorVertically(view, true);
+const simplifySelection = ({ state, dispatch }) => {
+  let cur2 = state.selection, selection = null;
+  if (cur2.ranges.length > 1)
+    selection = EditorSelection.create([cur2.main]);
+  else if (!cur2.main.empty)
+    selection = EditorSelection.create([EditorSelection.cursor(cur2.main.head)]);
+  if (!selection)
+    return false;
+  dispatch(setSel(state, selection));
+  return true;
+};
+function deleteBy(target, by) {
+  if (target.state.readOnly)
+    return false;
+  let event = "delete.selection", { state } = target;
+  let changes = state.changeByRange((range) => {
+    let { from, to } = range;
+    if (from == to) {
+      let towards = by(range);
+      if (towards < from) {
+        event = "delete.backward";
+        towards = skipAtomic(target, towards, false);
+      } else if (towards > from) {
+        event = "delete.forward";
+        towards = skipAtomic(target, towards, true);
+      }
+      from = Math.min(from, towards);
+      to = Math.max(to, towards);
+    } else {
+      from = skipAtomic(target, from, false);
+      to = skipAtomic(target, to, true);
+    }
+    return from == to ? { range } : { changes: { from, to }, range: EditorSelection.cursor(from, from < range.head ? -1 : 1) };
+  });
+  if (changes.changes.empty)
+    return false;
+  target.dispatch(state.update(changes, {
+    scrollIntoView: true,
+    userEvent: event,
+    effects: event == "delete.selection" ? EditorView.announce.of(state.phrase("Selection deleted")) : void 0
+  }));
+  return true;
+}
+function skipAtomic(target, pos, forward) {
+  if (target instanceof EditorView)
+    for (let ranges of target.state.facet(EditorView.atomicRanges).map((f2) => f2(target)))
+      ranges.between(pos, pos, (from, to) => {
+        if (from < pos && to > pos)
+          pos = forward ? to : from;
+      });
+  return pos;
+}
+const deleteByChar = (target, forward, byIndentUnit) => deleteBy(target, (range) => {
+  let pos = range.from, { state } = target, line = state.doc.lineAt(pos), before, targetPos;
+  if (byIndentUnit && !forward && pos > line.from && pos < line.from + 200 && !/[^ \t]/.test(before = line.text.slice(0, pos - line.from))) {
+    if (before[before.length - 1] == "	")
+      return pos - 1;
+    let col = countColumn(before, state.tabSize), drop = col % getIndentUnit(state) || getIndentUnit(state);
+    for (let i2 = 0; i2 < drop && before[before.length - 1 - i2] == " "; i2++)
+      pos--;
+    targetPos = pos;
+  } else {
+    targetPos = findClusterBreak(line.text, pos - line.from, forward, forward) + line.from;
+    if (targetPos == pos && line.number != (forward ? state.doc.lines : 1))
+      targetPos += forward ? 1 : -1;
+    else if (!forward && /[\ufe00-\ufe0f]/.test(line.text.slice(targetPos - line.from, pos - line.from)))
+      targetPos = findClusterBreak(line.text, targetPos - line.from, false, false) + line.from;
+  }
+  return targetPos;
+});
+const deleteCharBackward = (view) => deleteByChar(view, false, true);
+const deleteCharForward = (view) => deleteByChar(view, true, false);
+const deleteByGroup = (target, forward) => deleteBy(target, (range) => {
+  let pos = range.head, { state } = target, line = state.doc.lineAt(pos);
+  let categorize = state.charCategorizer(pos);
+  for (let cat = null; ; ) {
+    if (pos == (forward ? line.to : line.from)) {
+      if (pos == range.head && line.number != (forward ? state.doc.lines : 1))
+        pos += forward ? 1 : -1;
+      break;
+    }
+    let next = findClusterBreak(line.text, pos - line.from, forward) + line.from;
+    let nextChar = line.text.slice(Math.min(pos, next) - line.from, Math.max(pos, next) - line.from);
+    let nextCat = categorize(nextChar);
+    if (cat != null && nextCat != cat)
+      break;
+    if (nextChar != " " || pos != range.head)
+      cat = nextCat;
+    pos = next;
+  }
+  return pos;
+});
+const deleteGroupBackward = (target) => deleteByGroup(target, false);
+const deleteGroupForward = (target) => deleteByGroup(target, true);
+const deleteToLineEnd = (view) => deleteBy(view, (range) => {
+  let lineEnd = view.lineBlockAt(range.head).to;
+  return range.head < lineEnd ? lineEnd : Math.min(view.state.doc.length, range.head + 1);
+});
+const deleteLineBoundaryBackward = (view) => deleteBy(view, (range) => {
+  let lineStart = view.moveToLineBoundary(range, false).head;
+  return range.head > lineStart ? lineStart : Math.max(0, range.head - 1);
+});
+const deleteLineBoundaryForward = (view) => deleteBy(view, (range) => {
+  let lineStart = view.moveToLineBoundary(range, true).head;
+  return range.head < lineStart ? lineStart : Math.min(view.state.doc.length, range.head + 1);
+});
+const splitLine = ({ state, dispatch }) => {
+  if (state.readOnly)
+    return false;
+  let changes = state.changeByRange((range) => {
+    return {
+      changes: { from: range.from, to: range.to, insert: Text.of(["", ""]) },
+      range: EditorSelection.cursor(range.from)
+    };
+  });
+  dispatch(state.update(changes, { scrollIntoView: true, userEvent: "input" }));
+  return true;
+};
+const transposeChars = ({ state, dispatch }) => {
+  if (state.readOnly)
+    return false;
+  let changes = state.changeByRange((range) => {
+    if (!range.empty || range.from == 0 || range.from == state.doc.length)
+      return { range };
+    let pos = range.from, line = state.doc.lineAt(pos);
+    let from = pos == line.from ? pos - 1 : findClusterBreak(line.text, pos - line.from, false) + line.from;
+    let to = pos == line.to ? pos + 1 : findClusterBreak(line.text, pos - line.from, true) + line.from;
+    return {
+      changes: { from, to, insert: state.doc.slice(pos, to).append(state.doc.slice(from, pos)) },
+      range: EditorSelection.cursor(to)
+    };
+  });
+  if (changes.changes.empty)
+    return false;
+  dispatch(state.update(changes, { scrollIntoView: true, userEvent: "move.character" }));
+  return true;
+};
+function selectedLineBlocks(state) {
+  let blocks = [], upto = -1;
+  for (let range of state.selection.ranges) {
+    let startLine = state.doc.lineAt(range.from), endLine = state.doc.lineAt(range.to);
+    if (!range.empty && range.to == endLine.from)
+      endLine = state.doc.lineAt(range.to - 1);
+    if (upto >= startLine.number) {
+      let prev = blocks[blocks.length - 1];
+      prev.to = endLine.to;
+      prev.ranges.push(range);
+    } else {
+      blocks.push({ from: startLine.from, to: endLine.to, ranges: [range] });
+    }
+    upto = endLine.number + 1;
+  }
+  return blocks;
+}
+function moveLine(state, dispatch, forward) {
+  if (state.readOnly)
+    return false;
+  let changes = [], ranges = [];
+  for (let block of selectedLineBlocks(state)) {
+    if (forward ? block.to == state.doc.length : block.from == 0)
+      continue;
+    let nextLine = state.doc.lineAt(forward ? block.to + 1 : block.from - 1);
+    let size = nextLine.length + 1;
+    if (forward) {
+      changes.push({ from: block.to, to: nextLine.to }, { from: block.from, insert: nextLine.text + state.lineBreak });
+      for (let r2 of block.ranges)
+        ranges.push(EditorSelection.range(Math.min(state.doc.length, r2.anchor + size), Math.min(state.doc.length, r2.head + size)));
+    } else {
+      changes.push({ from: nextLine.from, to: block.from }, { from: block.to, insert: state.lineBreak + nextLine.text });
+      for (let r2 of block.ranges)
+        ranges.push(EditorSelection.range(r2.anchor - size, r2.head - size));
+    }
+  }
+  if (!changes.length)
+    return false;
+  dispatch(state.update({
+    changes,
+    scrollIntoView: true,
+    selection: EditorSelection.create(ranges, state.selection.mainIndex),
+    userEvent: "move.line"
+  }));
+  return true;
+}
+const moveLineUp = ({ state, dispatch }) => moveLine(state, dispatch, false);
+const moveLineDown = ({ state, dispatch }) => moveLine(state, dispatch, true);
+function copyLine(state, dispatch, forward) {
+  if (state.readOnly)
+    return false;
+  let changes = [];
+  for (let block of selectedLineBlocks(state)) {
+    if (forward)
+      changes.push({ from: block.from, insert: state.doc.slice(block.from, block.to) + state.lineBreak });
+    else
+      changes.push({ from: block.to, insert: state.lineBreak + state.doc.slice(block.from, block.to) });
+  }
+  let changeSet = state.changes(changes);
+  dispatch(state.update({
+    changes: changeSet,
+    selection: state.selection.map(changeSet, forward ? 1 : -1),
+    scrollIntoView: true,
+    userEvent: "input.copyline"
+  }));
+  return true;
+}
+const copyLineUp = ({ state, dispatch }) => copyLine(state, dispatch, false);
+const copyLineDown = ({ state, dispatch }) => copyLine(state, dispatch, true);
+const deleteLine = (view) => {
+  if (view.state.readOnly)
+    return false;
+  let { state } = view, changes = state.changes(selectedLineBlocks(state).map(({ from, to }) => {
+    if (from > 0)
+      from--;
+    else if (to < state.doc.length)
+      to++;
+    return { from, to };
+  }));
+  let selection = updateSel(state.selection, (range) => {
+    let dist2 = void 0;
+    if (view.lineWrapping) {
+      let block = view.lineBlockAt(range.head), pos = view.coordsAtPos(range.head, range.assoc || 1);
+      if (pos)
+        dist2 = block.bottom + view.documentTop - pos.bottom + view.defaultLineHeight / 2;
+    }
+    return view.moveVertically(range, true, dist2);
+  }).map(changes);
+  view.dispatch({ changes, selection, scrollIntoView: true, userEvent: "delete.line" });
+  return true;
+};
+function isBetweenBrackets(state, pos) {
+  if (/\(\)|\[\]|\{\}/.test(state.sliceDoc(pos - 1, pos + 1)))
+    return { from: pos, to: pos };
+  let context = syntaxTree(state).resolveInner(pos);
+  let before = context.childBefore(pos), after = context.childAfter(pos), closedBy;
+  if (before && after && before.to <= pos && after.from >= pos && (closedBy = before.type.prop(NodeProp.closedBy)) && closedBy.indexOf(after.name) > -1 && state.doc.lineAt(before.to).from == state.doc.lineAt(after.from).from && !/\S/.test(state.sliceDoc(before.to, after.from)))
+    return { from: before.to, to: after.from };
+  return null;
+}
+const insertNewlineAndIndent = /* @__PURE__ */ newlineAndIndent(false);
+const insertBlankLine = /* @__PURE__ */ newlineAndIndent(true);
+function newlineAndIndent(atEof) {
+  return ({ state, dispatch }) => {
+    if (state.readOnly)
+      return false;
+    let changes = state.changeByRange((range) => {
+      let { from, to } = range, line = state.doc.lineAt(from);
+      let explode = !atEof && from == to && isBetweenBrackets(state, from);
+      if (atEof)
+        from = to = (to <= line.to ? line : state.doc.lineAt(to)).to;
+      let cx = new IndentContext(state, { simulateBreak: from, simulateDoubleBreak: !!explode });
+      let indent = getIndentation(cx, from);
+      if (indent == null)
+        indent = countColumn(/^\s*/.exec(state.doc.lineAt(from).text)[0], state.tabSize);
+      while (to < line.to && /\s/.test(line.text[to - line.from]))
+        to++;
+      if (explode)
+        ({ from, to } = explode);
+      else if (from > line.from && from < line.from + 100 && !/\S/.test(line.text.slice(0, from)))
+        from = line.from;
+      let insert2 = ["", indentString(state, indent)];
+      if (explode)
+        insert2.push(indentString(state, cx.lineIndent(line.from, -1)));
+      return {
+        changes: { from, to, insert: Text.of(insert2) },
+        range: EditorSelection.cursor(from + 1 + insert2[1].length)
+      };
+    });
+    dispatch(state.update(changes, { scrollIntoView: true, userEvent: "input" }));
+    return true;
+  };
+}
+function changeBySelectedLine(state, f2) {
+  let atLine = -1;
+  return state.changeByRange((range) => {
+    let changes = [];
+    for (let pos = range.from; pos <= range.to; ) {
+      let line = state.doc.lineAt(pos);
+      if (line.number > atLine && (range.empty || range.to > line.from)) {
+        f2(line, changes, range);
+        atLine = line.number;
+      }
+      pos = line.to + 1;
+    }
+    let changeSet = state.changes(changes);
+    return {
+      changes,
+      range: EditorSelection.range(changeSet.mapPos(range.anchor, 1), changeSet.mapPos(range.head, 1))
+    };
+  });
+}
+const indentSelection = ({ state, dispatch }) => {
+  if (state.readOnly)
+    return false;
+  let updated = /* @__PURE__ */ Object.create(null);
+  let context = new IndentContext(state, { overrideIndentation: (start2) => {
+    let found = updated[start2];
+    return found == null ? -1 : found;
+  } });
+  let changes = changeBySelectedLine(state, (line, changes2, range) => {
+    let indent = getIndentation(context, line.from);
+    if (indent == null)
+      return;
+    if (!/\S/.test(line.text))
+      indent = 0;
+    let cur2 = /^\s*/.exec(line.text)[0];
+    let norm = indentString(state, indent);
+    if (cur2 != norm || range.from < line.from + cur2.length) {
+      updated[line.from] = indent;
+      changes2.push({ from: line.from, to: line.from + cur2.length, insert: norm });
+    }
+  });
+  if (!changes.changes.empty)
+    dispatch(state.update(changes, { userEvent: "indent" }));
+  return true;
+};
+const indentMore = ({ state, dispatch }) => {
+  if (state.readOnly)
+    return false;
+  dispatch(state.update(changeBySelectedLine(state, (line, changes) => {
+    changes.push({ from: line.from, insert: state.facet(indentUnit) });
+  }), { userEvent: "input.indent" }));
+  return true;
+};
+const indentLess = ({ state, dispatch }) => {
+  if (state.readOnly)
+    return false;
+  dispatch(state.update(changeBySelectedLine(state, (line, changes) => {
+    let space = /^\s*/.exec(line.text)[0];
+    if (!space)
+      return;
+    let col = countColumn(space, state.tabSize), keep = 0;
+    let insert2 = indentString(state, Math.max(0, col - getIndentUnit(state)));
+    while (keep < space.length && keep < insert2.length && space.charCodeAt(keep) == insert2.charCodeAt(keep))
+      keep++;
+    changes.push({ from: line.from + keep, to: line.from + space.length, insert: insert2.slice(keep) });
+  }), { userEvent: "delete.dedent" }));
+  return true;
+};
+const toggleTabFocusMode = (view) => {
+  view.setTabFocusMode();
+  return true;
+};
+const emacsStyleKeymap = [
+  { key: "Ctrl-b", run: cursorCharLeft, shift: selectCharLeft, preventDefault: true },
+  { key: "Ctrl-f", run: cursorCharRight, shift: selectCharRight },
+  { key: "Ctrl-p", run: cursorLineUp, shift: selectLineUp },
+  { key: "Ctrl-n", run: cursorLineDown, shift: selectLineDown },
+  { key: "Ctrl-a", run: cursorLineStart, shift: selectLineStart },
+  { key: "Ctrl-e", run: cursorLineEnd, shift: selectLineEnd },
+  { key: "Ctrl-d", run: deleteCharForward },
+  { key: "Ctrl-h", run: deleteCharBackward },
+  { key: "Ctrl-k", run: deleteToLineEnd },
+  { key: "Ctrl-Alt-h", run: deleteGroupBackward },
+  { key: "Ctrl-o", run: splitLine },
+  { key: "Ctrl-t", run: transposeChars },
+  { key: "Ctrl-v", run: cursorPageDown }
+];
+const standardKeymap = /* @__PURE__ */ [
+  { key: "ArrowLeft", run: cursorCharLeft, shift: selectCharLeft, preventDefault: true },
+  { key: "Mod-ArrowLeft", mac: "Alt-ArrowLeft", run: cursorGroupLeft, shift: selectGroupLeft, preventDefault: true },
+  { mac: "Cmd-ArrowLeft", run: cursorLineBoundaryLeft, shift: selectLineBoundaryLeft, preventDefault: true },
+  { key: "ArrowRight", run: cursorCharRight, shift: selectCharRight, preventDefault: true },
+  { key: "Mod-ArrowRight", mac: "Alt-ArrowRight", run: cursorGroupRight, shift: selectGroupRight, preventDefault: true },
+  { mac: "Cmd-ArrowRight", run: cursorLineBoundaryRight, shift: selectLineBoundaryRight, preventDefault: true },
+  { key: "ArrowUp", run: cursorLineUp, shift: selectLineUp, preventDefault: true },
+  { mac: "Cmd-ArrowUp", run: cursorDocStart, shift: selectDocStart },
+  { mac: "Ctrl-ArrowUp", run: cursorPageUp, shift: selectPageUp },
+  { key: "ArrowDown", run: cursorLineDown, shift: selectLineDown, preventDefault: true },
+  { mac: "Cmd-ArrowDown", run: cursorDocEnd, shift: selectDocEnd },
+  { mac: "Ctrl-ArrowDown", run: cursorPageDown, shift: selectPageDown },
+  { key: "PageUp", run: cursorPageUp, shift: selectPageUp },
+  { key: "PageDown", run: cursorPageDown, shift: selectPageDown },
+  { key: "Home", run: cursorLineBoundaryBackward, shift: selectLineBoundaryBackward, preventDefault: true },
+  { key: "Mod-Home", run: cursorDocStart, shift: selectDocStart },
+  { key: "End", run: cursorLineBoundaryForward, shift: selectLineBoundaryForward, preventDefault: true },
+  { key: "Mod-End", run: cursorDocEnd, shift: selectDocEnd },
+  { key: "Enter", run: insertNewlineAndIndent, shift: insertNewlineAndIndent },
+  { key: "Mod-a", run: selectAll },
+  { key: "Backspace", run: deleteCharBackward, shift: deleteCharBackward, preventDefault: true },
+  { key: "Delete", run: deleteCharForward, preventDefault: true },
+  { key: "Mod-Backspace", mac: "Alt-Backspace", run: deleteGroupBackward, preventDefault: true },
+  { key: "Mod-Delete", mac: "Alt-Delete", run: deleteGroupForward, preventDefault: true },
+  { mac: "Mod-Backspace", run: deleteLineBoundaryBackward, preventDefault: true },
+  { mac: "Mod-Delete", run: deleteLineBoundaryForward, preventDefault: true }
+].concat(/* @__PURE__ */ emacsStyleKeymap.map((b) => ({ mac: b.key, run: b.run, shift: b.shift })));
+const defaultKeymap = /* @__PURE__ */ [
+  { key: "Alt-ArrowLeft", mac: "Ctrl-ArrowLeft", run: cursorSyntaxLeft, shift: selectSyntaxLeft },
+  { key: "Alt-ArrowRight", mac: "Ctrl-ArrowRight", run: cursorSyntaxRight, shift: selectSyntaxRight },
+  { key: "Alt-ArrowUp", run: moveLineUp },
+  { key: "Shift-Alt-ArrowUp", run: copyLineUp },
+  { key: "Alt-ArrowDown", run: moveLineDown },
+  { key: "Shift-Alt-ArrowDown", run: copyLineDown },
+  { key: "Mod-Alt-ArrowUp", run: addCursorAbove },
+  { key: "Mod-Alt-ArrowDown", run: addCursorBelow },
+  { key: "Escape", run: simplifySelection },
+  { key: "Mod-Enter", run: insertBlankLine },
+  { key: "Alt-l", mac: "Ctrl-l", run: selectLine },
+  { key: "Mod-i", run: selectParentSyntax, preventDefault: true },
+  { key: "Mod-[", run: indentLess },
+  { key: "Mod-]", run: indentMore },
+  { key: "Mod-Alt-\\", run: indentSelection },
+  { key: "Shift-Mod-k", run: deleteLine },
+  { key: "Shift-Mod-\\", run: cursorMatchingBracket },
+  { key: "Mod-/", run: toggleComment },
+  { key: "Alt-A", mac: "Ctrl-A", run: toggleBlockComment },
+  { key: "Ctrl-m", mac: "Shift-Alt-m", run: toggleTabFocusMode }
+].concat(standardKeymap);
+class CompletionContext {
+  constructor(state, pos, explicit, view) {
+    this.state = state;
+    this.pos = pos;
+    this.explicit = explicit;
+    this.view = view;
+    this.abortListeners = [];
+    this.abortOnDocChange = false;
+  }
+  tokenBefore(types2) {
+    let token = syntaxTree(this.state).resolveInner(this.pos, -1);
+    while (token && types2.indexOf(token.name) < 0)
+      token = token.parent;
+    return token ? {
+      from: token.from,
+      to: this.pos,
+      text: this.state.sliceDoc(token.from, this.pos),
+      type: token.type
+    } : null;
+  }
+  matchBefore(expr) {
+    let line = this.state.doc.lineAt(this.pos);
+    let start2 = Math.max(line.from, this.pos - 250);
+    let str = line.text.slice(start2 - line.from, this.pos - line.from);
+    let found = str.search(ensureAnchor(expr, false));
+    return found < 0 ? null : { from: start2 + found, to: this.pos, text: str.slice(found) };
+  }
+  get aborted() {
+    return this.abortListeners == null;
+  }
+  addEventListener(type, listener, options) {
+    if (type == "abort" && this.abortListeners) {
+      this.abortListeners.push(listener);
+      if (options && options.onDocChange)
+        this.abortOnDocChange = true;
+    }
+  }
+}
+function toSet(chars) {
+  let flat = Object.keys(chars).join("");
+  let words = /\w/.test(flat);
+  if (words)
+    flat = flat.replace(/\w/g, "");
+  return `[${words ? "\\w" : ""}${flat.replace(/[^\w\s]/g, "\\$&")}]`;
+}
+function prefixMatch(options) {
+  let first = /* @__PURE__ */ Object.create(null), rest = /* @__PURE__ */ Object.create(null);
+  for (let { label: label2 } of options) {
+    first[label2[0]] = true;
+    for (let i2 = 1; i2 < label2.length; i2++)
+      rest[label2[i2]] = true;
+  }
+  let source = toSet(first) + toSet(rest) + "*$";
+  return [new RegExp("^" + source), new RegExp(source)];
+}
+function completeFromList(list) {
+  let options = list.map((o) => typeof o == "string" ? { label: o } : o);
+  let [validFor, match] = options.every((o) => /^\w+$/.test(o.label)) ? [/\w*$/, /\w+$/] : prefixMatch(options);
+  return (context) => {
+    let token = context.matchBefore(match);
+    return token || context.explicit ? { from: token ? token.from : context.pos, options, validFor } : null;
+  };
+}
+class Option {
+  constructor(completion, source, match, score2) {
+    this.completion = completion;
+    this.source = source;
+    this.match = match;
+    this.score = score2;
+  }
+}
+function cur(state) {
+  return state.selection.main.from;
+}
+function ensureAnchor(expr, start2) {
+  var _a2;
+  let { source } = expr;
+  let addStart = start2 && source[0] != "^", addEnd = source[source.length - 1] != "$";
+  if (!addStart && !addEnd)
+    return expr;
+  return new RegExp(`${addStart ? "^" : ""}(?:${source})${addEnd ? "$" : ""}`, (_a2 = expr.flags) !== null && _a2 !== void 0 ? _a2 : expr.ignoreCase ? "i" : "");
+}
+const pickedCompletion = /* @__PURE__ */ Annotation.define();
+function insertCompletionText(state, text, from, to) {
+  let { main: main2 } = state.selection, fromOff = from - main2.from, toOff = to - main2.from;
+  return {
+    ...state.changeByRange((range) => {
+      if (range != main2 && from != to && state.sliceDoc(range.from + fromOff, range.from + toOff) != state.sliceDoc(from, to))
+        return { range };
+      let lines = state.toText(text);
+      return {
+        changes: { from: range.from + fromOff, to: to == main2.from ? range.to : range.from + toOff, insert: lines },
+        range: EditorSelection.cursor(range.from + fromOff + lines.length)
+      };
+    }),
+    scrollIntoView: true,
+    userEvent: "input.complete"
+  };
+}
+const SourceCache = /* @__PURE__ */ new WeakMap();
+function asSource(source) {
+  if (!Array.isArray(source))
+    return source;
+  let known = SourceCache.get(source);
+  if (!known)
+    SourceCache.set(source, known = completeFromList(source));
+  return known;
+}
+const startCompletionEffect = /* @__PURE__ */ StateEffect.define();
+const closeCompletionEffect = /* @__PURE__ */ StateEffect.define();
+class FuzzyMatcher {
+  constructor(pattern) {
+    this.pattern = pattern;
+    this.chars = [];
+    this.folded = [];
+    this.any = [];
+    this.precise = [];
+    this.byWord = [];
+    this.score = 0;
+    this.matched = [];
+    for (let p2 = 0; p2 < pattern.length; ) {
+      let char = codePointAt(pattern, p2), size = codePointSize(char);
+      this.chars.push(char);
+      let part = pattern.slice(p2, p2 + size), upper = part.toUpperCase();
+      this.folded.push(codePointAt(upper == part ? part.toLowerCase() : upper, 0));
+      p2 += size;
+    }
+    this.astral = pattern.length != this.chars.length;
+  }
+  ret(score2, matched) {
+    this.score = score2;
+    this.matched = matched;
+    return this;
+  }
+  match(word) {
+    if (this.pattern.length == 0)
+      return this.ret(-100, []);
+    if (word.length < this.pattern.length)
+      return null;
+    let { chars, folded, any, precise, byWord } = this;
+    if (chars.length == 1) {
+      let first = codePointAt(word, 0), firstSize = codePointSize(first);
+      let score2 = firstSize == word.length ? 0 : -100;
+      if (first == chars[0])
+        ;
+      else if (first == folded[0])
+        score2 += -200;
+      else
+        return null;
+      return this.ret(score2, [0, firstSize]);
+    }
+    let direct = word.indexOf(this.pattern);
+    if (direct == 0)
+      return this.ret(word.length == this.pattern.length ? 0 : -100, [0, this.pattern.length]);
+    let len = chars.length, anyTo = 0;
+    if (direct < 0) {
+      for (let i2 = 0, e = Math.min(word.length, 200); i2 < e && anyTo < len; ) {
+        let next = codePointAt(word, i2);
+        if (next == chars[anyTo] || next == folded[anyTo])
+          any[anyTo++] = i2;
+        i2 += codePointSize(next);
+      }
+      if (anyTo < len)
+        return null;
+    }
+    let preciseTo = 0;
+    let byWordTo = 0, byWordFolded = false;
+    let adjacentTo = 0, adjacentStart = -1, adjacentEnd = -1;
+    let hasLower = /[a-z]/.test(word), wordAdjacent = true;
+    for (let i2 = 0, e = Math.min(word.length, 200), prevType = 0; i2 < e && byWordTo < len; ) {
+      let next = codePointAt(word, i2);
+      if (direct < 0) {
+        if (preciseTo < len && next == chars[preciseTo])
+          precise[preciseTo++] = i2;
+        if (adjacentTo < len) {
+          if (next == chars[adjacentTo] || next == folded[adjacentTo]) {
+            if (adjacentTo == 0)
+              adjacentStart = i2;
+            adjacentEnd = i2 + 1;
+            adjacentTo++;
+          } else {
+            adjacentTo = 0;
+          }
+        }
+      }
+      let ch2, type = next < 255 ? next >= 48 && next <= 57 || next >= 97 && next <= 122 ? 2 : next >= 65 && next <= 90 ? 1 : 0 : (ch2 = fromCodePoint(next)) != ch2.toLowerCase() ? 1 : ch2 != ch2.toUpperCase() ? 2 : 0;
+      if (!i2 || type == 1 && hasLower || prevType == 0 && type != 0) {
+        if (chars[byWordTo] == next || folded[byWordTo] == next && (byWordFolded = true))
+          byWord[byWordTo++] = i2;
+        else if (byWord.length)
+          wordAdjacent = false;
+      }
+      prevType = type;
+      i2 += codePointSize(next);
+    }
+    if (byWordTo == len && byWord[0] == 0 && wordAdjacent)
+      return this.result(-100 + (byWordFolded ? -200 : 0), byWord, word);
+    if (adjacentTo == len && adjacentStart == 0)
+      return this.ret(-200 - word.length + (adjacentEnd == word.length ? 0 : -100), [0, adjacentEnd]);
+    if (direct > -1)
+      return this.ret(-700 - word.length, [direct, direct + this.pattern.length]);
+    if (adjacentTo == len)
+      return this.ret(-200 + -700 - word.length, [adjacentStart, adjacentEnd]);
+    if (byWordTo == len)
+      return this.result(-100 + (byWordFolded ? -200 : 0) + -700 + (wordAdjacent ? 0 : -1100), byWord, word);
+    return chars.length == 2 ? null : this.result((any[0] ? -700 : 0) + -200 + -1100, any, word);
+  }
+  result(score2, positions, word) {
+    let result = [], i2 = 0;
+    for (let pos of positions) {
+      let to = pos + (this.astral ? codePointSize(codePointAt(word, pos)) : 1);
+      if (i2 && result[i2 - 1] == pos)
+        result[i2 - 1] = to;
+      else {
+        result[i2++] = pos;
+        result[i2++] = to;
+      }
+    }
+    return this.ret(score2 - word.length, result);
+  }
+}
+class StrictMatcher {
+  constructor(pattern) {
+    this.pattern = pattern;
+    this.matched = [];
+    this.score = 0;
+    this.folded = pattern.toLowerCase();
+  }
+  match(word) {
+    if (word.length < this.pattern.length)
+      return null;
+    let start2 = word.slice(0, this.pattern.length);
+    let match = start2 == this.pattern ? 0 : start2.toLowerCase() == this.folded ? -200 : null;
+    if (match == null)
+      return null;
+    this.matched = [0, start2.length];
+    this.score = match + (word.length == this.pattern.length ? 0 : -100);
+    return this;
+  }
+}
+const completionConfig = /* @__PURE__ */ Facet.define({
+  combine(configs) {
+    return combineConfig(configs, {
+      activateOnTyping: true,
+      activateOnCompletion: () => false,
+      activateOnTypingDelay: 100,
+      selectOnOpen: true,
+      override: null,
+      closeOnBlur: true,
+      maxRenderedOptions: 100,
+      defaultKeymap: true,
+      tooltipClass: () => "",
+      optionClass: () => "",
+      aboveCursor: false,
+      icons: true,
+      addToOptions: [],
+      positionInfo: defaultPositionInfo,
+      filterStrict: false,
+      compareCompletions: (a, b) => (a.sortText || a.label).localeCompare(b.sortText || b.label),
+      interactionDelay: 75,
+      updateSyncTime: 100
+    }, {
+      defaultKeymap: (a, b) => a && b,
+      closeOnBlur: (a, b) => a && b,
+      icons: (a, b) => a && b,
+      tooltipClass: (a, b) => (c) => joinClass(a(c), b(c)),
+      optionClass: (a, b) => (c) => joinClass(a(c), b(c)),
+      addToOptions: (a, b) => a.concat(b),
+      filterStrict: (a, b) => a || b
+    });
+  }
+});
+function joinClass(a, b) {
+  return a ? b ? a + " " + b : a : b;
+}
+function defaultPositionInfo(view, list, option, info, space, tooltip) {
+  let rtl = view.textDirection == Direction.RTL, left2 = rtl, narrow = false;
+  let side = "top", offset2, maxWidth;
+  let spaceLeft = list.left - space.left, spaceRight = space.right - list.right;
+  let infoWidth = info.right - info.left, infoHeight = info.bottom - info.top;
+  if (left2 && spaceLeft < Math.min(infoWidth, spaceRight))
+    left2 = false;
+  else if (!left2 && spaceRight < Math.min(infoWidth, spaceLeft))
+    left2 = true;
+  if (infoWidth <= (left2 ? spaceLeft : spaceRight)) {
+    offset2 = Math.max(space.top, Math.min(option.top, space.bottom - infoHeight)) - list.top;
+    maxWidth = Math.min(400, left2 ? spaceLeft : spaceRight);
+  } else {
+    narrow = true;
+    maxWidth = Math.min(400, (rtl ? list.right : space.right - list.left) - 30);
+    let spaceBelow = space.bottom - list.bottom;
+    if (spaceBelow >= infoHeight || spaceBelow > list.top) {
+      offset2 = option.bottom - list.top;
+    } else {
+      side = "bottom";
+      offset2 = list.bottom - option.top;
+    }
+  }
+  let scaleY = (list.bottom - list.top) / tooltip.offsetHeight;
+  let scaleX = (list.right - list.left) / tooltip.offsetWidth;
+  return {
+    style: `${side}: ${offset2 / scaleY}px; max-width: ${maxWidth / scaleX}px`,
+    class: "cm-completionInfo-" + (narrow ? rtl ? "left-narrow" : "right-narrow" : left2 ? "left" : "right")
+  };
+}
+const setSelectedEffect = /* @__PURE__ */ StateEffect.define();
+function optionContent(config) {
+  let content2 = config.addToOptions.slice();
+  if (config.icons)
+    content2.push({
+      render(completion) {
+        let icon = document.createElement("div");
+        icon.classList.add("cm-completionIcon");
+        if (completion.type)
+          icon.classList.add(...completion.type.split(/\s+/g).map((cls) => "cm-completionIcon-" + cls));
+        icon.setAttribute("aria-hidden", "true");
+        return icon;
+      },
+      position: 20
+    });
+  content2.push({
+    render(completion, _s, _v, match) {
+      let labelElt = document.createElement("span");
+      labelElt.className = "cm-completionLabel";
+      let label2 = completion.displayLabel || completion.label, off = 0;
+      for (let j = 0; j < match.length; ) {
+        let from = match[j++], to = match[j++];
+        if (from > off)
+          labelElt.appendChild(document.createTextNode(label2.slice(off, from)));
+        let span = labelElt.appendChild(document.createElement("span"));
+        span.appendChild(document.createTextNode(label2.slice(from, to)));
+        span.className = "cm-completionMatchedText";
+        off = to;
+      }
+      if (off < label2.length)
+        labelElt.appendChild(document.createTextNode(label2.slice(off)));
+      return labelElt;
+    },
+    position: 50
+  }, {
+    render(completion) {
+      if (!completion.detail)
+        return null;
+      let detailElt = document.createElement("span");
+      detailElt.className = "cm-completionDetail";
+      detailElt.textContent = completion.detail;
+      return detailElt;
+    },
+    position: 80
+  });
+  return content2.sort((a, b) => a.position - b.position).map((a) => a.render);
+}
+function rangeAroundSelected(total, selected, max2) {
+  if (total <= max2)
+    return { from: 0, to: total };
+  if (selected < 0)
+    selected = 0;
+  if (selected <= total >> 1) {
+    let off2 = Math.floor(selected / max2);
+    return { from: off2 * max2, to: (off2 + 1) * max2 };
+  }
+  let off = Math.ceil((total - selected) / max2);
+  return { from: total - off * max2, to: total - (off - 1) * max2 };
+}
+class CompletionTooltip {
+  constructor(view, stateField, applyCompletion2) {
+    this.view = view;
+    this.stateField = stateField;
+    this.applyCompletion = applyCompletion2;
+    this.info = null;
+    this.infoDestroy = null;
+    this.placeInfoReq = {
+      read: () => this.measureInfo(),
+      write: (pos) => this.placeInfo(pos),
+      key: this
+    };
+    this.space = null;
+    this.currentClass = "";
+    let cState = view.state.field(stateField);
+    let { options, selected } = cState.open;
+    let config = view.state.facet(completionConfig);
+    this.optionContent = optionContent(config);
+    this.optionClass = config.optionClass;
+    this.tooltipClass = config.tooltipClass;
+    this.range = rangeAroundSelected(options.length, selected, config.maxRenderedOptions);
+    this.dom = document.createElement("div");
+    this.dom.className = "cm-tooltip-autocomplete";
+    this.updateTooltipClass(view.state);
+    this.dom.addEventListener("mousedown", (e) => {
+      let { options: options2 } = view.state.field(stateField).open;
+      for (let dom = e.target, match; dom && dom != this.dom; dom = dom.parentNode) {
+        if (dom.nodeName == "LI" && (match = /-(\d+)$/.exec(dom.id)) && +match[1] < options2.length) {
+          this.applyCompletion(view, options2[+match[1]]);
+          e.preventDefault();
+          return;
+        }
+      }
+      if (e.target == this.list) {
+        let move = this.list.classList.contains("cm-completionListIncompleteTop") && e.clientY < this.list.firstChild.getBoundingClientRect().top ? this.range.from - 1 : this.list.classList.contains("cm-completionListIncompleteBottom") && e.clientY > this.list.lastChild.getBoundingClientRect().bottom ? this.range.to : null;
+        if (move != null) {
+          view.dispatch({ effects: setSelectedEffect.of(move) });
+          e.preventDefault();
+        }
+      }
+    });
+    this.dom.addEventListener("focusout", (e) => {
+      let state = view.state.field(this.stateField, false);
+      if (state && state.tooltip && view.state.facet(completionConfig).closeOnBlur && e.relatedTarget != view.contentDOM)
+        view.dispatch({ effects: closeCompletionEffect.of(null) });
+    });
+    this.showOptions(options, cState.id);
+  }
+  mount() {
+    this.updateSel();
+  }
+  showOptions(options, id2) {
+    if (this.list)
+      this.list.remove();
+    this.list = this.dom.appendChild(this.createListBox(options, id2, this.range));
+    this.list.addEventListener("scroll", () => {
+      if (this.info)
+        this.view.requestMeasure(this.placeInfoReq);
+    });
+  }
+  update(update) {
+    var _a2;
+    let cState = update.state.field(this.stateField);
+    let prevState = update.startState.field(this.stateField);
+    this.updateTooltipClass(update.state);
+    if (cState != prevState) {
+      let { options, selected, disabled } = cState.open;
+      if (!prevState.open || prevState.open.options != options) {
+        this.range = rangeAroundSelected(options.length, selected, update.state.facet(completionConfig).maxRenderedOptions);
+        this.showOptions(options, cState.id);
+      }
+      this.updateSel();
+      if (disabled != ((_a2 = prevState.open) === null || _a2 === void 0 ? void 0 : _a2.disabled))
+        this.dom.classList.toggle("cm-tooltip-autocomplete-disabled", !!disabled);
+    }
+  }
+  updateTooltipClass(state) {
+    let cls = this.tooltipClass(state);
+    if (cls != this.currentClass) {
+      for (let c of this.currentClass.split(" "))
+        if (c)
+          this.dom.classList.remove(c);
+      for (let c of cls.split(" "))
+        if (c)
+          this.dom.classList.add(c);
+      this.currentClass = cls;
+    }
+  }
+  positioned(space) {
+    this.space = space;
+    if (this.info)
+      this.view.requestMeasure(this.placeInfoReq);
+  }
+  updateSel() {
+    let cState = this.view.state.field(this.stateField), open = cState.open;
+    if (open.selected > -1 && open.selected < this.range.from || open.selected >= this.range.to) {
+      this.range = rangeAroundSelected(open.options.length, open.selected, this.view.state.facet(completionConfig).maxRenderedOptions);
+      this.showOptions(open.options, cState.id);
+    }
+    let newSel = this.updateSelectedOption(open.selected);
+    if (newSel) {
+      this.destroyInfo();
+      let { completion } = open.options[open.selected];
+      let { info } = completion;
+      if (!info)
+        return;
+      let infoResult = typeof info === "string" ? document.createTextNode(info) : info(completion);
+      if (!infoResult)
+        return;
+      if ("then" in infoResult) {
+        infoResult.then((obj) => {
+          if (obj && this.view.state.field(this.stateField, false) == cState)
+            this.addInfoPane(obj, completion);
+        }).catch((e) => logException(this.view.state, e, "completion info"));
+      } else {
+        this.addInfoPane(infoResult, completion);
+        newSel.setAttribute("aria-describedby", this.info.id);
+      }
+    }
+  }
+  addInfoPane(content2, completion) {
+    this.destroyInfo();
+    let wrap = this.info = document.createElement("div");
+    wrap.className = "cm-tooltip cm-completionInfo";
+    wrap.id = "cm-completionInfo-" + Math.floor(Math.random() * 65535).toString(16);
+    if (content2.nodeType != null) {
+      wrap.appendChild(content2);
+      this.infoDestroy = null;
+    } else {
+      let { dom, destroy } = content2;
+      wrap.appendChild(dom);
+      this.infoDestroy = destroy || null;
+    }
+    this.dom.appendChild(wrap);
+    this.view.requestMeasure(this.placeInfoReq);
+  }
+  updateSelectedOption(selected) {
+    let set = null;
+    for (let opt = this.list.firstChild, i2 = this.range.from; opt; opt = opt.nextSibling, i2++) {
+      if (opt.nodeName != "LI" || !opt.id) {
+        i2--;
+      } else if (i2 == selected) {
+        if (!opt.hasAttribute("aria-selected")) {
+          opt.setAttribute("aria-selected", "true");
+          set = opt;
+        }
+      } else {
+        if (opt.hasAttribute("aria-selected")) {
+          opt.removeAttribute("aria-selected");
+          opt.removeAttribute("aria-describedby");
+        }
+      }
+    }
+    if (set)
+      scrollIntoView(this.list, set);
+    return set;
+  }
+  measureInfo() {
+    let sel = this.dom.querySelector("[aria-selected]");
+    if (!sel || !this.info)
+      return null;
+    let listRect = this.dom.getBoundingClientRect();
+    let infoRect = this.info.getBoundingClientRect();
+    let selRect = sel.getBoundingClientRect();
+    let space = this.space;
+    if (!space) {
+      let docElt = this.dom.ownerDocument.documentElement;
+      space = { left: 0, top: 0, right: docElt.clientWidth, bottom: docElt.clientHeight };
+    }
+    if (selRect.top > Math.min(space.bottom, listRect.bottom) - 10 || selRect.bottom < Math.max(space.top, listRect.top) + 10)
+      return null;
+    return this.view.state.facet(completionConfig).positionInfo(this.view, listRect, selRect, infoRect, space, this.dom);
+  }
+  placeInfo(pos) {
+    if (this.info) {
+      if (pos) {
+        if (pos.style)
+          this.info.style.cssText = pos.style;
+        this.info.className = "cm-tooltip cm-completionInfo " + (pos.class || "");
+      } else {
+        this.info.style.cssText = "top: -1e6px";
+      }
+    }
+  }
+  createListBox(options, id2, range) {
+    const ul = document.createElement("ul");
+    ul.id = id2;
+    ul.setAttribute("role", "listbox");
+    ul.setAttribute("aria-expanded", "true");
+    ul.setAttribute("aria-label", this.view.state.phrase("Completions"));
+    ul.addEventListener("mousedown", (e) => {
+      if (e.target == ul)
+        e.preventDefault();
+    });
+    let curSection = null;
+    for (let i2 = range.from; i2 < range.to; i2++) {
+      let { completion, match } = options[i2], { section } = completion;
+      if (section) {
+        let name2 = typeof section == "string" ? section : section.name;
+        if (name2 != curSection && (i2 > range.from || range.from == 0)) {
+          curSection = name2;
+          if (typeof section != "string" && section.header) {
+            ul.appendChild(section.header(section));
+          } else {
+            let header = ul.appendChild(document.createElement("completion-section"));
+            header.textContent = name2;
+          }
+        }
+      }
+      const li2 = ul.appendChild(document.createElement("li"));
+      li2.id = id2 + "-" + i2;
+      li2.setAttribute("role", "option");
+      let cls = this.optionClass(completion);
+      if (cls)
+        li2.className = cls;
+      for (let source of this.optionContent) {
+        let node = source(completion, this.view.state, this.view, match);
+        if (node)
+          li2.appendChild(node);
+      }
+    }
+    if (range.from)
+      ul.classList.add("cm-completionListIncompleteTop");
+    if (range.to < options.length)
+      ul.classList.add("cm-completionListIncompleteBottom");
+    return ul;
+  }
+  destroyInfo() {
+    if (this.info) {
+      if (this.infoDestroy)
+        this.infoDestroy();
+      this.info.remove();
+      this.info = null;
+    }
+  }
+  destroy() {
+    this.destroyInfo();
+  }
+}
+function completionTooltip(stateField, applyCompletion2) {
+  return (view) => new CompletionTooltip(view, stateField, applyCompletion2);
+}
+function scrollIntoView(container, element) {
+  let parent = container.getBoundingClientRect();
+  let self = element.getBoundingClientRect();
+  let scaleY = parent.height / container.offsetHeight;
+  if (self.top < parent.top)
+    container.scrollTop -= (parent.top - self.top) / scaleY;
+  else if (self.bottom > parent.bottom)
+    container.scrollTop += (self.bottom - parent.bottom) / scaleY;
+}
+function score(option) {
+  return (option.boost || 0) * 100 + (option.apply ? 10 : 0) + (option.info ? 5 : 0) + (option.type ? 1 : 0);
+}
+function sortOptions(active, state) {
+  let options = [];
+  let sections = null, dynamicSectionScore = null;
+  let addOption = (option) => {
+    options.push(option);
+    let { section } = option.completion;
+    if (section) {
+      if (!sections)
+        sections = [];
+      let name2 = typeof section == "string" ? section : section.name;
+      if (!sections.some((s) => s.name == name2))
+        sections.push(typeof section == "string" ? { name: name2 } : section);
+    }
+  };
+  let conf = state.facet(completionConfig);
+  for (let a of active)
+    if (a.hasResult()) {
+      let getMatch = a.result.getMatch;
+      if (a.result.filter === false) {
+        for (let option of a.result.options) {
+          addOption(new Option(option, a.source, getMatch ? getMatch(option) : [], 1e9 - options.length));
+        }
+      } else {
+        let pattern = state.sliceDoc(a.from, a.to), match;
+        let matcher = conf.filterStrict ? new StrictMatcher(pattern) : new FuzzyMatcher(pattern);
+        for (let option of a.result.options)
+          if (match = matcher.match(option.label)) {
+            let matched = !option.displayLabel ? match.matched : getMatch ? getMatch(option, match.matched) : [];
+            let score2 = match.score + (option.boost || 0);
+            addOption(new Option(option, a.source, matched, score2));
+            if (typeof option.section == "object" && option.section.rank === "dynamic") {
+              let { name: name2 } = option.section;
+              if (!dynamicSectionScore)
+                dynamicSectionScore = /* @__PURE__ */ Object.create(null);
+              dynamicSectionScore[name2] = Math.max(score2, dynamicSectionScore[name2] || -1e9);
+            }
+          }
+      }
+    }
+  if (sections) {
+    let sectionOrder = /* @__PURE__ */ Object.create(null), pos = 0;
+    let cmp = (a, b) => {
+      return (a.rank === "dynamic" && b.rank === "dynamic" ? dynamicSectionScore[b.name] - dynamicSectionScore[a.name] : 0) || (typeof a.rank == "number" ? a.rank : 1e9) - (typeof b.rank == "number" ? b.rank : 1e9) || (a.name < b.name ? -1 : 1);
+    };
+    for (let s of sections.sort(cmp)) {
+      pos -= 1e5;
+      sectionOrder[s.name] = pos;
+    }
+    for (let option of options) {
+      let { section } = option.completion;
+      if (section)
+        option.score += sectionOrder[typeof section == "string" ? section : section.name];
+    }
+  }
+  let result = [], prev = null;
+  let compare2 = conf.compareCompletions;
+  for (let opt of options.sort((a, b) => b.score - a.score || compare2(a.completion, b.completion))) {
+    let cur2 = opt.completion;
+    if (!prev || prev.label != cur2.label || prev.detail != cur2.detail || prev.type != null && cur2.type != null && prev.type != cur2.type || prev.apply != cur2.apply || prev.boost != cur2.boost)
+      result.push(opt);
+    else if (score(opt.completion) > score(prev))
+      result[result.length - 1] = opt;
+    prev = opt.completion;
+  }
+  return result;
+}
+class CompletionDialog {
+  constructor(options, attrs, tooltip, timestamp, selected, disabled) {
+    this.options = options;
+    this.attrs = attrs;
+    this.tooltip = tooltip;
+    this.timestamp = timestamp;
+    this.selected = selected;
+    this.disabled = disabled;
+  }
+  setSelected(selected, id2) {
+    return selected == this.selected || selected >= this.options.length ? this : new CompletionDialog(this.options, makeAttrs(id2, selected), this.tooltip, this.timestamp, selected, this.disabled);
+  }
+  static build(active, state, id2, prev, conf, didSetActive) {
+    if (prev && !didSetActive && active.some((s) => s.isPending))
+      return prev.setDisabled();
+    let options = sortOptions(active, state);
+    if (!options.length)
+      return prev && active.some((a) => a.isPending) ? prev.setDisabled() : null;
+    let selected = state.facet(completionConfig).selectOnOpen ? 0 : -1;
+    if (prev && prev.selected != selected && prev.selected != -1) {
+      let selectedValue = prev.options[prev.selected].completion;
+      for (let i2 = 0; i2 < options.length; i2++)
+        if (options[i2].completion == selectedValue) {
+          selected = i2;
+          break;
+        }
+    }
+    return new CompletionDialog(options, makeAttrs(id2, selected), {
+      pos: active.reduce((a, b) => b.hasResult() ? Math.min(a, b.from) : a, 1e8),
+      create: createTooltip,
+      above: conf.aboveCursor
+    }, prev ? prev.timestamp : Date.now(), selected, false);
+  }
+  map(changes) {
+    return new CompletionDialog(this.options, this.attrs, { ...this.tooltip, pos: changes.mapPos(this.tooltip.pos) }, this.timestamp, this.selected, this.disabled);
+  }
+  setDisabled() {
+    return new CompletionDialog(this.options, this.attrs, this.tooltip, this.timestamp, this.selected, true);
+  }
+}
+class CompletionState {
+  constructor(active, id2, open) {
+    this.active = active;
+    this.id = id2;
+    this.open = open;
+  }
+  static start() {
+    return new CompletionState(none, "cm-ac-" + Math.floor(Math.random() * 2e6).toString(36), null);
+  }
+  update(tr2) {
+    let { state } = tr2, conf = state.facet(completionConfig);
+    let sources = conf.override || state.languageDataAt("autocomplete", cur(state)).map(asSource);
+    let active = sources.map((source) => {
+      let value = this.active.find((s) => s.source == source) || new ActiveSource(source, this.active.some((a) => a.state != 0) ? 1 : 0);
+      return value.update(tr2, conf);
+    });
+    if (active.length == this.active.length && active.every((a, i2) => a == this.active[i2]))
+      active = this.active;
+    let open = this.open, didSet = tr2.effects.some((e) => e.is(setActiveEffect));
+    if (open && tr2.docChanged)
+      open = open.map(tr2.changes);
+    if (tr2.selection || active.some((a) => a.hasResult() && tr2.changes.touchesRange(a.from, a.to)) || !sameResults(active, this.active) || didSet)
+      open = CompletionDialog.build(active, state, this.id, open, conf, didSet);
+    else if (open && open.disabled && !active.some((a) => a.isPending))
+      open = null;
+    if (!open && active.every((a) => !a.isPending) && active.some((a) => a.hasResult()))
+      active = active.map((a) => a.hasResult() ? new ActiveSource(a.source, 0) : a);
+    for (let effect2 of tr2.effects)
+      if (effect2.is(setSelectedEffect))
+        open = open && open.setSelected(effect2.value, this.id);
+    return active == this.active && open == this.open ? this : new CompletionState(active, this.id, open);
+  }
+  get tooltip() {
+    return this.open ? this.open.tooltip : null;
+  }
+  get attrs() {
+    return this.open ? this.open.attrs : this.active.length ? baseAttrs : noAttrs;
+  }
+}
+function sameResults(a, b) {
+  if (a == b)
+    return true;
+  for (let iA = 0, iB = 0; ; ) {
+    while (iA < a.length && !a[iA].hasResult())
+      iA++;
+    while (iB < b.length && !b[iB].hasResult())
+      iB++;
+    let endA = iA == a.length, endB = iB == b.length;
+    if (endA || endB)
+      return endA == endB;
+    if (a[iA++].result != b[iB++].result)
+      return false;
+  }
+}
+const baseAttrs = {
+  "aria-autocomplete": "list"
+};
+const noAttrs = {};
+function makeAttrs(id2, selected) {
+  let result = {
+    "aria-autocomplete": "list",
+    "aria-haspopup": "listbox",
+    "aria-controls": id2
+  };
+  if (selected > -1)
+    result["aria-activedescendant"] = id2 + "-" + selected;
+  return result;
+}
+const none = [];
+function getUpdateType(tr2, conf) {
+  if (tr2.isUserEvent("input.complete")) {
+    let completion = tr2.annotation(pickedCompletion);
+    if (completion && conf.activateOnCompletion(completion))
+      return 4 | 8;
+  }
+  let typing = tr2.isUserEvent("input.type");
+  return typing && conf.activateOnTyping ? 4 | 1 : typing ? 1 : tr2.isUserEvent("delete.backward") ? 2 : tr2.selection ? 8 : tr2.docChanged ? 16 : 0;
+}
+class ActiveSource {
+  constructor(source, state, explicit = false) {
+    this.source = source;
+    this.state = state;
+    this.explicit = explicit;
+  }
+  hasResult() {
+    return false;
+  }
+  get isPending() {
+    return this.state == 1;
+  }
+  update(tr2, conf) {
+    let type = getUpdateType(tr2, conf), value = this;
+    if (type & 8 || type & 16 && this.touches(tr2))
+      value = new ActiveSource(value.source, 0);
+    if (type & 4 && value.state == 0)
+      value = new ActiveSource(this.source, 1);
+    value = value.updateFor(tr2, type);
+    for (let effect2 of tr2.effects) {
+      if (effect2.is(startCompletionEffect))
+        value = new ActiveSource(value.source, 1, effect2.value);
+      else if (effect2.is(closeCompletionEffect))
+        value = new ActiveSource(value.source, 0);
+      else if (effect2.is(setActiveEffect)) {
+        for (let active of effect2.value)
+          if (active.source == value.source)
+            value = active;
+      }
+    }
+    return value;
+  }
+  updateFor(tr2, type) {
+    return this.map(tr2.changes);
+  }
+  map(changes) {
+    return this;
+  }
+  touches(tr2) {
+    return tr2.changes.touchesRange(cur(tr2.state));
+  }
+}
+class ActiveResult extends ActiveSource {
+  constructor(source, explicit, limit, result, from, to) {
+    super(source, 3, explicit);
+    this.limit = limit;
+    this.result = result;
+    this.from = from;
+    this.to = to;
+  }
+  hasResult() {
+    return true;
+  }
+  updateFor(tr2, type) {
+    var _a2;
+    if (!(type & 3))
+      return this.map(tr2.changes);
+    let result = this.result;
+    if (result.map && !tr2.changes.empty)
+      result = result.map(result, tr2.changes);
+    let from = tr2.changes.mapPos(this.from), to = tr2.changes.mapPos(this.to, 1);
+    let pos = cur(tr2.state);
+    if (pos > to || !result || type & 2 && (cur(tr2.startState) == this.from || pos < this.limit))
+      return new ActiveSource(this.source, type & 4 ? 1 : 0);
+    let limit = tr2.changes.mapPos(this.limit);
+    if (checkValid(result.validFor, tr2.state, from, to))
+      return new ActiveResult(this.source, this.explicit, limit, result, from, to);
+    if (result.update && (result = result.update(result, from, to, new CompletionContext(tr2.state, pos, false))))
+      return new ActiveResult(this.source, this.explicit, limit, result, result.from, (_a2 = result.to) !== null && _a2 !== void 0 ? _a2 : cur(tr2.state));
+    return new ActiveSource(this.source, 1, this.explicit);
+  }
+  map(mapping) {
+    if (mapping.empty)
+      return this;
+    let result = this.result.map ? this.result.map(this.result, mapping) : this.result;
+    if (!result)
+      return new ActiveSource(this.source, 0);
+    return new ActiveResult(this.source, this.explicit, mapping.mapPos(this.limit), result, mapping.mapPos(this.from), mapping.mapPos(this.to, 1));
+  }
+  touches(tr2) {
+    return tr2.changes.touchesRange(this.from, this.to);
+  }
+}
+function checkValid(validFor, state, from, to) {
+  if (!validFor)
+    return false;
+  let text = state.sliceDoc(from, to);
+  return typeof validFor == "function" ? validFor(text, from, to, state) : ensureAnchor(validFor, true).test(text);
+}
+const setActiveEffect = /* @__PURE__ */ StateEffect.define({
+  map(sources, mapping) {
+    return sources.map((s) => s.map(mapping));
+  }
+});
+const completionState = /* @__PURE__ */ StateField.define({
+  create() {
+    return CompletionState.start();
+  },
+  update(value, tr2) {
+    return value.update(tr2);
+  },
+  provide: (f2) => [
+    showTooltip.from(f2, (val) => val.tooltip),
+    EditorView.contentAttributes.from(f2, (state) => state.attrs)
+  ]
+});
+function applyCompletion(view, option) {
+  const apply = option.completion.apply || option.completion.label;
+  let result = view.state.field(completionState).active.find((a) => a.source == option.source);
+  if (!(result instanceof ActiveResult))
+    return false;
+  if (typeof apply == "string")
+    view.dispatch({
+      ...insertCompletionText(view.state, apply, result.from, result.to),
+      annotations: pickedCompletion.of(option.completion)
+    });
+  else
+    apply(view, option.completion, result.from, result.to);
+  return true;
+}
+const createTooltip = /* @__PURE__ */ completionTooltip(completionState, applyCompletion);
+function moveCompletionSelection(forward, by = "option") {
+  return (view) => {
+    let cState = view.state.field(completionState, false);
+    if (!cState || !cState.open || cState.open.disabled || Date.now() - cState.open.timestamp < view.state.facet(completionConfig).interactionDelay)
+      return false;
+    let step = 1, tooltip;
+    if (by == "page" && (tooltip = getTooltip(view, cState.open.tooltip)))
+      step = Math.max(2, Math.floor(tooltip.dom.offsetHeight / tooltip.dom.querySelector("li").offsetHeight) - 1);
+    let { length } = cState.open.options;
+    let selected = cState.open.selected > -1 ? cState.open.selected + step * (forward ? 1 : -1) : forward ? 0 : length - 1;
+    if (selected < 0)
+      selected = by == "page" ? 0 : length - 1;
+    else if (selected >= length)
+      selected = by == "page" ? length - 1 : 0;
+    view.dispatch({ effects: setSelectedEffect.of(selected) });
+    return true;
+  };
+}
+const acceptCompletion = (view) => {
+  let cState = view.state.field(completionState, false);
+  if (view.state.readOnly || !cState || !cState.open || cState.open.selected < 0 || cState.open.disabled || Date.now() - cState.open.timestamp < view.state.facet(completionConfig).interactionDelay)
+    return false;
+  return applyCompletion(view, cState.open.options[cState.open.selected]);
+};
+const startCompletion = (view) => {
+  let cState = view.state.field(completionState, false);
+  if (!cState)
+    return false;
+  view.dispatch({ effects: startCompletionEffect.of(true) });
+  return true;
+};
+const closeCompletion = (view) => {
+  let cState = view.state.field(completionState, false);
+  if (!cState || !cState.active.some((a) => a.state != 0))
+    return false;
+  view.dispatch({ effects: closeCompletionEffect.of(null) });
+  return true;
+};
+class RunningQuery {
+  constructor(active, context) {
+    this.active = active;
+    this.context = context;
+    this.time = Date.now();
+    this.updates = [];
+    this.done = void 0;
+  }
+}
+const MaxUpdateCount = 50, MinAbortTime = 1e3;
+const completionPlugin = /* @__PURE__ */ ViewPlugin.fromClass(class {
+  constructor(view) {
+    this.view = view;
+    this.debounceUpdate = -1;
+    this.running = [];
+    this.debounceAccept = -1;
+    this.pendingStart = false;
+    this.composing = 0;
+    for (let active of view.state.field(completionState).active)
+      if (active.isPending)
+        this.startQuery(active);
+  }
+  update(update) {
+    let cState = update.state.field(completionState);
+    let conf = update.state.facet(completionConfig);
+    if (!update.selectionSet && !update.docChanged && update.startState.field(completionState) == cState)
+      return;
+    let doesReset = update.transactions.some((tr2) => {
+      let type = getUpdateType(tr2, conf);
+      return type & 8 || (tr2.selection || tr2.docChanged) && !(type & 3);
+    });
+    for (let i2 = 0; i2 < this.running.length; i2++) {
+      let query = this.running[i2];
+      if (doesReset || query.context.abortOnDocChange && update.docChanged || query.updates.length + update.transactions.length > MaxUpdateCount && Date.now() - query.time > MinAbortTime) {
+        for (let handler of query.context.abortListeners) {
+          try {
+            handler();
+          } catch (e) {
+            logException(this.view.state, e);
+          }
+        }
+        query.context.abortListeners = null;
+        this.running.splice(i2--, 1);
+      } else {
+        query.updates.push(...update.transactions);
+      }
+    }
+    if (this.debounceUpdate > -1)
+      clearTimeout(this.debounceUpdate);
+    if (update.transactions.some((tr2) => tr2.effects.some((e) => e.is(startCompletionEffect))))
+      this.pendingStart = true;
+    let delay = this.pendingStart ? 50 : conf.activateOnTypingDelay;
+    this.debounceUpdate = cState.active.some((a) => a.isPending && !this.running.some((q2) => q2.active.source == a.source)) ? setTimeout(() => this.startUpdate(), delay) : -1;
+    if (this.composing != 0)
+      for (let tr2 of update.transactions) {
+        if (tr2.isUserEvent("input.type"))
+          this.composing = 2;
+        else if (this.composing == 2 && tr2.selection)
+          this.composing = 3;
+      }
+  }
+  startUpdate() {
+    this.debounceUpdate = -1;
+    this.pendingStart = false;
+    let { state } = this.view, cState = state.field(completionState);
+    for (let active of cState.active) {
+      if (active.isPending && !this.running.some((r2) => r2.active.source == active.source))
+        this.startQuery(active);
+    }
+    if (this.running.length && cState.open && cState.open.disabled)
+      this.debounceAccept = setTimeout(() => this.accept(), this.view.state.facet(completionConfig).updateSyncTime);
+  }
+  startQuery(active) {
+    let { state } = this.view, pos = cur(state);
+    let context = new CompletionContext(state, pos, active.explicit, this.view);
+    let pending = new RunningQuery(active, context);
+    this.running.push(pending);
+    Promise.resolve(active.source(context)).then((result) => {
+      if (!pending.context.aborted) {
+        pending.done = result || null;
+        this.scheduleAccept();
+      }
+    }, (err) => {
+      this.view.dispatch({ effects: closeCompletionEffect.of(null) });
+      logException(this.view.state, err);
+    });
+  }
+  scheduleAccept() {
+    if (this.running.every((q2) => q2.done !== void 0))
+      this.accept();
+    else if (this.debounceAccept < 0)
+      this.debounceAccept = setTimeout(() => this.accept(), this.view.state.facet(completionConfig).updateSyncTime);
+  }
+  accept() {
+    var _a2;
+    if (this.debounceAccept > -1)
+      clearTimeout(this.debounceAccept);
+    this.debounceAccept = -1;
+    let updated = [];
+    let conf = this.view.state.facet(completionConfig), cState = this.view.state.field(completionState);
+    for (let i2 = 0; i2 < this.running.length; i2++) {
+      let query = this.running[i2];
+      if (query.done === void 0)
+        continue;
+      this.running.splice(i2--, 1);
+      if (query.done) {
+        let pos = cur(query.updates.length ? query.updates[0].startState : this.view.state);
+        let limit = Math.min(pos, query.done.from + (query.active.explicit ? 0 : 1));
+        let active = new ActiveResult(query.active.source, query.active.explicit, limit, query.done, query.done.from, (_a2 = query.done.to) !== null && _a2 !== void 0 ? _a2 : pos);
+        for (let tr2 of query.updates)
+          active = active.update(tr2, conf);
+        if (active.hasResult()) {
+          updated.push(active);
+          continue;
+        }
+      }
+      let current = cState.active.find((a) => a.source == query.active.source);
+      if (current && current.isPending) {
+        if (query.done == null) {
+          let active = new ActiveSource(query.active.source, 0);
+          for (let tr2 of query.updates)
+            active = active.update(tr2, conf);
+          if (!active.isPending)
+            updated.push(active);
+        } else {
+          this.startQuery(current);
+        }
+      }
+    }
+    if (updated.length || cState.open && cState.open.disabled)
+      this.view.dispatch({ effects: setActiveEffect.of(updated) });
+  }
+}, {
+  eventHandlers: {
+    blur(event) {
+      let state = this.view.state.field(completionState, false);
+      if (state && state.tooltip && this.view.state.facet(completionConfig).closeOnBlur) {
+        let dialog2 = state.open && getTooltip(this.view, state.open.tooltip);
+        if (!dialog2 || !dialog2.dom.contains(event.relatedTarget))
+          setTimeout(() => this.view.dispatch({ effects: closeCompletionEffect.of(null) }), 10);
+      }
+    },
+    compositionstart() {
+      this.composing = 1;
+    },
+    compositionend() {
+      if (this.composing == 3) {
+        setTimeout(() => this.view.dispatch({ effects: startCompletionEffect.of(false) }), 20);
+      }
+      this.composing = 0;
+    }
+  }
+});
+const windows = typeof navigator == "object" && /* @__PURE__ */ /Win/.test(navigator.platform);
+const commitCharacters = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ EditorView.domEventHandlers({
+  keydown(event, view) {
+    let field = view.state.field(completionState, false);
+    if (!field || !field.open || field.open.disabled || field.open.selected < 0 || event.key.length > 1 || event.ctrlKey && !(windows && event.altKey) || event.metaKey)
+      return false;
+    let option = field.open.options[field.open.selected];
+    let result = field.active.find((a) => a.source == option.source);
+    let commitChars = option.completion.commitCharacters || result.result.commitCharacters;
+    if (commitChars && commitChars.indexOf(event.key) > -1)
+      applyCompletion(view, option);
+    return false;
+  }
+}));
+const baseTheme = /* @__PURE__ */ EditorView.baseTheme({
+  ".cm-tooltip.cm-tooltip-autocomplete": {
+    "& > ul": {
+      fontFamily: "monospace",
+      whiteSpace: "nowrap",
+      overflow: "hidden auto",
+      maxWidth_fallback: "700px",
+      maxWidth: "min(700px, 95vw)",
+      minWidth: "250px",
+      maxHeight: "10em",
+      height: "100%",
+      listStyle: "none",
+      margin: 0,
+      padding: 0,
+      "& > li, & > completion-section": {
+        padding: "1px 3px",
+        lineHeight: 1.2
+      },
+      "& > li": {
+        overflowX: "hidden",
+        textOverflow: "ellipsis",
+        cursor: "pointer"
+      },
+      "& > completion-section": {
+        display: "list-item",
+        borderBottom: "1px solid silver",
+        paddingLeft: "0.5em",
+        opacity: 0.7
+      }
+    }
+  },
+  "&light .cm-tooltip-autocomplete ul li[aria-selected]": {
+    background: "#17c",
+    color: "white"
+  },
+  "&light .cm-tooltip-autocomplete-disabled ul li[aria-selected]": {
+    background: "#777"
+  },
+  "&dark .cm-tooltip-autocomplete ul li[aria-selected]": {
+    background: "#347",
+    color: "white"
+  },
+  "&dark .cm-tooltip-autocomplete-disabled ul li[aria-selected]": {
+    background: "#444"
+  },
+  ".cm-completionListIncompleteTop:before, .cm-completionListIncompleteBottom:after": {
+    content: '"\xB7\xB7\xB7"',
+    opacity: 0.5,
+    display: "block",
+    textAlign: "center",
+    cursor: "pointer"
+  },
+  ".cm-tooltip.cm-completionInfo": {
+    position: "absolute",
+    padding: "3px 9px",
+    width: "max-content",
+    maxWidth: `${400}px`,
+    boxSizing: "border-box",
+    whiteSpace: "pre-line"
+  },
+  ".cm-completionInfo.cm-completionInfo-left": { right: "100%" },
+  ".cm-completionInfo.cm-completionInfo-right": { left: "100%" },
+  ".cm-completionInfo.cm-completionInfo-left-narrow": { right: `${30}px` },
+  ".cm-completionInfo.cm-completionInfo-right-narrow": { left: `${30}px` },
+  "&light .cm-snippetField": { backgroundColor: "#00000022" },
+  "&dark .cm-snippetField": { backgroundColor: "#ffffff22" },
+  ".cm-snippetFieldPosition": {
+    verticalAlign: "text-top",
+    width: 0,
+    height: "1.15em",
+    display: "inline-block",
+    margin: "0 -0.7px -.7em",
+    borderLeft: "1.4px dotted #888"
+  },
+  ".cm-completionMatchedText": {
+    textDecoration: "underline"
+  },
+  ".cm-completionDetail": {
+    marginLeft: "0.5em",
+    fontStyle: "italic"
+  },
+  ".cm-completionIcon": {
+    fontSize: "90%",
+    width: ".8em",
+    display: "inline-block",
+    textAlign: "center",
+    paddingRight: ".6em",
+    opacity: "0.6",
+    boxSizing: "content-box"
+  },
+  ".cm-completionIcon-function, .cm-completionIcon-method": {
+    "&:after": { content: "'\u0192'" }
+  },
+  ".cm-completionIcon-class": {
+    "&:after": { content: "'\u25CB'" }
+  },
+  ".cm-completionIcon-interface": {
+    "&:after": { content: "'\u25CC'" }
+  },
+  ".cm-completionIcon-variable": {
+    "&:after": { content: "'\u{1D465}'" }
+  },
+  ".cm-completionIcon-constant": {
+    "&:after": { content: "'\u{1D436}'" }
+  },
+  ".cm-completionIcon-type": {
+    "&:after": { content: "'\u{1D461}'" }
+  },
+  ".cm-completionIcon-enum": {
+    "&:after": { content: "'\u222A'" }
+  },
+  ".cm-completionIcon-property": {
+    "&:after": { content: "'\u25A1'" }
+  },
+  ".cm-completionIcon-keyword": {
+    "&:after": { content: "'\u{1F511}\uFE0E'" }
+  },
+  ".cm-completionIcon-namespace": {
+    "&:after": { content: "'\u25A2'" }
+  },
+  ".cm-completionIcon-text": {
+    "&:after": { content: "'abc'", fontSize: "50%", verticalAlign: "middle" }
+  }
+});
+const closedBracket = /* @__PURE__ */ new class extends RangeValue {
+}();
+closedBracket.startSide = 1;
+closedBracket.endSide = -1;
+function autocompletion(config = {}) {
+  return [
+    commitCharacters,
+    completionState,
+    completionConfig.of(config),
+    completionPlugin,
+    completionKeymapExt,
+    baseTheme
+  ];
+}
+const completionKeymap = [
+  { key: "Ctrl-Space", run: startCompletion },
+  { mac: "Alt-`", run: startCompletion },
+  { mac: "Alt-i", run: startCompletion },
+  { key: "Escape", run: closeCompletion },
+  { key: "ArrowDown", run: /* @__PURE__ */ moveCompletionSelection(true) },
+  { key: "ArrowUp", run: /* @__PURE__ */ moveCompletionSelection(false) },
+  { key: "PageDown", run: /* @__PURE__ */ moveCompletionSelection(true, "page") },
+  { key: "PageUp", run: /* @__PURE__ */ moveCompletionSelection(false, "page") },
+  { key: "Enter", run: acceptCompletion }
+];
+const completionKeymapExt = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ keymap.computeN([completionConfig], (state) => state.facet(completionConfig).defaultKeymap ? [completionKeymap] : []));
+function completionStatus(state) {
+  let cState = state.field(completionState, false);
+  return cState && cState.active.some((a) => a.isPending) ? "pending" : cState && cState.active.some((a) => a.state != 0) ? "active" : null;
+}
+const LIST_PREFIX = /^(\s*(?:[-*+]\s(?:\[[ xX]\]\s+)?|(?:\d+)[.)]\s+))/;
+function listPrefixOf(lineText) {
+  const m2 = LIST_PREFIX.exec(lineText);
+  return m2 ? m2[1] : null;
+}
+function continueList(view) {
+  const { state, dispatch } = view;
+  if (completionStatus(state) === "active")
+    return false;
+  const sel = state.selection.main;
+  const head = sel.head;
+  const line = state.doc.lineAt(head);
+  const prefix = listPrefixOf(line.text);
+  if (prefix === null)
+    return false;
+  const rest = line.text.slice(prefix.length);
+  if (rest.trim() === "") {
+    dispatch({
+      changes: { from: line.from, to: line.from + prefix.length, insert: "" },
+      selection: { anchor: line.from }
+    });
+    return true;
+  }
+  const numMatch = /^(\s*)(\d+)([.)]\s+)/.exec(prefix);
+  let nextPrefix = prefix;
+  if (numMatch) {
+    const n2 = parseInt(numMatch[2], 10);
+    nextPrefix = `${numMatch[1]}${n2 + 1}${numMatch[3]}`;
+  }
+  const insert2 = "\n" + nextPrefix;
+  dispatch({
+    changes: { from: head, to: head, insert: insert2 },
+    selection: { anchor: head + insert2.length }
+  });
+  return true;
+}
+function memoInputKeymap(onSend) {
+  return [
+    Prec.high(
+      keymap.of([
+        { key: "Enter", run: continueList },
+        {
+          key: "Mod-Enter",
+          run: (view) => {
+            if (onSend) {
+              onSend();
+              return true;
+            }
+            return false;
+          }
+        }
+      ])
+    )
+  ];
+}
 const etTags = () => {
   const { app: app2 } = dailyNotesService.getState();
-  const tags = app2.metadataCache.getTags();
-  return [...Object.keys(tags)].map((p2) => p2.split("#").pop());
+  const tags2 = app2.metadataCache.getTags();
+  return [...Object.keys(tags2)].map((p2) => p2.split("#").pop());
 };
 const usedTags = (seletecText) => {
   let allTags;
   if (UseVaultTags) {
     allTags = etTags();
   } else {
-    const { tags } = memoService.getState();
-    allTags = tags;
+    const { tags: tags2 } = memoService.getState();
+    allTags = tags2;
   }
   const lowerCaseInputStr = seletecText.toLowerCase();
   const usedTags2 = [];
@@ -17283,7 +31860,205 @@ const usedTags = (seletecText) => {
   });
   return usedTags2;
 };
-var suggest = "";
+const getSuggestions = (inputStr) => {
+  const { app: app2 } = dailyNotesService.getState();
+  const query = (inputStr.startsWith("[") ? inputStr.slice(1) : inputStr).toLowerCase();
+  const results = [];
+  app2.vault.getAllLoadedFiles().forEach((file) => {
+    if (!(file instanceof require$$0.TFile))
+      return;
+    const ext = file.extension;
+    if (!(ext === "md" || ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif"))
+      return;
+    const base2 = file.basename.toLowerCase();
+    const path = file.path.toLowerCase();
+    let score2 = 0;
+    if (!query) {
+      score2 = 1;
+    } else if (base2 === query) {
+      score2 = 100;
+    } else if (base2.startsWith(query)) {
+      score2 = 60;
+    } else if (base2.includes(query)) {
+      score2 = 40;
+    } else if (path.includes(query)) {
+      score2 = 20;
+    } else {
+      return;
+    }
+    results.push({
+      name: file.basename,
+      char: file.name,
+      file,
+      score: score2
+    });
+  });
+  results.sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
+  return results.map(({ score: score2, ...item }) => item);
+};
+const isTagChar = (ch2) => ch2 !== "" && /[\p{L}\p{N}_/.-]/u.test(ch2);
+const isSpace = (ch2) => ch2 === void 0 || /\s/.test(ch2);
+function tagCompletion(ctx) {
+  const { state, pos } = ctx;
+  const line = state.doc.lineAt(pos);
+  if (pos <= line.from)
+    return null;
+  let hash2 = pos;
+  while (hash2 > line.from && isTagChar(state.sliceDoc(hash2 - 1, hash2)))
+    hash2--;
+  if (hash2 === pos || state.sliceDoc(hash2 - 1, hash2) !== "#")
+    return null;
+  const prev = hash2 - 2 >= line.from ? state.sliceDoc(hash2 - 2, hash2 - 1) : "";
+  if (prev !== "" && !isSpace(prev))
+    return null;
+  const token = state.sliceDoc(hash2 + 1, pos);
+  const options = usedTags(token).map(({ name: name2 }) => ({
+    label: name2,
+    apply: "#" + name2
+  }));
+  if (options.length === 0)
+    return null;
+  return { from: hash2, options, filter: false };
+}
+function fileCompletion(ctx) {
+  const { state, pos } = ctx;
+  const line = state.doc.lineAt(pos);
+  let s = pos;
+  let brackets = 0;
+  while (s > line.from) {
+    const ch2 = state.sliceDoc(s - 1, s);
+    if (ch2 === "\n" || ch2 === "]")
+      break;
+    if (ch2 === "[") {
+      s--;
+      brackets++;
+      if (brackets >= 2)
+        break;
+      continue;
+    }
+    if (brackets > 0)
+      break;
+    s--;
+  }
+  if (brackets < 2)
+    return null;
+  const from = s;
+  const tokenWithBracket = state.sliceDoc(from + 1, pos);
+  const suggestions = getSuggestions(tokenWithBracket).slice(0, 10);
+  if (suggestions.length === 0)
+    return null;
+  const options = suggestions.map(({ name: name2, file }) => {
+    const dir = file.parent && file.parent.path !== "/" ? file.parent.path : "";
+    return {
+      label: name2,
+      detail: dir,
+      file,
+      render: (el) => {
+        el.classList.add("cm-sug-file");
+        const nameEl = document.createElement("span");
+        nameEl.className = "cm-sug-name";
+        nameEl.textContent = name2;
+        el.appendChild(nameEl);
+        if (dir) {
+          const pathEl = document.createElement("span");
+          pathEl.className = "cm-sug-path";
+          pathEl.textContent = dir;
+          el.appendChild(pathEl);
+        }
+      },
+      apply: (view, completion, from2, to) => {
+        const f2 = completion == null ? void 0 : completion.file;
+        const app2 = appStore.getState().dailyNotesState.app;
+        let link = "";
+        if (f2 && app2.fileManager) {
+          link = app2.fileManager.generateMarkdownLink(f2, f2.path, "", "");
+        } else {
+          link = `[[${name2}]]`;
+        }
+        view.dispatch({
+          changes: { from: from2, to, insert: link },
+          selection: { anchor: from2 + link.length },
+          userEvent: "input.complete"
+        });
+      }
+    };
+  });
+  return { from, options, filter: false };
+}
+function memoAutocomplete() {
+  return [
+    autocompletion({
+      override: [(ctx) => {
+        var _a2;
+        return (_a2 = tagCompletion(ctx)) != null ? _a2 : fileCompletion(ctx);
+      }],
+      activateOnTyping: true,
+      maxRenderedOptions: 200
+    }),
+    keymap.of(completionKeymap)
+  ];
+}
+const TAG_CHAR = "\\p{L}\\p{N}_/\\.\\-";
+const CODE_RE = /`[^`\n]+?`/g;
+const BOLD_RE = /\*\*[^*\n]+?\*\*/g;
+const ITALIC_RE = new RegExp("(?<!\\*)\\*[^*\\n]+?\\*(?!\\*)", "g");
+const LINK_RE = /\[\[[^\[\]\n]+?\]\]/g;
+const TAG_RE = new RegExp(`(?<![#${TAG_CHAR}])#(?:[${TAG_CHAR}]+)`, "gu");
+const mk = (cls) => Decoration.mark({ class: cls });
+const CODE = mk("cm-hl-code");
+const BOLD = mk("cm-hl-bold");
+const ITALIC = mk("cm-hl-italic");
+const TAG = mk("cm-hl-tag");
+const LINK = mk("cm-hl-link");
+const overlaps = (aFrom, aTo, ranges) => ranges.some((r2) => aFrom < r2.to && aTo > r2.from);
+function buildSet(doc2) {
+  const builder = new RangeSetBuilder();
+  for (let ln = 1; ln <= doc2.lines; ln++) {
+    const line = doc2.line(ln);
+    const text = line.text;
+    const base2 = line.from;
+    const push = (re2, deco, skip) => {
+      re2.lastIndex = 0;
+      let m2;
+      while ((m2 = re2.exec(text)) !== null) {
+        const a = base2 + m2.index;
+        const b = a + m2[0].length;
+        if (!skip || !overlaps(a, b, skip))
+          builder.add(a, b, deco);
+      }
+    };
+    const codeRanges = [];
+    CODE_RE.lastIndex = 0;
+    let mc2;
+    while ((mc2 = CODE_RE.exec(text)) !== null) {
+      const a = base2 + mc2.index;
+      const b = a + mc2[0].length;
+      codeRanges.push({ from: a, to: b });
+      builder.add(a, b, CODE);
+    }
+    push(BOLD_RE, BOLD, codeRanges);
+    push(ITALIC_RE, ITALIC, codeRanges);
+    push(TAG_RE, TAG, codeRanges);
+    push(LINK_RE, LINK, codeRanges);
+  }
+  return builder.finish();
+}
+const memoInputHighlight = ViewPlugin.fromClass(
+  class {
+    constructor(view) {
+      this.deco = buildSet(view.state.doc);
+    }
+    update(update) {
+      if (update.docChanged) {
+        this.deco = buildSet(update.state.doc);
+      }
+    }
+  },
+  {
+    decorations: (v2) => v2.deco
+  }
+);
+var editor = "";
 function SvgSend(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -17299,360 +32074,176 @@ function SvgSend(props) {
     d: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
   }));
 }
-const getSuggestions = (inputStr) => {
-  const { app: app2 } = dailyNotesService.getState();
-  const query = (inputStr.startsWith("[") ? inputStr.slice(1) : inputStr).toLowerCase();
-  const results = [];
-  app2.vault.getAllLoadedFiles().forEach((file) => {
-    if (!(file instanceof require$$0.TFile))
-      return;
-    const ext = file.extension;
-    if (!(ext === "md" || ext === "png" || ext === "jpg" || ext === "jpeg" || ext === "gif"))
-      return;
-    const base = file.basename.toLowerCase();
-    const path = file.path.toLowerCase();
-    let score = 0;
-    if (!query) {
-      score = 1;
-    } else if (base === query) {
-      score = 100;
-    } else if (base.startsWith(query)) {
-      score = 60;
-    } else if (base.includes(query)) {
-      score = 40;
-    } else if (path.includes(query)) {
-      score = 20;
-    } else {
-      return;
-    }
-    results.push({
-      name: file.basename,
-      char: file.name,
-      file,
-      score
-    });
-  });
-  results.sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
-  return results.map(({ score, ...item }) => item);
-};
-const TItem = ({
-  entity: {
-    name,
-    char,
-    file
-  }
-}) => {
-  var _a;
-  if (!file) {
-    return /* @__PURE__ */ jsx("div", {
-      className: "rta-sug-tag",
-      children: char
-    });
-  }
-  const dir = ((_a = file.parent) == null ? void 0 : _a.path) && file.parent.path !== "/" ? file.parent.path : "";
-  return /* @__PURE__ */ jsxs("div", {
-    className: "rta-sug-file",
-    children: [/* @__PURE__ */ jsx("span", {
-      className: "rta-sug-name",
-      children: file.extension === "md" ? file.basename : file.name
-    }), dir ? /* @__PURE__ */ jsx("span", {
-      className: "rta-sug-path",
-      children: dir
-    }) : null]
-  });
-};
-const Loading = ({
-  data
-}) => {
-  return /* @__PURE__ */ jsx("div", {
-    children: "Loading"
-  });
-};
-let actualToken;
 const Editor = react.exports.forwardRef((props, ref) => {
-  var _a, _b;
-  const {
-    globalState: {
-      useTinyUndoHistoryCache
-    }
-  } = react.exports.useContext(appContext);
   const {
     className,
-    inputerType,
     initialContent,
-    placeholder,
+    placeholder: placeholderText,
     showConfirmBtn,
     showCancelBtn,
     onConfirmBtnClick: handleConfirmBtnClickCallback,
     onCancelBtnClick: handleCancelBtnClickCallback,
     onContentChange: handleContentChangeCallback
   } = props;
-  const editorRef = react.exports.useRef(null);
-  const tinyUndoRef = react.exports.useRef(null);
-  const refresh = useRefresh();
-  const [, setHeight, currentHeightRef] = dist(0);
+  const mountRef = react.exports.useRef(null);
+  const viewRef = react.exports.useRef(null);
+  const roCompartmentRef = react.exports.useRef(new Compartment());
+  const extRef = react.exports.useRef([]);
+  const cbRef = react.exports.useRef({
+    confirm: handleConfirmBtnClickCallback,
+    change: handleContentChangeCallback,
+    placeholder: placeholderText
+  });
+  cbRef.current.confirm = handleConfirmBtnClickCallback;
+  cbRef.current.change = handleContentChangeCallback;
+  cbRef.current.placeholder = placeholderText;
+  const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
   react.exports.useEffect(() => {
-    const leaves = app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-    let memosHeight;
-    let leafView;
-    if (leaves.length > 0) {
-      const leaf = leaves[0];
-      leafView = leaf.view.containerEl;
-      memosHeight = leafView.offsetHeight;
-    } else {
-      leafView = document;
-      memosHeight = window.outerHeight;
-    }
-    setHeight(memosHeight);
-  }, []);
-  react.exports.useEffect(() => {
-    if (!editorRef.current) {
+    const parent = mountRef.current;
+    if (!parent || parent.querySelector(".cm-editor")) {
       return;
     }
-    if (initialContent) {
-      editorRef.current.value = initialContent;
-      refresh();
-    }
-  }, []);
-  react.exports.useEffect(() => {
-    var _a2;
-    if (useTinyUndoHistoryCache) {
-      if (!editorRef.current) {
-        return;
+    const buildExtensions = () => [EditorView.lineWrapping, history(), placeholder(cbRef.current.placeholder), memoInputHighlight, memoAutocomplete(), memoInputKeymap(() => {
+      var _a2, _b, _c;
+      return cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
+    }), keymap.of([...defaultKeymap, ...historyKeymap]), roCompartmentRef.current.of([]), EditorView.updateListener.of((u2) => {
+      if (u2.docChanged) {
+        const text = u2.state.doc.toString();
+        setHasContent(text.length > 0);
+        cbRef.current.change(text);
       }
-      const {
-        tinyUndoActionsCache,
-        tinyUndoIndexCache
-      } = storage.get(["tinyUndoActionsCache", "tinyUndoIndexCache"]);
-      tinyUndoRef.current = new TinyUndo(editorRef.current, {
-        interval: 5e3,
-        initialActions: tinyUndoActionsCache,
-        initialIndex: tinyUndoIndexCache
-      });
-      tinyUndoRef.current.subscribe((actions, index) => {
-        storage.set({
-          tinyUndoActionsCache: actions,
-          tinyUndoIndexCache: index
-        });
-      });
-      return () => {
-        var _a3;
-        (_a3 = tinyUndoRef.current) == null ? void 0 : _a3.destroy();
-      };
-    } else {
-      (_a2 = tinyUndoRef.current) == null ? void 0 : _a2.destroy();
-      tinyUndoRef.current = null;
-      storage.remove(["tinyUndoActionsCache", "tinyUndoIndexCache"]);
-    }
-  }, [useTinyUndoHistoryCache]);
-  react.exports.useEffect(() => {
-    var _a2;
-    if (editorRef.current) {
-      editorRef.current.style.height = "auto";
-      editorRef.current.style.height = ((_a2 = editorRef.current.scrollHeight) != null ? _a2 : 0) + "px";
-    }
-  }, [(_a = editorRef.current) == null ? void 0 : _a.value]);
+    })];
+    const createState = (doc2) => EditorState.create({
+      doc: doc2,
+      extensions: buildExtensions()
+    });
+    extRef.current = buildExtensions();
+    const view = new EditorView({
+      state: createState(initialContent != null ? initialContent : ""),
+      parent
+    });
+    viewRef.current = view;
+    cbRef.current.get = () => view.state.doc.toString();
+    return () => {
+      view.destroy();
+      viewRef.current = null;
+      cbRef.current.get = void 0;
+    };
+  }, []);
   react.exports.useImperativeHandle(ref, () => ({
-    element: editorRef.current,
+    get element() {
+      var _a2, _b, _c;
+      return (_c = (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.dom) != null ? _b : mountRef.current) != null ? _c : document.createElement("div");
+    },
+    get contentEl() {
+      var _a2, _b;
+      return (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.contentDOM) != null ? _b : document.createElement("div");
+    },
     focus: () => {
       var _a2;
       if (FocusOnEditor) {
-        (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
+        (_a2 = viewRef.current) == null ? void 0 : _a2.focus();
       }
     },
     insertText: (rawText) => {
-      if (!editorRef.current) {
+      const view = viewRef.current;
+      if (!view)
         return;
-      }
-      const prevValue = editorRef.current.value;
-      editorRef.current.value = prevValue.slice(0, editorRef.current.selectionStart) + rawText + prevValue.slice(editorRef.current.selectionStart);
-      handleContentChangeCallback(editorRef.current.value);
-      refresh();
+      const sel = view.state.selection.main;
+      view.dispatch({
+        changes: {
+          from: sel.from,
+          to: sel.from,
+          insert: rawText
+        },
+        selection: {
+          anchor: sel.from + rawText.length
+        }
+      });
+      view.focus();
     },
     setContent: (text) => {
-      if (editorRef.current) {
-        editorRef.current.value = text;
-        handleContentChangeCallback(editorRef.current.value);
-        refresh();
-      }
+      var _a2;
+      const view = viewRef.current;
+      if (!view)
+        return;
+      if (text === view.state.doc.toString())
+        return;
+      view.dispatch({
+        changes: {
+          from: 0,
+          to: view.state.doc.length,
+          insert: text != null ? text : ""
+        },
+        selection: {
+          anchor: (_a2 = text == null ? void 0 : text.length) != null ? _a2 : 0
+        }
+      });
     },
     getContent: () => {
-      var _a2, _b2;
-      return (_b2 = (_a2 = editorRef.current) == null ? void 0 : _a2.value) != null ? _b2 : "";
+      var _a2, _b;
+      return (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.state.doc.toString()) != null ? _b : "";
     },
     clear: () => {
-      var _a2;
-      if (!editorRef.current) {
+      const view = viewRef.current;
+      if (!view)
         return;
-      }
-      editorRef.current.value = "";
-      handleContentChangeCallback("");
-      refresh();
-      (_a2 = tinyUndoRef.current) == null ? void 0 : _a2.resetState();
+      view.setState(EditorState.create({
+        doc: "",
+        extensions: extRef.current
+      }));
+      setHasContent(false);
     },
-    setEditable: (editable) => {
-      if (editorRef.current) {
-        editorRef.current.readOnly = !editable;
+    setEditable: (editable2) => {
+      const view = viewRef.current;
+      if (!view)
+        return;
+      view.dispatch({
+        effects: roCompartmentRef.current.reconfigure(editable2 ? [] : EditorState.readOnly.of(true))
+      });
+    },
+    toggleHashAtCursor: () => {
+      const view = viewRef.current;
+      if (!view)
+        return;
+      const head = view.state.selection.main.head;
+      const prev = head > 0 ? view.state.doc.sliceString(head - 1, head) : "";
+      if (prev === "#") {
+        view.dispatch({
+          changes: {
+            from: head - 1,
+            to: head,
+            insert: ""
+          }
+        });
+      } else {
+        view.dispatch({
+          changes: {
+            from: head,
+            to: head,
+            insert: "#"
+          },
+          selection: {
+            anchor: head + 1
+          }
+        });
       }
+      view.focus();
     }
   }), []);
-  const handleInsertTrigger = (event) => {
-    if (!editorRef.current) {
-      return;
-    }
-    const {
-      fileManager
-    } = appStore.getState().dailyNotesState.app;
-    if (event.currentTrigger === "#") {
-      const prevValue = editorRef.current.value;
-      let removeCharNum;
-      if (actualToken !== null && actualToken !== void 0) {
-        removeCharNum = actualToken.length;
-      } else {
-        removeCharNum = 0;
-      }
-      let behindCharNum = editorRef.current.selectionStart;
-      for (let i = 0; i < prevValue.length; i++) {
-        if (!/\s/g.test(prevValue[behindCharNum])) {
-          behindCharNum++;
-        }
-      }
-      editorRef.current.value = prevValue.slice(0, editorRef.current.selectionStart - removeCharNum) + event.item.char + prevValue.slice(behindCharNum);
-      handleContentChangeCallback(editorRef.current.value);
-      refresh();
-    } else if (event.currentTrigger === "[[") {
-      const filePath = fileManager.generateMarkdownLink(event.item.file, event.item.file.path, "", "");
-      const prevValue = editorRef.current.value;
-      let removeCharNum;
-      if (actualToken !== null && actualToken !== void 0) {
-        if (filePath.contains("[[")) {
-          removeCharNum = actualToken.length + 1;
-        } else if (event.item.file.extension !== "md") {
-          removeCharNum = actualToken.length + 1;
-        } else {
-          removeCharNum = actualToken.length + 2;
-        }
-      } else {
-        removeCharNum = 2;
-      }
-      let behindCharNum = editorRef.current.selectionStart;
-      for (let i = 0; i < prevValue.length; i++) {
-        if (!/\s/g.test(prevValue[behindCharNum])) {
-          behindCharNum++;
-        }
-      }
-      editorRef.current.value = prevValue.slice(0, editorRef.current.selectionStart - removeCharNum) + filePath + prevValue.slice(behindCharNum);
-      handleContentChangeCallback(editorRef.current.value);
-      refresh();
-    }
+  const handleCommonConfirmBtnClick = () => {
+    var _a2, _b;
+    const content2 = (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.state.doc.toString()) != null ? _b : "";
+    handleConfirmBtnClickCallback(content2);
   };
-  const handleEditorInput = react.exports.useCallback(() => {
-    var _a2, _b2;
-    handleContentChangeCallback((_b2 = (_a2 = editorRef.current) == null ? void 0 : _a2.value) != null ? _b2 : "");
-    refresh();
-  }, []);
-  const handleEditorKeyDown = react.exports.useCallback((event) => {
-    event.stopPropagation();
-    if (event.code === "Enter") {
-      if (event.metaKey || event.ctrlKey) {
-        handleCommonConfirmBtnClick();
-      }
-    }
-    refresh();
-  }, []);
-  const handleCommonConfirmBtnClick = react.exports.useCallback(() => {
-    if (!editorRef.current) {
-      return;
-    }
-    if (inputerType === "memo") {
-      editorRef.current.value = getEditorContentCache2();
-    }
-    handleConfirmBtnClickCallback(editorRef.current.value);
-    refresh();
-  }, []);
-  const handleCommonCancelBtnClick = react.exports.useCallback(() => {
+  const handleCommonCancelBtnClick = () => {
     handleCancelBtnClickCallback();
-  }, []);
-  const getEditorContentCache2 = () => {
-    var _a2;
-    return (_a2 = storage.get(["editorContentCache"]).editorContentCache) != null ? _a2 : "";
-  };
-  const getEditorContent = () => {
-    if (!editorRef.current) {
-      return;
-    }
-    editorRef.current.value = getEditorContentCache2();
-    return editorRef.current.value;
   };
   return /* @__PURE__ */ jsxs("div", {
     className: "common-editor-wrapper " + className,
-    children: [inputerType === "memo" ? /* @__PURE__ */ jsx(ReactTextareaAutocomplete, {
-      className: "common-editor-inputer scroll",
-      loadingComponent: Loading,
-      placeholder,
-      movePopupAsYouType: true,
-      value: getEditorContent(),
-      innerRef: (textarea) => {
-        editorRef.current = textarea;
-      },
-      onInput: handleEditorInput,
-      onKeyDown: handleEditorKeyDown,
-      style: {
-        minHeight: 48,
-        maxHeight: `${currentHeightRef.current > 400 ? currentHeightRef.current - 400 : 100}px`
-      },
-      dropdownStyle: {
-        minWidth: 180,
-        maxHeight: 250,
-        overflowY: "auto"
-      },
-      minChar: 0,
-      onItemSelected: handleInsertTrigger,
-      scrollToItem: true,
-      trigger: {
-        "#": {
-          dataProvider: (token) => {
-            actualToken = token;
-            return usedTags(token).map(({
-              name,
-              char
-            }) => ({
-              name,
-              char
-            }));
-          },
-          component: TItem,
-          afterWhitespace: true,
-          output: (item) => item.char
-        },
-        "[[": {
-          dataProvider: (token) => {
-            actualToken = token;
-            return getSuggestions(token).slice(0, 10).map(({
-              name,
-              char,
-              file
-            }) => ({
-              name,
-              char,
-              file
-            }));
-          },
-          component: TItem,
-          afterWhitespace: true,
-          output: (item) => item.char
-        }
-      }
-    }) : /* @__PURE__ */ jsx("textarea", {
-      style: {
-        minHeight: 48
-      },
-      className: "common-editor-inputer scroll",
-      rows: 1,
-      placeholder,
-      ref: editorRef,
-      onInput: handleEditorInput,
-      onKeyDown: handleEditorKeyDown
+    children: [/* @__PURE__ */ jsx("div", {
+      className: "cm-host",
+      ref: mountRef
     }), /* @__PURE__ */ jsxs("div", {
       className: "common-tools-wrapper",
       children: [/* @__PURE__ */ jsx("div", {
@@ -17668,13 +32259,13 @@ const Editor = react.exports.forwardRef((props, ref) => {
           children: /* @__PURE__ */ jsx("button", {
             className: "action-btn cancel-btn",
             onClick: handleCommonCancelBtnClick,
-            children: t$1("CANCEL EDIT")
+            children: t$2("CANCEL EDIT")
           })
         }), /* @__PURE__ */ jsx(Only, {
           when: showConfirmBtn,
           children: /* @__PURE__ */ jsx("button", {
             className: "action-btn confirm-btn",
-            disabled: !((_b = editorRef.current) == null ? void 0 : _b.value),
+            disabled: !hasContent2,
             onClick: handleCommonConfirmBtnClick,
             title: "Send",
             children: /* @__PURE__ */ jsx(SvgSend, {
@@ -17833,20 +32424,20 @@ function isShadowRoot(node) {
 }
 function applyStyles(_ref) {
   var state = _ref.state;
-  Object.keys(state.elements).forEach(function(name) {
-    var style = state.styles[name] || {};
-    var attributes = state.attributes[name] || {};
-    var element = state.elements[name];
+  Object.keys(state.elements).forEach(function(name2) {
+    var style = state.styles[name2] || {};
+    var attributes = state.attributes[name2] || {};
+    var element = state.elements[name2];
     if (!isHTMLElement(element) || !getNodeName(element)) {
       return;
     }
     Object.assign(element.style, style);
-    Object.keys(attributes).forEach(function(name2) {
-      var value = attributes[name2];
+    Object.keys(attributes).forEach(function(name3) {
+      var value = attributes[name3];
       if (value === false) {
-        element.removeAttribute(name2);
+        element.removeAttribute(name3);
       } else {
-        element.setAttribute(name2, value === true ? "" : value);
+        element.setAttribute(name3, value === true ? "" : value);
       }
     });
   });
@@ -17871,10 +32462,10 @@ function effect$2(_ref2) {
     Object.assign(state.elements.arrow.style, initialStyles.arrow);
   }
   return function() {
-    Object.keys(state.elements).forEach(function(name) {
-      var element = state.elements[name];
-      var attributes = state.attributes[name] || {};
-      var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]);
+    Object.keys(state.elements).forEach(function(name2) {
+      var element = state.elements[name2];
+      var attributes = state.attributes[name2] || {};
+      var styleProperties = Object.keys(state.styles.hasOwnProperty(name2) ? state.styles[name2] : initialStyles[name2]);
       var style = styleProperties.reduce(function(style2, property) {
         style2[property] = "";
         return style2;
@@ -18050,7 +32641,7 @@ var toPaddingObject = function toPaddingObject2(padding, state) {
 };
 function arrow(_ref) {
   var _state$modifiersData$;
-  var state = _ref.state, name = _ref.name, options = _ref.options;
+  var state = _ref.state, name2 = _ref.name, options = _ref.options;
   var arrowElement = state.elements.arrow;
   var popperOffsets2 = state.modifiersData.popperOffsets;
   var basePlacement = getBasePlacement(state.placement);
@@ -18074,7 +32665,7 @@ function arrow(_ref) {
   var center = clientSize / 2 - arrowRect[len] / 2 + centerToReference;
   var offset2 = within(min2, center, max2);
   var axisProp = axis;
-  state.modifiersData[name] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset2, _state$modifiersData$.centerOffset = offset2 - center, _state$modifiersData$);
+  state.modifiersData[name2] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset2, _state$modifiersData$.centerOffset = offset2 - center, _state$modifiersData$);
 }
 function effect$1(_ref2) {
   var state = _ref2.state, options = _ref2.options;
@@ -18530,8 +33121,8 @@ function getExpandedFallbackPlacements(placement) {
   return [getOppositeVariationPlacement(placement), oppositePlacement, getOppositeVariationPlacement(oppositePlacement)];
 }
 function flip(_ref) {
-  var state = _ref.state, options = _ref.options, name = _ref.name;
-  if (state.modifiersData[name]._skip) {
+  var state = _ref.state, options = _ref.options, name2 = _ref.name;
+  if (state.modifiersData[name2]._skip) {
     return;
   }
   var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
@@ -18554,8 +33145,8 @@ function flip(_ref) {
   var checksMap = /* @__PURE__ */ new Map();
   var makeFallbackChecks = true;
   var firstFittingPlacement = placements2[0];
-  for (var i = 0; i < placements2.length; i++) {
-    var placement = placements2[i];
+  for (var i2 = 0; i2 < placements2.length; i2++) {
+    var placement = placements2[i2];
     var _basePlacement = getBasePlacement(placement);
     var isStartVariation = getVariation(placement) === start;
     var isVertical = [top, bottom].indexOf(_basePlacement) >= 0;
@@ -18611,7 +33202,7 @@ function flip(_ref) {
     }
   }
   if (state.placement !== firstFittingPlacement) {
-    state.modifiersData[name]._skip = true;
+    state.modifiersData[name2]._skip = true;
     state.placement = firstFittingPlacement;
     state.reset = true;
   }
@@ -18646,7 +33237,7 @@ function isAnySideFullyClipped(overflow) {
   });
 }
 function hide(_ref) {
-  var state = _ref.state, name = _ref.name;
+  var state = _ref.state, name2 = _ref.name;
   var referenceRect = state.rects.reference;
   var popperRect = state.rects.popper;
   var preventedOffsets = state.modifiersData.preventOverflow;
@@ -18660,7 +33251,7 @@ function hide(_ref) {
   var popperEscapeOffsets = getSideOffsets(popperAltOverflow, popperRect, preventedOffsets);
   var isReferenceHidden = isAnySideFullyClipped(referenceClippingOffsets);
   var hasPopperEscaped = isAnySideFullyClipped(popperEscapeOffsets);
-  state.modifiersData[name] = {
+  state.modifiersData[name2] = {
     referenceClippingOffsets,
     popperEscapeOffsets,
     isReferenceHidden,
@@ -18695,7 +33286,7 @@ function distanceAndSkiddingToXY(placement, rects, offset2) {
   };
 }
 function offset(_ref2) {
-  var state = _ref2.state, options = _ref2.options, name = _ref2.name;
+  var state = _ref2.state, options = _ref2.options, name2 = _ref2.name;
   var _options$offset = options.offset, offset2 = _options$offset === void 0 ? [0, 0] : _options$offset;
   var data = placements.reduce(function(acc, placement) {
     acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset2);
@@ -18706,7 +33297,7 @@ function offset(_ref2) {
     state.modifiersData.popperOffsets.x += x2;
     state.modifiersData.popperOffsets.y += y2;
   }
-  state.modifiersData[name] = data;
+  state.modifiersData[name2] = data;
 }
 var offset$1 = {
   name: "offset",
@@ -18716,8 +33307,8 @@ var offset$1 = {
   fn: offset
 };
 function popperOffsets(_ref) {
-  var state = _ref.state, name = _ref.name;
-  state.modifiersData[name] = computeOffsets({
+  var state = _ref.state, name2 = _ref.name;
+  state.modifiersData[name2] = computeOffsets({
     reference: state.rects.reference,
     element: state.rects.popper,
     strategy: "absolute",
@@ -18735,7 +33326,7 @@ function getAltAxis(axis) {
   return axis === "x" ? "y" : "x";
 }
 function preventOverflow(_ref) {
-  var state = _ref.state, options = _ref.options, name = _ref.name;
+  var state = _ref.state, options = _ref.options, name2 = _ref.name;
   var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, padding = options.padding, _options$tether = options.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
   var overflow = detectOverflow(state, {
     boundary,
@@ -18790,12 +33381,12 @@ function preventOverflow(_ref) {
     var arrowPaddingMax = arrowPaddingObject[altSide];
     var arrowLen = within(0, referenceRect[len], arrowRect[len]);
     var minOffset = isBasePlacement ? referenceRect[len] / 2 - additive - arrowLen - arrowPaddingMin - normalizedTetherOffsetValue.mainAxis : minLen - arrowLen - arrowPaddingMin - normalizedTetherOffsetValue.mainAxis;
-    var maxOffset = isBasePlacement ? -referenceRect[len] / 2 + additive + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis : maxLen + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis;
+    var maxOffset2 = isBasePlacement ? -referenceRect[len] / 2 + additive + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis : maxLen + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis;
     var arrowOffsetParent = state.elements.arrow && getOffsetParent(state.elements.arrow);
     var clientOffset = arrowOffsetParent ? mainAxis === "y" ? arrowOffsetParent.clientTop || 0 : arrowOffsetParent.clientLeft || 0 : 0;
     var offsetModifierValue = (_offsetModifierState$ = offsetModifierState == null ? void 0 : offsetModifierState[mainAxis]) != null ? _offsetModifierState$ : 0;
     var tetherMin = offset2 + minOffset - offsetModifierValue - clientOffset;
-    var tetherMax = offset2 + maxOffset - offsetModifierValue;
+    var tetherMax = offset2 + maxOffset2 - offsetModifierValue;
     var preventedOffset = within(tether ? min(min$1, tetherMin) : min$1, offset2, tether ? max(max$1, tetherMax) : max$1);
     popperOffsets2[mainAxis] = preventedOffset;
     data[mainAxis] = preventedOffset - offset2;
@@ -18816,7 +33407,7 @@ function preventOverflow(_ref) {
     popperOffsets2[altAxis] = _preventedOffset;
     data[altAxis] = _preventedOffset - _offset;
   }
-  state.modifiersData[name] = data;
+  state.modifiersData[name2] = data;
 }
 var preventOverflow$1 = {
   name: "preventOverflow",
@@ -18879,11 +33470,11 @@ function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {
     height: rect.height
   };
 }
-function order(modifiers) {
+function order(modifiers2) {
   var map = /* @__PURE__ */ new Map();
   var visited = /* @__PURE__ */ new Set();
   var result = [];
-  modifiers.forEach(function(modifier) {
+  modifiers2.forEach(function(modifier) {
     map.set(modifier.name, modifier);
   });
   function sort(modifier) {
@@ -18899,15 +33490,15 @@ function order(modifiers) {
     });
     result.push(modifier);
   }
-  modifiers.forEach(function(modifier) {
+  modifiers2.forEach(function(modifier) {
     if (!visited.has(modifier.name)) {
       sort(modifier);
     }
   });
   return result;
 }
-function orderModifiers(modifiers) {
-  var orderedModifiers = order(modifiers);
+function orderModifiers(modifiers2) {
+  var orderedModifiers = order(modifiers2);
   return modifierPhases.reduce(function(acc, phase) {
     return acc.concat(orderedModifiers.filter(function(modifier) {
       return modifier.phase === phase;
@@ -18928,8 +33519,8 @@ function debounce(fn2) {
     return pending;
   };
 }
-function mergeByName(modifiers) {
-  var merged = modifiers.reduce(function(merged2, current) {
+function mergeByName(modifiers2) {
+  var merged = modifiers2.reduce(function(merged2, current) {
     var existing = merged2[current.name];
     merged2[current.name] = existing ? Object.assign({}, existing, current, {
       options: Object.assign({}, existing.options, current.options),
@@ -19017,12 +33608,12 @@ function popperGenerator(generatorOptions) {
             index = -1;
             continue;
           }
-          var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
+          var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name2 = _state$orderedModifie.name;
           if (typeof fn2 === "function") {
             state = fn2({
               state,
               options: _options,
-              name,
+              name: name2,
               instance
             }) || state;
           }
@@ -19049,11 +33640,11 @@ function popperGenerator(generatorOptions) {
     });
     function runModifierEffects() {
       state.orderedModifiers.forEach(function(_ref3) {
-        var name = _ref3.name, _ref3$options = _ref3.options, options2 = _ref3$options === void 0 ? {} : _ref3$options, effect2 = _ref3.effect;
+        var name2 = _ref3.name, _ref3$options = _ref3.options, options2 = _ref3$options === void 0 ? {} : _ref3$options, effect2 = _ref3.effect;
         if (typeof effect2 === "function") {
           var cleanupFn = effect2({
             state,
-            name,
+            name: name2,
             instance,
             options: options2
           });
@@ -19086,13 +33677,13 @@ function equal(a, b) {
   if (a && b && typeof a == "object" && typeof b == "object") {
     if (a.constructor !== b.constructor)
       return false;
-    var length, i, keys;
+    var length, i2, keys;
     if (Array.isArray(a)) {
       length = a.length;
       if (length != b.length)
         return false;
-      for (i = length; i-- !== 0; )
-        if (!equal(a[i], b[i]))
+      for (i2 = length; i2-- !== 0; )
+        if (!equal(a[i2], b[i2]))
           return false;
       return true;
     }
@@ -19101,12 +33692,12 @@ function equal(a, b) {
       if (a.size !== b.size)
         return false;
       it2 = a.entries();
-      while (!(i = it2.next()).done)
-        if (!b.has(i.value[0]))
+      while (!(i2 = it2.next()).done)
+        if (!b.has(i2.value[0]))
           return false;
       it2 = a.entries();
-      while (!(i = it2.next()).done)
-        if (!equal(i.value[1], b.get(i.value[0])))
+      while (!(i2 = it2.next()).done)
+        if (!equal(i2.value[1], b.get(i2.value[0])))
           return false;
       return true;
     }
@@ -19114,8 +33705,8 @@ function equal(a, b) {
       if (a.size !== b.size)
         return false;
       it2 = a.entries();
-      while (!(i = it2.next()).done)
-        if (!b.has(i.value[0]))
+      while (!(i2 = it2.next()).done)
+        if (!b.has(i2.value[0]))
           return false;
       return true;
     }
@@ -19123,8 +33714,8 @@ function equal(a, b) {
       length = a.length;
       if (length != b.length)
         return false;
-      for (i = length; i-- !== 0; )
-        if (a[i] !== b[i])
+      for (i2 = length; i2-- !== 0; )
+        if (a[i2] !== b[i2])
           return false;
       return true;
     }
@@ -19138,16 +33729,16 @@ function equal(a, b) {
     length = keys.length;
     if (length !== Object.keys(b).length)
       return false;
-    for (i = length; i-- !== 0; )
-      if (!Object.prototype.hasOwnProperty.call(b, keys[i]))
+    for (i2 = length; i2-- !== 0; )
+      if (!Object.prototype.hasOwnProperty.call(b, keys[i2]))
         return false;
     if (hasElementType && a instanceof Element)
       return false;
-    for (i = length; i-- !== 0; ) {
-      if ((keys[i] === "_owner" || keys[i] === "__v" || keys[i] === "__o") && a.$$typeof) {
+    for (i2 = length; i2-- !== 0; ) {
+      if ((keys[i2] === "_owner" || keys[i2] === "__v" || keys[i2] === "__o") && a.$$typeof) {
         continue;
       }
-      if (!equal(a[keys[i]], b[keys[i]]))
+      if (!equal(a[keys[i2]], b[keys[i2]]))
         return false;
     }
     return true;
@@ -19340,7 +33931,7 @@ const WriteDatePopover = (props) => {
       className: "write-date-row",
       children: [/* @__PURE__ */ jsx("span", {
         className: "write-date-label",
-        children: t$1("Time")
+        children: t$2("Time")
       }), /* @__PURE__ */ jsx("input", {
         className: "write-date-time",
         type: "time",
@@ -19355,16 +33946,16 @@ const WriteDatePopover = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "ghost-btn",
           onClick: handleToday,
-          children: t$1("Today")
+          children: t$2("Today")
         }), value && /* @__PURE__ */ jsx("span", {
           className: "ghost-btn danger",
           onClick: handleClear,
-          children: t$1("Back to now")
+          children: t$2("Back to now")
         })]
       }), /* @__PURE__ */ jsxs("button", {
         className: "write-date-confirm",
         onClick: handleConfirm,
-        children: [t$1("Write on"), " ", draftLabel, " ", draftTime]
+        children: [t$2("Write on"), " ", draftLabel, " ", draftTime]
       })]
     })]
   });
@@ -19393,15 +33984,15 @@ const MemoEditor = () => {
     app: app2
   } = dailyNotesService.getState();
   const [isListShown, toggleList] = useToggle(false);
-  const [isEditorShown, toggleEditor] = dist(false);
+  const [isEditorShown, toggleEditor] = dist$1(false);
   const editorRef = react.exports.useRef(null);
   const editorWrapperRef = react.exports.useRef(null);
   const sendingRef = react.exports.useRef(false);
   const skipNextFocusRef = react.exports.useRef(false);
   const prevGlobalStateRef = react.exports.useRef(globalState);
-  const [targetDate, setTargetDate, targetDateRef] = dist(null);
-  const [isWriteDateOpen, setIsWriteDateOpen] = dist(false);
-  const [calAnchor, setCalAnchor] = dist(null);
+  const [targetDate, setTargetDate, targetDateRef] = dist$1(null);
+  const [isWriteDateOpen, setIsWriteDateOpen] = dist$1(false);
+  const [calAnchor, setCalAnchor] = dist$1(null);
   react.exports.useEffect(() => {
     if (!editorRef.current) {
       return;
@@ -19416,7 +34007,7 @@ const MemoEditor = () => {
     isEditor = false;
   }, []);
   react.exports.useEffect(() => {
-    var _a;
+    var _a2;
     if (!editorRef.current) {
       return;
     }
@@ -19432,11 +34023,11 @@ const MemoEditor = () => {
       toggleEditor(true);
     }
     if (FocusOnEditor2) {
-      (_a = editorRef.current) == null ? void 0 : _a.focus();
+      (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
     }
   }, []);
   react.exports.useEffect(() => {
-    var _a, _b;
+    var _a2, _b;
     if (!editorRef.current) {
       return;
     }
@@ -19477,11 +34068,11 @@ const MemoEditor = () => {
           iterations: Infinity
         });
         setTimeout(() => {
-          var _a2, _b2;
+          var _a3, _b2;
           divThis.className = "memo-show-editor-button hidden";
           if (isEditor) {
             handleShowEditor(false);
-            (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
+            (_a3 = editorRef.current) == null ? void 0 : _a3.focus();
             scaleElementAni.reverse();
           } else {
             handleShowEditor();
@@ -19535,7 +34126,7 @@ const MemoEditor = () => {
     } else if (UseButtonToShowEditor === false && DefaultEditorLocation === "Bottom" && require$$0.Platform.isMobile === true && window.innerWidth < 875) {
       handleShowEditor(false);
       if (FocusOnEditor2) {
-        (_a = editorRef.current) == null ? void 0 : _a.focus();
+        (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
       }
     } else {
       if (!isEditor) {
@@ -19547,10 +34138,10 @@ const MemoEditor = () => {
     }
   }, []);
   react.exports.useEffect(() => {
-    var _a, _b, _c, _d, _e;
+    var _a2, _b, _c, _d, _e;
     if (globalState.markMemoId) {
-      const editorCurrentValue = (_a = editorRef.current) == null ? void 0 : _a.getContent();
-      const memoLinkText = `${editorCurrentValue ? "\n" : ""}${t$1("MARK")}: [@MEMO](${globalState.markMemoId})`;
+      const editorCurrentValue = (_a2 = editorRef.current) == null ? void 0 : _a2.getContent();
+      const memoLinkText = `${editorCurrentValue ? "\n" : ""}${t$2("MARK")}: [@MEMO](${globalState.markMemoId})`;
       (_b = editorRef.current) == null ? void 0 : _b.insertText(memoLinkText);
       globalStateService.setMarkMemoId("");
     }
@@ -19564,51 +34155,40 @@ const MemoEditor = () => {
     prevGlobalStateRef.current = globalState;
   }, [globalState.markMemoId, globalState.editMemoId]);
   react.exports.useEffect(() => {
-    if (!editorRef.current) {
+    var _a2;
+    const el = (_a2 = editorRef.current) == null ? void 0 : _a2.contentEl;
+    if (!el) {
       return;
     }
     const handlePasteEvent = async (event) => {
-      var _a;
+      var _a3;
       if (event.clipboardData && event.clipboardData.files.length > 0) {
         event.preventDefault();
         const file = event.clipboardData.files[0];
         const url = await handleUploadFile(file);
         if (url) {
-          (_a = editorRef.current) == null ? void 0 : _a.insertText(url);
+          (_a3 = editorRef.current) == null ? void 0 : _a3.insertText(url);
         }
       }
     };
     const handleDropEvent = async (event) => {
-      var _a;
+      var _a3;
       if (event.dataTransfer && event.dataTransfer.files.length > 0) {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
         const url = await handleUploadFile(file);
         if (url) {
-          (_a = editorRef.current) == null ? void 0 : _a.insertText(url);
+          (_a3 = editorRef.current) == null ? void 0 : _a3.insertText(url);
         }
       }
     };
-    const handleClickEvent = () => {
-      var _a, _b;
-      handleContentChange((_b = (_a = editorRef.current) == null ? void 0 : _a.element.value) != null ? _b : "");
-    };
-    const handleKeyDownEvent = () => {
-      setTimeout(() => {
-        var _a, _b;
-        handleContentChange((_b = (_a = editorRef.current) == null ? void 0 : _a.element.value) != null ? _b : "");
-      });
-    };
-    editorRef.current.element.addEventListener("paste", handlePasteEvent);
-    editorRef.current.element.addEventListener("drop", handleDropEvent);
-    editorRef.current.element.addEventListener("click", handleClickEvent);
-    editorRef.current.element.addEventListener("keydown", handleKeyDownEvent);
+    el.addEventListener("paste", handlePasteEvent);
+    el.addEventListener("drop", handleDropEvent);
     return () => {
-      var _a, _b;
-      (_a = editorRef.current) == null ? void 0 : _a.element.removeEventListener("paste", handlePasteEvent);
-      (_b = editorRef.current) == null ? void 0 : _b.element.removeEventListener("drop", handleDropEvent);
+      el.removeEventListener("paste", handlePasteEvent);
+      el.removeEventListener("drop", handleDropEvent);
     };
-  }, [editorRef.current]);
+  }, []);
   const handleUploadFile = react.exports.useCallback(async (file) => {
     const {
       type
@@ -19659,10 +34239,10 @@ const MemoEditor = () => {
       el.style.transformOrigin = "";
     };
   };
-  const handleSaveBtnClick = react.exports.useCallback(async (content) => {
-    var _a, _b;
-    if (content === "") {
-      new require$$0.Notice(t$1("Content cannot be empty"));
+  const handleSaveBtnClick = react.exports.useCallback(async (content2) => {
+    var _a2, _b;
+    if (content2 === "") {
+      new require$$0.Notice(t$2("Content cannot be empty"));
       return;
     }
     if (sendingRef.current) {
@@ -19671,10 +34251,10 @@ const MemoEditor = () => {
     const {
       editMemoId
     } = globalStateService.getState();
-    content = content.replaceAll("&nbsp;", " ");
+    content2 = content2.replaceAll("&nbsp;", " ");
     const finishSend = () => {
-      var _a2, _b2;
-      (_a2 = editorRef.current) == null ? void 0 : _a2.clear();
+      var _a3, _b2;
+      (_a3 = editorRef.current) == null ? void 0 : _a3.clear();
       (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
       setEditorContentCache("");
       sendingRef.current = false;
@@ -19683,10 +34263,10 @@ const MemoEditor = () => {
       if (editMemoId) {
         setEditorContentCache("");
         const prevMemo = memoService.getMemoById(editMemoId);
-        if (prevMemo && prevMemo.content !== content.replace(/\n+$/, "")) {
+        if (prevMemo && prevMemo.content !== content2.replace(/\n+$/, "")) {
           const editedMemo = await memoService.updateMemo({
             memoId: prevMemo.id,
-            text: content,
+            text: content2,
             type: prevMemo.memoType,
             path: prevMemo.path,
             hasId: prevMemo.hasId
@@ -19698,9 +34278,9 @@ const MemoEditor = () => {
         finishSend();
       } else {
         sendingRef.current = true;
-        (_a = editorRef.current) == null ? void 0 : _a.setEditable(false);
+        (_a2 = editorRef.current) == null ? void 0 : _a2.setEditable(false);
         const target = targetDateRef.current;
-        const sendContent = content.trimStart();
+        const sendContent = content2.trimStart();
         const squashStart = Date.now();
         squashEditor();
         const newMemo = await memoService.createMemo(sendContent, isList, target != null ? target : void 0);
@@ -19718,30 +34298,30 @@ const MemoEditor = () => {
     }
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
-    var _a, _b, _c;
+    var _a2, _b, _c;
     globalStateService.setEditMemoId("");
     skipNextFocusRef.current = true;
-    (_a = editorRef.current) == null ? void 0 : _a.setContent("");
+    (_a2 = editorRef.current) == null ? void 0 : _a2.setContent("");
     setEditorContentCache("");
-    (_c = (_b = editorRef.current) == null ? void 0 : _b.element) == null ? void 0 : _c.blur();
+    (_c = (_b = editorRef.current) == null ? void 0 : _b.contentEl) == null ? void 0 : _c.blur();
   }, []);
-  const handleContentChange = react.exports.useCallback((content) => {
+  const handleContentChange = react.exports.useCallback((content2) => {
     const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content;
+    tempDiv.innerHTML = content2;
     if (tempDiv.innerText.trim() === "") {
-      content = "";
+      content2 = "";
     }
-    setEditorContentCache(content);
+    setEditorContentCache(content2);
     if (!editorRef.current) {
       return;
     }
     setTimeout(() => {
-      var _a;
+      var _a2;
       if (skipNextFocusRef.current) {
         skipNextFocusRef.current = false;
         return;
       }
-      (_a = editorRef.current) == null ? void 0 : _a.focus();
+      (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
     });
   }, []);
   const handleChangeStatus = () => {
@@ -19770,23 +34350,8 @@ const MemoEditor = () => {
     }
   };
   const handleTagTextBtnClick = react.exports.useCallback(() => {
-    if (!editorRef.current) {
-      return;
-    }
-    const currentValue = editorRef.current.getContent();
-    const selectionStart = editorRef.current.element.selectionStart;
-    const prevString = currentValue.slice(0, selectionStart);
-    const nextString = currentValue.slice(selectionStart);
-    let nextValue = prevString + "# " + nextString;
-    let cursorIndex = prevString.length + 1;
-    if (prevString.endsWith("#") && nextString.startsWith(" ")) {
-      nextValue = prevString.slice(0, prevString.length - 1) + nextString.slice(1);
-      cursorIndex = prevString.length - 1;
-    }
-    editorRef.current.element.value = nextValue;
-    editorRef.current.element.setSelectionRange(cursorIndex, cursorIndex);
-    editorRef.current.focus();
-    handleContentChange(editorRef.current.element.value);
+    var _a2;
+    (_a2 = editorRef.current) == null ? void 0 : _a2.toggleHashAtCursor();
   }, []);
   const handleUploadFileBtnClick = react.exports.useCallback(() => {
     const inputEl = document.createElement("input");
@@ -19795,14 +34360,14 @@ const MemoEditor = () => {
     inputEl.multiple = false;
     inputEl.accept = "image/png, image/gif, image/jpeg";
     inputEl.onchange = async () => {
-      var _a;
+      var _a2;
       if (!inputEl.files || inputEl.files.length === 0) {
         return;
       }
       const file = inputEl.files[0];
       const url = await handleUploadFile(file);
       if (url) {
-        (_a = editorRef.current) == null ? void 0 : _a.insertText(url);
+        (_a2 = editorRef.current) == null ? void 0 : _a2.insertText(url);
       }
       document.body.removeChild(inputEl);
     };
@@ -19816,9 +34381,8 @@ const MemoEditor = () => {
   };
   const editorConfig = react.exports.useMemo(() => ({
     className: "memo-editor",
-    inputerType: "memo",
     initialContent: getEditorContentCache(),
-    placeholder: t$1("What do you think now..."),
+    placeholder: t$2("What do you think now..."),
     showConfirmBtn: true,
     showCancelBtn: showEditStatus,
     showTools: true,
@@ -19839,7 +34403,7 @@ const MemoEditor = () => {
         children: [!showEditStatus && /* @__PURE__ */ jsx("span", {
           ref: setCalAnchor,
           className: `memo-write-date-anchor ${isWriteDateOpen ? "active" : ""}`,
-          title: t$1("Write to date"),
+          title: t$2("Write to date"),
           onClick: (e) => {
             e.stopPropagation();
             toggleWriteDateOpen();
@@ -19868,10 +34432,10 @@ const MemoEditor = () => {
         className: "icon-img"
       }), /* @__PURE__ */ jsxs("span", {
         className: "target-text",
-        children: [t$1("Write on"), " ", targetDate.format("YYYY-MM-DD HH:mm")]
+        children: [t$2("Write on"), " ", targetDate.format("YYYY-MM-DD HH:mm")]
       }), /* @__PURE__ */ jsx("span", {
         className: "target-clear",
-        title: t$1("Back to now"),
+        title: t$2("Back to now"),
         onClick: (e) => {
           e.stopPropagation();
           handleClearTargetDate();
@@ -19888,12 +34452,12 @@ const MemoEditor = () => {
   });
 };
 function getEditorContentCache() {
-  var _a;
-  return (_a = storage.get(["editorContentCache"]).editorContentCache) != null ? _a : "";
+  var _a2;
+  return (_a2 = storage.get(["editorContentCache"]).editorContentCache) != null ? _a2 : "";
 }
-function setEditorContentCache(content) {
+function setEditorContentCache(content2) {
   storage.set({
-    editorContentCache: content
+    editorContentCache: content2
   });
 }
 var searchBar = "";
@@ -19985,12 +34549,12 @@ const SearchBar = () => {
         className: "quickly-action-container",
         children: [/* @__PURE__ */ jsx("p", {
           className: "title-text",
-          children: t$1("Quick filter")
+          children: t$2("Quick filter")
         }), /* @__PURE__ */ jsxs("div", {
           className: "section-container types-container",
           children: [/* @__PURE__ */ jsxs("span", {
             className: "section-text",
-            children: [t$1("TYPE"), ":"]
+            children: [t$2("TYPE"), ":"]
           }), /* @__PURE__ */ jsx("div", {
             className: "values-container",
             children: memoSpecialTypes.map((t2, idx) => {
@@ -20117,29 +34681,29 @@ const Pagination = ({
     const showEllipsis = totalPages > 7;
     if (showEllipsis) {
       if (currentPage <= 4) {
-        for (let i = 1; i <= 5; i++) {
-          pages.push(i);
+        for (let i2 = 1; i2 <= 5; i2++) {
+          pages.push(i2);
         }
         pages.push("ellipsis");
         pages.push(totalPages);
       } else if (currentPage >= totalPages - 3) {
         pages.push(1);
         pages.push("ellipsis");
-        for (let i = totalPages - 4; i <= totalPages; i++) {
-          pages.push(i);
+        for (let i2 = totalPages - 4; i2 <= totalPages; i2++) {
+          pages.push(i2);
         }
       } else {
         pages.push(1);
         pages.push("ellipsis");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
+        for (let i2 = currentPage - 1; i2 <= currentPage + 1; i2++) {
+          pages.push(i2);
         }
         pages.push("ellipsis");
         pages.push(totalPages);
       }
     } else {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
+      for (let i2 = 1; i2 <= totalPages; i2++) {
+        pages.push(i2);
       }
     }
     return pages.map((page, index) => {
@@ -20206,7 +34770,7 @@ const MemoList = () => {
   const queryFilter = queryService.getQueryById(queryId);
   const showMemoFilter = Boolean(tagQuery || duration && duration.from < duration.to || memoContentType || textQuery || queryFilter);
   const shownMemos = showMemoFilter || queryFilter || settings.HideDoneTasks ? memos.filter((memo2) => {
-    var _a, _b, _c;
+    var _a2, _b, _c;
     let shouldShow = true;
     if (memo2.isDeleted) {
       shouldShow = false;
@@ -20227,12 +34791,12 @@ const MemoList = () => {
     }
     if (tagQuery) {
       const tagsSet = /* @__PURE__ */ new Set();
-      for (const t2 of Array.from((_a = memo2.content.match(TAG_REG)) != null ? _a : [])) {
+      for (const t2 of Array.from((_a2 = memo2.content.match(TAG_REG)) != null ? _a2 : [])) {
         const tag = t2.replace(TAG_REG, "$1").trim();
         const items = tag.split("/");
         let temp = "";
-        for (const i of items) {
-          temp += i;
+        for (const i2 of items) {
+          temp += i2;
           tagsSet.add(temp);
           temp += "/";
         }
@@ -20241,8 +34805,8 @@ const MemoList = () => {
         const tag = t2.replace(NOP_FIRST_TAG_REG, "$1").trim();
         const items = tag.split("/");
         let temp = "";
-        for (const i of items) {
-          temp += i;
+        for (const i2 of items) {
+          temp += i2;
           tagsSet.add(temp);
           temp += "/";
         }
@@ -20251,8 +34815,8 @@ const MemoList = () => {
         const tag = t2.replace(FIRST_TAG_REG, "$2").trim();
         const items = tag.split("/");
         let temp = "";
-        for (const i of items) {
-          temp += i;
+        for (const i2 of items) {
+          temp += i2;
           tagsSet.add(temp);
           temp += "/";
         }
@@ -20287,9 +34851,9 @@ const MemoList = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedMemos = shownMemos.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   const handlePageChange = (page) => {
-    var _a;
+    var _a2;
     setCurrentPage(page);
-    (_a = wrapperElement.current) == null ? void 0 : _a.scrollTo({
+    (_a2 = wrapperElement.current) == null ? void 0 : _a2.scrollTo({
       top: 0,
       behavior: "smooth"
     });
@@ -20302,7 +34866,7 @@ const MemoList = () => {
       memoService.fetchAllMemos().then(() => {
         setFetchStatus(false);
       }).catch(() => {
-        new require$$0.Notice(t$1("Fetch Error"));
+        new require$$0.Notice(t$2("Fetch Error"));
       });
     }, 400);
     dailyNotesService.getMyAllDailyNotes().then(() => {
@@ -20314,8 +34878,8 @@ const MemoList = () => {
     memoService.getState();
   }, []);
   react.exports.useEffect(() => {
-    var _a;
-    (_a = wrapperElement.current) == null ? void 0 : _a.scrollTo({
+    var _a2;
+    (_a2 = wrapperElement.current) == null ? void 0 : _a2.scrollTo({
       top: 0
     });
   }, [query]);
@@ -20326,8 +34890,8 @@ const MemoList = () => {
     }
     const cards = Array.from(container.querySelectorAll(".memo-wrapper"));
     const getMemoId = (el) => {
-      var _a, _b;
-      return (_b = (_a = /(?:^|\s)memos-([^\s]+)/.exec(el.className)) == null ? void 0 : _a[1]) != null ? _b : "";
+      var _a2, _b;
+      return (_b = (_a2 = /(?:^|\s)memos-([^\s]+)/.exec(el.className)) == null ? void 0 : _a2[1]) != null ? _b : "";
     };
     const keys = cards.map(getMemoId);
     const prev = layoutSnapRef.current;
@@ -20340,11 +34904,11 @@ const MemoList = () => {
     if (isTopInsert) {
       lastInsertAnimRef.current = Date.now();
       cards.forEach((card, idx) => {
-        var _a;
+        var _a2;
         if (idx === 0) {
           return;
         }
-        const delta = ((_a = prev.tops[idx - 1]) != null ? _a : 0) - tops[idx];
+        const delta = ((_a2 = prev.tops[idx - 1]) != null ? _a2 : 0) - tops[idx];
         if (Math.abs(delta) > 1) {
           const anim = card.animate([{
             transform: `translateY(${delta}px)`
@@ -20387,11 +34951,11 @@ const MemoList = () => {
       let j = 0;
       let missing = -1;
       let okSeq = true;
-      for (let i = 0; i < prev.keys.length; i++) {
-        if (j < keys.length && prev.keys[i] === keys[j]) {
+      for (let i2 = 0; i2 < prev.keys.length; i2++) {
+        if (j < keys.length && prev.keys[i2] === keys[j]) {
           j++;
         } else if (missing === -1) {
-          missing = i;
+          missing = i2;
         } else {
           okSeq = false;
           break;
@@ -20403,9 +34967,9 @@ const MemoList = () => {
     }
     if (removalAt >= 0) {
       cards.forEach((card, idx) => {
-        var _a;
+        var _a2;
         const prevIdx = idx < removalAt ? idx : idx + 1;
-        const delta = ((_a = prev.tops[prevIdx]) != null ? _a : 0) - tops[idx];
+        const delta = ((_a2 = prev.tops[prevIdx]) != null ? _a2 : 0) - tops[idx];
         if (Math.abs(delta) > 1) {
           const anim = card.animate([{
             transform: `translateY(${delta}px)`
@@ -20458,7 +35022,7 @@ const MemoList = () => {
       className: "status-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: "status-text",
-        children: isFetching ? t$1("Fetching data...") : shownMemos.length === 0 ? t$1("Noooop!") : showMemoFilter ? "" : currentPage === totalPages ? t$1("All Data is Loaded \u{1F389}") : ""
+        children: isFetching ? t$2("Fetching data...") : shownMemos.length === 0 ? t$2("Noooop!") : showMemoFilter ? "" : currentPage === totalPages ? t$2("All Data is Loaded \u{1F389}") : ""
       })
     }), !isFetching && shownMemos.length > 0 && /* @__PURE__ */ jsx(Pagination, {
       currentPage,
@@ -20498,40 +35062,40 @@ const transferMemosIntoText = (memosArray) => {
       indent = "    ";
     }
     if (ShowTime) {
-      for (let i = 0; i < dataArr.length; i++) {
-        const time = require$$0.moment(dataArr[i].createdAt, "YYYY/MM/DD HH:mm:ss").format("HH:mm");
+      for (let i2 = 0; i2 < dataArr.length; i2++) {
+        const time = require$$0.moment(dataArr[i2].createdAt, "YYYY/MM/DD HH:mm:ss").format("HH:mm");
         let formatContent;
         if (DefaultMemoComposition != "" && /{TIME}/g.test(DefaultMemoComposition) && /{CONTENT}/g.test(DefaultMemoComposition)) {
-          formatContent = DefaultMemoComposition.replace(/{TIME}/g, time).replace(/{CONTENT}/g, dataArr[i].content);
+          formatContent = DefaultMemoComposition.replace(/{TIME}/g, time).replace(/{CONTENT}/g, dataArr[i2].content);
         } else {
-          formatContent = time + " " + dataArr[i].content;
+          formatContent = time + " " + dataArr[i2].content;
         }
-        if (dataArr[i].memoType === "JOURNAL") {
+        if (dataArr[i2].memoType === "JOURNAL") {
           outputText = outputText + indent + "- " + formatContent + "\n";
         } else {
-          if (dataArr[i].memoType === "TASK-TODO") {
+          if (dataArr[i2].memoType === "TASK-TODO") {
             outputText = outputText + indent + "- [ ] " + formatContent + "\n";
-          } else if (dataArr[i].memoType === "TASK-DONE") {
+          } else if (dataArr[i2].memoType === "TASK-DONE") {
             outputText = outputText + indent + "- [x] " + formatContent + "\n";
           } else {
-            const taskMark = dataArr[i].memoType.match(/TASK-(.*)?/g)[1];
+            const taskMark = dataArr[i2].memoType.match(/TASK-(.*)?/g)[1];
             outputText = outputText + indent + "- [" + taskMark + "] " + formatContent + "\n";
           }
         }
         outputText = outputText.replace(/ \^\S{6}/g, "");
       }
     } else {
-      for (let i = 0; i < dataArr.length; i++) {
-        if (dataArr[i].memoType === "JOURNAL") {
-          outputText = outputText + indent + "- " + dataArr[i].content + "\n";
+      for (let i2 = 0; i2 < dataArr.length; i2++) {
+        if (dataArr[i2].memoType === "JOURNAL") {
+          outputText = outputText + indent + "- " + dataArr[i2].content + "\n";
         } else {
-          if (dataArr[i].memoType === "TASK-TODO") {
-            outputText = outputText + indent + "- [ ] " + dataArr[i].content + "\n";
-          } else if (dataArr[i].memoType === "TASK-DONE") {
-            outputText = outputText + indent + "- [x] " + dataArr[i].content + "\n";
+          if (dataArr[i2].memoType === "TASK-TODO") {
+            outputText = outputText + indent + "- [ ] " + dataArr[i2].content + "\n";
+          } else if (dataArr[i2].memoType === "TASK-DONE") {
+            outputText = outputText + indent + "- [x] " + dataArr[i2].content + "\n";
           } else {
-            const taskMark = dataArr[i].memoType.match(/TASK-(.*)?/g)[1];
-            outputText = outputText + indent + "- [" + taskMark + "] " + dataArr[i].content + "\n";
+            const taskMark = dataArr[i2].memoType.match(/TASK-(.*)?/g)[1];
+            outputText = outputText + indent + "- [" + taskMark + "] " + dataArr[i2].content + "\n";
           }
         }
         outputText = outputText.replace(/ \^\S{6}/g, "");
@@ -20565,7 +35129,7 @@ const MemoFilter = () => {
     const memosByDate = getMemosByDate(copyShownMemos);
     const queryDailyMemos = transferMemosIntoText(memosByDate);
     await utils$1.copyTextToClipboard(queryDailyMemos);
-    new require$$0.Notice(t$1("Copied to clipboard Successfully"));
+    new require$$0.Notice(t$2("Copied to clipboard Successfully"));
   };
   return /* @__PURE__ */ jsxs("div", {
     className: `filter-query-container ${showFilter ? "" : "hidden"}`,
@@ -20609,7 +35173,7 @@ const MemoFilter = () => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "icon-text",
           children: "\u{1F5D3}\uFE0F"
-        }), " ", require$$0.moment(duration.from, "x").format("YYYY/MM/DD"), " ", t$1("to"), " ", require$$0.moment(duration.to, "x").add(1, "days").format("YYYY/MM/DD")]
+        }), " ", require$$0.moment(duration.from, "x").format("YYYY/MM/DD"), " ", t$2("to"), " ", require$$0.moment(duration.to, "x").add(1, "days").format("YYYY/MM/DD")]
       }) : null, /* @__PURE__ */ jsxs("div", {
         className: "filter-item-container " + (textQuery ? "" : "hidden"),
         onClick: () => {
@@ -20646,7 +35210,7 @@ function Memos$1() {
   }
 }
 const DeletedMemo = (props) => {
-  var _a;
+  var _a2;
   const {
     memo: propsMemo,
     handleDeletedMemoAction
@@ -20714,7 +35278,7 @@ const DeletedMemo = (props) => {
       await animateOut(true);
       await memoService.restoreMemoById(memo2.id, memo2.hasId, memo2.path);
       handleDeletedMemoAction(memo2.id);
-      new require$$0.Notice(t$1("RESTORE SUCCEED"));
+      new require$$0.Notice(t$2("RESTORE SUCCEED"));
     } catch (error) {
       new require$$0.Notice(error.message);
     }
@@ -20727,7 +35291,7 @@ const DeletedMemo = (props) => {
   const isTaskCard = propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE";
   return /* @__PURE__ */ jsxs("div", {
     ref: rootRef,
-    className: `memo-wrapper ${"memos-" + memo2.id} ${(_a = propsMemo.memoType) != null ? _a : ""}`,
+    className: `memo-wrapper ${"memos-" + memo2.id} ${(_a2 = propsMemo.memoType) != null ? _a2 : ""}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
     children: [isTaskCard && /* @__PURE__ */ jsx("span", {
       className: `memo-task-corner ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
@@ -20736,7 +35300,7 @@ const DeletedMemo = (props) => {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("span", {
         className: "time-text",
-        children: [t$1("DELETE AT"), " ", memo2.deletedAtStr]
+        children: [t$2("DELETE AT"), " ", memo2.deletedAtStr]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
         children: [/* @__PURE__ */ jsx("span", {
@@ -20751,11 +35315,11 @@ const DeletedMemo = (props) => {
             children: [/* @__PURE__ */ jsx("span", {
               className: "btn restore-btn",
               onClick: handleRestoreMemoClick,
-              children: t$1("RESTORE")
+              children: t$2("RESTORE")
             }), /* @__PURE__ */ jsx("span", {
               className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
               onClick: handleDeleteMemoClick,
-              children: showConfirmDeleteBtn ? t$1("CONFIRM\uFF01") : t$1("DELETE")
+              children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
             })]
           })
         })]
@@ -20792,7 +35356,7 @@ const MemoTrash = () => {
   const queryFilter = queryService.getQueryById(queryId);
   const showMemoFilter = Boolean(tagQuery || duration && duration.from < duration.to || memoType || textQuery || queryFilter);
   const shownMemos = showMemoFilter || queryFilter ? deletedMemos.filter((memo2) => {
-    var _a, _b;
+    var _a2, _b;
     let shouldShow = true;
     if (queryFilter) {
       const filters = JSON.parse(queryFilter.querystring);
@@ -20802,12 +35366,12 @@ const MemoTrash = () => {
     }
     if (tagQuery) {
       const tagsSet = /* @__PURE__ */ new Set();
-      for (const t2 of Array.from((_a = memo2.content.match(TAG_REG)) != null ? _a : [])) {
+      for (const t2 of Array.from((_a2 = memo2.content.match(TAG_REG)) != null ? _a2 : [])) {
         const tag = t2.replace(TAG_REG, "$1").trim();
         const items = tag.split("/");
         let temp = "";
-        for (const i of items) {
-          temp += i;
+        for (const i2 of items) {
+          temp += i2;
           tagsSet.add(temp);
           temp += "/";
         }
@@ -20816,8 +35380,8 @@ const MemoTrash = () => {
         const tag = t2.replace(NOP_FIRST_TAG_REG, "$1").trim();
         const items = tag.split("/");
         let temp = "";
-        for (const i of items) {
-          temp += i;
+        for (const i2 of items) {
+          temp += i2;
           tagsSet.add(temp);
           temp += "/";
         }
@@ -20852,7 +35416,7 @@ const MemoTrash = () => {
         setDeletedMemos(result);
       }
     }).catch((error) => {
-      new require$$0.Notice(t$1("Failed to fetch deleted memos: ") + error);
+      new require$$0.Notice(t$2("Failed to fetch deleted memos: ") + error);
     }).finally(() => {
       loadingState.setFinish();
     });
@@ -20881,20 +35445,20 @@ const MemoTrash = () => {
           })
         }), /* @__PURE__ */ jsx("span", {
           className: "normal-text",
-          children: t$1("Recycle bin")
+          children: t$2("Recycle bin")
         })]
       })
     }), /* @__PURE__ */ jsx(MemoFilter, {}), loadingState.isLoading ? /* @__PURE__ */ jsx("div", {
       className: "tip-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: "tip-text",
-        children: t$1("Fetching data...")
+        children: t$2("Fetching data...")
       })
     }) : deletedMemos.length === 0 ? /* @__PURE__ */ jsx("div", {
       className: "tip-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: "tip-text",
-        children: t$1("Here is No Zettels.")
+        children: t$2("Here is No Zettels.")
       })
     }) : /* @__PURE__ */ jsx("div", {
       className: "deleted-memos-container",
@@ -21028,10 +35592,10 @@ const bareBrRule = {
       return [];
     const issues = [];
     ctx.lines.forEach((line, idx) => {
-      var _a;
+      var _a2;
       if (!ctx.inScope[idx])
         return;
-      const count = ((_a = line.match(BR_REG$1)) != null ? _a : []).length;
+      const count = ((_a2 = line.match(BR_REG$1)) != null ? _a2 : []).length;
       if (count > 0) {
         issues.push({
           ruleId: this.id,
@@ -21071,40 +35635,40 @@ const legacyRowRule = {
 const rules = [legacyTimeRule, dupIdRule, missingIdRule, bareBrRule, legacyRowRule];
 const ruleById = Object.fromEntries(rules.map((r2) => [r2.id, r2]));
 function readLines(file) {
-  return file.vault.cachedRead(file).then((content) => content.split("\n"));
+  return file.vault.cachedRead(file).then((content2) => content2.split("\n"));
 }
 function computeScope(lines, processBelow) {
   const inScope = new Array(lines.length).fill(false);
   const tokenRe = processBelow ? new RegExp(processBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")) : null;
   let active = !tokenRe;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (let i2 = 0; i2 < lines.length; i2++) {
+    const line = lines[i2];
     if (tokenRe && !active && tokenRe.test(line))
       active = true;
     if (active && /^#{1,} /.test(line))
       active = false;
     if (active)
-      inScope[i] = true;
+      inScope[i2] = true;
   }
   return inScope;
 }
 async function runAudit(onProgress) {
-  var _a, _b;
+  var _a2, _b;
   const app2 = appStore.getState().dailyNotesState.app;
   app2.vault;
   const dailyNotes = getAllDailyNotes_1();
   const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").map(([, f2]) => f2).sort((a, b) => b.path.localeCompare(a.path));
   const issues = [];
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    onProgress == null ? void 0 : onProgress(i + 1, files.length);
+  for (let i2 = 0; i2 < files.length; i2++) {
+    const file = files[i2];
+    onProgress == null ? void 0 : onProgress(i2 + 1, files.length);
     let lines;
     try {
       lines = await readLines(file);
     } catch {
       continue;
     }
-    const ctx = { path: file.path, lines, inScope: computeScope(lines, (_a = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a : "") };
+    const ctx = { path: file.path, lines, inScope: computeScope(lines, (_a2 = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a2 : "") };
     for (const rule of rules) {
       issues.push(...rule.detect(ctx));
     }
@@ -21117,9 +35681,9 @@ async function runAudit(onProgress) {
   return { issues, byRule, scannedFiles: files.length };
 }
 async function applyFixes(issues) {
-  var _a;
+  var _a2;
   const empty = { applied: 0, skipped: 0, backupDir: "", changedFiles: 0, appliedLines: [] };
-  const fixable = issues.filter((i) => i.fixedLine);
+  const fixable = issues.filter((i2) => i2.fixedLine);
   if (fixable.length === 0)
     return empty;
   const app2 = appStore.getState().dailyNotesState.app;
@@ -21144,7 +35708,7 @@ async function applyFixes(issues) {
   await adapter.mkdir(backupDir);
   const byPath = /* @__PURE__ */ new Map();
   for (const issue of pickedIssues) {
-    const list = (_a = byPath.get(issue.path)) != null ? _a : [];
+    const list = (_a2 = byPath.get(issue.path)) != null ? _a2 : [];
     list.push(issue);
     byPath.set(issue.path, list);
   }
@@ -21247,17 +35811,17 @@ function migrateContent(lines, inScope) {
   let skipped = 0;
   let droppedComments = 0;
   const report = { droppedComments: 0 };
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    const inside = !!inScope[i];
+  let i2 = 0;
+  while (i2 < lines.length) {
+    const line = lines[i2];
+    const inside = !!inScope[i2];
     if (!inside || classifyMemoRow(line) !== "old-top-row") {
       out.push(line);
-      i++;
+      i2++;
       continue;
     }
     const unitLines = [line];
-    let j = i + 1;
+    let j = i2 + 1;
     while (j < lines.length && inScope[j]) {
       const l2 = lines[j];
       if (l2.trim() === "" || indentOf(l2) > 0) {
@@ -21277,15 +35841,15 @@ function migrateContent(lines, inScope) {
       converted++;
     }
     droppedComments += report.droppedComments;
-    i = j;
+    i2 = j;
   }
   return { out, converted, skipped, droppedComments };
 }
 async function migrateFile(file) {
-  var _a;
+  var _a2;
   const app2 = appStore.getState().dailyNotesState.app;
   const lines = (await file.vault.cachedRead(file)).split(/\r?\n/);
-  const inScope = computeScope(lines, (_a = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a : "");
+  const inScope = computeScope(lines, (_a2 = appStore.getState().settingsState.settings.ProcessEntriesBelow) != null ? _a2 : "");
   const { out, converted, skipped, droppedComments } = migrateContent(lines, inScope);
   const changed = converted > 0 || droppedComments > 0;
   if (!changed)
@@ -21309,8 +35873,8 @@ var auditPage = "";
 const IGNORED_KEY = "auditIgnoredLines";
 const lineKey = (path, line) => `${path}#${line}`;
 const loadIgnored = () => {
-  var _a;
-  return (_a = storage.get([IGNORED_KEY])[IGNORED_KEY]) != null ? _a : {};
+  var _a2;
+  return (_a2 = storage.get([IGNORED_KEY])[IGNORED_KEY]) != null ? _a2 : {};
 };
 const saveIgnored = (map) => storage.set({
   [IGNORED_KEY]: map
@@ -21322,7 +35886,7 @@ const SEVERITY_ORDER = {
 };
 const FLASH_MAX = 8;
 const AuditPage = () => {
-  var _a, _b, _c;
+  var _a2, _b, _c;
   const [result, setResult] = react.exports.useState(null);
   const [busy, setBusy] = react.exports.useState(false);
   const [progress, setProgress] = react.exports.useState(null);
@@ -21333,7 +35897,7 @@ const AuditPage = () => {
   const [page, setPage] = react.exports.useState(1);
   const FILE_PAGE_SIZE = 8;
   const scan = react.exports.useCallback(async (options) => {
-    var _a2;
+    var _a3;
     setBusy(true);
     if (!(options == null ? void 0 : options.silent))
       setMsg("");
@@ -21344,7 +35908,7 @@ const AuditPage = () => {
       }));
       setResult(res);
     } catch (e) {
-      setMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`);
+      setMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}`);
     } finally {
       setBusy(false);
       setProgress(null);
@@ -21375,7 +35939,7 @@ const AuditPage = () => {
       for (let round2 = 0; round2 < 6; round2++) {
         const res = await runAudit();
         setResult(res);
-        const targets = res.issues.filter((i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)]);
+        const targets = res.issues.filter((i2) => i2.fixedLine && pred(i2) && !ignored[lineKey(i2.path, i2.line)]);
         if (targets.length === 0) {
           if (round2 === 0)
             setMsg(`${scopeLabel}\uFF1A\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898`);
@@ -21397,7 +35961,7 @@ const AuditPage = () => {
       silent: true
     });
   };
-  const fixOneLine = (path, line) => runFixLoop((i) => i.path === path && i.line === line, `L${line}`);
+  const fixOneLine = (path, line) => runFixLoop((i2) => i2.path === path && i2.line === line, `L${line}`);
   const fixAll = () => runFixLoop(() => true, "\u4E00\u952E\u4FEE\u590D");
   const toggleIgnore = (path, line) => {
     const key = lineKey(path, line);
@@ -21426,7 +35990,7 @@ const AuditPage = () => {
   };
   const [migratingPath, setMigratingPath] = react.exports.useState("");
   const migrateOneFile = async (path) => {
-    var _a2;
+    var _a3;
     const app2 = appStore.getState().dailyNotesState.app;
     const file = app2.vault.getAbstractFileByPath(path);
     if (!(file instanceof require$$0.TFile))
@@ -21446,18 +36010,18 @@ const AuditPage = () => {
       });
       await memoService.fetchAllMemos();
     } catch (e) {
-      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`);
+      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}`);
     } finally {
       setBusy(false);
       setMigratingPath("");
     }
   };
   const migrateAllLegacy = async () => {
-    var _a2;
+    var _a3;
     if (!result)
       return;
     const app2 = appStore.getState().dailyNotesState.app;
-    const paths = [...new Set(result.issues.filter((i) => i.ruleId === "legacy-row" && !ignored[lineKey(i.path, i.line)]).map((i) => i.path))];
+    const paths = [...new Set(result.issues.filter((i2) => i2.ruleId === "legacy-row" && !ignored[lineKey(i2.path, i2.line)]).map((i2) => i2.path))];
     if (paths.length === 0)
       return;
     setBusy(true);
@@ -21490,13 +36054,13 @@ const AuditPage = () => {
       });
       await memoService.fetchAllMemos();
     } catch (e) {
-      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`);
+      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}`);
     } finally {
       setBusy(false);
     }
   };
   const tree = react.exports.useMemo(() => {
-    var _a2;
+    var _a3;
     if (!result)
       return [];
     const byPath = /* @__PURE__ */ new Map();
@@ -21508,7 +36072,7 @@ const AuditPage = () => {
         byLine = /* @__PURE__ */ new Map();
         byPath.set(issue.path, byLine);
       }
-      const list = (_a2 = byLine.get(issue.line)) != null ? _a2 : [];
+      const list = (_a3 = byLine.get(issue.line)) != null ? _a3 : [];
       list.push(issue);
       byLine.set(issue.line, list);
     }
@@ -21517,22 +36081,22 @@ const AuditPage = () => {
       lines: [...byLine.entries()].sort((a, b) => a[0] - b[0]).map(([line, issues]) => ({
         line,
         issues: issues.sort((a, b) => {
-          var _a3, _b2, _c2, _d;
-          return SEVERITY_ORDER[(_b2 = (_a3 = ruleById[a.ruleId]) == null ? void 0 : _a3.severity) != null ? _b2 : "info"] - SEVERITY_ORDER[(_d = (_c2 = ruleById[b.ruleId]) == null ? void 0 : _c2.severity) != null ? _d : "info"] || a.ruleId.localeCompare(b.ruleId);
+          var _a4, _b2, _c2, _d;
+          return SEVERITY_ORDER[(_b2 = (_a4 = ruleById[a.ruleId]) == null ? void 0 : _a4.severity) != null ? _b2 : "info"] - SEVERITY_ORDER[(_d = (_c2 = ruleById[b.ruleId]) == null ? void 0 : _c2.severity) != null ? _d : "info"] || a.ruleId.localeCompare(b.ruleId);
         })
       }))
     })).sort((a, b) => b.path.localeCompare(a.path));
   }, [result, ignored]);
   const stats = result ? {
     files: tree.length,
-    legacyFiles: tree.filter((f2) => f2.lines.some((l2) => l2.issues.some((i) => i.ruleId === "legacy-row"))).length,
+    legacyFiles: tree.filter((f2) => f2.lines.some((l2) => l2.issues.some((i2) => i2.ruleId === "legacy-row"))).length,
     lines: tree.reduce((n2, f2) => n2 + f2.lines.length, 0),
-    issues: result.issues.filter((i) => !ignored[lineKey(i.path, i.line)]).length,
-    fixableLines: tree.reduce((n2, f2) => n2 + f2.lines.filter((l2) => l2.issues.some((i) => i.fixedLine)).length, 0)
+    issues: result.issues.filter((i2) => !ignored[lineKey(i2.path, i2.line)]).length,
+    fixableLines: tree.reduce((n2, f2) => n2 + f2.lines.filter((l2) => l2.issues.some((i2) => i2.fixedLine)).length, 0)
   } : null;
   const shortName = (path) => {
-    var _a2;
-    return (_a2 = path.split("/").pop()) != null ? _a2 : path;
+    var _a3;
+    return (_a3 = path.split("/").pop()) != null ? _a3 : path;
   };
   const totalPages = Math.max(1, Math.ceil(tree.length / FILE_PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -21579,7 +36143,7 @@ const AuditPage = () => {
         className: "audit-toolbar",
         children: [/* @__PURE__ */ jsxs("span", {
           className: "audit-stats",
-          children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", (_a = stats == null ? void 0 : stats.files) != null ? _a : 0, " \xB7 memo ", (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0, " \u6761 \xB7 \u95EE\u9898 ", (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0, " \u4E2A", stats && stats.legacyFiles > 0 ? `\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 ${stats.legacyFiles} \u4E2A\uFF09` : "", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
+          children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", (_a2 = stats == null ? void 0 : stats.files) != null ? _a2 : 0, " \xB7 memo ", (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0, " \u6761 \xB7 \u95EE\u9898 ", (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0, " \u4E2A", stats && stats.legacyFiles > 0 ? `\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 ${stats.legacyFiles} \u4E2A\uFF09` : "", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
         }), /* @__PURE__ */ jsx("button", {
           className: "btn refresh-btn",
           onClick: () => scan(),
@@ -21609,11 +36173,11 @@ const AuditPage = () => {
         className: "audit-file-list",
         children: pageFiles.map((file) => {
           const collapsed = !!collapsedFiles[file.path];
-          const errCount = file.lines.reduce((n2, l2) => n2 + l2.issues.filter((i) => {
-            var _a2;
-            return ((_a2 = ruleById[i.ruleId]) == null ? void 0 : _a2.severity) === "error";
+          const errCount = file.lines.reduce((n2, l2) => n2 + l2.issues.filter((i2) => {
+            var _a3;
+            return ((_a3 = ruleById[i2.ruleId]) == null ? void 0 : _a3.severity) === "error";
           }).length, 0);
-          const hasLegacy = file.lines.some((l2) => l2.issues.some((i) => i.ruleId === "legacy-row"));
+          const hasLegacy = file.lines.some((l2) => l2.issues.some((i2) => i2.ruleId === "legacy-row"));
           return /* @__PURE__ */ jsxs("section", {
             className: "audit-file",
             children: [/* @__PURE__ */ jsxs("header", {
@@ -21652,7 +36216,7 @@ const AuditPage = () => {
                 issues
               }) => {
                 const key = lineKey(file.path, line);
-                const fixableIssues = issues.filter((i) => i.fixedLine && i.fixedLine !== issues[0].raw);
+                const fixableIssues = issues.filter((i2) => i2.fixedLine && i2.fixedLine !== issues[0].raw);
                 const raw = issues[0].raw;
                 return /* @__PURE__ */ jsxs("div", {
                   className: "audit-line",
@@ -21669,22 +36233,22 @@ const AuditPage = () => {
                   }), /* @__PURE__ */ jsx("div", {
                     className: "audit-line-badges",
                     children: issues.map((issue) => {
-                      var _a2, _b2;
+                      var _a3, _b2;
                       const rule = ruleById[issue.ruleId];
                       return /* @__PURE__ */ jsx("span", {
-                        className: `badge badge-${(_a2 = rule == null ? void 0 : rule.severity) != null ? _a2 : "info"}`,
+                        className: `badge badge-${(_a3 = rule == null ? void 0 : rule.severity) != null ? _a3 : "info"}`,
                         title: rule == null ? void 0 : rule.why,
                         children: (_b2 = rule == null ? void 0 : rule.name) != null ? _b2 : issue.ruleId
                       }, issue.ruleId);
                     })
                   }), fixableIssues.length > 0 && fixableIssues.map((issue) => {
-                    var _a2, _b2;
+                    var _a3, _b2;
                     return /* @__PURE__ */ jsxs("div", {
                       className: "audit-fix-preview",
                       title: issue.fixedLine,
                       children: [/* @__PURE__ */ jsxs("span", {
                         className: "audit-fix-label",
-                        children: ["\u300C", (_b2 = (_a2 = ruleById[issue.ruleId]) == null ? void 0 : _a2.name) != null ? _b2 : issue.ruleId, "\u300D\u4FEE\u590D\u4E3A\uFF1A"]
+                        children: ["\u300C", (_b2 = (_a3 = ruleById[issue.ruleId]) == null ? void 0 : _a3.name) != null ? _b2 : issue.ruleId, "\u300D\u4FEE\u590D\u4E3A\uFF1A"]
                       }), issue.fixedLine]
                     }, `fix-${issue.ruleId}`);
                   }), /* @__PURE__ */ jsxs("div", {
@@ -21748,7 +36312,7 @@ function App() {
     }
   } = react.exports.useContext(appContext);
   if (!appHasDailyNotesPluginLoaded_1() && !window.app.plugins.getPlugin("periodic-notes")) {
-    new require$$0.Notice(t$1("Check if you opened Daily Notes Plugin Or Periodic Notes Plugin"));
+    new require$$0.Notice(t$2("Check if you opened Daily Notes Plugin Or Periodic Notes Plugin"));
   }
   return /* @__PURE__ */ jsx(Fragment, {
     children: appRouterSwitch(pathname)
@@ -21934,23 +36498,23 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     await this.plugin.loadSettings();
     const { containerEl } = this;
     this.containerEl.empty();
-    this.containerEl.createEl("h1", { text: t$1("Basic Options") });
-    new require$$0.Setting(containerEl).setName(t$1("User name in Memos")).setDesc(t$1("Set your user name here. 'Memos \u{1F60F}' By default")).addText(
+    this.containerEl.createEl("h1", { text: t$2("Basic Options") });
+    new require$$0.Setting(containerEl).setName(t$2("User name in Memos")).setDesc(t$2("Set your user name here. 'Memos \u{1F60F}' By default")).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.UserName).setValue(this.plugin.settings.UserName).onChange(async (value) => {
         this.plugin.settings.UserName = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Insert after heading")).setDesc(
-      t$1("You should set the same heading below if you want to insert and process memos below the same heading.")
+    new require$$0.Setting(containerEl).setName(t$2("Insert after heading")).setDesc(
+      t$2("You should set the same heading below if you want to insert and process memos below the same heading.")
     ).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.InsertAfter).setValue(this.plugin.settings.InsertAfter).onChange(async (value) => {
         this.plugin.settings.InsertAfter = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Process Memos below")).setDesc(
-      t$1(
+    new require$$0.Setting(containerEl).setName(t$2("Process Memos below")).setDesc(
+      t$2(
         "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file."
       )
     ).addText(
@@ -21959,54 +36523,54 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Focus on editor when open memos")).setDesc(t$1("Focus on editor when open memos. Focus by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Focus on editor when open memos")).setDesc(t$2("Focus on editor when open memos. Focus by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.FocusOnEditor).onChange(async (value) => {
         this.plugin.settings.FocusOnEditor = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Open daily memos with open memos")).setDesc(t$1("Open daily memos with open memos. Open by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Open daily memos with open memos")).setDesc(t$2("Open daily memos with open memos. Open by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.OpenDailyMemosWithMemos).onChange(async (value) => {
         this.plugin.settings.OpenDailyMemosWithMemos = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Open Memos when obsidian opens")).setDesc(t$1("When enable this, Memos will open when Obsidian opens. False by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Open Memos when obsidian opens")).setDesc(t$2("When enable this, Memos will open when Obsidian opens. False by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.OpenMemosAutomatically).onChange(async (value) => {
         this.plugin.settings.OpenMemosAutomatically = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Hide done tasks in Memo list")).setDesc(t$1("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Hide done tasks in Memo list")).setDesc(t$2("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
         this.plugin.settings.HideDoneTasks = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Use Tags In Vault")).setDesc(t$1("Use tags in vault rather than only in Memos. False by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Use Tags In Vault")).setDesc(t$2("Use tags in vault rather than only in Memos. False by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.UseVaultTags).onChange(async (value) => {
         this.plugin.settings.UseVaultTags = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Always Show Leaf Sidebar on PC")).setDesc(t$1("Show left sidebar on PC even when the leaf width is less than 875px. False by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Always Show Leaf Sidebar on PC")).setDesc(t$2("Show left sidebar on PC even when the leaf width is less than 875px. False by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.ShowLeftSideBar).onChange(async (value) => {
         this.plugin.settings.ShowLeftSideBar = value;
         this.applySettingsUpdate();
       })
     );
-    this.containerEl.createEl("h1", { text: t$1("Advanced Options") });
+    this.containerEl.createEl("h1", { text: t$2("Advanced Options") });
     let dropdown;
-    new require$$0.Setting(containerEl).setName(t$1("Default prefix")).setDesc(t$1("Set the default prefix when create memo, 'List' by default.")).addDropdown(async (d) => {
+    new require$$0.Setting(containerEl).setName(t$2("Default prefix")).setDesc(t$2("Set the default prefix when create memo, 'List' by default.")).addDropdown(async (d) => {
       dropdown = d;
-      dropdown.addOption("List", t$1("List"));
-      dropdown.addOption("Task", t$1("Task"));
+      dropdown.addOption("List", t$2("List"));
+      dropdown.addOption("Task", t$2("Task"));
       dropdown.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
         this.plugin.settings.DefaultPrefix = value;
         this.applySettingsUpdate();
       });
     });
-    new require$$0.Setting(containerEl).setName(t$1("Time display format")).setDesc(t$1("Time display format description")).addDropdown(async (d) => {
+    new require$$0.Setting(containerEl).setName(t$2("Time display format")).setDesc(t$2("Time display format description")).addDropdown(async (d) => {
       dropdown = d;
       dropdown.addOption("HH:mm:ss", "HH:mm:ss");
       dropdown.addOption("HH:mm", "HH:mm");
@@ -22015,57 +36579,57 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       });
     });
-    new require$$0.Setting(containerEl).setName(t$1("Show Time When Copy Results")).setDesc(t$1("Show time when you copy results, like 12:00. Copy time by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Show Time When Copy Results")).setDesc(t$2("Show time when you copy results, like 12:00. Copy time by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.ShowTime).onChange(async (value) => {
         this.plugin.settings.ShowTime = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Show Date When Copy Results")).setDesc(t$1("Show date when you copy results, like [[2022-01-01]]. Copy date by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Show Date When Copy Results")).setDesc(t$2("Show date when you copy results, like [[2022-01-01]]. Copy date by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.ShowDate).onChange(async (value) => {
         this.plugin.settings.ShowDate = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Add Blank Line Between Different Date")).setDesc(t$1("Add blank line when copy result with date. No blank line by default.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Add Blank Line Between Different Date")).setDesc(t$2("Add blank line when copy result with date. No blank line by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.AddBlankLineWhenDate).onChange(async (value) => {
         this.plugin.settings.AddBlankLineWhenDate = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("File Name of Recycle Bin")).setDesc(t$1("Set the filename for recycle bin. 'delete' By default")).addText(
+    new require$$0.Setting(containerEl).setName(t$2("File Name of Recycle Bin")).setDesc(t$2("Set the filename for recycle bin. 'delete' By default")).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.DeleteFileName).setValue(this.plugin.settings.DeleteFileName).onChange(async (value) => {
         await this.changeFileName(this.plugin.settings.DeleteFileName, value);
         this.plugin.settings.DeleteFileName = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("File Name of Query File")).setDesc(t$1("Set the filename for query file. 'query' By default")).addText(
+    new require$$0.Setting(containerEl).setName(t$2("File Name of Query File")).setDesc(t$2("Set the filename for query file. 'query' By default")).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.QueryFileName).setValue(this.plugin.settings.QueryFileName).onChange(async (value) => {
         await this.changeFileName(this.plugin.settings.QueryFileName, value);
         this.plugin.settings.QueryFileName = value;
         this.applySettingsUpdate();
       })
     );
-    this.containerEl.createEl("h1", { text: t$1("Mobile Options") });
-    new require$$0.Setting(containerEl).setName(t$1("Default editor position on mobile")).setDesc(t$1("Set the default editor position on Mobile, 'Top' by default.")).addDropdown(async (d) => {
+    this.containerEl.createEl("h1", { text: t$2("Mobile Options") });
+    new require$$0.Setting(containerEl).setName(t$2("Default editor position on mobile")).setDesc(t$2("Set the default editor position on Mobile, 'Top' by default.")).addDropdown(async (d) => {
       dropdown = d;
-      dropdown.addOption("Top", t$1("Top"));
-      dropdown.addOption("Bottom", t$1("Bottom"));
+      dropdown.addOption("Top", t$2("Top"));
+      dropdown.addOption("Bottom", t$2("Bottom"));
       dropdown.setValue(this.plugin.settings.DefaultEditorLocation).onChange(async (value) => {
         this.plugin.settings.DefaultEditorLocation = value;
         this.applySettingsUpdate();
       });
     });
-    new require$$0.Setting(containerEl).setName(t$1("Use button to show editor on mobile")).setDesc(t$1("Set a float button to call editor on mobile. Only when editor located at the bottom works.")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Use button to show editor on mobile")).setDesc(t$2("Set a float button to call editor on mobile. Only when editor located at the bottom works.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.UseButtonToShowEditor).onChange(async (value) => {
         this.plugin.settings.UseButtonToShowEditor = value;
         this.applySettingsUpdate();
       })
     );
-    this.containerEl.createEl("h1", { text: t$1("Share Options") });
-    new require$$0.Setting(containerEl).setName(t$1("Share Memos Image Footer Start")).setDesc(
-      t$1(
+    this.containerEl.createEl("h1", { text: t$2("Share Options") });
+    new require$$0.Setting(containerEl).setName(t$2("Share Memos Image Footer Start")).setDesc(
+      t$2(
         "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default"
       )
     ).addText(
@@ -22074,42 +36638,42 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Share Memos Image Footer End")).setDesc(t$1("Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default")).addText(
+    new require$$0.Setting(containerEl).setName(t$2("Share Memos Image Footer End")).setDesc(t$2("Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default")).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.ShareFooterEnd).setValue(this.plugin.settings.ShareFooterEnd).onChange(async (value) => {
         this.plugin.settings.ShareFooterEnd = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Background Image in Light Theme")).setDesc(t$1('Set background image in light theme. Set something like "Daily/one.png"')).addText(
+    new require$$0.Setting(containerEl).setName(t$2("Background Image in Light Theme")).setDesc(t$2('Set background image in light theme. Set something like "Daily/one.png"')).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultLightBackgroundImage).setValue(this.plugin.settings.DefaultLightBackgroundImage).onChange(async (value) => {
         this.plugin.settings.DefaultLightBackgroundImage = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Background Image in Dark Theme")).setDesc(t$1('Set background image in dark theme. Set something like "Daily/one.png"')).addText(
+    new require$$0.Setting(containerEl).setName(t$2("Background Image in Dark Theme")).setDesc(t$2('Set background image in dark theme. Set something like "Daily/one.png"')).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultDarkBackgroundImage).setValue(this.plugin.settings.DefaultDarkBackgroundImage).onChange(async (value) => {
         this.plugin.settings.DefaultDarkBackgroundImage = value;
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$1("Save Shared Image To Folder For Mobile")).setDesc(t$1("Save image to folder for mobile. False by Default")).addToggle(
+    new require$$0.Setting(containerEl).setName(t$2("Save Shared Image To Folder For Mobile")).setDesc(t$2("Save image to folder for mobile. False by Default")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.AutoSaveWhenOnMobile).onChange(async (value) => {
         this.plugin.settings.AutoSaveWhenOnMobile = value;
         this.applySettingsUpdate();
       })
     );
-    this.containerEl.createEl("h1", { text: t$1("Experimental Options") });
-    new require$$0.Setting(containerEl).setName(t$1("Use Which Plugin's Default Configuration")).setDesc(t$1("Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.")).addDropdown(async (d) => {
+    this.containerEl.createEl("h1", { text: t$2("Experimental Options") });
+    new require$$0.Setting(containerEl).setName(t$2("Use Which Plugin's Default Configuration")).setDesc(t$2("Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.")).addDropdown(async (d) => {
       dropdown = d;
-      dropdown.addOption("Daily", t$1("Daily"));
+      dropdown.addOption("Daily", t$2("Daily"));
       dropdown.addOption("Periodic", "Periodic");
       dropdown.setValue(this.plugin.settings.UseDailyOrPeriodic).onChange(async (value) => {
         this.plugin.settings.UseDailyOrPeriodic = value;
         this.applySettingsUpdate();
       });
     });
-    new require$$0.Setting(containerEl).setName(t$1("Default Memo Composition")).setDesc(
-      t$1(
+    new require$$0.Setting(containerEl).setName(t$2("Default Memo Composition")).setDesc(
+      t$2(
         'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default'
       )
     ).addText(
@@ -22118,8 +36682,8 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
-    this.containerEl.createEl("h1", { text: t$1("Say Thank You") });
-    new require$$0.Setting(containerEl).setName(t$1("Donate")).setDesc(t$1("If you like this plugin, consider donating to support continued development:")).addButton((bt) => {
+    this.containerEl.createEl("h1", { text: t$2("Say Thank You") });
+    new require$$0.Setting(containerEl).setName(t$2("Donate")).setDesc(t$2("If you like this plugin, consider donating to support continued development:")).addButton((bt) => {
       bt.buttonEl.outerHTML = `<a href="https://www.buymeacoffee.com/boninall"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=boninall&button_colour=6495ED&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>`;
     });
   }
@@ -22130,7 +36694,7 @@ class MemosPlugin extends require$$0.Plugin {
     await this.loadSettings();
     this.registerView(MEMOS_VIEW_TYPE, (leaf) => new Memos(leaf, this));
     this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
-    console.log(t$1("welcome"));
+    console.log(t$2("welcome"));
   }
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -22141,13 +36705,13 @@ class MemosPlugin extends require$$0.Plugin {
   }
   onunload() {
     this.app.workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
-    new require$$0.Notice(t$1("Close Memos Successfully"));
+    new require$$0.Notice(t$2("Close Memos Successfully"));
   }
   registerMobileEvent() {
     this.registerEvent(
       this.app.workspace.on("receive-text-menu", (menu, source) => {
         menu.addItem((item) => {
-          item.setIcon("popup-open").setTitle(t$1("Insert as Memo")).onClick(async () => {
+          item.setIcon("popup-open").setTitle(t$2("Insert as Memo")).onClick(async () => {
             const newMemo = await memoService.createMemo(source, false);
             memoService.pushMemo(newMemo);
           });
@@ -22157,7 +36721,7 @@ class MemosPlugin extends require$$0.Plugin {
     this.registerEvent(
       this.app.workspace.on("receive-files-menu", (menu, source) => {
         menu.addItem((item) => {
-          item.setIcon("popup-open").setTitle(t$1("Insert file as memo content")).onClick(async () => {
+          item.setIcon("popup-open").setTitle(t$2("Insert file as memo content")).onClick(async () => {
             const fileName = source.map((file) => {
               return this.app.fileManager.generateMarkdownLink(file, file.path);
             });
@@ -22178,6 +36742,7 @@ class MemosPlugin extends require$$0.Plugin {
     }
   }
   async onLayoutReady() {
+    var _a2;
     addIcons();
     this.addSettingTab(new MemosSettingTab(this.app, this));
     this.addCommand({
@@ -22225,8 +36790,8 @@ class MemosPlugin extends require$$0.Plugin {
     if (require$$0.Platform.isMobile) {
       this.registerMobileEvent();
     }
-    this.addRibbonIcon("Memos", t$1("ribbonIconTitle"), () => {
-      new require$$0.Notice(t$1("Open Memos Successfully"));
+    this.addRibbonIcon("Memos", t$2("ribbonIconTitle"), () => {
+      new require$$0.Notice(t$2("Open Memos Successfully"));
       this.openMemos();
     });
     const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
@@ -22235,7 +36800,7 @@ class MemosPlugin extends require$$0.Plugin {
     }
     if (this.settings.FocusOnEditor) {
       const leaf = leaves[0];
-      leaf.view.containerEl.querySelector("textarea").focus();
+      (_a2 = leaf.view.containerEl.querySelector(".cm-content")) == null ? void 0 : _a2.focus();
       return;
     }
     if (!this.settings.OpenMemosAutomatically) {
@@ -22251,6 +36816,7 @@ class MemosPlugin extends require$$0.Plugin {
     showDailyMemoDiaryDialog();
   }
   async openMemos() {
+    var _a2;
     const workspace = this.app.workspace;
     workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
     const leaf = workspace.getLeaf(true);
@@ -22259,9 +36825,7 @@ class MemosPlugin extends require$$0.Plugin {
     if (!FocusOnEditor) {
       return;
     }
-    if (leaf.view.containerEl.querySelector("textarea") !== void 0) {
-      leaf.view.containerEl.querySelector("textarea").focus();
-    }
+    (_a2 = leaf.view.containerEl.querySelector(".cm-content")) == null ? void 0 : _a2.focus();
   }
   searchIt() {
     const workspace = this.app.workspace;
@@ -22275,6 +36839,7 @@ class MemosPlugin extends require$$0.Plugin {
     leaf.view.containerEl.querySelector(".search-bar-inputer .text-input").focus();
   }
   focusOnEditor() {
+    var _a2;
     const workspace = this.app.workspace;
     const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
     if (!(leaves.length > 0)) {
@@ -22283,13 +36848,13 @@ class MemosPlugin extends require$$0.Plugin {
     }
     const leaf = leaves[0];
     workspace.setActiveLeaf(leaf);
-    leaf.view.containerEl.querySelector("textarea").focus();
+    (_a2 = leaf.view.containerEl.querySelector(".cm-content")) == null ? void 0 : _a2.focus();
   }
   noteIt() {
     const workspace = this.app.workspace;
     const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
     if (!(leaves.length > 0)) {
-      new require$$0.Notice(t$1("Please Open Memos First"));
+      new require$$0.Notice(t$2("Please Open Memos First"));
       return;
     }
     const leaf = leaves[0];
@@ -22300,7 +36865,7 @@ class MemosPlugin extends require$$0.Plugin {
     const workspace = this.app.workspace;
     const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
     if (!(leaves.length > 0)) {
-      new require$$0.Notice(t$1("Please Open Memos First"));
+      new require$$0.Notice(t$2("Please Open Memos First"));
       return;
     }
     const leaf = leaves[0];
@@ -22308,19 +36873,17 @@ class MemosPlugin extends require$$0.Plugin {
     leaf.view.containerEl.querySelector(".list-or-task").click();
   }
   async showInPopover() {
-    var _a;
+    var _a2, _b;
     const workspace = this.app.workspace;
     workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
-    const leaf = await ((_a = window.app.plugins.getPlugin("obsidian-hover-editor")) == null ? void 0 : _a.spawnPopover());
+    const leaf = await ((_a2 = window.app.plugins.getPlugin("obsidian-hover-editor")) == null ? void 0 : _a2.spawnPopover());
     await leaf.setViewState({ type: MEMOS_VIEW_TYPE });
     workspace.revealLeaf(leaf);
     leaf.view.containerEl.classList.add("mobile-view");
     if (!FocusOnEditor) {
       return;
     }
-    if (leaf.view.containerEl.querySelector("textarea") !== void 0) {
-      leaf.view.containerEl.querySelector("textarea").focus();
-    }
+    (_b = leaf.view.containerEl.querySelector(".cm-content")) == null ? void 0 : _b.focus();
   }
 }
 module.exports = MemosPlugin;

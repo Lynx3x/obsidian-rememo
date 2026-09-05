@@ -8,14 +8,17 @@ class GlobalStateService {
       'shouldSplitMemoWord',
       'shouldHideImageUrl',
       'shouldUseMarkdownParser',
-      'useTinyUndoHistoryCache',
     ]);
     const defaultAppSetting = {
       shouldSplitMemoWord: cachedSetting.shouldSplitMemoWord ?? true,
       shouldHideImageUrl: cachedSetting.shouldHideImageUrl ?? true,
       shouldUseMarkdownParser: cachedSetting.shouldUseMarkdownParser ?? true,
-      useTinyUndoHistoryCache: cachedSetting.useTinyUndoHistoryCache ?? false,
     };
+
+    // 清理已退役 tiny-undo 的历史 localStorage 残留（P2 原生 history 取代）
+    storage.removeRaw('useTinyUndoHistoryCache');
+    storage.removeRaw('tinyUndoActionsCache');
+    storage.removeRaw('tinyUndoIndexCache');
 
     this.setAppSetting(defaultAppSetting);
   }

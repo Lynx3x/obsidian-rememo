@@ -1,5 +1,3 @@
-import { InputAction } from 'tiny-undo';
-
 /**
  * Define storage data type
  */
@@ -12,14 +10,6 @@ interface StorageData {
   shouldHideImageUrl: boolean;
   // markdown 解析开关
   shouldUseMarkdownParser: boolean;
-
-  // Editor setting
-  useTinyUndoHistoryCache: boolean;
-
-  // tiny undo actions cache
-  tinyUndoActionsCache: InputAction[];
-  // tiny undo index cache
-  tinyUndoIndexCache: number;
 
   // 数据体检：用户忽略的行 key（"path#line" → true，行粒度）
   auditIgnoredLines: Record<string, boolean>;
@@ -67,6 +57,15 @@ export namespace storage {
       } catch (error: any) {
         console.error('Remove storage failed in ', key, error);
       }
+    }
+  }
+
+  /** 移除未登记 key（历史残留清理用，如已退役的 tiny-undo 三个 key） */
+  export function removeRaw(key: string) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error: any) {
+      console.error('Remove storage failed in ', key, error);
     }
   }
 

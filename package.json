@@ -17,11 +17,14 @@
         "test:watch": "yarn test -- --watch"
     },
     "dependencies": {
+        "@codemirror/autocomplete": "^6.20.3",
+        "@codemirror/commands": "^6.11.0",
+        "@codemirror/state": "^6.7.4",
+        "@codemirror/view": "^6.43.11",
         "obsidian": "0.16.3",
         "obsidian-daily-notes-interface": "^0.9.4",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "tiny-undo": "^0.0.10",
         "yet-another-react-lightbox": "^3.21.7"
     },
     "devDependencies": {
@@ -31,11 +34,9 @@
         "@types/react": "^17.0.39",
         "@types/react-dom": "^17.0.11",
         "@types/recompose": "^0.30.10",
-        "@types/webscopeio__react-textarea-autocomplete": "^4.7.2",
         "@typescript-eslint/eslint-plugin": "^5.12.1",
         "@typescript-eslint/parser": "^5.12.1",
         "@vitejs/plugin-react": "^1.2.0",
-        "@webscopeio/react-textarea-autocomplete": "^4.9.1",
         "babel": "^6.23.0",
         "eslint": "^8.10.0",
         "eslint-config-prettier": "^8.4.0",
