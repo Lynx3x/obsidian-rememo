@@ -258,3 +258,27 @@ export function extractMemoTime(rawContent: string): { time: string; isOld: bool
 }
 
 
+
+// ===== 文件格式 era 探测（旧单行格式 / 新卡片块格式） =====
+// 新格式头行 = 纯标识："- 时间 [deletedAt:…] ^id"（行内无正文，可带任务标记）
+const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
+const TOP_BULLET_LINE = /^[-*]\s/;
+
+export function isPureHeaderLine(line: string): boolean {
+    return PURE_HEADER_LINE.test(line);
+}
+
+/** 按"首个顶层 bullet"判定文件 era：纯标识头行 → 'new'；否则 'old'；无 bullet → 'unknown' */
+export function detectFileEra(lines: string[]): 'new' | 'old' | 'unknown' {
+    for (const line of lines) {
+        if (TOP_BULLET_LINE.test(line)) {
+            return PURE_HEADER_LINE.test(line) ? 'new' : 'old';
+        }
+    }
+    return 'unknown';
+}
+
+/** 新格式正文行剥去 4 空格缩进前缀；不足 4 空格（空行/手写少缩进）原样返回 */
+export function unindentContentLine(line: string): string {
+    return line.length >= 4 ? line.slice(4) : line;
+}

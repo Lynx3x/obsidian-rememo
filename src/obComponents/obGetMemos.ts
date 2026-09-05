@@ -7,7 +7,16 @@ import {
 } from '../memos';
 import { t } from '../translations/helper';
 import { getDailyNotePath } from '../helpers/utils';
-import { extractDeletedAt, extractMemoTaskTypeFromLine, extractMemoTime, getIndentLevel, getIndentWidth, getTaskType } from '../helpers/memoLine';
+import {
+    extractDeletedAt,
+    extractMemoTaskTypeFromLine,
+    extractMemoTime,
+    getIndentLevel,
+    getIndentWidth,
+    getTaskType,
+    detectFileEra,
+    unindentContentLine,
+} from '../helpers/memoLine';
 
 export class DailyNotesFolderMissingError extends Error { }
 
@@ -73,6 +82,11 @@ export async function getMemosFromDailyNote(
     let fileContents = await vault.read(dailyNote);
     let fileLines = getAllLinesFromFile(fileContents);
     const baseDate = getDateFromFile(dailyNote as any, 'day');
+    // 双模式：新卡片块格式（头行纯标识 + 4 空格正文）走块解析；旧单行格式走下方逐行逻辑
+    if (detectFileEra(fileLines) === 'new') {
+        parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate);
+        return allMemos;
+    }
     let processHeaderFound = ProcessEntriesBelow === '';
     // 缩进栈：记录各层级最近一行的 hasId，用于多级评论父关联
     const indentStack: { level: number; hasId: string }[] = [];
@@ -155,10 +169,135 @@ export async function getMemosFromDailyNote(
             isDeleted,
             deletedAt,
             path: dailyNote.path,
+            blockStart: i,
+            blockEnd: i,
         });
     }
     fileLines = null;
     fileContents = null;
+}
+
+/**
+ * 新卡片块格式解析（PLAN-FORMAT 2026-09-05）：
+ * 头行 `- [ ]? 时间 [deletedAt:…] ^id`（纯标识，行内无正文）；其后的 ≥4 空格缩进行 = 正文
+ * （剥 4 前缀，保留额外缩进给 md 嵌套）。块边界 = 下一个顶层 bullet / 标题 / 文件尾。
+ * 容错：头行若带残余文本（手写混入旧样式行）并入正文首段；缺 ^id 只生成内存 id 不落盘。
+ */
+function parseNewFormatNote(
+    fileLines: string[],
+    dailyNote: TFile,
+    allMemos: any[],
+    baseDate: string,
+): void {
+    const tokenRe = ProcessEntriesBelow
+        ? new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'))
+        : null;
+    let active = !tokenRe;
+    let current: {
+        idx: number;
+        hasId: string;
+        time: string;
+        deletedAt: string;
+        isDeleted: boolean;
+        memoType: string;
+        extra: string;
+        body: string[];
+        bodyEnd: number;
+    } | null = null;
+
+    const flush = () => {
+        if (!current) return;
+        const memoDate = moment(baseDate);
+        if (current.time) {
+            const [h, m, s] = current.time.split(':').map((x) => parseInt(x));
+            memoDate.hours(h).minutes(m);
+            if (!isNaN(s)) memoDate.seconds(s);
+        }
+        const body = current.body.join('\n');
+        const content = current.extra ? current.extra + (body ? '\n' + body : '') : body;
+        allMemos.push({
+            id: memoDate.format('YYYYMMDDHHmmss') + current.idx,
+            content,
+            user_id: 1,
+            createdAt: memoDate.format('YYYY/MM/DD HH:mm:ss'),
+            updatedAt: memoDate.format('YYYY/MM/DD HH:mm:ss'),
+            memoType: current.memoType,
+            hasId: current.hasId,
+            linkId: '',
+            isDeleted: current.isDeleted,
+            deletedAt: current.deletedAt,
+            path: dailyNote.path,
+            blockStart: current.idx,
+            blockEnd: current.bodyEnd,
+        });
+        current = null;
+    };
+
+    for (let i = 0; i < fileLines.length; i++) {
+        const line = fileLines[i];
+        if (tokenRe && !active && tokenRe.test(line)) {
+            active = true;
+            flush();
+            continue;
+        }
+        if (active && /^#{1,} /.test(line)) {
+            active = false;
+            flush();
+            continue;
+        }
+        if (!active) continue;
+
+        if (/^[-*]\s/.test(line)) {
+            // 顶层 bullet = 新 memo 头（正文嵌套列表都带缩进，不会到这里）
+            flush();
+            const memoType = /^[-*]\s\[(.{1})\]\s/.test(line)
+                ? getTaskType(extractMemoTaskTypeFromLine(line))
+                : 'JOURNAL';
+            const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s+)?/, '');
+            const { time, rest } = extractMemoTime(stripped);
+            let content = rest;
+            let hasId = '';
+            const idMatch = /\^(\S{6})\s*$/.exec(content);
+            if (idMatch) {
+                hasId = idMatch[1];
+                content = content.slice(0, -8).trimEnd();
+            } else {
+                // 缺 ^id：先用内存随机 id 支撑本会话；落盘修复交给数据体检（missing-id）
+                hasId = Math.random().toString(36).slice(-6);
+            }
+            const delMatch = extractDeletedAt(content);
+            let isDeleted = false;
+            let deletedAt = '';
+            if (delMatch.isDeleted) {
+                isDeleted = true;
+                deletedAt = delMatch.deletedAt;
+                content = delMatch.rest;
+            }
+            current = {
+                idx: i,
+                hasId,
+                time: time || '',
+                deletedAt,
+                isDeleted,
+                memoType,
+                extra: content.trim() !== '' ? content : '',
+                body: [],
+                bodyEnd: i,
+            };
+            continue;
+        }
+
+        // 非 bullet 行：当前块正文（空行保留用于分段，剥 4 空格前缀）
+        if (current) {
+            if (line.length === 0 || line.trim() === '') {
+                current.body.push('');
+            } else {
+                current.body.push(unindentContentLine(line));
+            }
+            current.bodyEnd = i;
+        }
+    }
+    flush();
 }
 
 export async function getMemos(

@@ -9560,6 +9560,19 @@ function extractMemoTime(rawContent) {
   }
   return { time: "", isOld: false, rest: rawContent.trim() };
 }
+const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
+const TOP_BULLET_LINE = /^[-*]\s/;
+function detectFileEra(lines) {
+  for (const line of lines) {
+    if (TOP_BULLET_LINE.test(line)) {
+      return PURE_HEADER_LINE.test(line) ? "new" : "old";
+    }
+  }
+  return "unknown";
+}
+function unindentContentLine(line) {
+  return line.length >= 4 ? line.slice(4) : line;
+}
 async function escapeRegExp(text) {
   return await text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
@@ -9841,6 +9854,10 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
   let fileContents = await vault.read(dailyNote);
   let fileLines = getAllLinesFromFile$6(fileContents);
   const baseDate = getDateFromFile_1(dailyNote, "day");
+  if (detectFileEra(fileLines) === "new") {
+    parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate);
+    return allMemos;
+  }
   let processHeaderFound = ProcessEntriesBelow === "";
   const indentStack = [];
   for (let i = 0; i < fileLines.length; i++) {
@@ -9911,11 +9928,106 @@ async function getMemosFromDailyNote(dailyNote, allMemos, commentMemos) {
       linkId,
       isDeleted,
       deletedAt,
-      path: dailyNote.path
+      path: dailyNote.path,
+      blockStart: i,
+      blockEnd: i
     });
   }
   fileLines = null;
   fileContents = null;
+}
+function parseNewFormatNote(fileLines, dailyNote, allMemos, baseDate) {
+  const tokenRe = ProcessEntriesBelow ? new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1")) : null;
+  let active = !tokenRe;
+  let current = null;
+  const flush = () => {
+    if (!current)
+      return;
+    const memoDate = require$$0.moment(baseDate);
+    if (current.time) {
+      const [h2, m2, s] = current.time.split(":").map((x2) => parseInt(x2));
+      memoDate.hours(h2).minutes(m2);
+      if (!isNaN(s))
+        memoDate.seconds(s);
+    }
+    const body = current.body.join("\n");
+    const content = current.extra ? current.extra + (body ? "\n" + body : "") : body;
+    allMemos.push({
+      id: memoDate.format("YYYYMMDDHHmmss") + current.idx,
+      content,
+      user_id: 1,
+      createdAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
+      updatedAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
+      memoType: current.memoType,
+      hasId: current.hasId,
+      linkId: "",
+      isDeleted: current.isDeleted,
+      deletedAt: current.deletedAt,
+      path: dailyNote.path,
+      blockStart: current.idx,
+      blockEnd: current.bodyEnd
+    });
+    current = null;
+  };
+  for (let i = 0; i < fileLines.length; i++) {
+    const line = fileLines[i];
+    if (tokenRe && !active && tokenRe.test(line)) {
+      active = true;
+      flush();
+      continue;
+    }
+    if (active && /^#{1,} /.test(line)) {
+      active = false;
+      flush();
+      continue;
+    }
+    if (!active)
+      continue;
+    if (/^[-*]\s/.test(line)) {
+      flush();
+      const memoType = /^[-*]\s\[(.{1})\]\s/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
+      const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s+)?/, "");
+      const { time, rest } = extractMemoTime(stripped);
+      let content = rest;
+      let hasId = "";
+      const idMatch = /\^(\S{6})\s*$/.exec(content);
+      if (idMatch) {
+        hasId = idMatch[1];
+        content = content.slice(0, -8).trimEnd();
+      } else {
+        hasId = Math.random().toString(36).slice(-6);
+      }
+      const delMatch = extractDeletedAt(content);
+      let isDeleted = false;
+      let deletedAt = "";
+      if (delMatch.isDeleted) {
+        isDeleted = true;
+        deletedAt = delMatch.deletedAt;
+        content = delMatch.rest;
+      }
+      current = {
+        idx: i,
+        hasId,
+        time: time || "",
+        deletedAt,
+        isDeleted,
+        memoType,
+        extra: content.trim() !== "" ? content : "",
+        body: [],
+        bodyEnd: i
+      };
+      continue;
+    }
+    if (current) {
+      if (line.length === 0 || line.trim() === "") {
+        current.body.push("");
+      } else {
+        current.body.push(unindentContentLine(line));
+      }
+      current.bodyEnd = i;
+    }
+  }
+  flush();
 }
 async function getMemos(onBatch) {
   const memos = [];
@@ -21476,15 +21588,6 @@ const dupIdRule = {
 const TOP_BULLET = /^[-*]\s(\[[^\]]{1}\]\s+)?/;
 const INDENT_BULLET = /^\s{1,}[-*]\s/;
 const ID_AT_END = /\^([A-Za-z0-9]{6})\s*$/;
-const PURE_HEADER = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
-function detectEra(lines) {
-  for (const line of lines) {
-    if (TOP_BULLET.test(line)) {
-      return PURE_HEADER.test(line) ? "new" : "old";
-    }
-  }
-  return "unknown";
-}
 function randomId() {
   return Math.random().toString(36).slice(-6);
 }
@@ -21494,7 +21597,7 @@ const missingIdRule = {
   why: "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\uFF08Obsidian \u539F\u751F ^id \u662F\u884C\u632A\u4F4D\u4E0D\u53D8\u7684\uFF09\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
   severity: "warning",
   detect(ctx) {
-    const era = detectEra(ctx.lines);
+    const era = detectFileEra(ctx.lines);
     const issues = [];
     ctx.lines.forEach((line, idx) => {
       if (!ctx.inScope[idx])
