@@ -134,7 +134,9 @@ div[data-type='memos_view'] .memo-wrapper {
           }
 
           > .more-action-btns-container {
-            width: 112px;
+            // 宽度随内容自适应（按钮文字可长），保底 112px
+            width: max-content;
+            min-width: 112px;
             height: auto;
             line-height: 18px;
             padding: 4px;
