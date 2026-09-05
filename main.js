@@ -33854,8 +33854,10 @@ function computeScope(lines, processBelow) {
   let active = !tokenRe;
   for (let i2 = 0; i2 < lines.length; i2++) {
     const line = lines[i2];
-    if (tokenRe && !active && tokenRe.test(line))
+    if (tokenRe && !active && tokenRe.test(line)) {
       active = true;
+      continue;
+    }
     if (active && /^#{1,} /.test(line))
       active = false;
     if (active)

@@ -22,7 +22,10 @@ export function computeScope(lines: string[], processBelow: string): boolean[] {
   let active = !tokenRe;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (tokenRe && !active && tokenRe.test(line)) active = true;
+    if (tokenRe && !active && tokenRe.test(line)) {
+      active = true;
+      continue; // 与读取器一致：token 行只开门、不入区（否则标题型 token 如 "## Memo" 会被下方标题判定当场熄灭，处理区恒空）
+    }
     if (active && /^#{1,} /.test(line)) active = false;
     if (active) inScope[i] = true;
   }
