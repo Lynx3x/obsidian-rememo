@@ -9562,7 +9562,7 @@ function extractMemoTime(rawContent) {
   }
   return { time: "", isOld: false, rest: rawContent.trim() };
 }
-const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
+const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[?deletedAt:[^\^]*\]?)?\s*\^[A-Za-z0-9]{6}\s*$/;
 const TOP_BULLET_LINE = /^[-*]\s/;
 function detectFileEra(lines) {
   for (const line of lines) {

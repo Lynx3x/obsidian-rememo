@@ -263,8 +263,8 @@ export function extractMemoTime(rawContent: string): { time: string; isOld: bool
 
 
 // ===== 文件格式 era 探测（旧单行格式 / 新卡片块格式） =====
-// 新格式头行 = 纯标识："- 时间 [deletedAt:…] ^id"（行内无正文，可带任务标记）
-const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[deletedAt:[^\]]*\])?\s*\^[A-Za-z0-9]{6}\s*$/;
+// 新格式头行 = 纯标识："- 时间 [deletedAt:…]? ^id"（行内无正文，可带任务标记；deletedAt 有/无方括号均可）
+const PURE_HEADER_LINE = /^[-*]\s(\[[^\]]{1}\]\s+)?\d{1,2}:\d{2}(?::\d{2})?(\s+\[?deletedAt:[^\^]*\]?)?\s*\^[A-Za-z0-9]{6}\s*$/;
 const TOP_BULLET_LINE = /^[-*]\s/;
 
 export function isPureHeaderLine(line: string): boolean {
