@@ -7,7 +7,7 @@
 
 - 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（317 日记）**勿碰**。HEAD 见 `git log -1`。
 - **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（决策 8 修订，2026-09-05）。
-- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 cm6 键盘吞键根因已实锤（Obsidian window capture 抢先拦截 Mod 键）→ capture.ts 兜底修复已提交推送（75b16ec），下一任务 = owner 复测（清单见 §6）**；联想弹层是否代码问题待复测数据；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
+- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 转向：输入内核已切换为 Obsidian 原生 MarkdownEditor 子类（530d1a5，kanban 式接入；自打包 cm6 + capture 兜底退役），待 owner 复测（清单见 §6）**；联想弹层/编辑命令路由随原生接入一并实测；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
 - 已知可复验状态：新样例 `daily/2026-09-06.md`（dm0001~5）；旧测试数据在 dev 库 09-03/04/05 等文件（可一键体检迁移）；styles.css ~212 KiB、main.js ~1.35 MB（cm6 捆绑后）。
 
 ## 1. 核心域词汇（现行）
@@ -38,11 +38,11 @@
 - 旧数据不渲染、写入只写新格式、混合文件合法（旧行等体检迁移）——见 §6 之外的 P1b 记录（git log 4c881ec）。
 - 评论停摆至 P3；linkId 语义作废（模型字段保留备用）。
 - Feed 排序 = createdAt 降序；指定日期写入走 `waitForInsert` 的 insertDate（moment）。
-- 输入内核 = 自打包 cm6（决策 7）；格式/大改规格都在 PLAN-FORMAT.md，勿在 CONTEXT 重复。
+- 输入内核 = **Obsidian 原生 MarkdownEditor 子类**（决策 7 修订，2026-09-05 owner 拍板：弃自打包 cm6+capture；取类 hack 与接入细节见 §6/PLAN-FORMAT）；格式/大改规格都在 PLAN-FORMAT.md，勿在 CONTEXT 重复。
 
 ## 4. Pending（按顺序）
 
-0. **P2 cm6 运行期问题**（症状/排查线索见 §6）——代码已在 dev，Enter 续行正常，其余待排查。
+0. **P2 原生接入复测**（530d1a5，清单见 §6）——owner 在 Obsidian 目视，据结果定后续（联想双弹层去留/格式键/回退决策）。
 1. **P1.5 迁移正式化**：v1 已在用；收紧（已删评论折叠/缺时间行政策），正式库 317 **只读体检报告 → 逐文件试点需 owner 点头**。
 2. **阶段 G**：formatMemoContent 渲染与图片/标签结构化拆分（小重构）。
 3. **F2 小红书导出**（最低优先，可弃）。
@@ -55,12 +55,16 @@
 - 格式/设置：输入框 `[[` 文件联想（rta 基础版已做过，P2 cm6 重做中）；markdown 所见即所得评估（P2 高亮为铺垫）。
 - 标签：平铺/树状切换按钮。
 
-## 6. P2 键盘吞键——机制已实锤，修复已上（75b16ec，待 owner 复测）
+## 6. P2 原生接入——已提交（530d1a5），待 owner 复测
 
-- **根因（逆向 obsidian.asar app.js 实锤）**：内核 Keyboard 类构造时 `window.addEventListener('keydown', onKeyEvent, !0)` —— window **capture 阶段**、内核最先注册。onKeyEvent 命中其 scope 命令（Mod-B/I/E 粗斜体、Mod-Enter 勾选任务等默认命令）即 `preventDefault() + stopPropagation()` → 事件到不了内嵌 cm6 的 contentDOM（纯 Enter/普通键不命中命令故续行正常——症状完全自洽）。
-- **修复**：`src/editor/capture.ts` —— window 同 capture 层**后注册**兜底（Obsidian 用 stopPropagation 而非 stopImmediate → 同层后续监听仍收得到）。命中 memo 私有键（Mod-Enter/Mod-b/i/e，事件目标须在我们 cm6 内）→ 执行与 cm keymap **同源动作**（keys.ts 提纯 `handleModEnter`/format.ts 提纯 `runFormatAction`，零分叉）→ stopImmediatePropagation 防 contentDOM 双触发。Editor.tsx 挂载即注册/卸载即注销；domEventHandlers 的 Ctrl+Enter 降级为最后防线。
-- **待 owner 复测清单**：① Ctrl+Enter 发送（主页输入框 + 编辑态弹窗）；② Mod-B/I/E（空选区插符号对、选中文包裹）；③ **留意主编辑器文件有无被误改**（Obsidian 抢先执行了同键命令，作用在 workspace.activeEditor=主编辑器——若误改出现，下步加 activeEditor 挡刀层）；④ Enter 续行回归；⑤ IME 中文输入组合中勿误触发送；⑥ `#`/`[[` 联想——仍不弹时看控制台 `[rememo-suggest] 空结果诊断行`（本次已加），有弹但位置/观感错则截图。
-- 遗留未处理：focus 虚线框防御已加未复验（`.cm-content outline:none`）；输入区字体/换行观感；联想弹层 tooltip 定位。回退 rta 体验仍可 `git revert` b98515b 前状态（P1b 不受影响）。
+- **背景**：75b16ec 的 window capture 兜底复测通过（Ctrl+Enter 已好），但 owner 拍板转 **Obsidian 原生编辑器体系**（kanban 式），Mod-B/I/E 等不必自做。根因侦察结论保留：Obsidian 内核在 window capture 最早注册 keydown、命中命令即 preventDefault+stopPropagation。
+- **接入**（仿 mgmeyers/obsidian-kanban main.ts getEditorClass + MarkdownEditor.tsx）：
+  - `src/editor/native.ts`：取内核 MarkdownEditor 构造器 = 瞬时 md embed（detached）→ `editable=true; showEditor()` → `editMode` 原型链倒退一层 `.constructor`；失败返回 null（UI 显示 init failed 不崩溃）。内部 API（embedRegistry/embedByExtension.md/editMode）在 Obsidian 1.13.7 已验证存在；**内核大版本升级需复测此 hack**。
+  - Editor.tsx 内层：`new 原生子类(app, el, controller)`；聚焦时 `workspace.activeEditor` 桥到 controller（`getMode:'source'` + `editor` getter）→ Obsidian 编辑器命令（Mod-B/I/E/任务等）直接作用于 memo 输入，不再吞键/误改主编辑器。
+  - Enter 策略：默认模式 Enter 交原生续行、Mod-Enter=发送；EnterToSend 模式 Enter=发送（联想 active 放行）、Mod-Enter=单行换行（最高优先级 keymap）。
+  - 自产扩展保留：placeholder / memoInputHighlight / memoAutocomplete（#/[[ 数据源 apply 可控）/ readOnly Compartment / updateListener。
+  - `src/editor/{keys,format,capture}.ts` 停用（未打包）；clear 无原生 clearHistory（发后 Ctrl+Z 复活旧文=已知低优先）。
+- **待 owner 复测清单**：① 输入框是否正常初始化（失败会显示 init failed）；② 打字/中文 IME；③ Enter 列表/任务续行、空项退出；④ Ctrl+Enter 发送、按钮发送、squash 动画；⑤ **Mod-B/I/E 原生格式键**（选区包裹）；⑥ **主编辑器文件是否不再被误改**；⑦ `#`/`[[` 联想是否出现、是否与原生联想双弹层（双弹层出现即停用自产 suggest，改原生）；⑧ undo/redo、placeholder 观感、编辑态（setContent/clear）流程。回退点：530d1a5 前一版（75b16ec capture 过渡版）。
 
 ## 7. 当前事实（verified 2026-09-05）
 

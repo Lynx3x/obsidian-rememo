@@ -19,7 +19,7 @@
 | 4 | 删除/回收站 | **保留软删+回收站**：deletedAt 标记放头行（行内、`^id` 前），UI 沿用现状 |
 | 5 | 评论/引用 | **首期不做**（owner："坏了就坏了，先做主体"）；未来 = 引用卡（跨文件），记号用箭头系，格式预留 |
 | 6 | 时间 | 仍统一 `HH:mm:ss` 落盘；显示格式开关 TimeFormat 照旧 |
-| 7 | 输入内核 | **CodeMirror 6 迷你 EditorView**（自打包依赖，参照 kanban 做法）；tag/file 联想用 cm6 autocomplete 框架 + 自喂 source（fuzzy），行为参考 Obsidian 1.4+ 原生 tag autocomplete |
+| 7 | 输入内核 | **Obsidian 原生 MarkdownEditor 子类**（kanban 式接入；~~自打包 cm6 迷你 EditorView + window capture 兜底~~ **修订 2026-09-05**：键盘被内核全局吞键不可完全复刻原生体验，owner 拍板直接接原生体系）；tag/file 联想仍用 cm6 autocomplete 框架 + 自喂 source（可留可废，视复测是否与原生联想双弹层） |
 | 8 | 旧数据 | ~~读取双模式（文件级探测），写入一律新格式~~ **P1b 修订（2026-09-05 owner 拍板）**：读取**行级只认纯标识头**（旧顶层行不渲染、不进回收站，统一交数据体检整文件迁移恢复）；写入**只写新格式**（对旧格式目标文件直接追加新块，允许新旧混合）。旧逐行解析与评论链已删除 |
 
 ## 新格式规范 v1（草案样例）
