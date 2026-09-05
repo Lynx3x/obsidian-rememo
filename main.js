@@ -30786,6 +30786,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
     }
     const controller = {
       app: app2,
+      syncScroll: () => void 0,
       getMode: () => "source",
       showSearch: () => void 0,
       toggleMode: () => void 0,
@@ -30819,43 +30820,51 @@ const Editor = react.exports.forwardRef((props, ref) => {
       buildLocalExtensions() {
         var _a3, _b2;
         const exts = (_b2 = (_a3 = super.buildLocalExtensions) == null ? void 0 : _a3.call(this)) != null ? _b2 : [];
-        exts.push(placeholder(cbRef.current.placeholder), keymap.of([{
-          key: "Enter",
-          run: (view) => {
-            if (!cbRef.current.enterToSend)
-              return false;
-            if (completionStatus(view.state) === "active")
-              return false;
-            sendFrom(view);
-            return true;
-          }
-        }, {
-          key: "Mod-Enter",
-          run: (view) => {
-            if (cbRef.current.enterToSend) {
-              const head = view.state.selection.main.head;
-              view.dispatch({
-                changes: {
-                  from: head,
-                  to: head,
-                  insert: "\n"
-                },
-                selection: {
-                  anchor: head + 1
-                }
-              });
+        exts.push(
+          EditorView.lineWrapping,
+          placeholder(cbRef.current.placeholder),
+          memoInputHighlight,
+          memoAutocomplete(),
+          keymap.of([{
+            key: "Enter",
+            run: (view) => {
+              if (!cbRef.current.enterToSend)
+                return false;
+              if (completionStatus(view.state) === "active")
+                return false;
+              sendFrom(view);
               return true;
             }
-            sendFrom(view);
-            return true;
-          }
-        }]), roCompartmentRef.current.of([]), EditorView.updateListener.of((u2) => {
-          if (u2.docChanged) {
-            const text = u2.state.doc.toString();
-            setHasContent(text.length > 0);
-            cbRef.current.change(text);
-          }
-        }));
+          }, {
+            key: "Mod-Enter",
+            run: (view) => {
+              if (cbRef.current.enterToSend) {
+                const head = view.state.selection.main.head;
+                view.dispatch({
+                  changes: {
+                    from: head,
+                    to: head,
+                    insert: "\n"
+                  },
+                  selection: {
+                    anchor: head + 1
+                  }
+                });
+                return true;
+              }
+              sendFrom(view);
+              return true;
+            }
+          }]),
+          roCompartmentRef.current.of([]),
+          EditorView.updateListener.of((u2) => {
+            if (u2.docChanged) {
+              const text = u2.state.doc.toString();
+              setHasContent(text.length > 0);
+              cbRef.current.change(text);
+            }
+          })
+        );
         return exts;
       }
       onUpdate(update, changed) {
@@ -30900,46 +30909,28 @@ const Editor = react.exports.forwardRef((props, ref) => {
     }
     viewRef.current = cm;
     cbRef.current.get = () => cm.state.doc.toString();
-    const injectAppearance = (withSuggest) => {
-      try {
-        const exts = [EditorView.lineWrapping, memoInputHighlight];
-        if (withSuggest) {
-          exts.push(memoAutocomplete(), placeholder(cbRef.current.placeholder));
-        }
-        cm.dispatch({
-          effects: StateEffect.appendConfig.of(exts)
-        });
-      } catch (err) {
-        console.error("[rememo] appendConfig \u6CE8\u5165\u5931\u8D25", err);
+    const initial = initialContent != null ? initialContent : "";
+    try {
+      if (typeof native.set === "function") {
+        native.set(initial);
+      } else if (initial) {
+        (_d = (_c = native.editor) == null ? void 0 : _c.setValue) == null ? void 0 : _d.call(_c, initial);
       }
-    };
-    injectAppearance(true);
-    setTimeout(() => injectAppearance(false), 300);
-    setTimeout(() => injectAppearance(false), 1500);
+    } catch (err) {
+      console.error("[rememo] \u8BBE\u7F6E\u521D\u59CB\u5185\u5BB9\u5931\u8D25", err);
+    }
     const onDomInput = () => {
       const text = cm.state.doc.toString();
       setHasContent(text.length > 0);
       cbRef.current.change(text);
     };
-    (_c = cm.contentDOM) == null ? void 0 : _c.addEventListener("input", onDomInput);
+    (_e = cm.contentDOM) == null ? void 0 : _e.addEventListener("input", onDomInput);
     const onDomFocus = () => {
       bridgeActiveEditor(true);
     };
     const onDomBlur = () => bridgeActiveEditor(false);
-    (_d = cm.contentDOM) == null ? void 0 : _d.addEventListener("focus", onDomFocus);
-    (_e = cm.contentDOM) == null ? void 0 : _e.addEventListener("blur", onDomBlur);
-    const initial = initialContent != null ? initialContent : "";
-    if (initial) {
-      try {
-        if (typeof native.set === "function") {
-          native.set(initial);
-        } else {
-          (_g = (_f = native.editor) == null ? void 0 : _f.setValue) == null ? void 0 : _g.call(_f, initial);
-        }
-      } catch (err) {
-        console.error("[rememo] \u8BBE\u7F6E\u521D\u59CB\u5185\u5BB9\u5931\u8D25", err);
-      }
-    }
+    (_f = cm.contentDOM) == null ? void 0 : _f.addEventListener("focus", onDomFocus);
+    (_g = cm.contentDOM) == null ? void 0 : _g.addEventListener("blur", onDomBlur);
     const detachCapture = attachKeyCapture(cm, [{
       match: (e) => !e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey && e.key === "Enter",
       run: (view) => {

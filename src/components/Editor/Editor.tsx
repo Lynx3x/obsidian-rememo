@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Compartment, EditorState, StateEffect } from '@codemirror/state';
+import { Compartment, EditorState } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
@@ -33,6 +33,10 @@ import Only from '../common/OnlyWhen';
  * - readOnly 锁（发送后发射前）走 roCompartment（随 buildLocalExtensions 尝试，
  *   兜底由外层置 contenteditable 不可编辑）
  */
+
+// ===== 诊断区已移除(2026-09-05 正门方案):反编译确认最终 state 由首次 set() 构建,
+// cmInit=false → getLocalExtensions() → buildLocalExtensions()(覆写正门)→
+// EditorState.create → cm.setState。见 P2-INVESTIGATION.md §7。=====
 
 export interface EditorRefActions {
   element: HTMLElement;
@@ -111,6 +115,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
     const controller = {
       app,
+      syncScroll: () => undefined, // 内核滚动处理调 owner.syncScroll（缺了会 TypeError）
       getMode: () => 'source',
       showSearch: () => undefined,
       toggleMode: () => undefined,
@@ -142,11 +147,16 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       }
 
       buildLocalExtensions(): Extension[] {
-        // 注：此返回值在部分构造路径不进生效 state（探针G 实测），观感扩展（换行/
-        // 高亮/联想）改走 appendConfig 注入（见下）；这里只留键盘与回调扩展作为尝试
+        // 正门(2026-09-05 反编译定案):最终 state 由首次 set() 构建,扩展 =
+        // [getLocalExtensions()(=buildLocalExtensions 覆写,缓存), dynamic, RJ]。
+        // 必须 super 保留内核原版(updateEvent/onUpdate/联想触发等都在里面)。
         const exts: Extension[] = super.buildLocalExtensions?.() ?? [];
         exts.push(
+          // 换行:内核主编辑器的 lineWrapping 由更外层注入,裸实例不自带——这里补
+          EditorView.lineWrapping,
           placeholder(cbRef.current.placeholder),
+          memoInputHighlight,
+          memoAutocomplete(),
           keymap.of([
             {
               key: 'Enter',
@@ -242,28 +252,24 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     // buildLocalExtensions 通道已证不可靠）。addChild 的 load 链可能异步重建 state
     // 抹掉注入（换行曾随机丢失）→ 立即注入全量 + 延迟补注 lineWrapping/高亮
     // （两者为 facet/装饰类扩展，重复追加安全；联想/占位保持单份防重复冲突）----
-    const injectAppearance = (withSuggest: boolean) => {
-      try {
-        const exts: Extension[] = [EditorView.lineWrapping, memoInputHighlight];
-        if (withSuggest) {
-          exts.push(memoAutocomplete(), placeholder(cbRef.current.placeholder));
-        }
-        cm.dispatch({ effects: StateEffect.appendConfig.of(exts) });
-      } catch (err) {
-        console.error('[rememo] appendConfig 注入失败', err);
+    // ---- 正门初始化：无条件首设 set()（空串也调）→ 触发 cmInit=false 分支：
+    // EditorState.create 用 [getLocalExtensions()=buildLocalExtensions 覆写, dynamic,
+    // RJ] 建立最终 state（2026-09-05 反编译定案，见 P2-INVESTIGATION.md §7）。
+    // 此前 initial 为空时不调 set() → 覆写从未进 state（探针全对的根因）。
+    const initial = initialContent ?? '';
+    try {
+      if (typeof native.set === 'function') {
+        native.set(initial);
+      } else if (initial) {
+        native.editor?.setValue?.(initial);
       }
-    };
-    injectAppearance(true);
-    setTimeout(() => injectAppearance(false), 300);
-    setTimeout(() => injectAppearance(false), 1500);
+    } catch (err) {
+      console.error('[rememo] 设置初始内容失败', err);
+    }
 
     // ---- 输入变更检测（DOM 通道，不依赖内核扩展）：contenteditable 的 input 事件
     // 在用户打字/粘贴/删除时必然触发 → 驱动发送按钮可用态与内容缓存 ----
-    let probeInput = false;
     const onDomInput = () => {
-      if (!probeInput) {
-        probeInput = true;
-      }
       const text = cm.state.doc.toString();
       setHasContent(text.length > 0);
       cbRef.current.change(text);
@@ -272,30 +278,12 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
     // ---- activeEditor 桥（DOM 通道）：聚焦把本实例接为 activeEditor → Obsidian
     // 编辑器命令（Mod-B/I/E、任务切换等）路由到 memo 输入而非主编辑器 ----
-    let probeBridge = false;
     const onDomFocus = () => {
-      if (!probeBridge) {
-        probeBridge = true;
-      }
       bridgeActiveEditor(true);
     };
     const onDomBlur = () => bridgeActiveEditor(false);
     cm.contentDOM?.addEventListener('focus', onDomFocus);
     cm.contentDOM?.addEventListener('blur', onDomBlur);
-
-    // 初始内容：优先实例 .set（kanban 同款），缺则走 editor 包装 setValue
-    const initial = initialContent ?? '';
-    if (initial) {
-      try {
-        if (typeof native.set === 'function') {
-          native.set(initial);
-        } else {
-          native.editor?.setValue?.(initial);
-        }
-      } catch (err) {
-        console.error('[rememo] 设置初始内容失败', err);
-      }
-    }
 
     // Mod 组合键兜底：Obsidian window capture 会吞命中其命令的 Mod 键（Ctrl+Enter
     // 勾选任务等）→ window 层 capture 拦截执行发送/换行（75b16ec 验证过的机制）

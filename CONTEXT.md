@@ -7,7 +7,7 @@
 
 - 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（317 日记）**勿碰**。HEAD 见 `git log -1`。
 - **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（决策 8 修订，2026-09-05）。
-- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（7b2c051）：原生 MarkdownEditor + 纯外层 DOM 控制 + appendConfig 观感注入（架构要点见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
+- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（正门方案：无条件首设 set() 触发 buildLocalExtensions 覆写进最终 state，反编译定案，见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
 - 已知可复验状态：新样例 `daily/2026-09-06.md`（dm0001~5）；旧测试数据在 dev 库 09-03/04/05 等文件（可一键体检迁移）；styles.css ~212 KiB、main.js ~1.35 MB（cm6 捆绑后）。
 
 ## 1. 核心域词汇（现行）
@@ -55,17 +55,20 @@
 - 格式/设置：输入框 `[[` 文件联想（rta 基础版已做过，P2 cm6 重做中）；markdown 所见即所得评估（P2 高亮为铺垫）。
 - 标签：平铺/树状切换按钮。
 
-## 6. P2 输入内核定稿——7b2c051（owner 目视全绿），关键事实与坑
+## 6. P2 输入内核定稿——正门方案（7b2c051 前各版 + 定案 commit，owner 目视全绿）
 
-- **架构**：内核 MarkdownEditor 裸实例嵌入（native.ts embed hack 取类）+ **控制权全在编辑器外**：
-  - 变更回调 = contentDOM `input` 事件（DOM 通道必触发）→ 发送按钮可用态/缓存；`onUpdate` 覆写与 push updateListener 保留为多通道（幂等）
-  - activeEditor 桥 = contentDOM focus/blur → Obsidian 编辑命令（Mod-B/I/E 等）路由到 memo 输入
-  - 键盘 = contentDOM keydown（纯 Enter 发送）+ **window capture 兜底**（Ctrl+Enter；Obsidian 吞 Mod 键，75b16ec 机制，capture.ts 复用）
-  - 生命周期 = `plugin.addChild(editor)`（kanban 同款）；`removeHighlights/hasHighlight` 实例遮蔽（裸编辑器 state 无搜索高亮 field，点击/Esc 会 RangeError——已修）
-  - 观感扩展（换行/高亮/#·[[ 联想/占位）走 **`StateEffect.appendConfig`** 注入生效 state；load 链可能异步重建抹掉注入 → 立即全量 + 延迟(300/1500ms)补注 lineWrapping/高亮（facet/装饰类重复追加安全）
-- **血泪坑**：① buildLocalExtensions 覆写/原型 patch/onUpdate 全部不进生效 state（updateListener facet 实测恒 0，别在此路投入）；② `clear()` 禁 setState 重建（丢内核私有 StateField → RangeError 崩实例，d81/43ab64d 教训）；③ console.debug 探针会被控制台级别过滤吞掉（排查期用 console.warn）；④ 530d1a5 的"可用"复测疑为旧构建仍在跑（Obsidian 插件重载不一定加载新 main.js，验证前先确认探针/行为版本）
+- **【最终定案 2026-09-05】反编译确认**：内核 MarkdownEditor 构造器**不建最终 state**（只建空壳 cm，`cmInit=false`）；真正 state 由**首次 `set(text)`** 构建，扩展 = `[getLocalExtensions()(=buildLocalExtensions 覆写并缓存), dynamic, RJ]` → `EditorState.create` → `cm.setState`。
+  - **教训**：此前 initial 为空时不调 `native.set()` → 覆写从未进 state；appendConfig 注入的是空壳默认 state，任何首设 set() 会用全新 state 换掉 → "时好时坏"的根因。
+  - **正门用法**：`new` 后**无条件 `native.set(initial)`（空串也调）**；子类覆写 `buildLocalExtensions()` 必须 `super` 保留内核原版（updateEvent→onUpdate、editorSuggest 触发都在其中），再 push 自产扩展（lineWrapping/placeholder/高亮/联想/keymap/readOnly compartment）。
+  - 代码结构（Editor.tsx，2026-09-05 定稿后）：embed hack 取类（native.ts）→ new 子类 → addChild → removeHighlights 遮蔽 → **set(initial) 首设** → DOM 外层（input 变更/focus-blur 桥/keydown+capture 发送）；扩展全走正门，无 appendConfig。
+- **架构**：内核编辑器本体（打字/光标/IME/撤销）+ 控制权在编辑器外：
+  - 变更回调 = contentDOM `input` 事件（DOM 通道必触发）；`onUpdate` 覆写（内核 updateEvent 经正门进入 state 后会被调）为多通道
+  - activeEditor 桥 = contentDOM focus/blur → Obsidian 编辑命令（Mod-B/I/E）路由到 memo 输入
+  - 键盘 = contentDOM keydown（纯 Enter 发送）+ window capture 兜底（Ctrl+Enter；Obsidian 吞 Mod 键，75b16ec 机制，capture.ts）
+  - 生命周期 = `plugin.addChild(editor)`；`removeHighlights/hasHighlight` 实例遮蔽（裸 state 无搜索高亮 field，点击/Esc RangeError——已修）；controller 需 `syncScroll`（大段滚动 TypeError——已补）
+- **血泪坑**：① 覆写 buildLocalExtensions 生效前提 = 首次 set() 触发（无条件 set(initial)）；② `clear()` 禁 setState 重建（丢内核私有 StateField → RangeError 崩实例，d81/43ab64d 教训）；③ console.debug/warn 探针会被控制台过滤（排查期用 error 级或先确认过滤）；④ 插件 disable/enable 可能不重载 main.js（重启 Obsidian 才保证）；⑤ 530d1a5 的"可用"复测疑为旧构建仍在跑
 - 视觉收尾：`==高亮==` 输入框（decoration .cm-hl-mark）+ 卡片渲染（marked.ts `<mark>`）；占位 CSS 叠层（.cm-host.is-empty::before + data-placeholder）；滚动条细条化 + overflow-x hidden + overflow-wrap anywhere
-- 已知小项：占位/联想单份注入若被 load 重建抹掉需重载恢复（补注只含 lineWrapping/高亮）；编辑态/弹窗多实例未回归测。回退点：75b16ec（自打包 cm6 版）为可用基线。
+- 详细排查记录/反编译锚点：P2-INVESTIGATION.md §7（历史档案）。回退点：75b16ec（自打包 cm6 可用版）
 
 ## 7. 当前事实（verified 2026-09-05）
 
