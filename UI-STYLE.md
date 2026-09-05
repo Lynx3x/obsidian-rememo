@@ -12,6 +12,16 @@
 - **图标统一用 Material 实心**风格（fill 由 CSS 控制成 currentColor/muted/accent）。临时加过 lucide 描边又被 owner 否了——别再引描边系。
 - 主题取向：**融入用户主题**（accent/bg/fonts 都随 Obsidian），插件不搞固定品牌色板。
 
+## 按钮与主操作（2026-09-05 后约定，别再走 accent 实底白字）
+
+- owner 主题 accent 偏浅，**accent 实底 + `--memo-on-accent` 白字会白成一片不可读**（实测两处）。主操作按钮统一走 `.btn-accent()` mixin（audit-page.less 顶部）：accent 色**文字** + accent 12% 淡底 + 45% 描边，hover 加深。新写按钮照此；若某处仍用实底白字且 owner 报看不清，同样处理。
+- theme.less 全局 `button` 规则已加 `background-image: none`——Obsidian 主题会给 button 挂渐变 background-image，会盖住我们设的 background-color（按钮"全白"常见根因之一）。
+
+## P1 行式渲染相关样式（memo-content.less）
+
+- 结构类（渲染器输出，勿手改 DOM）：`.memo-md-line`（列表/任务行，紧凑 margin，勿吃段落负 margin）、相邻普通段落 `> p:not(.memo-md-line) + …` 段距 8px（空行分段可见）、`pre`（代码块）、`.todo-block`/`.counter-block`、行内 `code`（theme.less 全局样式）。
+- 主操作/激活语义色已统一 accent/danger（见已收口清单）；**全库列表结构用 div 别用 li**（theme 会给 li::before 注入 '•'，flex 下变孤立圆点行）。
+
 ## Token 系统（唯一调色入口）
 
 文件：`src/less/theme.less`，作用域 `div[data-type='memos_view']`。
@@ -26,7 +36,7 @@
 
 **主屏**：`global / memo-editor / editor / common-date-picker / memo(含评论) / memo-content / memolist / pagination / memos-header / search-bar / memo-filter / home(画布=background-secondary) / memo-trash / image(容器 overflow hidden)`
 
-**次级界面（2026-09-04 收口，待 Obsidian 目视）**：`dialog`(弹窗外壳) / `about-site-dialog` / `daily-memo-diary-dialog` / `memo-card-dialog` / `create-query-dialog` / `share-memo-image-dialog` / `tag-list` / `query-list` / `usage-heat-map` / `user-banner` / `siderbar` / `menu-btns-popup` / `daily-memo` / `suggest`(.rta 联想) / `common/selector`。收口时的语义归一：**“主操作/选中激活”一律 `--memo-accent`（原绿/红/蓝混杂）、危险操作 `--memo-danger`、次要提示 `--memo-text-muted`、浮层 = `--memo-bg`+1px `--memo-border`+`--memo-shadow-s`、卡 = `--memo-bg`+`--memo-shadow-card`**。日期/标签等输入控件需显式覆盖 Obsidian `.text-input`（坑 4）。
+**次级界面（2026-09-04 收口，待 Obsidian 目视）**：`dialog`(弹窗外壳) / `about-site-dialog` / `daily-memo-diary-dialog` / `memo-card-dialog` / `create-query-dialog` / `share-memo-image-dialog` / `tag-list` / `query-list` / `usage-heat-map` / `user-banner` / `siderbar` / `menu-btns-popup` / `daily-memo` / `suggest`(.rta 联想) / `common/selector` / `audit-page`(数据体检整页：文件→memo行分组/折叠/徽章/最近修复/分页)。收口时的语义归一：**“主操作/选中激活”一律 `--memo-accent`（原绿/红/蓝混杂）、危险操作 `--memo-danger`、次要提示 `--memo-text-muted`、浮层 = `--memo-bg`+1px `--memo-border`+`--memo-shadow-s`、卡 = `--memo-bg`+`--memo-shadow-card`**。日期/标签等输入控件需显式覆盖 Obsidian `.text-input`（坑 4）。
 同批删除的死界面（勿再找）：React 设置页 `/setting` 链（pages/Setting、PreferencesSection、setting.less、preferences-section.less、路由与类型）——设置实际在 Obsidian 原生设置里；tag-list 内 rename-tag-dialog 段（无功能）。`setting` 的语义名与 `pages/Setting.tsx` 无关（那是 Obsidian 原生 setting tab 入口）。
 
 **全库浅深双写已清零**，唯一保留的 theme 分支是两处刻意适配（有注释）：
