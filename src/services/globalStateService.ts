@@ -36,6 +36,7 @@ class GlobalStateService {
     });
   };
 
+  /** toggle 引用目标（多引用）：id='' 清空全部；已选则移除；未选则追加 */
   public setMarkMemoId = (markMemoId: string) => {
     appStore.dispatch({
       type: 'SET_MARK_MEMO_ID',

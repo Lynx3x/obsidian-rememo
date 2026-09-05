@@ -59,3 +59,9 @@ export function refTimeLabel(createdAt: string, targetPath: string, currentPath:
   const datePart = curYear && targetYear === curYear ? t.slice(5, 10) : t.slice(2, 10); // MM/DD 或 YY/MM/DD
   return `${datePart} ${timePart}`.trim();
 }
+
+/** 生成引用行（空标签，P3c @ 插入用）：[@](文件#^id)；无持久 ^id 时降级内存 id（旧式兼容） */
+export function buildRefLink(memo: { path: string; id: string; hasId: string }): string {
+  const fileName = memo.path.split('/').pop() ?? memo.path;
+  return memo.hasId ? `[@](${fileName}#^${memo.hasId})` : `[@](${memo.id})`;
+}

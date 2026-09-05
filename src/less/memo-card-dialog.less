@@ -65,6 +65,25 @@
               height: 18px;
               fill: var(--memo-text-muted);
             }
+
+            &.delete-btn {
+              > .icon-img {
+                fill: var(--memo-text-muted);
+              }
+
+              &:hover > .icon-img {
+                fill: var(--memo-danger);
+              }
+
+              &.confirm {
+                background-color: var(--memo-danger);
+                border-radius: var(--memo-radius-s);
+
+                > .icon-img {
+                  fill: var(--memo-on-accent, #fff);
+                }
+              }
+            }
           }
         }
       }

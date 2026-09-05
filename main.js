@@ -6961,12 +6961,16 @@ function createStore(preloadedState, reducer2) {
 function reducer$8(state, action) {
   switch (action.type) {
     case "SET_MARK_MEMO_ID": {
-      if (action.payload.markMemoId === state.markMemoId) {
-        return state;
+      const id2 = action.payload.markMemoId;
+      if (id2 === "") {
+        if (state.markMemoIds.length === 0)
+          return state;
+        return { ...state, markMemoIds: [] };
       }
+      const has = state.markMemoIds.includes(id2);
       return {
         ...state,
-        markMemoId: action.payload.markMemoId
+        markMemoIds: has ? state.markMemoIds.filter((x2) => x2 !== id2) : [...state.markMemoIds, id2]
       };
     }
     case "SET_EDIT_MEMO_ID": {
@@ -7008,7 +7012,7 @@ function reducer$8(state, action) {
   }
 }
 const defaultState$6 = {
-  markMemoId: "",
+  markMemoIds: [],
   editMemoId: "",
   shouldSplitMemoWord: true,
   shouldHideImageUrl: true,
@@ -7816,6 +7820,13 @@ var en = {
   "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.",
   REFS: "REFERENCES",
   "Reference target deleted": "Reference target deleted",
+  Reply: "Reply",
+  "Reply to this memo": "Reply to this memo",
+  "Reply to": "Reply to",
+  "Reference a memo": "Reference a memo",
+  "Search memos...": "Search memos...",
+  "No memos found": "No memos found",
+  Cancel: "Cancel",
   "Ready to convert image into background": "Ready to convert image into background",
   List: "List",
   Task: "Task",
@@ -8517,6 +8528,13 @@ var zhCN = {
   "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "\u4E3B\u5217\u8868\u4E0D\u663E\u793A\u5F15\u7528\u5361\uFF08\u5B83\u4EEC\u663E\u793A\u5728\u88AB\u5F15\u7528 memo \u7684\u805A\u5408\u533A\uFF09\u3002\u641C\u7D22/\u7B5B\u9009\u65F6\u4ECD\u53EF\u89C1\u3002\u9ED8\u8BA4\u5F00\u542F",
   REFS: "\u5F15\u7528",
   "Reference target deleted": "\u5F15\u7528\u76EE\u6807\u5DF2\u5220\u9664",
+  Reply: "\u56DE\u590D",
+  "Reply to this memo": "\u56DE\u590D\u8FD9\u6761 memo",
+  "Reply to": "\u56DE\u590D",
+  "Reference a memo": "\u5F15\u7528\u4E00\u6761 memo",
+  "Search memos...": "\u641C\u7D22 memo...",
+  "No memos found": "\u6CA1\u6709\u5339\u914D\u7684 memo",
+  Cancel: "\u53D6\u6D88",
   "Don't support web image yet, please input image path in vault": "\u6682\u4E0D\u652F\u6301\u7F51\u7EDC\u56FE\u7247\uFF0C\u8BF7\u4F7F\u7528\u672C\u5730\u56FE\u7247",
   "Ready to convert image into background": "\u6B63\u5728\u5C06\u56FE\u7247\u8F6C\u6362\u4E3A\u80CC\u666F\u56FE",
   List: "\u5217\u8868",
@@ -9174,7 +9192,7 @@ const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg|webp|bmp))(\]\])?(\)
 const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\s*\))/g;
 const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
 const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
-const MEMO_LINK_REG = /\[@(.+?)\]\((.+?)\)/g;
+const MEMO_LINK_REG = /\[@(.*?)\]\((.+?)\)/g;
 class DailyNotesService {
   getState() {
     return appStore.getState().dailyNotesState;
@@ -9511,6 +9529,11 @@ function refTimeLabel(createdAt, targetPath, currentPath) {
   const targetYear = t2.slice(0, 4);
   const datePart = curYear && targetYear === curYear ? t2.slice(5, 10) : t2.slice(2, 10);
   return `${datePart} ${timePart}`.trim();
+}
+function buildRefLink(memo2) {
+  var _a2;
+  const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
+  return memo2.hasId ? `[@](${fileName}#^${memo2.hasId})` : `[@](${memo2.id})`;
 }
 async function openMemoFile(memoId, path) {
   const { vault } = appStore.getState().dailyNotesState.app;
@@ -13447,6 +13470,21 @@ function SvgEdit(props) {
     d: "M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"
   }));
 }
+function SvgDelete(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "20px",
+    viewBox: "0 0 24 24",
+    width: "20px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+  }));
+}
 var image = "";
 const Image$1 = (props) => {
   const {
@@ -13605,6 +13643,27 @@ const MemoCardDialog = (props) => {
     props.destroy();
     globalStateService.setEditMemoId(memo2.id);
   }, [memo2.id]);
+  const [showConfirmDelete, setShowConfirmDelete] = react.exports.useState(false);
+  const deleteTimerRef = react.exports.useRef(null);
+  const handleDeleteMemoClick = react.exports.useCallback(async () => {
+    var _a2;
+    if (!showConfirmDelete) {
+      setShowConfirmDelete(true);
+      if (deleteTimerRef.current)
+        clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = setTimeout(() => setShowConfirmDelete(false), 2500);
+      return;
+    }
+    try {
+      await memoService.hideMemoById(memo2.id, memo2.hasId, memo2.path);
+      if (globalStateService.getState().editMemoId === memo2.id) {
+        globalStateService.setEditMemoId("");
+      }
+      props.destroy();
+    } catch (error) {
+      new require$$0.Notice((_a2 = error == null ? void 0 : error.message) != null ? _a2 : error);
+    }
+  }, [memo2, showConfirmDelete]);
   return /* @__PURE__ */ jsxs(Fragment, {
     children: [/* @__PURE__ */ jsxs("div", {
       className: "memo-card-container",
@@ -13616,6 +13675,13 @@ const MemoCardDialog = (props) => {
         }), /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("button", {
+            className: `btn delete-btn ${showConfirmDelete ? "confirm" : ""}`,
+            title: showConfirmDelete ? t$2("CONFIRM\uFF01") : t$2("DELETE"),
+            onClick: handleDeleteMemoClick,
+            children: /* @__PURE__ */ jsx(SvgDelete, {
+              className: "icon-img"
+            })
+          }), /* @__PURE__ */ jsx("button", {
             className: "btn edit-btn",
             onClick: handleEditMemoBtnClick,
             children: /* @__PURE__ */ jsx(SvgEdit, {
@@ -14039,6 +14105,21 @@ function SvgMore(props) {
     d: "M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
   }));
 }
+function SvgReply(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "20px",
+    viewBox: "0 0 24 24",
+    width: "20px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"
+  }));
+}
 function SvgTaskBlank(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -14070,10 +14151,14 @@ function SvgTask(props) {
   }));
 }
 const Memo = (props) => {
+  var _a2;
   const {
     settingsState: {
       settings
     }
+  } = react.exports.useContext(appContext);
+  const {
+    globalState
   } = react.exports.useContext(appContext);
   const {
     DefaultEditorLocation,
@@ -14130,6 +14215,7 @@ const Memo = (props) => {
     }
     globalStateService.setMarkMemoId(propsMemo.id);
   };
+  const markActive = ((_a2 = globalState.markMemoIds) != null ? _a2 : []).includes(propsMemo.id);
   const handleEditMemoClick = () => {
     if (UseButtonToShowEditor && DefaultEditorLocation === "Bottom" && require$$0.Platform.isMobile) {
       const elem = document.querySelector("div[data-type='memos_view'] .view-content .memo-show-editor-button");
@@ -14160,7 +14246,7 @@ const Memo = (props) => {
     }
   }, [propsMemo]);
   const animateShred = () => {
-    var _a2;
+    var _a3;
     const el = memoCardRef.current;
     if (!el) {
       return Promise.resolve();
@@ -14170,7 +14256,7 @@ const Memo = (props) => {
     if (w2 < 8 || h2 < 8) {
       return Promise.resolve();
     }
-    const host = (_a2 = el.offsetParent) != null ? _a2 : el.parentElement;
+    const host = (_a3 = el.offsetParent) != null ? _a3 : el.parentElement;
     if (!host) {
       return Promise.resolve();
     }
@@ -14251,13 +14337,13 @@ const Memo = (props) => {
     }
   }, []);
   const handleMemoContentClick = async (e, m2) => {
-    var _a2;
+    var _a3;
     const targetEl = e.target;
     if (e.ctrlKey || e.metaKey) {
       handleSourceMemoClick(m2);
     }
     if (targetEl.className === "memo-link-text") {
-      const memoId = (_a2 = targetEl.dataset) == null ? void 0 : _a2.value;
+      const memoId = (_a3 = targetEl.dataset) == null ? void 0 : _a3.value;
       const memoTemp = memoService.getMemoByLinkTarget(memoId != null ? memoId : "");
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
@@ -14272,8 +14358,8 @@ const Memo = (props) => {
     memo: propsMemo.content
   };
   const referenced = memoService.getLinkedMemos(propsMemo).sort((a, b) => {
-    var _a2, _b;
-    return ((_a2 = b.createdAt) != null ? _a2 : "").localeCompare((_b = a.createdAt) != null ? _b : "");
+    var _a3, _b;
+    return ((_a3 = b.createdAt) != null ? _a3 : "").localeCompare((_b = a.createdAt) != null ? _b : "");
   });
   const referencedTop = referenced.slice(0, 3);
   return /* @__PURE__ */ jsxs("div", {
@@ -14297,9 +14383,16 @@ const Memo = (props) => {
           onClick: handleToggleTaskClick,
           children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
         }) : null]
-      }), /* @__PURE__ */ jsx("div", {
+      }), /* @__PURE__ */ jsxs("div", {
         className: "memo-top-right-wrapper",
-        children: /* @__PURE__ */ jsxs("div", {
+        children: [/* @__PURE__ */ jsx("span", {
+          className: `reply-button-wrapper ${markActive ? "active" : ""}`,
+          title: markActive ? t$2("Reply to this memo") : t$2("Reply"),
+          onClick: handleMarkMemoClick,
+          children: /* @__PURE__ */ jsx(SvgReply, {
+            className: "icon-img"
+          })
+        }), /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("span", {
             className: "btn more-action-btn",
@@ -14316,10 +14409,6 @@ const Memo = (props) => {
                 className: "btn",
                 onClick: handleShowMemoStoryDialog,
                 children: t$2("READ")
-              }), /* @__PURE__ */ jsx("span", {
-                className: "btn",
-                onClick: handleMarkMemoClick,
-                children: t$2("MARK")
               }), /* @__PURE__ */ jsx("span", {
                 className: "btn",
                 onClick: handleGenMemoImageBtnClick,
@@ -14343,7 +14432,7 @@ const Memo = (props) => {
               })]
             })
           })]
-        })
+        })]
       })]
     }), /* @__PURE__ */ jsx("div", {
       className: "memo-content-text",
@@ -14366,10 +14455,10 @@ const Memo = (props) => {
         className: "memo-ref-count",
         children: [referenced.length, " ", t$2("REFS")]
       }), referencedTop.map((m2) => {
-        var _a2;
+        var _a3;
         return /* @__PURE__ */ jsxs("span", {
           className: "memo-ref-preview",
-          children: [refTimeLabel((_a2 = m2.createdAt) != null ? _a2 : "", m2.path, propsMemo.path), " \xB7 ", refPreview(m2.content, 24)]
+          children: [refTimeLabel((_a3 = m2.createdAt) != null ? _a3 : "", m2.path, propsMemo.path), " \xB7 ", refPreview(m2.content, 24)]
         }, m2.id);
       })]
     })]
@@ -30679,6 +30768,21 @@ function SvgCalendar(props) {
     d: "M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7v-5z"
   }));
 }
+function SvgAt(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "20px",
+    viewBox: "0 0 24 24",
+    width: "20px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.58 1.43-1.3 1.43-.72 0-1.3-.64-1.3-1.43V12c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57V12c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
+  }));
+}
 var showEditorSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgY2xhc3M9Imljb24iIHAtaWQ9IjYxOTQiIHQ9IjE2NDI1NjQ0NTIyMDgiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCI+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTUxMiAzMkMyNDggMzIgMzIgMjQ4IDMyIDUxMnMyMTYgNDgwIDQ4MCA0ODAgNDgwLTIxNiA0ODAtNDgwUzc3NiAzMiA1MTIgMzJ6IiBwLWlkPSI2MTk1Ii8+PHBhdGggZD0iTTUxMiAwQzIyOC44IDAgMCAyMjguOCAwIDUxMnMyMjguOCA1MTIgNTEyIDUxMiA1MTItMjI4LjggNTEyLTUxMlM3OTUuMiAwIDUxMiAweiBtMCA5OTJDMjQ4IDk5MiAzMiA3NzYgMzIgNTEyUzI0OCAzMiA1MTIgMzJzNDgwIDIxNiA0ODAgNDgwLTIxNiA0ODAtNDgwIDQ4MHoiIHAtaWQ9IjYxOTYiLz48cGF0aCBmaWxsPSIjOURFOEY3IiBkPSJNNTEyIDUxMm0tMzkyIDBhMzkyIDM5MiAwIDEgMCA3ODQgMCAzOTIgMzkyIDAgMSAwLTc4NCAwWiIgcC1pZD0iNjE5NyIvPjxwYXRoIGZpbGw9IiMxQTE3MTgiIGQ9Ik03ODQgNDk2SDUyOFYyNDBoLTMydjI1NkgyNDB2MzJoMjU2djI1NmgzMlY1MjhoMjU2eiIgcC1pZD0iNjE5OCIvPjwvc3ZnPg==";
 var fromEntries = function fromEntries2(entries) {
   return entries.reduce(function(acc, _ref) {
@@ -32282,12 +32386,114 @@ const WriteDatePopover = (props) => {
     })]
   });
 };
+const RefMemoPicker = ({
+  anchorEl,
+  selectedIds,
+  onPick,
+  onClose
+}) => {
+  const [query, setQuery] = react.exports.useState("");
+  const [popperEl, setPopperEl] = react.exports.useState(null);
+  const {
+    styles: styles2,
+    attributes
+  } = usePopper(anchorEl, popperEl, {
+    placement: "bottom-start",
+    modifiers: [{
+      name: "flip",
+      options: {
+        fallbackPlacements: ["top-start"]
+      }
+    }, {
+      name: "preventOverflow",
+      options: {
+        padding: 8
+      }
+    }]
+  });
+  react.exports.useEffect(() => {
+    if (!anchorEl)
+      return;
+    const handleMouseDown = (e) => {
+      const target = e.target;
+      if (popperEl && popperEl.contains(target))
+        return;
+      if (anchorEl.contains(target))
+        return;
+      onClose();
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape")
+        onClose();
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [anchorEl, popperEl]);
+  const list = react.exports.useMemo(() => {
+    const q2 = query.trim().toLowerCase();
+    const all = memoService.getState().memos.filter((m2) => !m2.isDeleted && (q2 === "" || m2.content.toLowerCase().includes(q2)));
+    const sorted = [...all].sort((a, b) => {
+      var _a2, _b;
+      const aSel = selectedIds.includes(a.id) ? 1 : 0;
+      const bSel = selectedIds.includes(b.id) ? 1 : 0;
+      if (aSel !== bSel)
+        return bSel - aSel;
+      return ((_a2 = b.createdAt) != null ? _a2 : "").localeCompare((_b = a.createdAt) != null ? _b : "");
+    });
+    return sorted;
+  }, [query, selectedIds]);
+  return /* @__PURE__ */ jsxs("div", {
+    ref: setPopperEl,
+    className: "memo-ref-picker",
+    style: styles2.popper,
+    ...attributes.popper,
+    children: [/* @__PURE__ */ jsx("input", {
+      className: "memo-ref-picker-search",
+      autoFocus: true,
+      placeholder: t$2("Search memos..."),
+      value: query,
+      onChange: (e) => setQuery(e.target.value),
+      onKeyDown: (e) => {
+        if (e.key === "Escape")
+          onClose();
+      }
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "memo-ref-picker-list",
+      children: [list.slice(0, 40).map((m2) => {
+        var _a2;
+        const active = selectedIds.includes(m2.id);
+        return /* @__PURE__ */ jsxs("div", {
+          className: `memo-ref-picker-item ${active ? "active" : ""}`,
+          onClick: () => onPick(m2),
+          children: [/* @__PURE__ */ jsx("span", {
+            className: "time",
+            children: ((_a2 = m2.createdAt) != null ? _a2 : "").slice(2, 16)
+          }), /* @__PURE__ */ jsx("span", {
+            className: "preview",
+            children: refPreview(m2.content, 42)
+          }), active && /* @__PURE__ */ jsx("span", {
+            className: "check",
+            children: "\u2713"
+          })]
+        }, m2.id);
+      }), list.length === 0 && /* @__PURE__ */ jsx("div", {
+        className: "memo-ref-picker-empty",
+        children: t$2("No memos found")
+      })]
+    })]
+  });
+};
 let isList;
 let isEditor = false;
 let isEditorGo = false;
 const SQUASH_TOTAL_MS = 130;
 const SQUASH_LAUNCH_MS = 90;
 const MemoEditor = () => {
+  var _a2, _b;
   const {
     globalState
   } = react.exports.useContext(appContext);
@@ -32316,6 +32522,9 @@ const MemoEditor = () => {
   const [targetDate, setTargetDate, targetDateRef] = dist$1(null);
   const [isWriteDateOpen, setIsWriteDateOpen] = dist$1(false);
   const [calAnchor, setCalAnchor] = dist$1(null);
+  const [isRefPickerOpen, setIsRefPickerOpen] = dist$1(false);
+  const [refPickAnchor, setRefPickAnchor] = dist$1(null);
+  const markMemos = ((_a2 = globalState.markMemoIds) != null ? _a2 : []).map((id2) => memoService.getMemoById(id2)).filter((m2) => !!m2);
   react.exports.useEffect(() => {
     if (!editorRef.current) {
       return;
@@ -32330,7 +32539,7 @@ const MemoEditor = () => {
     isEditor = false;
   }, []);
   react.exports.useEffect(() => {
-    var _a2;
+    var _a3;
     if (!editorRef.current) {
       return;
     }
@@ -32346,11 +32555,11 @@ const MemoEditor = () => {
       toggleEditor(true);
     }
     if (FocusOnEditor2) {
-      (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
+      (_a3 = editorRef.current) == null ? void 0 : _a3.focus();
     }
   }, []);
   react.exports.useEffect(() => {
-    var _a2, _b;
+    var _a3, _b2;
     if (!editorRef.current) {
       return;
     }
@@ -32391,15 +32600,15 @@ const MemoEditor = () => {
           iterations: Infinity
         });
         setTimeout(() => {
-          var _a3, _b2;
+          var _a4, _b3;
           divThis.className = "memo-show-editor-button hidden";
           if (isEditor) {
             handleShowEditor(false);
-            (_a3 = editorRef.current) == null ? void 0 : _a3.focus();
+            (_a4 = editorRef.current) == null ? void 0 : _a4.focus();
             scaleElementAni.reverse();
           } else {
             handleShowEditor();
-            (_b2 = editorRef.current) == null ? void 0 : _b2.focus();
+            (_b3 = editorRef.current) == null ? void 0 : _b3.focus();
             scaleElementAni.reverse();
           }
         }, 300);
@@ -32449,59 +32658,53 @@ const MemoEditor = () => {
     } else if (UseButtonToShowEditor === false && DefaultEditorLocation === "Bottom" && require$$0.Platform.isMobile === true && window.innerWidth < 875) {
       handleShowEditor(false);
       if (FocusOnEditor2) {
-        (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
+        (_a3 = editorRef.current) == null ? void 0 : _a3.focus();
       }
     } else {
       if (!isEditor) {
         handleShowEditor(false);
       }
       if (FocusOnEditor2) {
-        (_b = editorRef.current) == null ? void 0 : _b.focus();
+        (_b2 = editorRef.current) == null ? void 0 : _b2.focus();
       }
     }
   }, []);
   react.exports.useEffect(() => {
-    var _a2, _b, _c, _d, _e;
-    if (globalState.markMemoId) {
-      const editorCurrentValue = (_a2 = editorRef.current) == null ? void 0 : _a2.getContent();
-      const memoLinkText = `${editorCurrentValue ? "\n" : ""}${t$2("MARK")}: [@MEMO](${globalState.markMemoId})`;
-      (_b = editorRef.current) == null ? void 0 : _b.insertText(memoLinkText);
-      globalStateService.setMarkMemoId("");
-    }
+    var _a3, _b2, _c;
     if (globalState.editMemoId && globalState.editMemoId !== prevGlobalStateRef.current.editMemoId) {
       const editMemo = memoService.getMemoById(globalState.editMemoId);
       if (editMemo) {
-        (_d = editorRef.current) == null ? void 0 : _d.setContent((_c = editMemo.content) != null ? _c : "");
-        (_e = editorRef.current) == null ? void 0 : _e.focus();
+        (_b2 = editorRef.current) == null ? void 0 : _b2.setContent((_a3 = editMemo.content) != null ? _a3 : "");
+        (_c = editorRef.current) == null ? void 0 : _c.focus();
       }
     }
     prevGlobalStateRef.current = globalState;
-  }, [globalState.markMemoId, globalState.editMemoId]);
+  }, [globalState.editMemoId]);
   react.exports.useEffect(() => {
-    var _a2;
-    const el = (_a2 = editorRef.current) == null ? void 0 : _a2.contentEl;
+    var _a3;
+    const el = (_a3 = editorRef.current) == null ? void 0 : _a3.contentEl;
     if (!el) {
       return;
     }
     const handlePasteEvent = async (event) => {
-      var _a3;
+      var _a4;
       if (event.clipboardData && event.clipboardData.files.length > 0) {
         event.preventDefault();
         const file = event.clipboardData.files[0];
         const url = await handleUploadFile(file);
         if (url) {
-          (_a3 = editorRef.current) == null ? void 0 : _a3.insertText(url);
+          (_a4 = editorRef.current) == null ? void 0 : _a4.insertText(url);
         }
       }
     };
     const handleDropEvent = async (event) => {
-      var _a3;
+      var _a4;
       if (event.dataTransfer && event.dataTransfer.files.length > 0) {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
         const url = await handleUploadFile(file);
         if (url) {
-          (_a3 = editorRef.current) == null ? void 0 : _a3.insertText(url);
+          (_a4 = editorRef.current) == null ? void 0 : _a4.insertText(url);
         }
       }
     };
@@ -32563,22 +32766,32 @@ const MemoEditor = () => {
     };
   };
   const handleSaveBtnClick = react.exports.useCallback(async (content2) => {
-    var _a2, _b;
-    if (content2 === "") {
+    var _a3, _b2;
+    const {
+      editMemoId,
+      markMemoIds
+    } = globalStateService.getState();
+    content2 = content2.replaceAll("&nbsp;", " ");
+    let refLine = "";
+    if (markMemoIds.length > 0) {
+      refLine = markMemoIds.map((id2) => memoService.getMemoById(id2)).filter((m2) => !!m2).map((m2) => buildRefLink(m2)).join("\n");
+      globalStateService.setMarkMemoId("");
+    }
+    if (content2.trim() === "" && !refLine) {
       new require$$0.Notice(t$2("Content cannot be empty"));
       return;
+    }
+    if (refLine) {
+      content2 = `${refLine}
+${content2.trimStart()}`.trimEnd();
     }
     if (sendingRef.current) {
       return;
     }
-    const {
-      editMemoId
-    } = globalStateService.getState();
-    content2 = content2.replaceAll("&nbsp;", " ");
     const finishSend = () => {
-      var _a3, _b2;
-      (_a3 = editorRef.current) == null ? void 0 : _a3.clear();
-      (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
+      var _a4, _b3;
+      (_a4 = editorRef.current) == null ? void 0 : _a4.clear();
+      (_b3 = editorRef.current) == null ? void 0 : _b3.setEditable(true);
       setEditorContentCache("");
       sendingRef.current = false;
     };
@@ -32601,7 +32814,7 @@ const MemoEditor = () => {
         finishSend();
       } else {
         sendingRef.current = true;
-        (_a2 = editorRef.current) == null ? void 0 : _a2.setEditable(false);
+        (_a3 = editorRef.current) == null ? void 0 : _a3.setEditable(false);
         const target = targetDateRef.current;
         const sendContent = content2.trimStart();
         const squashStart = Date.now();
@@ -32611,22 +32824,25 @@ const MemoEditor = () => {
         window.setTimeout(() => {
           finishSend();
           memoService.pushMemo(newMemo);
-          locationService.clearQuery();
+          const hideRef = appStore.getState().settingsState.settings.HideRefMemosInList;
+          if (!(refLine !== "" && hideRef)) {
+            locationService.clearQuery();
+          }
         }, remaining);
       }
     } catch (error) {
       sendingRef.current = false;
-      (_b = editorRef.current) == null ? void 0 : _b.setEditable(true);
+      (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
       new require$$0.Notice(error.message);
     }
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
-    var _a2, _b, _c;
+    var _a3, _b2, _c;
     globalStateService.setEditMemoId("");
     skipNextFocusRef.current = true;
-    (_a2 = editorRef.current) == null ? void 0 : _a2.setContent("");
+    (_a3 = editorRef.current) == null ? void 0 : _a3.setContent("");
     setEditorContentCache("");
-    (_c = (_b = editorRef.current) == null ? void 0 : _b.contentEl) == null ? void 0 : _c.blur();
+    (_c = (_b2 = editorRef.current) == null ? void 0 : _b2.contentEl) == null ? void 0 : _c.blur();
   }, []);
   const handleContentChange = react.exports.useCallback((content2) => {
     const tempDiv = document.createElement("div");
@@ -32639,12 +32855,12 @@ const MemoEditor = () => {
       return;
     }
     setTimeout(() => {
-      var _a2;
+      var _a3;
       if (skipNextFocusRef.current) {
         skipNextFocusRef.current = false;
         return;
       }
-      (_a2 = editorRef.current) == null ? void 0 : _a2.focus();
+      (_a3 = editorRef.current) == null ? void 0 : _a3.focus();
     });
   }, []);
   const handleChangeStatus = () => {
@@ -32673,8 +32889,8 @@ const MemoEditor = () => {
     }
   };
   const handleTagTextBtnClick = react.exports.useCallback(() => {
-    var _a2;
-    (_a2 = editorRef.current) == null ? void 0 : _a2.toggleHashAtCursor();
+    var _a3;
+    (_a3 = editorRef.current) == null ? void 0 : _a3.toggleHashAtCursor();
   }, []);
   const handleUploadFileBtnClick = react.exports.useCallback(() => {
     const inputEl = document.createElement("input");
@@ -32683,14 +32899,14 @@ const MemoEditor = () => {
     inputEl.multiple = false;
     inputEl.accept = "image/png, image/gif, image/jpeg";
     inputEl.onchange = async () => {
-      var _a2;
+      var _a3;
       if (!inputEl.files || inputEl.files.length === 0) {
         return;
       }
       const file = inputEl.files[0];
       const url = await handleUploadFile(file);
       if (url) {
-        (_a2 = editorRef.current) == null ? void 0 : _a2.insertText(url);
+        (_a3 = editorRef.current) == null ? void 0 : _a3.insertText(url);
       }
       document.body.removeChild(inputEl);
     };
@@ -32738,6 +32954,17 @@ const MemoEditor = () => {
         }), /* @__PURE__ */ jsx(SvgTag, {
           className: "action-btn add-tag",
           onClick: handleTagTextBtnClick
+        }), /* @__PURE__ */ jsx("span", {
+          ref: setRefPickAnchor,
+          className: `memo-ref-pick-anchor ${isRefPickerOpen ? "active" : ""}`,
+          title: t$2("Reference a memo"),
+          children: /* @__PURE__ */ jsx(SvgAt, {
+            className: "action-btn add-ref",
+            onClick: (e) => {
+              e.stopPropagation();
+              setIsRefPickerOpen(!isRefPickerOpen);
+            }
+          })
         }), /* @__PURE__ */ jsx(SvgImage, {
           className: "action-btn file-upload",
           onClick: handleUploadFileBtnClick
@@ -32749,6 +32976,28 @@ const MemoEditor = () => {
           onClick: handleChangeStatus
         })]
       })
+    }), markMemos.length > 0 && /* @__PURE__ */ jsxs("div", {
+      className: "memo-ref-target",
+      children: [/* @__PURE__ */ jsx(SvgReply, {
+        className: "icon-img"
+      }), markMemos.map((mm) => {
+        var _a3;
+        return /* @__PURE__ */ jsxs("span", {
+          className: "ref-chip",
+          children: [/* @__PURE__ */ jsxs("span", {
+            className: "ref-chip-text",
+            children: [((_a3 = mm.createdAt) != null ? _a3 : "").slice(2, 16), " \xB7 ", refPreview(mm.content, 18)]
+          }), /* @__PURE__ */ jsx("span", {
+            className: "ref-chip-clear",
+            title: t$2("Cancel"),
+            onClick: (e) => {
+              e.stopPropagation();
+              globalStateService.setMarkMemoId(mm.id);
+            },
+            children: "\u2715"
+          })]
+        }, mm.id);
+      })]
     }), !showEditStatus && targetDate && /* @__PURE__ */ jsxs("div", {
       className: "memo-write-date-target",
       onClick: toggleWriteDateOpen,
@@ -32766,6 +33015,13 @@ const MemoEditor = () => {
         },
         children: "\u2715"
       })]
+    }), isRefPickerOpen && /* @__PURE__ */ jsx(RefMemoPicker, {
+      anchorEl: refPickAnchor,
+      selectedIds: (_b = globalState.markMemoIds) != null ? _b : [],
+      onPick: (m2) => {
+        globalStateService.setMarkMemoId(m2.id);
+      },
+      onClose: () => setIsRefPickerOpen(false)
     }), isWriteDateOpen && /* @__PURE__ */ jsx(WriteDatePopover, {
       anchorEl: calAnchor,
       value: targetDate,
@@ -33184,7 +33440,7 @@ const MemoList = () => {
   };
   react.exports.useEffect(() => {
     setCurrentPage(1);
-  }, [query, memos.length]);
+  }, [query, shownMemos.length]);
   react.exports.useEffect(() => {
     setTimeout(() => {
       memoService.fetchAllMemos().then(() => {

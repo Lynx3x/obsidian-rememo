@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MEMO_LINK_REG } from '../helpers/consts';
 import { refPreview } from '../helpers/memoLink';
 import utils from '../helpers/utils';
@@ -10,6 +10,7 @@ import '../less/memo-card-dialog.less';
 import { Notice } from 'obsidian';
 import Close from '../icons/close.svg?component';
 import Edit from '../icons/edit.svg?component';
+import DeleteIcon from '../icons/delete.svg?component';
 import { t } from '../translations/helper';
 import MemoImage from './MemoImage';
 
@@ -104,12 +105,41 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
     globalStateService.setEditMemoId(memo.id);
   }, [memo.id]);
 
+  // P3c：浮窗内删除当前 memo（软删 → 回收站）；两击确认（第一击进入确认态，2.5s 自动复位）
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleDeleteMemoClick = useCallback(async () => {
+    if (!showConfirmDelete) {
+      setShowConfirmDelete(true);
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = setTimeout(() => setShowConfirmDelete(false), 2500);
+      return;
+    }
+    try {
+      await memoService.hideMemoById(memo.id, memo.hasId, memo.path);
+      if (globalStateService.getState().editMemoId === memo.id) {
+        globalStateService.setEditMemoId('');
+      }
+      props.destroy();
+    } catch (error: any) {
+      new Notice(error?.message ?? error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memo, showConfirmDelete]);
+
   return (
     <>
       <div className="memo-card-container">
         <div className="header-container">
           <p className="time-text">{memo.createdAtStr}</p>
           <div className="btns-container">
+            <button
+              className={`btn delete-btn ${showConfirmDelete ? 'confirm' : ''}`}
+              title={showConfirmDelete ? t('CONFIRM！') : t('DELETE')}
+              onClick={handleDeleteMemoClick}
+            >
+              <DeleteIcon className="icon-img" />
+            </button>
             <button className="btn edit-btn" onClick={handleEditMemoBtnClick}>
               <Edit className="icon-img" />
             </button>

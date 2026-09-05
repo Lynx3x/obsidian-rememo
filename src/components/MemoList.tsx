@@ -155,8 +155,9 @@ const MemoList: React.FC<Props> = () => {
   };
 
   useEffect(() => {
-    setCurrentPage(1); // 重置页码
-  }, [query, memos.length]);
+    setCurrentPage(1); // 重置页码——仅当"可见列表"变化时（隐藏的引用卡新增不打断当前浏览位置）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, shownMemos.length]);
 
   useEffect(() => {
     setTimeout(() => {

@@ -21,6 +21,7 @@ import '../less/memo.less';
 import { Notice, Platform } from 'obsidian';
 import { showMemoInDailyNotes } from '../obComponents/obShowMemo';
 import More from '../icons/more.svg?component';
+import Reply from '../icons/reply.svg?component';
 import TaskBlank from '../icons/task-blank.svg?component';
 import Task from '../icons/task.svg?component';
 import { t } from '../translations/helper';
@@ -37,6 +38,7 @@ const Memo: React.FC<Props> = (props: Props) => {
   const {
     settingsState: { settings },
   } = useContext(appContext);
+  const { globalState } = useContext(appContext);
   // 从响应式设置读取，替代全局变量
   const { DefaultEditorLocation, UseButtonToShowEditor } = settings;
   const { memo: propsMemo } = props;
@@ -98,6 +100,9 @@ const Memo: React.FC<Props> = (props: Props) => {
 
     globalStateService.setMarkMemoId(propsMemo.id);
   };
+
+  // P3c：本卡是否正被选为回复/引用目标（active 态高亮；多引用可同时多张卡亮）
+  const markActive = (globalState.markMemoIds ?? []).includes(propsMemo.id);
 
   const handleEditMemoClick = () => {
     if (UseButtonToShowEditor && DefaultEditorLocation === 'Bottom' && Platform.isMobile) {
@@ -302,6 +307,13 @@ const Memo: React.FC<Props> = (props: Props) => {
           ) : null}
         </div>
         <div className="memo-top-right-wrapper">
+          <span
+            className={`reply-button-wrapper ${markActive ? 'active' : ''}`}
+            title={markActive ? t('Reply to this memo') : t('Reply')}
+            onClick={handleMarkMemoClick}
+          >
+            <Reply className="icon-img" />
+          </span>
           <div className="btns-container">
             <span className="btn more-action-btn" onClick={handleMoreMenuClick}>
               <More className="icon-img" />
@@ -310,9 +322,6 @@ const Memo: React.FC<Props> = (props: Props) => {
               <div className="more-action-btns-container">
                 <span className="btn" onClick={handleShowMemoStoryDialog}>
                   {t('READ')}
-                </span>
-                <span className="btn" onClick={handleMarkMemoClick}>
-                  {t('MARK')}
                 </span>
                 <span className="btn" onClick={handleGenMemoImageBtnClick}>
                   {t('SHARE')}

@@ -832,6 +832,19 @@ div[data-type='memos_view'].mobile-view .menu-btns-popup {
   height: 18px;
   fill: var(--memo-text-muted);
 }
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn > .icon-img {
+  fill: var(--memo-text-muted);
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn:hover > .icon-img {
+  fill: var(--memo-danger);
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn.confirm {
+  background-color: var(--memo-danger);
+  border-radius: var(--memo-radius-s);
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn.confirm > .icon-img {
+  fill: var(--memo-on-accent, #fff);
+}
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container {
   display: flex;
   flex-direction: column;
@@ -1685,6 +1698,160 @@ div[data-type='memos_view'] svg.action-btn,
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text .tag-span {
   line-height: 26px;
   font-size: 14px;
+}
+[data-type='memos_view'] .memo-wrapper .memo-top-right-wrapper > .reply-button-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 21px;
+  margin-right: 4px;
+  color: var(--memo-text-muted);
+  cursor: pointer;
+  transition: color var(--memo-transition-fast);
+}
+[data-type='memos_view'] .memo-wrapper .memo-top-right-wrapper > .reply-button-wrapper > .icon-img {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+[data-type='memos_view'] .memo-wrapper .memo-top-right-wrapper > .reply-button-wrapper:hover {
+  color: var(--memo-accent);
+}
+[data-type='memos_view'] .memo-wrapper .memo-top-right-wrapper > .reply-button-wrapper.active {
+  color: var(--memo-accent);
+}
+[data-type='memos_view'] .memo-ref-target {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  width: calc(100% - 20px);
+  margin: 0 10px 6px;
+  padding: 4px 10px;
+  border: 1px dashed var(--memo-border);
+  border-radius: var(--memo-radius-s);
+  background: var(--memo-surface-hover);
+  font-size: 12px;
+  color: var(--memo-text-muted);
+}
+[data-type='memos_view'] .memo-ref-target > .icon-img {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  fill: var(--memo-accent);
+}
+[data-type='memos_view'] .memo-ref-target > .ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 1px 6px 1px 8px;
+  border-radius: 999px;
+  background: var(--memo-bg);
+  border: 1px solid var(--memo-border);
+}
+[data-type='memos_view'] .memo-ref-target > .ref-chip > .ref-chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-type='memos_view'] .memo-ref-target > .ref-chip > .ref-chip-clear {
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+[data-type='memos_view'] .memo-ref-target > .ref-chip > .ref-chip-clear:hover {
+  color: var(--memo-text);
+}
+[data-type='memos_view'] .common-tools-container .memo-ref-pick-anchor {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0 2px;
+  border-radius: var(--memo-radius-s);
+  cursor: pointer;
+  color: var(--memo-text-muted);
+  transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast);
+}
+[data-type='memos_view'] .common-tools-container .memo-ref-pick-anchor:hover {
+  background-color: var(--memo-surface-hover);
+  color: var(--memo-accent);
+}
+[data-type='memos_view'] .common-tools-container .memo-ref-pick-anchor.active {
+  color: var(--memo-accent);
+}
+[data-type='memos_view'] .common-tools-container .memo-ref-pick-anchor > svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+[data-type='memos_view'] .memo-ref-picker {
+  z-index: var(--memo-z-popover, 1000);
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  padding: 6px;
+  background: var(--memo-bg);
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-m);
+  box-shadow: var(--memo-shadow-l);
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+  padding: 5px 8px;
+  border-radius: var(--memo-radius-s);
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: var(--memo-radius-s);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--memo-text-muted);
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item > .time {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--memo-text-faint);
+  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item > .preview {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item > .check {
+  flex-shrink: 0;
+  color: var(--memo-accent);
+  font-weight: 700;
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item:hover {
+  background: var(--memo-surface-hover);
+  color: var(--memo-text);
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item.active {
+  color: var(--memo-text);
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-item.active > .time {
+  color: var(--memo-accent);
+}
+[data-type='memos_view'] .memo-ref-picker > .memo-ref-picker-list .memo-ref-picker-empty {
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--memo-text-faint);
 }
 div[data-type='memos_view'] .memo-wrapper {
   display: flex;
@@ -4673,7 +4840,7 @@ div[data-type='memos_view'] .memo-write-date-anchor {
   align-items: center;
   width: 24px;
   height: 24px;
-  margin: 0 4px;
+  margin: 0 2px;
   border-radius: var(--memo-radius-s);
   cursor: pointer;
   color: var(--memo-text-muted);

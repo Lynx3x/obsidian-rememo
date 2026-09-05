@@ -5,13 +5,14 @@ export interface AppSetting {
 }
 
 export interface State extends AppSetting {
-  markMemoId: string;
+  /** P3c 待引用目标集合（可多引用；点击同卡移除、''=清空） */
+  markMemoIds: string[];
   editMemoId: string;
   isMobileView: boolean;
   showSiderbarInMobileView: boolean;
 }
 
-interface SetMarkMemoIdAction {
+interface SetMarkMemoIdsAction {
   type: 'SET_MARK_MEMO_ID';
   payload: {
     markMemoId: string;
@@ -48,19 +49,23 @@ export type Actions =
   | SetMobileViewAction
   | SetShowSidebarAction
   | SetEditMemoIdAction
-  | SetMarkMemoIdAction
+  | SetMarkMemoIdsAction
   | SetAppSettingAction;
 
 export function reducer(state: State, action: Actions) {
   switch (action.type) {
     case 'SET_MARK_MEMO_ID': {
-      if (action.payload.markMemoId === state.markMemoId) {
-        return state;
+      const id = action.payload.markMemoId;
+      if (id === '') {
+        // 清空（发送完成/取消）
+        if (state.markMemoIds.length === 0) return state;
+        return { ...state, markMemoIds: [] };
       }
-
+      // toggle：已选则移除（取消该目标），否则追加（多引用积累）
+      const has = state.markMemoIds.includes(id);
       return {
         ...state,
-        markMemoId: action.payload.markMemoId,
+        markMemoIds: has ? state.markMemoIds.filter((x) => x !== id) : [...state.markMemoIds, id],
       };
     }
     case 'SET_EDIT_MEMO_ID': {
@@ -106,7 +111,7 @@ export function reducer(state: State, action: Actions) {
 }
 
 export const defaultState: State = {
-  markMemoId: '',
+  markMemoIds: [],
   editMemoId: '',
   shouldSplitMemoWord: true,
   shouldHideImageUrl: true,

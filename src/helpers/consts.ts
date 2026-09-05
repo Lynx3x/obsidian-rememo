@@ -54,6 +54,7 @@ export const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?\
 export const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
 
 // memo 关联正则
-export const MEMO_LINK_REG = /\[@(.+?)\]\((.+?)\)/g;
+/** MEMO_LINK：[@标签](目标) 或 [@](目标)（P3 空标签——展示文本渲染时取目标 memo 内容，标签不用存） */
+export const MEMO_LINK_REG = /\[@(.*?)\]\((.+?)\)/g;
 
 // Internal

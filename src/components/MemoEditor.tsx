@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import appContext from '../stores/appContext';
+import appStore from '../stores/appStore';
 import { dailyNotesService, globalStateService, locationService, memoService, resourceService } from '../services';
 import utils from '../helpers/utils';
 import { storage } from '../helpers/storage';
@@ -11,9 +12,13 @@ import ImageSvg from '../icons/image.svg?component';
 import JournalSvg from '../icons/journal.svg?component';
 import TaskSvg from '../icons/checkbox-active.svg?component';
 import CalendarSvg from '../icons/calendar.svg?component';
+import Reply from '../icons/reply.svg?component';
+import AtSvg from '../icons/at.svg?component';
 import showEditorSvg from '../icons/show-editor.svg';
 import useState from 'react-usestateref';
 import WriteDatePopover from './common/WriteDatePopover';
+import RefMemoPicker from './RefMemoPicker';
+import { buildRefLink, refPreview } from '../helpers/memoLink';
 import { moment, Notice, Platform } from 'obsidian';
 import useToggle from '../hooks/useToggle';
 import { MEMOS_VIEW_TYPE } from '../constants';
@@ -52,6 +57,13 @@ const MemoEditor: React.FC<Props> = () => {
   const [targetDate, setTargetDate, targetDateRef] = useState<moment.Moment | null>(null);
   const [isWriteDateOpen, setIsWriteDateOpen] = useState(false);
   const [calAnchor, setCalAnchor] = useState<HTMLElement | null>(null);
+  // P3c @ 引用：选择器浮层锚点/开关；markMemoIds = 待引用目标集（发送时逐目标拼引用行）
+  const [isRefPickerOpen, setIsRefPickerOpen] = useState(false);
+  const [refPickAnchor, setRefPickAnchor] = useState<HTMLElement | null>(null);
+  // P3c 多引用：markMemoIds 全部解析为目标 memo（提示条 chips 展示）
+  const markMemos = (globalState.markMemoIds ?? [])
+    .map((id) => memoService.getMemoById(id))
+    .filter((m): m is Model.Memo => !!m);
 
   useEffect(() => {
     if (!editorRef.current) {
@@ -232,13 +244,6 @@ const MemoEditor: React.FC<Props> = () => {
   }, []);
 
   useEffect(() => {
-    if (globalState.markMemoId) {
-      const editorCurrentValue = editorRef.current?.getContent();
-      const memoLinkText = `${editorCurrentValue ? '\n' : ''}${t('MARK')}: [@MEMO](${globalState.markMemoId})`;
-      editorRef.current?.insertText(memoLinkText);
-      globalStateService.setMarkMemoId('');
-    }
-
     if (globalState.editMemoId && globalState.editMemoId !== prevGlobalStateRef.current.editMemoId) {
       const editMemo = memoService.getMemoById(globalState.editMemoId);
       if (editMemo) {
@@ -249,7 +254,7 @@ const MemoEditor: React.FC<Props> = () => {
     }
 
     prevGlobalStateRef.current = globalState;
-  }, [globalState.markMemoId, globalState.editMemoId]);
+  }, [globalState.editMemoId]);
 
   // 粘贴/拖放图片上传：挂在 cm 内容 DOM 上（内容变化缓存同步已由 cm updateListener
   // → onContentChange 承担，不再需要 click/keydown 轮询——旧实现还因此泄漏监听）
@@ -332,16 +337,30 @@ const MemoEditor: React.FC<Props> = () => {
   };
 
   const handleSaveBtnClick = useCallback(async (content: string) => {
-    if (content === '') {
+    const { editMemoId, markMemoIds } = globalStateService.getState();
+    content = content.replaceAll('&nbsp;', ' ');
+
+    // P3c 引用注入：存在引用目标时，在内容首行拼引用行（每目标一行，空标签 [@](文件#^id)；
+    // 渲染剥除、聚合识别）。清目标只此一处——避免发送成功后残留。
+    let refLine = '';
+    if (markMemoIds.length > 0) {
+      refLine = markMemoIds
+        .map((id) => memoService.getMemoById(id))
+        .filter((m): m is Model.Memo => !!m)
+        .map((m) => buildRefLink(m))
+        .join('\n');
+      globalStateService.setMarkMemoId('');
+    }
+    if (content.trim() === '' && !refLine) {
       new Notice(t('Content cannot be empty'));
       return;
+    }
+    if (refLine) {
+      content = `${refLine}\n${content.trimStart()}`.trimEnd();
     }
     if (sendingRef.current) {
       return;
     }
-
-    const { editMemoId } = globalStateService.getState();
-    content = content.replaceAll('&nbsp;', ' ');
 
     // 清空输入框并解锁：编辑态立即；新建态由"发射"那一刻调用，让文字随卡片一起"起飞"
     const finishSend = () => {
@@ -385,8 +404,12 @@ const MemoEditor: React.FC<Props> = () => {
         window.setTimeout(() => {
           finishSend();
           memoService.pushMemo(newMemo);
-          // memoService.fetchAllMemos();
-          locationService.clearQuery();
+          // 引用卡若被主列表隐藏（HideRefMemosInList），不清筛选/不重置浏览位置——新卡不会出现在列表，
+          // 清查询只会把用户翻页位置弹回顶部却看不到任何变化
+          const hideRef = appStore.getState().settingsState.settings.HideRefMemosInList;
+          if (!(refLine !== '' && hideRef)) {
+            locationService.clearQuery();
+          }
         }, remaining);
       }
     } catch (error: any) {
@@ -535,6 +558,19 @@ const MemoEditor: React.FC<Props> = () => {
             )}
             {/*<img className="action-btn add-tag" src={tag}  />*/}
             <Tag className="action-btn add-tag" onClick={handleTagTextBtnClick} />
+            <span
+              ref={setRefPickAnchor}
+              className={`memo-ref-pick-anchor ${isRefPickerOpen ? 'active' : ''}`}
+              title={t('Reference a memo')}
+            >
+              <AtSvg
+                className="action-btn add-ref"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsRefPickerOpen(!isRefPickerOpen);
+                }}
+              />
+            </span>
             {/*<img className="action-btn file-upload" src={imageSvg} onClick={handleUploadFileBtnClick} />*/}
             <ImageSvg className="action-btn file-upload" onClick={handleUploadFileBtnClick} />
             {/*<img*/}
@@ -551,6 +587,28 @@ const MemoEditor: React.FC<Props> = () => {
           </>
         }
       />
+      {markMemos.length > 0 && (
+        <div className="memo-ref-target">
+          <Reply className="icon-img" />
+          {markMemos.map((mm) => (
+            <span key={mm.id} className="ref-chip">
+              <span className="ref-chip-text">
+                {(mm.createdAt ?? '').slice(2, 16)} · {refPreview(mm.content, 18)}
+              </span>
+              <span
+                className="ref-chip-clear"
+                title={t('Cancel')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  globalStateService.setMarkMemoId(mm.id); // toggle 移除该目标
+                }}
+              >
+                ✕
+              </span>
+            </span>
+          ))}
+        </div>
+      )}
       {!showEditStatus && targetDate && (
         <div className="memo-write-date-target" onClick={toggleWriteDateOpen}>
           <CalendarSvg className="icon-img" />
@@ -568,6 +626,16 @@ const MemoEditor: React.FC<Props> = () => {
             ✕
           </span>
         </div>
+      )}
+      {isRefPickerOpen && (
+        <RefMemoPicker
+          anchorEl={refPickAnchor}
+          selectedIds={globalState.markMemoIds ?? []}
+          onPick={(m) => {
+            globalStateService.setMarkMemoId(m.id); // toggle（再点已选卡 = 取消）；不关浮层便于连续多选
+          }}
+          onClose={() => setIsRefPickerOpen(false)}
+        />
       )}
       {isWriteDateOpen && (
         <WriteDatePopover

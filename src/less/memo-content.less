@@ -226,3 +226,182 @@
     font-size: 14px;
   }
 }
+
+// ---- P3c @ 引用：卡上回复按钮 / 输入框引用提示条 / @ 选择器 ----
+
+// 卡上常驻回复按钮（复刻历史评论按钮观感：独立于三点菜单、21px 行高无底、hover/active 变 accent）
+[data-type='memos_view'] .memo-wrapper .memo-top-right-wrapper > .reply-button-wrapper {
+  .flex(row, center, center);
+  height: 21px;
+  margin-right: 4px;
+  color: var(--memo-text-muted);
+  cursor: pointer;
+  transition: color var(--memo-transition-fast);
+
+  > .icon-img {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  &:hover {
+    color: var(--memo-accent);
+  }
+
+  &.active {
+    color: var(--memo-accent);
+  }
+}
+
+// 输入框引用目标提示条（多引用 = 多 chip；ellipsis 防顶到发送按钮）
+[data-type='memos_view'] .memo-ref-target {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  width: calc(100% - 20px);
+  margin: 0 10px 6px;
+  padding: 4px 10px;
+  border: 1px dashed var(--memo-border);
+  border-radius: var(--memo-radius-s);
+  background: var(--memo-surface-hover);
+  font-size: 12px;
+  color: var(--memo-text-muted);
+
+  > .icon-img {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    fill: var(--memo-accent);
+  }
+
+  > .ref-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 1px 6px 1px 8px;
+    border-radius: 999px;
+    background: var(--memo-bg);
+    border: 1px solid var(--memo-border);
+
+    > .ref-chip-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    > .ref-chip-clear {
+      cursor: pointer;
+      flex-shrink: 0;
+      line-height: 1;
+
+      &:hover {
+        color: var(--memo-text);
+      }
+    }
+  }
+}
+
+// 工具栏 @ 按钮（镜像日历锚点规范：24px 可点区 + 18px 图标、hover 灰底 + accent、active accent）
+[data-type='memos_view'] .common-tools-container .memo-ref-pick-anchor {
+  .flex(row, center, center);
+  width: 24px;
+  height: 24px;
+  margin: 0 2px;
+  border-radius: var(--memo-radius-s);
+  cursor: pointer;
+  color: var(--memo-text-muted);
+  transition: color var(--memo-transition-fast), background-color var(--memo-transition-fast);
+
+  &:hover {
+    background-color: var(--memo-surface-hover);
+    color: var(--memo-accent);
+  }
+
+  &.active {
+    color: var(--memo-accent);
+  }
+
+  > svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+}
+
+// @ 选择器浮层（react-popper 定位；卡式浮层语义）
+[data-type='memos_view'] .memo-ref-picker {
+  z-index: var(--memo-z-popover, 1000);
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  padding: 6px;
+  background: var(--memo-bg);
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-m);
+  box-shadow: var(--memo-shadow-l);
+
+  > .memo-ref-picker-search {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 6px;
+    padding: 5px 8px;
+    border-radius: var(--memo-radius-s);
+  }
+
+  > .memo-ref-picker-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  > .memo-ref-picker-list .memo-ref-picker-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 6px;
+    border-radius: var(--memo-radius-s);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--memo-text-muted);
+
+    > .time {
+      flex-shrink: 0;
+      font-size: 11px;
+      color: var(--memo-text-faint);
+      .mono-font-family();
+    }
+
+    > .preview {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    > .check {
+      flex-shrink: 0;
+      color: var(--memo-accent);
+      font-weight: 700;
+    }
+
+    &:hover {
+      background: var(--memo-surface-hover);
+      color: var(--memo-text);
+    }
+
+    &.active {
+      color: var(--memo-text);
+
+      > .time {
+        color: var(--memo-accent);
+      }
+    }
+  }
+
+  > .memo-ref-picker-list .memo-ref-picker-empty {
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--memo-text-faint);
+  }
+}
