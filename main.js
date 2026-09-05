@@ -14855,7 +14855,7 @@ const RandomMemoDialog = ({
   return /* @__PURE__ */ jsxs("div", {
     className: "random-memo-container",
     children: [/* @__PURE__ */ jsxs("div", {
-      className: "header-container",
+      className: "dialog-header-container",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "title-text",
         children: [/* @__PURE__ */ jsx(SvgCasino, {

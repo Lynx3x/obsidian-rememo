@@ -58,7 +58,7 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
 
   return (
     <div className="random-memo-container">
-      <div className="header-container">
+      <div className="dialog-header-container">
         <p className="title-text">
           <Casino className="icon-img" />
           {t('Random memo')}

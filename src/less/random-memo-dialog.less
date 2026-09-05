@@ -24,10 +24,10 @@
       .flex(column, flex-start, stretch);
       width: 100%;
 
-      > .header-container {
-        .flex(row, space-between, center);
-        width: 100%;
-        padding: 14px 16px 4px;
+      // 头部走 dialog.less 通用 .dialog-header-container（含 close 按钮规范），仅收间距
+      > .dialog-header-container {
+        margin-bottom: 2px;
+        padding: 10px 16px 0;
 
         > .title-text {
           .flex(row, center, center);
@@ -39,25 +39,6 @@
             width: 18px;
             height: auto;
             margin-right: 8px;
-          }
-        }
-
-        > .close-btn {
-          .flex(row, center, center);
-          width: 28px;
-          height: 28px;
-          border-radius: var(--memo-radius-s);
-          color: var(--memo-text-muted);
-          cursor: pointer;
-
-          > .icon-img {
-            width: 18px;
-            height: auto;
-          }
-
-          &:hover {
-            background-color: var(--memo-surface-hover);
-            color: var(--memo-text);
           }
         }
       }

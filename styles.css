@@ -2709,15 +2709,11 @@ div[data-type='memos_view'] svg.action-btn,
   align-items: stretch;
   width: 100%;
 }
-.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .header-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 14px 16px 4px;
+.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .dialog-header-container {
+  margin-bottom: 2px;
+  padding: 10px 16px 0;
 }
-.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .header-container > .title-text {
+.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .dialog-header-container > .title-text {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -2726,29 +2722,10 @@ div[data-type='memos_view'] svg.action-btn,
   font-weight: bold;
   color: var(--memo-text);
 }
-.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .header-container > .title-text > .icon-img {
+.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .dialog-header-container > .title-text > .icon-img {
   width: 18px;
   height: auto;
   margin-right: 8px;
-}
-.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .header-container > .close-btn {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--memo-radius-s);
-  color: var(--memo-text-muted);
-  cursor: pointer;
-}
-.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .header-container > .close-btn > .icon-img {
-  width: 18px;
-  height: auto;
-}
-.dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .header-container > .close-btn:hover {
-  background-color: var(--memo-surface-hover);
-  color: var(--memo-text);
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .random-memo-container > .date-text {
   width: 100%;
@@ -3850,7 +3827,6 @@ div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper > .usage-detail-
   top: 0;
   width: 100%;
   padding: 2px 8px 8px;
-  background-color: var(--memo-canvas);
   z-index: 1;
 }
 .memos-sidebar-nav > .memos-nav-item {
