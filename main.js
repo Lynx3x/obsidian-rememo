@@ -14176,22 +14176,21 @@ const Memo = (props) => {
     onMouseLeave: handleMouseLeaveMemoWrapper,
     children: [isTaskCard && /* @__PURE__ */ jsx("span", {
       className: `memo-task-corner ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
-      "aria-hidden": "true",
-      children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
+      "aria-hidden": "true"
     }), /* @__PURE__ */ jsxs("div", {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("div", {
         className: "memo-top-left-wrapper",
-        children: [isTaskCard ? /* @__PURE__ */ jsx("span", {
+        children: [/* @__PURE__ */ jsx("span", {
+          className: "time-text",
+          onClick: handleShowMemoStoryDialog,
+          children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
+        }), isTaskCard ? /* @__PURE__ */ jsx("span", {
           className: `memo-task-toggle ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
           title: t$1(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
           onClick: handleToggleTaskClick,
           children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
-        }) : null, /* @__PURE__ */ jsx("span", {
-          className: "time-text",
-          onClick: handleShowMemoStoryDialog,
-          children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
-        })]
+        }) : null]
       }), /* @__PURE__ */ jsx("div", {
         className: "memo-top-right-wrapper",
         children: /* @__PURE__ */ jsxs("div", {
@@ -20732,8 +20731,7 @@ const DeletedMemo = (props) => {
     onMouseLeave: handleMouseLeaveMemoWrapper,
     children: [isTaskCard && /* @__PURE__ */ jsx("span", {
       className: `memo-task-corner ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
-      "aria-hidden": "true",
-      children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
+      "aria-hidden": "true"
     }), /* @__PURE__ */ jsxs("div", {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("span", {

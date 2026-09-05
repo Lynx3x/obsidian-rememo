@@ -278,12 +278,13 @@ const Memo: React.FC<Props> = (props: Props) => {
         <span
           className={`memo-task-corner ${propsMemo.memoType === 'TASK-DONE' ? 'done' : ''}`}
           aria-hidden="true"
-        >
-          {propsMemo.memoType === 'TASK-DONE' ? <Task /> : <TaskBlank />}
-        </span>
+        />
       )}
       <div className="memo-top-wrapper">
         <div className="memo-top-left-wrapper">
+          <span className="time-text" onClick={handleShowMemoStoryDialog}>
+            {utils.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== 'HH:mm')}
+          </span>
           {isTaskCard ? (
             <span
               className={`memo-task-toggle ${propsMemo.memoType === 'TASK-DONE' ? 'done' : ''}`}
@@ -293,9 +294,6 @@ const Memo: React.FC<Props> = (props: Props) => {
               {propsMemo.memoType === 'TASK-DONE' ? <Task /> : <TaskBlank />}
             </span>
           ) : null}
-          <span className="time-text" onClick={handleShowMemoStoryDialog}>
-            {utils.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== 'HH:mm')}
-          </span>
         </div>
         <div className="memo-top-right-wrapper">
           <div className="btns-container">

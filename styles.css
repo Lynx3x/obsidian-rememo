@@ -1588,31 +1588,16 @@ div[data-type='memos_view'] .memo-wrapper > .memo-task-corner {
   position: absolute;
   top: 0;
   left: 0;
-  width: 44px;
-  height: 26px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  color: var(--memo-on-accent);
-  background-color: var(--memo-accent);
+  width: 46px;
+  height: 12px;
+  background-color: color-mix(in srgb, var(--memo-accent) 32%, transparent);
   border-top-left-radius: var(--memo-radius-m);
-  border-bottom-right-radius: var(--memo-radius-s);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
   pointer-events: none;
   z-index: 1;
 }
-div[data-type='memos_view'] .memo-wrapper > .memo-task-corner > svg {
-  width: 15px;
-  height: 15px;
-  fill: currentColor;
-}
 div[data-type='memos_view'] .memo-wrapper > .memo-task-corner.done {
-  color: var(--memo-text);
-  background-color: color-mix(in srgb, var(--memo-text) 20%, var(--memo-bg));
-}
-div[data-type='memos_view'] .memo-wrapper.TASK-TODO > .memo-top-wrapper,
-div[data-type='memos_view'] .memo-wrapper.TASK-DONE > .memo-top-wrapper {
-  padding-left: 36px;
+  background-color: color-mix(in srgb, var(--memo-text) 14%, transparent);
 }
 div[data-type='memos_view'] .memo-wrapper.menu-open .more-action-btns-wrapper {
   display: flex;
@@ -1649,7 +1634,7 @@ div[data-type='memos_view'] .memo-wrapper > .memo-top-wrapper > .memo-top-left-w
   justify-content: center;
   width: 26px;
   height: 26px;
-  margin-left: -2px;
+  margin-left: 4px;
   color: var(--memo-text-muted);
   cursor: pointer;
   border-radius: var(--memo-radius-s);

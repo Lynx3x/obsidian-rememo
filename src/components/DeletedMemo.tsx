@@ -7,8 +7,6 @@ import '../less/memo.less';
 import React, { useRef } from 'react';
 import { moment, Notice } from 'obsidian';
 import More from '../icons/more.svg?component';
-import TaskBlank from '../icons/task-blank.svg?component';
-import Task from '../icons/task.svg?component';
 import { t } from '../translations/helper';
 import MemoImage from './MemoImage';
 
@@ -108,9 +106,7 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
         <span
           className={`memo-task-corner ${propsMemo.memoType === 'TASK-DONE' ? 'done' : ''}`}
           aria-hidden="true"
-        >
-          {propsMemo.memoType === 'TASK-DONE' ? <Task /> : <TaskBlank />}
-        </span>
+        />
       )}
       <div className="memo-top-wrapper">
         <span className="time-text">
