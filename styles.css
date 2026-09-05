@@ -3807,9 +3807,11 @@ div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper > .usage-detail-
   align-items: stretch;
   position: sticky;
   top: 0;
-  width: 100%;
-  padding: 2px 8px 8px;
-  background-color: var(--memo-canvas);
+  width: calc(100% - 16px);
+  margin: 0 8px;
+  padding: 4px 0 8px;
+  background-color: var(--memo-bg);
+  border-radius: var(--memo-radius-m);
   z-index: 1;
 }
 .memos-sidebar-nav > .memos-nav-item {

@@ -34,10 +34,12 @@
   .flex(column, flex-start, stretch);
   position: sticky;
   top: 0;
-  width: 100%;
-  padding: 2px 8px 8px;
-  // 滚动遮底：与侧栏 wrapper 自涂同色（var(--memo-canvas)），滚动中不叠字也无可见色块
-  background-color: var(--memo-canvas);
+  width: calc(100% - 16px);
+  margin: 0 8px;
+  padding: 4px 0 8px;
+  // 白色卡片底（--memo-bg）：既是滚动遮底也是视觉容器
+  background-color: var(--memo-bg);
+  border-radius: var(--memo-radius-m);
   z-index: 1;
 
   > .memos-nav-item {
