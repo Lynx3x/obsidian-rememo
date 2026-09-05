@@ -13365,50 +13365,114 @@ var useStateRef = function(initialState) {
   return [state, dispatch, ref];
 };
 var dist = useStateRef;
-const CODE_BLOCK_REG = /```([\s\S]*?)```/g;
 const BOLD_TEXT_REG = /\*\*(.+?)\*\*/g;
 const EM_TEXT_REG = /\*(.+?)\*/g;
-const TODO_BLOCK_REG = /\[ \] /g;
-const DONE_BLOCK_REG = /\[.{1}\] /g;
-const DOT_LI_REG = /^[*-]/g;
-const NUM_LI_REG = /(\d+)\. /g;
+const CODE_INLINE_REG = /(^|[^`])`([^`\n]+?)`([^`]|$)/g;
 const INTERNAL_MD_REG = /\[\[([^\]]+)\]\]/g;
 const EXRERNAL_MD_REG = /\[([^\]]+)\]\((([^\]]+).md)\)/g;
-const parseMarkedToHtml = (markedStr, memoid) => {
-  const htmlText = markedStr.replace(CODE_BLOCK_REG, "<pre lang=''>$1</pre>").replace(DOT_LI_REG, "<span class='counter-block'>\u2022</span>").replace(NUM_LI_REG, "<span class='counter-block'>$1.</span>").replace(TODO_BLOCK_REG, "<span class='todo-block' data-type='todo'>\u2B1C</span>").replace(DONE_BLOCK_REG, "<span class='todo-block' data-type='done'>\u2705</span>").replace(BOLD_TEXT_REG, "<strong>$1</strong>").replace(EM_TEXT_REG, "<em>$1</em>").replace(/&lt;br&gt;/g, "</p><p>").replace(/&amp;/g, "&");
-  let newHtmlText = htmlText;
+const PLACEHOLDER = "\0";
+const encodeHtml = (htmlStr) => {
+  const t2 = document.createElement("div");
+  t2.textContent = htmlStr;
+  return t2.innerHTML;
+};
+function renderMemoContentLines(src) {
+  const text = src.replace(/<br\s*\/?>/gi, "\n").replace(/&lt;br\s*\/?&gt;/gi, "\n");
+  const codeBlocks = [];
+  const masked = text.replace(/```[ \t]*\w*[ \t]*\r?\n?([\s\S]*?)```/g, (m2, code) => {
+    const langMatch = /^```(\w*)/.exec(m2);
+    const lang = langMatch ? langMatch[1] : "";
+    codeBlocks.push(`<pre lang='${lang}'>${encodeHtml(code.replace(/\n+$/, "").replace(/^\n/, ""))}</pre>`);
+    return `${PLACEHOLDER}CODE${codeBlocks.length - 1}${PLACEHOLDER}`;
+  });
+  const out = [];
+  let para = [];
+  const flushPara = () => {
+    if (para.length > 0) {
+      out.push(`<p>${para.map((s) => encodeHtml(s)).join("<br>")}</p>`);
+      para = [];
+    }
+  };
+  const indentWidth = (line) => line.length - line.trimStart().length;
+  for (const line of masked.split("\n")) {
+    const codeIdx = /^ CODE(\d+) $/.exec(line);
+    if (codeIdx) {
+      flushPara();
+      out.push(codeBlocks[+codeIdx[1]]);
+      continue;
+    }
+    if (line.trim() === "") {
+      flushPara();
+      continue;
+    }
+    const t2 = line.trim();
+    const pad = indentWidth(line);
+    const task = /^[-*]\s\[(.)\]\s+/.exec(t2);
+    const bullet = /^[-*]\s+/.exec(t2);
+    const num = /^(\d+)[.)]\s+/.exec(t2);
+    if (task || bullet || num) {
+      flushPara();
+      let prefix;
+      let body;
+      if (task) {
+        const checked = /[xX]/.test(task[1]);
+        prefix = `<span class='todo-block' data-type='${checked ? "done" : "todo"}'>${checked ? "\u2705" : "\u2B1C"}</span>`;
+        body = t2.slice(task[0].length);
+      } else if (bullet) {
+        prefix = "<span class='counter-block'>\u2022</span>";
+        body = t2.slice(bullet[0].length);
+      } else {
+        prefix = `<span class='counter-block'>${num[1]}.</span>`;
+        body = t2.slice(num[0].length);
+      }
+      out.push(`<p class='memo-md-line' style='padding-left:${Math.min(pad * 9, 63)}px'>${prefix} ${encodeHtml(body)}</p>`);
+      continue;
+    }
+    para.push(t2);
+  }
+  flushPara();
+  return out.join("\n");
+}
+const parseMarkedToHtml = (htmlStr, memoid) => {
+  var _a, _b;
+  const pres = [];
+  const masked = htmlStr.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, (m2) => {
+    pres.push(m2);
+    return `${PLACEHOLDER}PRE${pres.length - 1}${PLACEHOLDER}`;
+  });
+  let text = masked.replace(BOLD_TEXT_REG, "<strong>$1</strong>").replace(EM_TEXT_REG, "<em>$1</em>").replace(CODE_INLINE_REG, "$1<code>$2</code>$3").replace(/&amp;/g, "&");
   if (memoid) {
-    if (INTERNAL_MD_REG.test(htmlText)) {
-      const internalMD = htmlText.match(INTERNAL_MD_REG);
-      for (let i = 0; i < internalMD.length; i++) {
-        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(internalMD[i])) {
-          const internalContent = getContentFromInternalLink(internalMD[i]);
+    if (INTERNAL_MD_REG.test(text)) {
+      const internalMD = text.match(INTERNAL_MD_REG);
+      for (let i = 0; i < ((_a = internalMD == null ? void 0 : internalMD.length) != null ? _a : 0); i++) {
+        const raw = internalMD[i];
+        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(raw)) {
+          const internalContent = getContentFromInternalLink(raw);
           if (/\|/g.test(internalContent)) {
             const [link, label2] = internalContent.split("|");
-            const replaceMent = replaceMd(link, label2);
-            newHtmlText = htmlText.replace(internalMD[i], replaceMent);
+            text = text.replace(raw, replaceMd(link, label2));
           } else {
-            const link = internalContent;
-            const label2 = "";
-            const replaceMent = replaceMd(link, label2);
-            newHtmlText = newHtmlText.replace(internalMD[i], replaceMent);
+            text = text.replace(raw, replaceMd(internalContent, ""));
           }
         }
       }
     }
-    if (EXRERNAL_MD_REG.test(htmlText)) {
-      const externalMD = htmlText.match(EXRERNAL_MD_REG);
-      for (let i = 0; i < externalMD.length; i++) {
-        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(externalMD[i])) {
-          const link = getContentFromExternalLink(externalMD[i]);
-          const label2 = getLabelFromExternalLink(externalMD[i]);
-          const replaceMent = replaceMd(link, label2);
-          newHtmlText = htmlText.replace(externalMD[i], replaceMent);
+    if (EXRERNAL_MD_REG.test(text)) {
+      const externalMD = text.match(EXRERNAL_MD_REG);
+      for (let i = 0; i < ((_b = externalMD == null ? void 0 : externalMD.length) != null ? _b : 0); i++) {
+        const raw = externalMD[i];
+        if (!/(jpeg|jpg|gif|png|svg|bmp|webp)/g.test(raw)) {
+          const link = getContentFromExternalLink(raw);
+          const label2 = getLabelFromExternalLink(raw);
+          text = text.replace(raw, replaceMd(link, label2));
         }
       }
     }
   }
-  return newHtmlText;
+  for (let i = 0; i < pres.length; i++) {
+    text = text.replace(`${PLACEHOLDER}PRE${i}${PLACEHOLDER}`, pres[i]);
+  }
+  return text;
 };
 const replaceMd = (internalLink, label2) => {
   const { metadataCache } = appStore.getState().dailyNotesState.app;
@@ -13416,14 +13480,12 @@ const replaceMd = (internalLink, label2) => {
   if (file instanceof require$$0.TFile) {
     if (label2) {
       return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link">${label2}</a>`;
-    } else {
-      return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link">${internalLink}</a>`;
     }
+    return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link">${internalLink}</a>`;
   } else if (label2) {
     return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link is-unresolved">${label2}</a>`;
-  } else {
-    return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link is-unresolved">${internalLink}</a>`;
   }
+  return `<a data-href="${internalLink}" data-type="link" data-filepath="${internalLink}" class="internal-link is-unresolved">${internalLink}</a>`;
 };
 const getContentFromInternalLink = (line) => {
   var _a;
@@ -13443,15 +13505,6 @@ const parseHtmlToRawText = (htmlStr) => {
   tempEl.innerHTML = htmlStr;
   const text = tempEl.innerText;
   return text;
-};
-const parseRawTextToHtml = (rawTextStr) => {
-  const htmlText = rawTextStr.replace(/\n/g, "<br> ");
-  return htmlText;
-};
-const encodeHtml = (htmlStr) => {
-  const t2 = document.createElement("div");
-  t2.textContent = htmlStr;
-  return t2.innerHTML;
 };
 var memoCardDialog = "";
 function SvgEdit(props) {
@@ -14731,14 +14784,11 @@ const Memo = (props) => {
   });
 };
 function formatMemoContent(content, memoid) {
-  content = encodeHtml(content);
-  content = parseRawTextToHtml(content).split("<br>").map((t2) => {
-    return `<p>${t2 !== "" ? t2 : "<br>"}</p>`;
-  }).join("");
   const {
     shouldUseMarkdownParser,
     shouldHideImageUrl
   } = globalStateService.getState();
+  content = renderMemoContentLines(content);
   if (shouldUseMarkdownParser) {
     content = parseMarkedToHtml(content, memoid);
   }

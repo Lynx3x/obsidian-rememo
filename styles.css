@@ -1529,6 +1529,17 @@ div[data-type='memos_view'] svg.action-btn,
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > .memo-md-line,
+[data-type='memos_view'] .daily-memo-wrapper .memo-comment-text > .memo-md-line,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > .memo-md-line {
+  display: block;
+  width: 100%;
+  margin: 0 0 2px;
+  font-size: 15px;
+  line-height: 24px;
+  min-height: 24px;
+  white-space: pre-wrap;
+}
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text .tag-span,
 [data-type='memos_view'] .daily-memo-wrapper .memo-comment-text .tag-span,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text .tag-span {

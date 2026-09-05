@@ -10,7 +10,7 @@ import {
   WIKI_IMAGE_URL_REG,
 } from '../helpers/consts';
 import useState from 'react-usestateref';
-import { encodeHtml, parseMarkedToHtml, parseRawTextToHtml } from '../helpers/marked';
+import { parseMarkedToHtml, renderMemoContentLines } from '../helpers/marked';
 import utils from '../helpers/utils';
 import useToggle from '../hooks/useToggle';
 import { globalStateService, memoService, resourceService } from '../services';
@@ -703,15 +703,10 @@ const Memo: React.FC<Props> = (props: Props) => {
 };
 
 export function formatMemoContent(content: string, memoid?: string) {
-  content = encodeHtml(content);
-  content = parseRawTextToHtml(content)
-    .split('<br>')
-    .map((t) => {
-      return `<p>${t !== '' ? t : '<br>'}</p>`;
-    })
-    .join('');
-
   const { shouldUseMarkdownParser, shouldHideImageUrl } = globalStateService.getState();
+
+  // P1 行式渲染：<br> 旧编码归一 → 段落/列表(嵌套)/任务/代码块结构（内部转义）
+  content = renderMemoContentLines(content);
 
   if (shouldUseMarkdownParser) {
     content = parseMarkedToHtml(content, memoid);
