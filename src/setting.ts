@@ -1,13 +1,13 @@
 import { App, DropdownComponent, PluginSettingTab, Setting } from 'obsidian';
 import type MemosPlugin from './index';
 import memoService from './services/memoService';
+import locationService from './services/locationService';
 import { t } from './translations/helper';
 import { getDailyNotePath } from './helpers/utils';
 
 export interface MemosSettings {
   StartDate: string;
   InsertAfter: string;
-  UserName: string;
   ProcessEntriesBelow: string;
   Language: string;
   ShareFooterStart: string;
@@ -43,11 +43,10 @@ export interface MemosSettings {
 export const DEFAULT_SETTINGS: MemosSettings = {
   StartDate: 'Sunday',
   InsertAfter: '# Journal',
-  UserName: 'MEMO 😉',
   ProcessEntriesBelow: '',
   Language: 'en',
   ShareFooterStart: '{MemosNum} Memos {UsedDay} Day',
-  ShareFooterEnd: '✍️ by {UserName}',
+  ShareFooterEnd: '✍️ Rememo',
   DefaultPrefix: 'List',
   UseDailyOrPeriodic: 'Daily',
   DefaultEditorLocation: 'Top',
@@ -114,19 +113,6 @@ export class MemosSettingTab extends PluginSettingTab {
     // containerEl.createDiv("", (el) => {
     //   el.innerHTML = "Basic Options";
     // });
-
-    new Setting(containerEl)
-      .setName(t('User name in Memos'))
-      .setDesc(t("Set your user name here. 'Memos 😏' By default"))
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.UserName)
-          .setValue(this.plugin.settings.UserName)
-          .onChange(async (value) => {
-            this.plugin.settings.UserName = value;
-            this.applySettingsUpdate();
-          }),
-      );
 
     new Setting(containerEl)
       .setName(t('Insert after heading'))
@@ -406,7 +392,7 @@ export class MemosSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName(t('Share Memos Image Footer End'))
-      .setDesc(t("Set anything you want here, use {UserName} as your username. '✍️ By {UserName}' By default"))
+      .setDesc(t("Set anything you want here. '✍️ Rememo' By default"))
       .addText((text) =>
         text
           .setPlaceholder(DEFAULT_SETTINGS.ShareFooterEnd)
@@ -483,6 +469,19 @@ export class MemosSettingTab extends PluginSettingTab {
             this.plugin.settings.DefaultMemoComposition = value;
             this.applySettingsUpdate();
           }),
+      );
+
+    // 数据工具（ADR-0004：审计入口从小菜单下沉到设置面板）
+    this.containerEl.createEl('h1', { text: t('Data tools') });
+
+    new Setting(containerEl)
+      .setName(t('Data Audit'))
+      .setDesc(t('Open the audit page to inspect and migrate memo data in daily notes.'))
+      .addButton((bt) =>
+        bt.setButtonText(t('Audit data')).onClick(async () => {
+          await this.plugin.openMemos();
+          locationService.pushHistory('/audit');
+        }),
       );
 
     this.containerEl.createEl('h1', { text: t('Say Thank You') });

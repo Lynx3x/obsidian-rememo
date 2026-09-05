@@ -111,7 +111,6 @@ export class Memos extends ItemView {
     appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.plugin.settings } });
 
     InsertAfter = this.plugin.settings.InsertAfter;
-    UserName = this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
     DefaultPrefix = this.plugin.settings.DefaultPrefix;
     DefaultEditorLocation = this.plugin.settings.DefaultEditorLocation;
@@ -119,8 +118,6 @@ export class Memos extends ItemView {
     FocusOnEditor = this.plugin.settings.FocusOnEditor;
     OpenDailyMemosWithMemos = this.plugin.settings.OpenDailyMemosWithMemos;
     HideDoneTasks = this.plugin.settings.HideDoneTasks;
-    ShareFooterStart = this.plugin.settings.ShareFooterStart;
-    ShareFooterEnd = this.plugin.settings.ShareFooterEnd;
     OpenMemosAutomatically = this.plugin.settings.OpenMemosAutomatically;
     // EditorMaxHeight = this.plugin.settings.EditorMaxHeight;
     ShowTime = this.plugin.settings.ShowTime;
@@ -148,7 +145,6 @@ export class Memos extends ItemView {
 }
 
 export let InsertAfter: string;
-export let UserName: string;
 export let ProcessEntriesBelow: string;
 export let DefaultPrefix: string;
 export let DefaultEditorLocation: string;
@@ -156,8 +152,6 @@ export let UseButtonToShowEditor: boolean;
 export let FocusOnEditor: boolean;
 export let OpenDailyMemosWithMemos: boolean;
 export let HideDoneTasks: boolean;
-export let ShareFooterStart: string;
-export let ShareFooterEnd: string;
 export let OpenMemosAutomatically: boolean;
 // export let EditorMaxHeight: string;
 export let ShowTime: boolean;

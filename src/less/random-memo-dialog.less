@@ -1,0 +1,146 @@
+@import './mixin.less';
+@import './theme.less';
+
+// 主按钮（btn-accent 观感：accent 文字 + 淡底 + 描边——UI-STYLE 按钮约定，与 audit-page 同款）
+.btn-accent() {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+  background-image: none;
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+
+  &:hover {
+    color: var(--memo-accent);
+    background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
+  }
+}
+
+// ADR-0004 随机访问浮窗（只读：日期行 + 正文 + 再抽 / 打开当天日记）
+.dialog-wrapper.random-memo-dialog {
+  > .dialog-container {
+    width: 420px;
+    padding: 0;
+
+    > .random-memo-container {
+      .flex(column, flex-start, stretch);
+      width: 100%;
+
+      > .header-container {
+        .flex(row, space-between, center);
+        width: 100%;
+        padding: 14px 16px 4px;
+
+        > .title-text {
+          .flex(row, center, center);
+          font-size: 15px;
+          font-weight: bold;
+          color: var(--memo-text);
+
+          > .icon-img {
+            width: 18px;
+            height: auto;
+            margin-right: 8px;
+          }
+        }
+
+        > .close-btn {
+          .flex(row, center, center);
+          width: 28px;
+          height: 28px;
+          border-radius: var(--memo-radius-s);
+          color: var(--memo-text-muted);
+          cursor: pointer;
+
+          > .icon-img {
+            width: 18px;
+            height: auto;
+          }
+
+          &:hover {
+            background-color: var(--memo-surface-hover);
+            color: var(--memo-text);
+          }
+        }
+      }
+
+      > .date-text {
+        width: 100%;
+        padding: 2px 16px 6px;
+        font-size: 12px;
+        color: var(--memo-text-muted);
+        .mono-font-family();
+      }
+
+      > .memo-container {
+        .flex(column, flex-start, flex-start);
+        width: 100%;
+        max-height: 44vh;
+        padding: 4px 16px 14px;
+        overflow-y: auto;
+        .pretty-scroll-bar(0, 6px);
+
+        > .memo-content-text {
+          width: 100%;
+          font-size: 15px;
+          line-height: 1.6;
+          color: var(--memo-text);
+          word-wrap: break-word;
+          word-break: break-all;
+
+          .tag-span {
+            margin: 0;
+            padding: 0 4px;
+            font-size: 14px;
+            color: var(--memo-link);
+            background-color: unset;
+            cursor: unset;
+          }
+        }
+
+        > .images-wrapper {
+          width: 100%;
+          max-width: 100%;
+          margin-top: 2px;
+        }
+      }
+
+      > .btns-container {
+        .flex(row, flex-end, center);
+        gap: 10px;
+        width: 100%;
+        padding: 12px 16px 14px;
+        border-top: 1px solid var(--memo-border);
+
+        > .btn {
+          .flex(row, center, center);
+          height: 32px;
+          padding: 0 16px;
+          border-radius: var(--memo-radius-m);
+          font-size: 13px;
+          cursor: pointer;
+          transition: background-color var(--memo-transition-fast);
+
+          > .icon-img {
+            width: 16px;
+            height: auto;
+            margin-right: 6px;
+          }
+        }
+
+        > .random-btn {
+          color: var(--memo-text);
+          background-color: transparent;
+          border: 1px solid var(--memo-border);
+          background-image: none;
+
+          &:hover {
+            background-color: var(--memo-surface-hover);
+          }
+        }
+
+        > .diary-btn {
+          .btn-accent();
+        }
+      }
+    }
+  }
+}

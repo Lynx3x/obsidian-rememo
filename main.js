@@ -7804,7 +7804,7 @@ var en = {
   "Share Memos Image Footer Start": "Share Memos Image Footer Start",
   "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default",
   "Share Memos Image Footer End": "Share Memos Image Footer End",
-  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default",
+  "Set anything you want here. '\u270D\uFE0F Rememo' By default": "Set anything you want here. '\u270D\uFE0F Rememo' By default",
   "Save Shared Image To Folder For Mobile": "Save Shared Image To Folder For Mobile",
   "Save image to folder for mobile. False by Default": "Save image to folder for mobile. False by Default",
   "Say Thank You": "Say Thank You",
@@ -7891,6 +7891,14 @@ var en = {
   "Write to date": "Write to date",
   "Write on": "Write on",
   "Back to now": "Back to now",
+  Home: "Home",
+  "Random memo": "Random memo",
+  "Data tools": "Data tools",
+  "Data Audit": "Data Audit",
+  "Open the audit page to inspect and migrate memo data in daily notes.": "Open the audit page to inspect and migrate memo data in daily notes.",
+  "Draw another": "Draw another",
+  "Open the daily note": "Open the daily note",
+  "No memo found": "No memo found",
   Today: "Today",
   Time: "Time",
   "LINK TO THE": "LINK TO THE",
@@ -8600,6 +8608,14 @@ var zhCN = {
   "Write to date": "\u8BBE\u7F6E\u5199\u5165\u65E5\u671F",
   "Write on": "\u5199\u5165",
   "Back to now": "\u6062\u590D\u73B0\u5728",
+  Home: "\u4E3B\u9875",
+  "Random memo": "\u968F\u673A\u8BBF\u95EE",
+  "Draw another": "\u518D\u62BD\u4E00\u5F20",
+  "Open the daily note": "\u6253\u5F00\u5F53\u5929\u65E5\u8BB0",
+  "No memo found": "\u6CA1\u6709\u627E\u5230 memo",
+  "Data tools": "\u6570\u636E\u5DE5\u5177",
+  "Data Audit": "\u6570\u636E\u5BA1\u8BA1",
+  "Open the audit page to inspect and migrate memo data in daily notes.": "\u6253\u5F00\u5BA1\u8BA1\u9875\u68C0\u67E5\u4E0E\u8FC1\u79FB\u65E5\u8BB0\u4E2D\u7684 memo \u6570\u636E\u3002",
   Today: "\u4ECA\u5929",
   Time: "\u65F6\u95F4",
   "LINK TO THE": "\u94FE\u63A5\u5230",
@@ -10636,265 +10652,6 @@ const getExt = (line) => {
   return (_a2 = /^image\/(.+)$/.exec(line)) == null ? void 0 : _a2[1];
 };
 const resourceService = new ResourceService();
-var dialog = "";
-const BaseDialog = (props) => {
-  const {
-    children,
-    className,
-    clickSpaceDestroy,
-    destroy
-  } = props;
-  const handleSpaceClicked = () => {
-    if (clickSpaceDestroy) {
-      destroy();
-    }
-  };
-  const handleEscClicked = (e) => {
-    const {
-      key
-    } = e;
-    if (key === "Escape") {
-      destroy();
-    }
-  };
-  return /* @__PURE__ */ jsx("div", {
-    className: `dialog-wrapper ${className}`,
-    onClick: handleSpaceClicked,
-    onKeyPress: handleEscClicked,
-    children: /* @__PURE__ */ jsx("div", {
-      className: "dialog-container",
-      onClick: (e) => e.stopPropagation(),
-      children
-    })
-  });
-};
-function showDialog(config, DialogComponent, props) {
-  const tempDiv = document.createElement("div");
-  document.body.append(tempDiv);
-  setTimeout(() => {
-    var _a2;
-    (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.add("showup");
-  }, 0);
-  const cbs = {
-    destroy: () => {
-      var _a2, _b;
-      (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.remove("showup");
-      (_b = tempDiv.firstElementChild) == null ? void 0 : _b.classList.add("showoff");
-      setTimeout(() => {
-        tempDiv.remove();
-        ReactDOM.unmountComponentAtNode(tempDiv);
-      }, ANIMATION_DURATION);
-    }
-  };
-  const dialogProps = {
-    ...props,
-    destroy: cbs.destroy
-  };
-  let Fragment2 = /* @__PURE__ */ jsx(BaseDialog, {
-    destroy: cbs.destroy,
-    clickSpaceDestroy: true,
-    ...config,
-    children: /* @__PURE__ */ jsx(DialogComponent, {
-      ...dialogProps
-    })
-  });
-  if (config.useAppContext) {
-    Fragment2 = /* @__PURE__ */ jsx(Provider, {
-      store: appStore,
-      context: appContext,
-      children: Fragment2
-    });
-  }
-  ReactDOM.render(Fragment2, tempDiv);
-  return cbs;
-}
-var aboutSiteDialog = "";
-function SvgClose(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: 24,
-    height: 24,
-    fill: "#37352f",
-    viewBox: "0 0 24 24",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    fill: "none",
-    d: "M0 0h24v24H0V0z"
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
-  }));
-}
-const AboutSiteDialog = ({
-  destroy
-}) => {
-  const handleCloseBtnClick = () => {
-    destroy();
-  };
-  return /* @__PURE__ */ jsxs(Fragment, {
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "dialog-header-container",
-      children: [/* @__PURE__ */ jsxs("p", {
-        className: "title-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "icon-text",
-          children: "\u{1F920}"
-        }), "About ", /* @__PURE__ */ jsx("b", {
-          children: "Rememo"
-        })]
-      }), /* @__PURE__ */ jsx("button", {
-        className: "btn close-btn",
-        onClick: handleCloseBtnClick,
-        children: /* @__PURE__ */ jsx(SvgClose, {
-          className: "icon-img"
-        })
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
-      className: "dialog-content-container",
-      children: ["Hi, I am Quorafind(Boninall), if you are interested in this project, please support my work and enthusiasm by buying me a coffee on ", /* @__PURE__ */ jsx("a", {
-        href: "https://www.buymeacoffee.com/boninall",
-        children: "https://www.buymeacoffee.com/boninall"
-      }), /* @__PURE__ */ jsx("a", {
-        href: "https://www.buymeacoffee.com/boninall",
-        children: /* @__PURE__ */ jsx("img", {
-          src: `https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=boninall&button_colour=6495ED&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00`
-        })
-      }), /* @__PURE__ */ jsx("br", {}), /* @__PURE__ */ jsxs("p", {
-        children: ["\u57FA\u4E8E ", /* @__PURE__ */ jsx("a", {
-          href: "https://github.com/justmemos/memos",
-          children: "memos"
-        }), " \u5F00\u6E90\u9879\u76EE\u6240\u6784\u5EFA\u7684\u9879\u76EE\u3002 NOTE: Based on", " ", /* @__PURE__ */ jsx("a", {
-          href: "https://github.com/justmemos/memos",
-          children: "memos"
-        }), " project to build."]
-      }), /* @__PURE__ */ jsx("br", {}), /* @__PURE__ */ jsxs("p", {
-        children: ["\u{1F3D7} This project is working in progress, ", /* @__PURE__ */ jsx("br", {}), " and very pleasure to welcome your", " ", /* @__PURE__ */ jsx("a", {
-          href: "https://github.com/Quorafind/obsidian-memos/issues",
-          children: "issues"
-        }), " and", " ", /* @__PURE__ */ jsx("a", {
-          href: "https://github.com/Quorafind/obsidian-memos/pulls",
-          children: "Pull Request"
-        }), "."]
-      }), /* @__PURE__ */ jsx("hr", {}), /* @__PURE__ */ jsxs("p", {
-        className: "normal-text",
-        children: ["Last updated on ", /* @__PURE__ */ jsx("span", {
-          className: "pre-text",
-          children: "2022/01/04 22:55:15"
-        }), " \u{1F389}"]
-      })]
-    })]
-  });
-};
-function showAboutSiteDialog() {
-  showDialog({
-    className: "about-site-dialog"
-  }, AboutSiteDialog);
-}
-var menuBtnsPopup = "";
-const MenuBtnsPopup = (props) => {
-  const {
-    shownStatus,
-    setShownStatus
-  } = props;
-  const {
-    app: app2
-  } = dailyNotesService.getState();
-  const popupElRef = react.exports.useRef(null);
-  react.exports.useEffect(() => {
-    if (shownStatus) {
-      const handleClickOutside = (event) => {
-        var _a2;
-        if (!((_a2 = popupElRef.current) == null ? void 0 : _a2.contains(event.target))) {
-          event.stopPropagation();
-        }
-        setShownStatus(false);
-      };
-      window.addEventListener("click", handleClickOutside, {
-        capture: true,
-        once: true
-      });
-    }
-  }, [shownStatus]);
-  const handleUploadFile = react.exports.useCallback(async (file) => {
-    const {
-      type
-    } = file;
-    if (!type.startsWith("text")) {
-      return;
-    }
-    try {
-      const image2 = await resourceService.parseHtml(file);
-      return `${image2}`;
-    } catch (error) {
-      new require$$0.Notice(error);
-    }
-  }, []);
-  const handleImportBtnClick = react.exports.useCallback(() => {
-    const inputEl = document.createElement("input");
-    document.body.appendChild(inputEl);
-    inputEl.type = "file";
-    inputEl.multiple = false;
-    inputEl.accept = "text/html";
-    inputEl.onchange = async () => {
-      if (!inputEl.files || inputEl.files.length === 0) {
-        return;
-      }
-      const file = inputEl.files[0];
-      await handleUploadFile(file);
-      document.body.removeChild(inputEl);
-    };
-    inputEl.click();
-  }, []);
-  const handleMyAccountBtnClick = () => {
-    app2.setting.open();
-    app2.setting.openTabById("obsidian-memos");
-  };
-  const handleMemosTrashBtnClick = () => {
-    locationService.pushHistory("/recycle");
-  };
-  const handleAboutBtnClick = () => {
-    showAboutSiteDialog();
-  };
-  return /* @__PURE__ */ jsxs("div", {
-    className: `menu-btns-popup ${shownStatus ? "" : "hidden"}`,
-    ref: popupElRef,
-    children: [/* @__PURE__ */ jsxs("button", {
-      className: "btn action-btn",
-      onClick: handleMyAccountBtnClick,
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "icon",
-        children: "\u{1F464}"
-      }), " ", t$2("Settings")]
-    }), /* @__PURE__ */ jsxs("button", {
-      className: "btn action-btn",
-      onClick: handleMemosTrashBtnClick,
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "icon",
-        children: "\u{1F5D1}\uFE0F"
-      }), " ", t$2("Recycle bin")]
-    }), /* @__PURE__ */ jsxs("button", {
-      className: "btn action-btn",
-      onClick: () => locationService.pushHistory("/audit"),
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "icon",
-        children: "\u{1FA7A}"
-      }), " ", t$2("Audit data")]
-    }), /* @__PURE__ */ jsxs("button", {
-      className: "btn action-btn",
-      onClick: handleImportBtnClick,
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "icon",
-        children: "\u{1F4C2}"
-      }), " ", t$2("Import")]
-    }), /* @__PURE__ */ jsxs("button", {
-      className: "btn action-btn",
-      onClick: handleAboutBtnClick,
-      children: [/* @__PURE__ */ jsx("span", {
-        className: "icon",
-        children: "\u{1F920}"
-      }), " ", t$2("About Me")]
-    })]
-  });
-};
 const cachedResourceMap = /* @__PURE__ */ new Map();
 const convertResourceToDataURL = async (url, useCache = true) => {
   const { vault } = dailyNotesService.getState().app;
@@ -11119,6 +10876,78 @@ function useLoading(initialState = true) {
       });
     }
   };
+}
+var dialog = "";
+const BaseDialog = (props) => {
+  const {
+    children,
+    className,
+    clickSpaceDestroy,
+    destroy
+  } = props;
+  const handleSpaceClicked = () => {
+    if (clickSpaceDestroy) {
+      destroy();
+    }
+  };
+  const handleEscClicked = (e) => {
+    const {
+      key
+    } = e;
+    if (key === "Escape") {
+      destroy();
+    }
+  };
+  return /* @__PURE__ */ jsx("div", {
+    className: `dialog-wrapper ${className}`,
+    onClick: handleSpaceClicked,
+    onKeyPress: handleEscClicked,
+    children: /* @__PURE__ */ jsx("div", {
+      className: "dialog-container",
+      onClick: (e) => e.stopPropagation(),
+      children
+    })
+  });
+};
+function showDialog(config, DialogComponent, props) {
+  const tempDiv = document.createElement("div");
+  document.body.append(tempDiv);
+  setTimeout(() => {
+    var _a2;
+    (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.add("showup");
+  }, 0);
+  const cbs = {
+    destroy: () => {
+      var _a2, _b;
+      (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.remove("showup");
+      (_b = tempDiv.firstElementChild) == null ? void 0 : _b.classList.add("showoff");
+      setTimeout(() => {
+        tempDiv.remove();
+        ReactDOM.unmountComponentAtNode(tempDiv);
+      }, ANIMATION_DURATION);
+    }
+  };
+  const dialogProps = {
+    ...props,
+    destroy: cbs.destroy
+  };
+  let Fragment2 = /* @__PURE__ */ jsx(BaseDialog, {
+    destroy: cbs.destroy,
+    clickSpaceDestroy: true,
+    ...config,
+    children: /* @__PURE__ */ jsx(DialogComponent, {
+      ...dialogProps
+    })
+  });
+  if (config.useAppContext) {
+    Fragment2 = /* @__PURE__ */ jsx(Provider, {
+      store: appStore,
+      context: appContext,
+      children: Fragment2
+    });
+  }
+  ReactDOM.render(Fragment2, tempDiv);
+  return cbs;
 }
 const MODULE_CAROUSEL = "carousel";
 const MODULE_CONTROLLER = "controller";
@@ -13455,6 +13284,21 @@ const getContentFromExternalLink = (line) => {
   return (_a2 = /\[([^\]]+)\]\((([^\]]+).md)\)/g.exec(line)) == null ? void 0 : _a2[3];
 };
 var memoCardDialog = "";
+function SvgClose(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: 24,
+    height: 24,
+    fill: "#37352f",
+    viewBox: "0 0 24 24",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    fill: "none",
+    d: "M0 0h24v24H0V0z"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
+  }));
+}
 function SvgEdit(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -13814,8 +13658,7 @@ const ShareMemoImageDialog = (props) => {
     DefaultDarkBackgroundImage,
     DefaultLightBackgroundImage,
     ShareFooterEnd,
-    ShareFooterStart,
-    UserName
+    ShareFooterStart
   } = settings;
   let memosLength;
   let createdDays;
@@ -13827,7 +13670,7 @@ const ShareMemoImageDialog = (props) => {
     ...propsMemo,
     createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt)
   };
-  const footerEnd = ShareFooterEnd.replace("{UserName}", UserName);
+  const footerEnd = ShareFooterEnd.replace("{UserName}", "");
   const footerStart = ShareFooterStart.replace("{MemosNum}", memos.length.toString()).replace("{UsedDay}", createdDays.toString());
   const {
     app: app2
@@ -14891,51 +14734,15 @@ const UserBanner = () => {
     memoState: {
       memos,
       tags: tags2
-    },
-    userState: {
-      user
-    },
-    settingsState: {
-      settings
     }
   } = react.exports.useContext(appContext);
-  const username = user ? user.username : settings.UserName;
-  let memosLength;
   let createdDays;
   if (memos.length) {
-    memosLength = memos.length - 1;
-    createdDays = memos ? Math.ceil((Date.now() - utils$1.getTimeStampByDate(memos[memosLength].createdAt)) / 1e3 / 3600 / 24) + 1 : 0;
+    createdDays = Math.ceil((Date.now() - utils$1.getTimeStampByDate(memos[memos.length - 1].createdAt)) / 1e3 / 3600 / 24) + 1;
   }
-  const [shouldShowPopupBtns, setShouldShowPopupBtns] = react.exports.useState(false);
-  const handleUsernameClick = react.exports.useCallback(() => {
-    locationService.pushHistory("/");
-    locationService.clearQuery();
-  }, []);
-  const handlePopupBtnClick = () => {
-    const sidebarEl = document.querySelector(".memos-sidebar-wrapper");
-    const popupEl = document.querySelector(".menu-btns-popup");
-    popupEl.style.top = 70 - sidebarEl.scrollTop + "px";
-    setShouldShowPopupBtns(true);
-  };
-  return /* @__PURE__ */ jsxs("div", {
+  return /* @__PURE__ */ jsx("div", {
     className: "user-banner-container",
-    children: [/* @__PURE__ */ jsxs("div", {
-      className: "userinfo-header-container",
-      children: [/* @__PURE__ */ jsx("p", {
-        className: "username-text",
-        onClick: handleUsernameClick,
-        children: username
-      }), /* @__PURE__ */ jsx("span", {
-        className: "action-btn menu-popup-btn",
-        onClick: handlePopupBtnClick,
-        children: /* @__PURE__ */ jsx(SvgMore, {
-          className: "icon-img"
-        })
-      }), /* @__PURE__ */ jsx(MenuBtnsPopup, {
-        shownStatus: shouldShowPopupBtns,
-        setShownStatus: setShouldShowPopupBtns
-      })]
-    }), /* @__PURE__ */ jsxs("div", {
+    children: /* @__PURE__ */ jsxs("div", {
       className: "status-text-container",
       children: [/* @__PURE__ */ jsxs("div", {
         className: "status-text memos-text",
@@ -14965,6 +14772,230 @@ const UserBanner = () => {
           className: "type-text",
           children: t$2("DAY")
         })]
+      })]
+    })
+  });
+};
+var randomMemoDialog = "";
+function SvgCasino(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "20px",
+    viewBox: "0 0 24 24",
+    width: "20px",
+    fill: "currentColor",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+  }));
+}
+function SvgJournal(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    t: 1642406967115,
+    className: "icon",
+    viewBox: "0 0 1024 1024",
+    xmlns: "http://www.w3.org/2000/svg",
+    "p-id": 1652,
+    width: 26,
+    height: 26,
+    fill: "#1296db",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M544 800.128l-320 0.16-0.064-96.32-0.064-160-0.032-64-0.096-160-0.032-96h576.128L800 223.776 800.256 800 544 800.128zM799.84 160H223.712A63.808 63.808 0 0 0 160 223.744v576.544c0 35.136 28.608 63.68 63.744 63.68h576.512A63.808 63.808 0 0 0 864 800.32V223.744A64 64 0 0 0 799.84 160z",
+    "p-id": 1653
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M680.608 320h-224a32 32 0 0 0 0 64h224a32 32 0 0 0 0-64M680.608 480h-224a32 32 0 0 0 0 64h224a32 32 0 0 0 0-64M680.608 640h-224a32 32 0 0 0 0 64h224a32 32 0 0 0 0-64M352 320a32 32 0 1 0 0 64 32 32 0 0 0 0-64M352 480a32 32 0 1 0 0 64 32 32 0 0 0 0-64M352 640a32 32 0 1 0 0 64 32 32 0 0 0 0-64",
+    "p-id": 1654
+  }));
+}
+const RandomMemoDialog = ({
+  destroy
+}) => {
+  const [memo2, setMemo] = react.exports.useState(null);
+  const lastIdRef = react.exports.useRef("");
+  const showSeconds = appStore.getState().settingsState.settings.TimeFormat !== "HH:mm";
+  const pickRandom = react.exports.useCallback(() => {
+    const {
+      memos
+    } = appStore.getState().memoState;
+    const hideRef = appStore.getState().settingsState.settings.HideRefMemosInList;
+    const pool = memos.filter((m2) => !m2.linkId && !m2.isDeleted && !(hideRef && hasMemoReferences(m2.content)));
+    if (pool.length === 0) {
+      new require$$0.Notice(t$2("No memo found"));
+      return;
+    }
+    let pick = pool[Math.floor(Math.random() * pool.length)];
+    if (pool.length > 1 && pick.id === lastIdRef.current) {
+      for (let i2 = 0; i2 < 5 && pick.id === lastIdRef.current; i2++) {
+        pick = pool[Math.floor(Math.random() * pool.length)];
+      }
+    }
+    lastIdRef.current = pick.id;
+    setMemo(pick);
+  }, []);
+  react.exports.useEffect(() => {
+    pickRandom();
+  }, []);
+  const handleOpenDiary = react.exports.useCallback(async () => {
+    if (!memo2)
+      return;
+    const {
+      app: app2
+    } = dailyNotesService.getState();
+    const file = app2.vault.getAbstractFileByPath(memo2.path);
+    if (file instanceof require$$0.TFile) {
+      const leaf = app2.workspace.getLeaf(false);
+      await leaf.openFile(file, {
+        active: true
+      });
+    } else {
+      new require$$0.Notice("MEMO Not Found");
+    }
+  }, [memo2]);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "random-memo-container",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "header-container",
+      children: [/* @__PURE__ */ jsxs("p", {
+        className: "title-text",
+        children: [/* @__PURE__ */ jsx(SvgCasino, {
+          className: "icon-img"
+        }), t$2("Random memo")]
+      }), /* @__PURE__ */ jsx("button", {
+        className: "btn close-btn",
+        onClick: destroy,
+        children: /* @__PURE__ */ jsx(SvgClose, {
+          className: "icon-img"
+        })
+      })]
+    }), memo2 ? /* @__PURE__ */ jsxs(Fragment, {
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "date-text",
+        children: [utils$1.getDateString(memo2.createdAt), " \xB7 ", utils$1.getDateTimeString(memo2.createdAt, showSeconds)]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "memo-container",
+        children: [/* @__PURE__ */ jsx("div", {
+          className: "memo-content-text",
+          dangerouslySetInnerHTML: {
+            __html: formatMemoContent(memo2.content)
+          }
+        }), /* @__PURE__ */ jsx(MemoImage, {
+          memo: memo2.content
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "btns-container",
+        children: [/* @__PURE__ */ jsxs("button", {
+          className: "btn random-btn",
+          onClick: pickRandom,
+          children: [/* @__PURE__ */ jsx(SvgCasino, {
+            className: "icon-img"
+          }), t$2("Draw another")]
+        }), /* @__PURE__ */ jsxs("button", {
+          className: "btn diary-btn",
+          onClick: handleOpenDiary,
+          children: [/* @__PURE__ */ jsx(SvgJournal, {
+            className: "icon-img"
+          }), t$2("Open the daily note")]
+        })]
+      })]
+    }) : null]
+  });
+};
+function showRandomMemoDialog() {
+  showDialog({
+    className: "random-memo-dialog"
+  }, RandomMemoDialog);
+}
+function SvgHome(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "20px",
+    viewBox: "0 0 24 24",
+    width: "20px",
+    fill: "currentColor",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"
+  }));
+}
+function SvgSettings(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "20px",
+    viewBox: "0 0 24 24",
+    width: "20px",
+    fill: "currentColor",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+  }));
+}
+const SidebarNav = () => {
+  const {
+    locationState: {
+      pathname
+    }
+  } = react.exports.useContext(appContext);
+  const onHome = pathname === "/" || pathname === "/homeboard";
+  const onRecycle = pathname === "/recycle";
+  const handleHomeClick = react.exports.useCallback(() => {
+    locationService.pushHistory("/");
+    locationService.clearQuery();
+  }, []);
+  const handleRecycleClick = react.exports.useCallback(() => {
+    locationService.pushHistory("/recycle");
+  }, []);
+  const handleSettingsClick = react.exports.useCallback(() => {
+    const {
+      app: app2
+    } = dailyNotesService.getState();
+    app2.setting.open();
+    app2.setting.openTabById("rememo");
+  }, []);
+  const handleRandomClick = react.exports.useCallback(() => {
+    showRandomMemoDialog();
+  }, []);
+  return /* @__PURE__ */ jsxs("div", {
+    className: "memos-sidebar-nav",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: `memos-nav-item${onHome ? " active" : ""}`,
+      onClick: handleHomeClick,
+      title: t$2("Home"),
+      children: [/* @__PURE__ */ jsx(SvgHome, {
+        className: "icon-img"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "nav-text",
+        children: t$2("Home")
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: `memos-nav-item${onRecycle ? " active" : ""}`,
+      onClick: handleRecycleClick,
+      title: t$2("Recycle bin"),
+      children: [/* @__PURE__ */ jsx(SvgDelete, {
+        className: "icon-img"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "nav-text",
+        children: t$2("Recycle bin")
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "memos-nav-item",
+      onClick: handleSettingsClick,
+      title: t$2("Settings"),
+      children: [/* @__PURE__ */ jsx(SvgSettings, {
+        className: "icon-img"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "nav-text",
+        children: t$2("Settings")
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "memos-nav-item action",
+      onClick: handleRandomClick,
+      title: t$2("Random memo"),
+      children: [/* @__PURE__ */ jsx(SvgCasino, {
+        className: "icon-img"
+      }), /* @__PURE__ */ jsx("span", {
+        className: "nav-text",
+        children: t$2("Random memo")
       })]
     })]
   });
@@ -16059,7 +16090,7 @@ const Sidebar = () => {
   return /* @__PURE__ */ jsxs("aside", {
     className: "memos-sidebar-wrapper",
     ref: wrapperElRef,
-    children: [/* @__PURE__ */ jsx(UserBanner, {}), /* @__PURE__ */ jsx(UsageHeatMap, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
+    children: [/* @__PURE__ */ jsx(UserBanner, {}), /* @__PURE__ */ jsx(UsageHeatMap, {}), /* @__PURE__ */ jsx(SidebarNav, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
   });
 };
 var home = "";
@@ -30722,25 +30753,6 @@ function SvgImage(props) {
     d: "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"
   }));
 }
-function SvgJournal(props) {
-  return /* @__PURE__ */ react.exports.createElement("svg", {
-    t: 1642406967115,
-    className: "icon",
-    viewBox: "0 0 1024 1024",
-    xmlns: "http://www.w3.org/2000/svg",
-    "p-id": 1652,
-    width: 26,
-    height: 26,
-    fill: "#1296db",
-    ...props
-  }, /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M544 800.128l-320 0.16-0.064-96.32-0.064-160-0.032-64-0.096-160-0.032-96h576.128L800 223.776 800.256 800 544 800.128zM799.84 160H223.712A63.808 63.808 0 0 0 160 223.744v576.544c0 35.136 28.608 63.68 63.744 63.68h576.512A63.808 63.808 0 0 0 864 800.32V223.744A64 64 0 0 0 799.84 160z",
-    "p-id": 1653
-  }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M680.608 320h-224a32 32 0 0 0 0 64h224a32 32 0 0 0 0-64M680.608 480h-224a32 32 0 0 0 0 64h224a32 32 0 0 0 0-64M680.608 640h-224a32 32 0 0 0 0 64h224a32 32 0 0 0 0-64M352 320a32 32 0 1 0 0 64 32 32 0 0 0 0-64M352 480a32 32 0 1 0 0 64 32 32 0 0 0 0-64M352 640a32 32 0 1 0 0 64 32 32 0 0 0 0-64",
-    "p-id": 1654
-  }));
-}
 function SvgCheckboxActive(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -35100,7 +35112,6 @@ class Memos extends require$$0.ItemView {
     dailyNotesService.getApp(this.app);
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.plugin.settings } });
     InsertAfter = this.plugin.settings.InsertAfter;
-    this.plugin.settings.UserName;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
     this.plugin.settings.DefaultPrefix;
     this.plugin.settings.DefaultEditorLocation;
@@ -35108,8 +35119,6 @@ class Memos extends require$$0.ItemView {
     FocusOnEditor = this.plugin.settings.FocusOnEditor;
     OpenDailyMemosWithMemos = this.plugin.settings.OpenDailyMemosWithMemos;
     this.plugin.settings.HideDoneTasks;
-    this.plugin.settings.ShareFooterStart;
-    this.plugin.settings.ShareFooterEnd;
     this.plugin.settings.OpenMemosAutomatically;
     ShowTime = this.plugin.settings.ShowTime;
     ShowDate = this.plugin.settings.ShowDate;
@@ -35151,11 +35160,10 @@ function addIcons() {
 const DEFAULT_SETTINGS = {
   StartDate: "Sunday",
   InsertAfter: "# Journal",
-  UserName: "MEMO \u{1F609}",
   ProcessEntriesBelow: "",
   Language: "en",
   ShareFooterStart: "{MemosNum} Memos {UsedDay} Day",
-  ShareFooterEnd: "\u270D\uFE0F by {UserName}",
+  ShareFooterEnd: "\u270D\uFE0F Rememo",
   DefaultPrefix: "List",
   UseDailyOrPeriodic: "Daily",
   DefaultEditorLocation: "Top",
@@ -35207,12 +35215,6 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     const { containerEl } = this;
     this.containerEl.empty();
     this.containerEl.createEl("h1", { text: t$2("Basic Options") });
-    new require$$0.Setting(containerEl).setName(t$2("User name in Memos")).setDesc(t$2("Set your user name here. 'Memos \u{1F60F}' By default")).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.UserName).setValue(this.plugin.settings.UserName).onChange(async (value) => {
-        this.plugin.settings.UserName = value;
-        this.applySettingsUpdate();
-      })
-    );
     new require$$0.Setting(containerEl).setName(t$2("Insert after heading")).setDesc(
       t$2("You should set the same heading below if you want to insert and process memos below the same heading.")
     ).addText(
@@ -35362,7 +35364,7 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
-    new require$$0.Setting(containerEl).setName(t$2("Share Memos Image Footer End")).setDesc(t$2("Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default")).addText(
+    new require$$0.Setting(containerEl).setName(t$2("Share Memos Image Footer End")).setDesc(t$2("Set anything you want here. '\u270D\uFE0F Rememo' By default")).addText(
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.ShareFooterEnd).setValue(this.plugin.settings.ShareFooterEnd).onChange(async (value) => {
         this.plugin.settings.ShareFooterEnd = value;
         this.applySettingsUpdate();
@@ -35404,6 +35406,13 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultMemoComposition).setValue(this.plugin.settings.DefaultMemoComposition).onChange(async (value) => {
         this.plugin.settings.DefaultMemoComposition = value;
         this.applySettingsUpdate();
+      })
+    );
+    this.containerEl.createEl("h1", { text: t$2("Data tools") });
+    new require$$0.Setting(containerEl).setName(t$2("Data Audit")).setDesc(t$2("Open the audit page to inspect and migrate memo data in daily notes.")).addButton(
+      (bt) => bt.setButtonText(t$2("Audit data")).onClick(async () => {
+        await this.plugin.openMemos();
+        locationService.pushHistory("/audit");
       })
     );
     this.containerEl.createEl("h1", { text: t$2("Say Thank You") });

@@ -83,8 +83,8 @@ export default {
   "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default":
     "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default",
   'Share Memos Image Footer End': 'Share Memos Image Footer End',
-  "Set anything you want here, use {UserName} as your username. '✍️ By {UserName}' By default":
-    "Set anything you want here, use {UserName} as your username. '✍️ By {UserName}' By default",
+  "Set anything you want here. '✍️ Rememo' By default":
+    "Set anything you want here. '✍️ Rememo' By default",
   'Save Shared Image To Folder For Mobile': 'Save Shared Image To Folder For Mobile',
   'Save image to folder for mobile. False by Default': 'Save image to folder for mobile. False by Default',
   'Say Thank You': 'Say Thank You',
@@ -174,6 +174,15 @@ export default {
   'Write to date': 'Write to date',
   'Write on': 'Write on',
   'Back to now': 'Back to now',
+  Home: 'Home',
+  'Random memo': 'Random memo',
+  'Data tools': 'Data tools',
+  'Data Audit': 'Data Audit',
+  'Open the audit page to inspect and migrate memo data in daily notes.':
+    'Open the audit page to inspect and migrate memo data in daily notes.',
+  'Draw another': 'Draw another',
+  'Open the daily note': 'Open the daily note',
+  'No memo found': 'No memo found',
   Today: 'Today',
   Time: 'Time',
   'LINK TO THE': 'LINK TO THE',

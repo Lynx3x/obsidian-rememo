@@ -29,6 +29,57 @@
   flex-shrink: 0;
 }
 
+// ADR-0004 页面导航（主页/回收站/设置 + 🎲 随机动作项）——竖排于热力图下；sticky 常驻，滚动到标签深处仍可切页
+.memos-sidebar-nav {
+  .flex(column, flex-start, stretch);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  padding: 2px 8px 8px;
+  background-color: var(--memo-canvas);
+  z-index: 1;
+
+  > .memos-nav-item {
+    .flex(row, flex-start, center);
+    width: 100%;
+    height: 38px;
+    padding: 0 16px;
+    margin-top: 4px;
+    border-radius: var(--memo-radius-m);
+    font-size: 14px;
+    color: var(--memo-text);
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    transition: background-color var(--memo-transition-fast);
+
+    &:hover {
+      background-color: var(--memo-surface-hover);
+    }
+
+    // 页面项高亮与查询/标签列表的 active 观感一致（accent 实底）；随机是动作项不参与高亮
+    &.active {
+      background-color: var(--memo-accent);
+      color: var(--memo-on-accent);
+      font-weight: bold;
+    }
+
+    > .icon-img {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    > .nav-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 20px;
+    }
+  }
+}
+
 .mobile-show-sidebar .mobile-view {
   #page-wrapper {
     > .memos-sidebar-wrapper {

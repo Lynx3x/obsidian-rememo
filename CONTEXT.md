@@ -10,9 +10,9 @@
 
 ## 0. 现状速览（每次会话从这里开始）
 
-- 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（317 日记）**勿碰**。HEAD 见 `git log -1`。
+- 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（322 日记，2026-09-05 盘点）**勿碰**。HEAD 见 `git log -1`。
 - **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（P1b 修订，2026-09-05，见 ADR-0002）。
-- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（反编译定案：首次 `set()` 构建 state 时把子类覆写的 `buildLocalExtensions` 扩展带进内核，见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
+- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（反编译定案：首次 `set()` 构建 state 时把子类覆写的 `buildLocalExtensions` 扩展带进内核，见 §6）**；**P3 引用系统全部交付 ✅ owner 目视全绿（ADR-0003：MEMO_LINK 评论≡引用，a770b1a/4d634a6/33fc153，push 至 33fc153）**；**2026-09-06 侧栏导航重组批次已实施（ADR-0004），待 owner 目视**（见 §4 0）。P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
 - 已知可复验状态：新样例 `daily/2026-09-06.md`（dm0001~5）；旧测试数据在 dev 库 09-03/04/05 等文件（可一键体检迁移）；styles.css ~212 KiB、main.js ~1.35 MB（cm6 捆绑后）。
 
 ## 1. 核心域词汇（现行）
@@ -48,17 +48,17 @@
 
 ## 4. Pending（按顺序）
 
-0. **P3 引用系统（2026-09-05 grill 定案，ADR-0003；**全部交付：P3a 270374f/a770b1a、P3b 4d634a6、P3c 33fc153，owner 目视全绿**）**：评论 ≡ 引用统一模型——MEMO_LINK 升级（`[@标签](文件#^id)`/空标签、正文任意位置多引用、链式）+ 卡底引用条 + 父卡聚合区（折叠条+最新 3 预览→浮窗评论区）+ 卡上回复按钮 + 工具栏 @ 选择器（多引用 chips）+ HideRefMemosInList 设置 + 浮窗删除按钮。**P1.5 正式库启用迁移（迁移器 v2 就绪）与 blockquote 渲染缺口待排期**。
-1. **P1.5 迁移正式化**（2026-09-05 dev 库全面测试，owner 已跑 8 样本迁移目视：**结论 OK**——评论行折叠进正文嵌套列表即为现行定案（v1 保真，P3 前不再改）；**正式库启用待 P3**）：真实范围 = 正式库 `## Memo` 区内 **407 memo + 68 评论行**（38 文件；274/322 有 memo；`## Tasks` 区与 delete.md 都在处理区外，迁移不碰）。已修 computeScope **标题型 token 空转 bug**（正式库 `ProcessEntriesBelow=## Memo` 时迁移/体检静默失效——token 行被当标题当场熄灭；现与读取器语义对齐：token 行只开门不入区）。dev 库处理区已切 `## Memo`（data.json 双键，旧测试数据不再显示）。样本池：`bak/prod-memos-20260905/`（8 个代表性文件，评论极端 2023-02-15 等）。
-2. **阶段 G**：formatMemoContent 渲染与图片/标签结构化拆分（小重构）。
-3. **F2 小红书导出**（最低优先，可弃）。
-4. **Roadmap**（§5）等 owner 细化后实施。
+0. **侧栏导航重组批次（2026-09-06 定案+实施，[ADR-0004](docs/adr/0004-navigation-identity-restructure.md)，owner 已审 accepted；**待目视**）**：用户名概念连根拔（banner 用户名行/⋯ 菜单/设置项 `UserName`/分享图 `{UserName}` 占位渲染为空）+ 侧栏重排「统计行 · **竖排导航**（主页/回收站/设置/🎲随机）· 热力图 · 查询 · 标签」，导航 sticky + 高亮 pathname 匹配 + 主页点击清筛选；**随机访问**浮窗（全库非软删、尊重 HideRefMemosInList、只读+日期行+再抽+打开当天日记）；审计入口下沉设置页「Data tools」区（并修 openTabById 旧插件 id）；Import（HTML 导入整链）退役；About 弹窗移除（README 已含致谢）。目视清单：侧栏区块顺序与间距/导航高亮与 sticky 滚动/随机浮窗浅深主题/设置页按钮跳 /audit/分享图脚注无残留占位。
+1. **回收站总开关**（2026-09-06 grill 定案、未实施）：设置项「启用回收站」——关 = 删除二次确认后直接永久删（开关只控今后删除路径，旧软删数据不动）；关闭态顶部导航「回收站」项隐藏，重开恢复。
+2. **blockquote（`>`）渲染缺口**（2026-09-05 owner 实测；marked.ts 行式解析不支持，待补）。
+3. **P1.5 迁移正式化**（2026-09-05 dev 库全面测试，owner 已跑 8 样本迁移目视：**结论 OK**——评论行折叠进正文嵌套列表即为现行定案（v1 保真，P3 后不再改）；**正式库启用待排期**）：真实范围 = 正式库 `## Memo` 区内 **407 memo + 68 评论行**（38 文件；274/322 有 memo；`## Tasks` 区与 delete.md 都在处理区外，迁移不碰）。已修 computeScope 标题型 token 空转 bug（e194339；token 行只开门不入区，与读取器语义一致）。dev 库处理区已切 `## Memo`。样本池：`bak/prod-memos-20260905/`。
+4. **阶段 G**：formatMemoContent 渲染与图片/标签结构化拆分（小重构）。
+5. **F2 小红书导出**（最低优先，可弃）。
+6. **Roadmap 剩余**（§5，需 owner 细化）。
 
-## 5. Roadmap（2026-09-04 登记，未排期，需 owner 细化）
+## 5. Roadmap 剩余（2026-09-06 清理后：导航/布局组与 Import/About 已由 ADR-0004 消化；blockquote 转 §4）
 
-- 导航/布局：去用户名显示与左侧小菜单 → 主页/回收站/设置式导航（热力图下、标签上）；导入功能去留调研；About 移除并入 README；回收站总开关（关=删除二次确认后直接永久删）。
-- 视觉：热力图优化+"是否显示"开关；三点菜单「阅读」页与"点日期=阅读"入口重想；菜单文字对齐。
-- 格式/渲染：正文块级缺口——**`>` 引用（blockquote）未渲染**（marked.ts 行式解析不支持，2026-09-05 owner 实测发现），待补。
+- 视觉：热力图样式优化 + 「是否显示热力图」开关（设置项；与导航 sticky 相关——热力图关掉后导航随之上浮）；三点菜单「阅读」页观感与「点日期=阅读」入口重想（DAY 档案弹窗为现行实现）。
 - 标签：平铺/树状切换按钮。
 
 ## 6. P2 输入内核定稿（2026-09-05 owner 目视全绿；决策论证见 [docs/adr/0001](docs/adr/0001-input-core-native-markdowneditor.md)，排查史看 git log）

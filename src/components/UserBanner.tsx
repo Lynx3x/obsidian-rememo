@@ -1,58 +1,25 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import appContext from '../stores/appContext';
-import { locationService } from '../services';
 import utils from '../helpers/utils';
-import MenuBtnsPopup from './MenuBtnsPopup';
 import showDailyMemoDiaryDialog from './DailyMemoDiaryDialog';
 import '../less/user-banner.less';
-import More from '../icons/more.svg?component';
 import { t } from '../translations/helper';
 
 interface Props {}
 
+// ADR-0004：用户名行与 ⋯ 小菜单退役（导航上移侧栏），UserBanner 收缩为统计行（MEMO/TAG/DAY）
 const UserBanner: React.FC<Props> = () => {
   const {
     memoState: { memos, tags },
-    userState: { user },
-    settingsState: { settings },
   } = useContext(appContext);
-  const username = user ? user.username : settings.UserName;
-  let memosLength;
   let createdDays;
   if (memos.length) {
-    memosLength = memos.length - 1;
-    createdDays = memos
-      ? Math.ceil((Date.now() - utils.getTimeStampByDate(memos[memosLength].createdAt)) / 1000 / 3600 / 24) + 1
-      : 0;
+    createdDays =
+      Math.ceil((Date.now() - utils.getTimeStampByDate(memos[memos.length - 1].createdAt)) / 1000 / 3600 / 24) + 1;
   }
-  // const firstMemo = memos[] as Model.Memo;
-
-  const [shouldShowPopupBtns, setShouldShowPopupBtns] = useState(false);
-
-  const handleUsernameClick = useCallback(() => {
-    locationService.pushHistory('/');
-    locationService.clearQuery();
-  }, []);
-
-  const handlePopupBtnClick = () => {
-    const sidebarEl = document.querySelector('.memos-sidebar-wrapper') as HTMLElement;
-    const popupEl = document.querySelector('.menu-btns-popup') as HTMLElement;
-    popupEl.style.top = 70 - sidebarEl.scrollTop + 'px';
-    setShouldShowPopupBtns(true);
-  };
 
   return (
     <div className="user-banner-container">
-      <div className="userinfo-header-container">
-        <p className="username-text" onClick={handleUsernameClick}>
-          {username}
-        </p>
-        <span className="action-btn menu-popup-btn" onClick={handlePopupBtnClick}>
-          {/*<img src={more} className="icon-img" />*/}
-          <More className="icon-img" />
-        </span>
-        <MenuBtnsPopup shownStatus={shouldShowPopupBtns} setShownStatus={setShouldShowPopupBtns} />
-      </div>
       <div className="status-text-container">
         <div className="status-text memos-text">
           <span className="amount-text">{memos.length}</span>

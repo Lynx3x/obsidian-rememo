@@ -3,6 +3,7 @@ import appContext from '../stores/appContext';
 import { SHOW_SIDERBAR_MOBILE_CLASSNAME } from '../helpers/consts';
 import { globalStateService } from '../services';
 import UserBanner from './UserBanner';
+import SidebarNav from './SidebarNav';
 import QueryList from './QueryList';
 import TagList from './TagList';
 import UsageHeatMap from './UsageHeatMap';
@@ -67,6 +68,7 @@ const Sidebar: React.FC<Props> = () => {
     <aside className="memos-sidebar-wrapper" ref={wrapperElRef}>
       <UserBanner />
       <UsageHeatMap />
+      <SidebarNav />
       <QueryList />
       <TagList />
     </aside>

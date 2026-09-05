@@ -27,7 +27,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
   const { memo: propsMemo, destroy } = props;
   const { memos } = appStore.getState().memoState;
   const { settings } = appStore.getState().settingsState;
-  const { AutoSaveWhenOnMobile, DefaultDarkBackgroundImage, DefaultLightBackgroundImage, ShareFooterEnd, ShareFooterStart, UserName } = settings;
+  const { AutoSaveWhenOnMobile, DefaultDarkBackgroundImage, DefaultLightBackgroundImage, ShareFooterEnd, ShareFooterStart } = settings;
   let memosLength;
   let createdDays;
   if (memos.length) {
@@ -44,7 +44,8 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
   // const memoImgUrls = Array.from(memo.content.match(IMAGE_URL_REG) ?? []);
   // const memosNum = memos.length;
 
-  const footerEnd = ShareFooterEnd.replace('{UserName}', UserName);
+  // UserName 已随 ADR-0004 连根拔：旧模板里 {UserName} 占位渲染为空串
+  const footerEnd = ShareFooterEnd.replace('{UserName}', '');
   const footerStart = ShareFooterStart.replace('{MemosNum}', memos.length.toString()).replace(
     '{UsedDay}',
     createdDays.toString(),
