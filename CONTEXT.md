@@ -7,7 +7,7 @@
 
 - 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（317 日记）**勿碰**。HEAD 见 `git log -1`。
 - **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（决策 8 修订，2026-09-05）。
-- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 cm6 输入内核首版已提交（b98515b/bbb87c7）但运行期键盘/联想未生效，owner 暂停交接 → 下一任务 = P2 排查（线索见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
+- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 cm6 键盘吞键根因已实锤（Obsidian window capture 抢先拦截 Mod 键）→ capture.ts 兜底修复已提交推送（75b16ec），下一任务 = owner 复测（清单见 §6）**；联想弹层是否代码问题待复测数据；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
 - 已知可复验状态：新样例 `daily/2026-09-06.md`（dm0001~5）；旧测试数据在 dev 库 09-03/04/05 等文件（可一键体检迁移）；styles.css ~212 KiB、main.js ~1.35 MB（cm6 捆绑后）。
 
 ## 1. 核心域词汇（现行）
@@ -55,12 +55,12 @@
 - 格式/设置：输入框 `[[` 文件联想（rta 基础版已做过，P2 cm6 重做中）；markdown 所见即所得评估（P2 高亮为铺垫）。
 - 标签：平铺/树状切换按钮。
 
-## 6. P2 排查线索（下一任务核心资料，2026-09-05 owner 暂停交接）
+## 6. P2 键盘吞键——机制已实锤，修复已上（75b16ec，待 owner 复测）
 
-- 症状：Enter 续行（keymap）生效；**所有 Mod 组合键无效**（Ctrl/Cmd+Enter 发送、Mod-B/I/E），连 `EditorView.domEventHandlers` 层 Ctrl+Enter 也不触发；`#`/`[[` 联想弹层不出现；聚焦时出现虚线框（focus outline，`.cm-content outline:none` 防御已加未复验）；输入区字体/换行观感待调。基础编辑/按钮发送/缓存正常 → state 与 updateListener 管道通。
-- 最可疑：Obsidian 全局键盘在 capture 阶段吞 Mod 键（事件到不了 cm contentDOM）。排查顺序：① 控制台看 cm logException/报错；② 临时加 `domEventHandlers({keydown: e=>{console.log('cm-keydown',e.key,e.ctrlKey);return false;}})` 验证事件是否抵达（当前 dom 层 Ctrl+Enter 不触发 → 疑根本没到）；③ 若被吞：在 window/document capture 阶段自行注册（与 Obsidian workspace keymap 比注册顺序）处理 Mod+Enter/Mod+B 等；④ 联想弹层仍无 → 查 tooltip 渲染（editor.less 已配 .cm-tooltip 主题）与控制台。
-- 已修未复验：suggest.ts tag token 错位（hash+1→hash，headless 已覆盖 '说 #工' pos4→from=3）。Ctrl+Enter 现双路：domEventHandlers（主）+ keymap（兜底）；EnterToSend 设置走 MemoEditor→Editor propsRef 运行时生效。
-- 涉及文件：src/editor/{keys,suggest,highlight,format}.ts、Editor.tsx、editor.less。依赖 @codemirror/{state,view,commands,autocomplete}；tiny-undo/rta 已卸。若需回退 rta 体验：`git revert` b98515b 前状态（P1b 不受影响）。
+- **根因（逆向 obsidian.asar app.js 实锤）**：内核 Keyboard 类构造时 `window.addEventListener('keydown', onKeyEvent, !0)` —— window **capture 阶段**、内核最先注册。onKeyEvent 命中其 scope 命令（Mod-B/I/E 粗斜体、Mod-Enter 勾选任务等默认命令）即 `preventDefault() + stopPropagation()` → 事件到不了内嵌 cm6 的 contentDOM（纯 Enter/普通键不命中命令故续行正常——症状完全自洽）。
+- **修复**：`src/editor/capture.ts` —— window 同 capture 层**后注册**兜底（Obsidian 用 stopPropagation 而非 stopImmediate → 同层后续监听仍收得到）。命中 memo 私有键（Mod-Enter/Mod-b/i/e，事件目标须在我们 cm6 内）→ 执行与 cm keymap **同源动作**（keys.ts 提纯 `handleModEnter`/format.ts 提纯 `runFormatAction`，零分叉）→ stopImmediatePropagation 防 contentDOM 双触发。Editor.tsx 挂载即注册/卸载即注销；domEventHandlers 的 Ctrl+Enter 降级为最后防线。
+- **待 owner 复测清单**：① Ctrl+Enter 发送（主页输入框 + 编辑态弹窗）；② Mod-B/I/E（空选区插符号对、选中文包裹）；③ **留意主编辑器文件有无被误改**（Obsidian 抢先执行了同键命令，作用在 workspace.activeEditor=主编辑器——若误改出现，下步加 activeEditor 挡刀层）；④ Enter 续行回归；⑤ IME 中文输入组合中勿误触发送；⑥ `#`/`[[` 联想——仍不弹时看控制台 `[rememo-suggest] 空结果诊断行`（本次已加），有弹但位置/观感错则截图。
+- 遗留未处理：focus 虚线框防御已加未复验（`.cm-content outline:none`）；输入区字体/换行观感；联想弹层 tooltip 定位。回退 rta 体验仍可 `git revert` b98515b 前状态（P1b 不受影响）。
 
 ## 7. 当前事实（verified 2026-09-05）
 
