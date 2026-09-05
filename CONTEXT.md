@@ -1,13 +1,18 @@
-# Rememo — Domain Context（速览优先版，2026-09-05 重构）
+# Rememo — 开发交接主文档（速览优先版，2026-09-05 整理）
 
-> 用途：跨会话交接。**用法：每次会话先读 §0 速览（≤30 行）**，需要细节再按索引深入；
-> 已完成工作的细节一律看 git log（本文件不再重复流水账）。对照：[PLAN-FORMAT.md](PLAN-FORMAT.md)（大改计划/规格）· [UI-STYLE.md](UI-STYLE.md)（样式接续）。
+> 用途：跨会话交接。**每次会话先读 §0 速览（≤30 行）**，需要细节再按索引深入；已完成工作的细节一律看 git log（本文件不重复流水账）。
+>
+> **文档地图**（什么时候读哪份）：
+> - [PLAN-FORMAT.md](PLAN-FORMAT.md) —— **现行规格**：存储格式 / 体检架构 / 输入栈（活文档）
+> - [UI-STYLE.md](UI-STYLE.md) —— 样式与动效接续（改样式前读）
+> - [docs/adr/](docs/adr/) —— 高代价决策档案：为什么这么做
+> - [P2-INVESTIGATION.md](P2-INVESTIGATION.md) —— 输入内核反编译锚点与防坑（历史档案）
 
 ## 0. 现状速览（每次会话从这里开始）
 
 - 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（317 日记）**勿碰**。HEAD 见 `git log -1`。
-- **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（决策 8 修订，2026-09-05）。
-- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（正门方案：无条件首设 set() 触发 buildLocalExtensions 覆写进最终 state，反编译定案，见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
+- **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（P1b 修订，2026-09-05，见 ADR-0002）。
+- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（反编译定案：首次 `set()` 构建 state 时把子类覆写的 `buildLocalExtensions` 扩展带进内核，见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
 - 已知可复验状态：新样例 `daily/2026-09-06.md`（dm0001~5）；旧测试数据在 dev 库 09-03/04/05 等文件（可一键体检迁移）；styles.css ~212 KiB、main.js ~1.35 MB（cm6 捆绑后）。
 
 ## 1. 核心域词汇（现行）
@@ -16,7 +21,7 @@
 |---|---|
 | **memo** | 一条闪念 = 一张卡片块。渲染对象只有它。 |
 | **卡片块** | 纯标识头行 + 4 空格正文；正文空行分段、额外缩进给 md 嵌套；块边界 = 非空缩进<4 的行/标题/文件尾。 |
-| **^id** | 行尾 `^` + **6 位** [A-Za-z0-9]{6}，Obsidian 原生维护。**恒 6 位（血泪教训，样例别造 7 位）**。 |
+| **^id** | 行尾 `^` + **6 位** [A-Za-z0-9]{6}，Obsidian 原生维护。**恒 6 位（踩坑教训：样例别造 7 位）**。 |
 | **deletedAt** | 软删标记，在 `^id` 前，无方括号；值可读 `YYYY-MM-DD HH:mm:ss` 或旧 14 位（读取双兼容）。 |
 | **daily note** | 数据源。memo 处理区 = ProcessEntriesBelow 语义（`''` 时从文件头到首个 `# ` 标题止；读取/体检/迁移三处同款）。 |
 | **评论** | **已停摆**（缩进子树+linkId 代码已拆，P3 引用卡重建）。 |
@@ -31,14 +36,14 @@
 - **体检**：`src/audit/`（rules 注册表 + engine 行修复 + migrate 整文件迁移 + AuditPage 路由 /audit）。
 - **样式**：`src/less/` 全部 token 化收口（theme.less 定义 `--memo-*`，作用域 memos_view + .dialog-wrapper；坑见 UI-STYLE.md）。
 
-## 3. 技术决策（现行有效；被修订的旧决策已删）
+## 3. 技术决策（一句话版，现行有效；被修订旧决策已删，完整论证与演变史见 [docs/adr/](docs/adr/)：0001 输入内核 / 0002 存储格式）
 
 - 时间统一 `HH:mm:ss` 落盘；`TimeFormat` 设置只影响显示与回写策略（HH:mm 模式暂停回写）。
 - 删除 = 头行 `deletedAt` 软删（值可读）；永久删除 = 删整卡片块。
 - 旧数据不渲染、写入只写新格式、混合文件合法（旧行等体检迁移）——见 §6 之外的 P1b 记录（git log 4c881ec）。
 - 评论停摆至 P3；linkId 语义作废（模型字段保留备用）。
 - Feed 排序 = createdAt 降序；指定日期写入走 `waitForInsert` 的 insertDate（moment）。
-- 输入内核 = **Obsidian 原生 MarkdownEditor 子类**（决策 7 修订，2026-09-05 owner 拍板：弃自打包 cm6+capture；取类 hack 与接入细节见 §6/PLAN-FORMAT）；格式/大改规格都在 PLAN-FORMAT.md，勿在 CONTEXT 重复。
+- 输入内核 = **Obsidian 原生 MarkdownEditor 子类 + 首次 set() 建态 + DOM 外层控制**（2026-09-05 owner 拍板，论证见 [docs/adr/0001](docs/adr/0001-input-core-native-markdowneditor.md)，接入细节见 §6）；存储/体检规格见 PLAN-FORMAT.md，勿在 CONTEXT 重复。
 
 ## 4. Pending（按顺序）
 
@@ -55,24 +60,36 @@
 - 格式/设置：输入框 `[[` 文件联想（rta 基础版已做过，P2 cm6 重做中）；markdown 所见即所得评估（P2 高亮为铺垫）。
 - 标签：平铺/树状切换按钮。
 
-## 6. P2 输入内核定稿——正门方案（7b2c051 前各版 + 定案 commit，owner 目视全绿）
+## 6. P2 输入内核定稿（2026-09-05 owner 目视全绿；决策论证见 [docs/adr/0001](docs/adr/0001-input-core-native-markdowneditor.md)，排查史看 git log）
 
-- **【最终定案 2026-09-05】反编译确认**：内核 MarkdownEditor 构造器**不建最终 state**（只建空壳 cm，`cmInit=false`）；真正 state 由**首次 `set(text)`** 构建，扩展 = `[getLocalExtensions()(=buildLocalExtensions 覆写并缓存), dynamic, RJ]` → `EditorState.create` → `cm.setState`。
-  - **教训**：此前 initial 为空时不调 `native.set()` → 覆写从未进 state；appendConfig 注入的是空壳默认 state，任何首设 set() 会用全新 state 换掉 → "时好时坏"的根因。
-  - **正门用法**：`new` 后**无条件 `native.set(initial)`（空串也调）**；子类覆写 `buildLocalExtensions()` 必须 `super` 保留内核原版（updateEvent→onUpdate、editorSuggest 触发都在其中），再 push 自产扩展（lineWrapping/placeholder/高亮/联想/keymap/readOnly compartment）。
-  - 代码结构（Editor.tsx，2026-09-05 定稿后）：embed hack 取类（native.ts）→ new 子类 → addChild → removeHighlights 遮蔽 → **set(initial) 首设** → DOM 外层（input 变更/focus-blur 桥/keydown+capture 发送）；扩展全走正门，无 appendConfig。
-- **架构**：内核编辑器本体（打字/光标/IME/撤销）+ 控制权在编辑器外：
-  - 变更回调 = contentDOM `input` 事件（DOM 通道必触发）；`onUpdate` 覆写（内核 updateEvent 经正门进入 state 后会被调）为多通道
-  - activeEditor 桥 = contentDOM focus/blur → Obsidian 编辑命令（Mod-B/I/E）路由到 memo 输入
-  - 键盘 = contentDOM keydown（纯 Enter 发送）+ window capture 兜底（Ctrl+Enter；Obsidian 吞 Mod 键，75b16ec 机制，capture.ts）
-  - 生命周期 = `plugin.addChild(editor)`；`removeHighlights/hasHighlight` 实例遮蔽（裸 state 无搜索高亮 field，点击/Esc RangeError——已修）；controller 需 `syncScroll`（大段滚动 TypeError——已补）
-- **血泪坑**：① 覆写 buildLocalExtensions 生效前提 = 首次 set() 触发（无条件 set(initial)）；② `clear()` 禁 setState 重建（丢内核私有 StateField → RangeError 崩实例，d81/43ab64d 教训）；③ console.debug/warn 探针会被控制台过滤（排查期用 error 级或先确认过滤）；④ 插件 disable/enable 可能不重载 main.js（重启 Obsidian 才保证）；⑤ 530d1a5 的"可用"复测疑为旧构建仍在跑
-- 视觉收尾：`==高亮==` 输入框（decoration .cm-hl-mark）+ 卡片渲染（marked.ts `<mark>`）；占位 CSS 叠层（.cm-host.is-empty::before + data-placeholder）；滚动条细条化 + overflow-x hidden + overflow-wrap anywhere
-- 详细排查记录/反编译锚点：P2-INVESTIGATION.md §7（历史档案）。回退点：75b16ec（自打包 cm6 可用版）
+**结论先行**：输入框本体 = 内核 MarkdownEditor 子类（打字/光标/IME/撤销全走内核）；插件能力分两条通道接入——能进编辑器的（格式高亮/占位/换行/keymap 等）在覆写的 `buildLocalExtensions()` 里追加；交互控制（发送按钮可用态/编辑命令路由/发送键）在编辑器外层 DOM 接管。
+
+**定案机制（反编译确认）**：内核构造器只建空壳编辑器（标志位 `cmInit=false`），**真正可用的编辑 state 由第一次调用 `set(文本)` 构建**——此时扩展列表 = `getLocalExtensions()`（内部调用子类可覆写的 `buildLocalExtensions()` 并缓存）+ 内核动态扩展 + 内核私有扩展（反编译变量名 `RJ`，无需理解）。首设 `set()` 只发生一次，此后 `set()` 走增量 dispatch，不再重建。
+
+**此前反复「时好时坏」的根因**：initial 为空时没有调用 `set()` → 覆写从未进 state；而 `appendConfig` 注入的扩展挂在**空壳 state** 上，任何一次首设 `set()` 都会用全新 state 整个换掉。两条被否路线（自打包 cm6、appendConfig 注入）都死在同一处。
+
+**接入步骤（Editor.tsx 定稿后，唯一正确姿势）**：
+1. `native.ts` 取类 hack 拿到内核构造类 → `new` 出子类实例，`plugin.addChild(editor)` 挂生命周期
+2. **无条件调用一次 `set(initial)`（空串也调）**——让首设路径把覆写带进最终 state。这是最关键的一步
+3. 覆写 `buildLocalExtensions()` 必须**先 `super.buildLocalExtensions()`** 保留内核原版注册（updateEvent→`onUpdate`、editorSuggest 联想都在里面），再追加自产扩展（换行/占位/高亮/keymap/readOnly 开关组）
+4. 遮蔽 `removeHighlights/hasHighlight`（裸实例没有搜索高亮 field，点击/Esc 会 RangeError，已修）
+5. 联想 = 内核原生 editorSuggest（super 保留后自动激活），controller 喂 tag/file 上下文；自产联想已退役（7c65cc9）
+6. 外层 DOM 接管：contentDOM `input` 事件 → 发送按钮可用态；focus/blur 把 Obsidian 编辑命令（Mod-B/I/E）桥进输入框；Enter 发送走 contentDOM keydown + window capture 兜底 Ctrl+Enter（Obsidian 吞 Mod 键，机制见 75b16ec 与 capture.ts）
+7. controller 需有 `syncScroll` 空实现（大段滚动会 TypeError，已补）
+
+**踩过的坑（动这块前必读）**：
+① 覆写生效的前提 = 首设 `set()` 被调用；
+② `clear()` 后禁再用 setState 重建（丢内核私有 StateField → RangeError 崩实例，d81/43ab64d 教训）；
+③ console.debug/warn 探针会被控制台过滤，排查期用 error 级；
+④ 插件 disable/enable 可能不重载 main.js，完整重启 Obsidian 才保证；
+⑤ 插件侧 @codemirror/* 与内核 asar 内副本是不同模块实例——updateListener 等插件侧 facet 对内核建的 state 不生效（2026-09-05 实测，曾致一次误收敛、已回退）；
+⑥ 动输入通道前先挂 error 级计数探针验证，别凭推理直接收敛。
+
+**视觉收尾**：`==高亮==` 输入框（decoration .cm-hl-mark）+ 卡片渲染（marked.ts `<mark>`）；占位 = CSS 叠层（`.cm-host.is-empty::before` + data-placeholder）；滚动条细条化 + overflow-x hidden + overflow-wrap anywhere。反编译锚点档案：P2-INVESTIGATION.md。回退点：75b16ec（自打包 cm6 可用版）。
 
 ## 7. 当前事实（verified 2026-09-05）
 
 - dev 库 daily/ 11+1 个文件：09-06 为新样例（新格式，勿当旧数据迁移）；其余为旧格式测试数据（含体检测试行/重复 id 测试/软删标记），可经体检「整文件迁移」转新。
 - 读取不再隐式改写文件（缺 id 内存随机 id 支撑会话，落盘修复归体检 missing-id）；`.rememo-backup/{audit,migrate}-<ts>/` 为备份目录。
 - 关键正则/语义只允许一份定义在 memoLine.ts（classifyMemoRow），读端/规则/迁移共用——**别在别处再抄正则**。
-- 里程碑（细节 git log）：A–F1 清理/架构/图片/日期写入（~09-01→03）；UI token 化主屏+次级（09-03/04）；P1 读取渲染（40bd02d…5920f3d）；P1b 写入端+迁移 v1+任务卡（4c881ec…7caf6c4，目视通过）；P2 cm6 首版（b98515b/bbb87c7，待排查见 §6）。
+- 里程碑（细节 git log）：A–F1 清理/架构/图片/日期写入（~09-01→03）；UI token 化主屏+次级（09-03/04）；P1 读取渲染（40bd02d…5920f3d）；P1b 写入端+迁移 v1+任务卡（4c881ec…7caf6c4，目视通过）；P2 输入内核（b98515b…7b2c051 定稿，owner 目视全绿，见 §6）。

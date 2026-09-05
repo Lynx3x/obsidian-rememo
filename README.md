@@ -1,115 +1,69 @@
 # Rememo
 
-[中文文档](./document/chinese.md)
+> 把闪念写进你的日记。所见即文件：每条 memo 就是日记文件里的一张卡片块。
 
-一个 Obsidian 备忘录插件的增强版，基于原[Obsidian-Memos 插件](https://github.com/Quorafind/Obsidian-Memos)开发，保留了其核心功能的同时进行了改进和扩展。本项目灵感来源于开源项目[memos](https://github.com/justmemos/memos)和[flomo](https://flomoapp.com/)的理念。
+Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) 的增强重写（曾用名 Memos Plus）。所有 memo 都存储在**你的日记文件**里，不做私有数据库——Obsidian 文件归你，随时可读、可改、可迁移。
 
-![](https://raw.githubusercontent.com/Quorafind/Obsidian-Memos/main/document/Memos-Desktop.png)
-![](https://raw.githubusercontent.com/Quorafind/Obsidian-Memos/main/document/Memos-Mobile.png)
+## 特性
 
-## 简介
+- **原生编辑体验的输入框**：基于 Obsidian 内核编辑器的输入体验——打字/换行/中文输入、`==高亮==` 实时渲染、`#tag` 与 `[[链接]]` 联想、撤销，Enter 或 Ctrl+Enter 发送
+- **卡片流浏览**：日记里的 memo 以卡片列表呈现，分页加载、按文本/标签/查询/日期过滤
+- **任务卡**：`- [ ]` 输入即任务，卡片上的勾选框直接完成
+- **侧栏**：热力图（按天分布）、查询列表、标签列表一键筛选
+- **回收站**：删除是**软删**——memo 留在原日记、带 `deletedAt` 标记，可在回收站恢复或永久删除
+- **分享成图片**：单张卡片或整日日记一键生成图片（可配页脚/背景）
+- **数据体检**：内置修复工具，扫描异常数据、把旧版单行格式整文件迁移为卡片块（自动备份）
+- **移动端可用**，支持接收文本/文件「存为 memo」
 
-1. 所有备忘录来源于您的日记笔记，因此需要启用 Obsidian 的"日记"核心插件才能正常工作。
-2. 插件会处理日记中指定标题下的内容，默认为`# Journal`标题下的内容。
-3. 新建的备忘录会添加到您在设置中指定的标题下，默认为`# Journal`（现在您可以设置为任何其他标题）。
-4. 当您创建查询时，系统会在您的日记文件夹中自动生成 query.md 文件。
-5. 当您删除备忘录时，它会被发送到日记文件夹中的 delete.md 文件，请不要直接编辑该文件。
+## 快速开始
 
-## 使用方法
+1. 启用 Obsidian 核心插件「日记」（或 Periodic Notes）
+2. 在 Rememo 设置中确认两个标题都指向你的日记标题（都设为 `# Journal` 或同一标题即可；见下方「两个标题」提醒）
+3. 点击左侧栏的灯泡图标（或命令面板执行 "Open Memos"）打开 Rememo
+4. 输入一条闪念，发送——打开今天的日记，就能看到它变成一张卡片块
 
-1. 首先确保您已启用 Obsidian 的"日记"核心插件。
-2. 检查设置，设置您要处理的标题和插入新备忘录的位置，或者留空以将条目写入日记文件的底部。
-3. 打开备忘录并点击"NOTEIT"按钮。
-4. 如果您允许在备忘录上添加评论，需要确保已启用"dataview"插件。
-
-备忘录将以项目符号格式和当前时间添加到您的日记中。
-
-### 示例
+## 你的日记文件长什么样
 
 ```markdown
--   22:15 {您输入的备忘录内容}
+## Journal
+
+- 14:32:15 ^a1b2c3
+    闪念正文，支持 **粗体**、`代码`、#tag、[[双链]]、![[图片]]，
+    空行分段；列表、代码块等块级格式都行
+
+- [x] 14:40:00 ^d4e5f6
+    任务卡：勾选会写回头行
+
+- 14:45:00 deletedAt: 2026-09-05 14:45:00 ^g7h8i9
+    已删除的卡（留在原处，回收站里可恢复或永久删除）
 ```
 
-解析时使用以下格式添加备忘录到列表：
+格式约定：头行 = `- [ ]? HH:mm:ss [deletedAt: …] ^id`（纯标识，正文从下一行 4 空格缩进开始，支持完整 Markdown）；`^id` 由 Obsidian 维护。旧版单行格式（正文写在头行里）不渲染，用「数据体检 → 整文件迁移」转成新格式。
 
--   日记中的 `- 19:00` 格式
--   日记中的 `- [ ] 19:00` 格式
+## 设置要点
 
-## 功能特点
+- **两个标题设置最好设成同一个**：「Insert after heading」（新 memo 写到哪里）与「Process Memos below」（从哪里开始读）默认分别为 `# Journal` 与空——空表示从文件头读到第一个标题为止；如果日记模板把 `# Journal` 放在文件头而写入也插到它下面，新写的 memo 不会被读回。建议把两者都设成你的日记标题
+- **Send memo by Enter key**：关（默认）= Enter 换行、Ctrl+Enter 发送；开 = 反过来
+- **Time display format**：只影响显示，落盘始终 `HH:mm:ss`
+- **日记来源**：Daily Notes 或 Periodic Notes 二选一
+- 界面语言跟随 Obsidian 界面语言
 
-### 备忘录列表
+## 安装
 
-在一个页面中显示所有来自日记的备忘录，方便阅读和管理。
+手动安装：将 `main.js`、`styles.css`、`manifest.json` 放入
+`你的库/.obsidian/plugins/obsidian-rememo/`，然后在 Obsidian 的第三方插件列表里启用。
 
-### 分享备忘录和时间线
+（从 Obsidian 插件市场/BRAT 安装：上架后可用，当前请走手动。）
 
-您可以通过图片分享任何备忘录和每日备忘录。
+## 从命令行构建
 
-### 标签列表
+```bash
+pnpm install
+pnpm build      # 产出 main.js + styles.css（随提交附）
+```
 
-内置仅用于备忘录的标签列表，显示备忘录中的标签。
-
-### 查询列表
-
-您可以设置包含多个变量的查询来筛选备忘录，并可以添加、置顶或删除这些查询。
-
-### 备忘录热图
-
-类似 GitHub 贡献图的视图，显示每天的备忘录数量，可点击筛选特定日期的备忘录。
-
-### 用户横幅
-
-您可以在设置中设置您的名字。点击用户名旁边的三个点，可以找到备忘录的设置和回收站。
-
-在每个备忘录中，您可以使用 MARK 将其链接到另一个备忘录，还可以删除、分享等操作。
-
-提示：
-
-1. 双击备忘录可以编辑内容。
-2. Ctrl+点击可以跳转到备忘录的源文件。
-
-### 搜索和过滤
-
-每次在备忘录中搜索都会过滤匹配的备忘录（显示在一个页面中），插件内置了四个过滤器，帮助您更轻松地使用备忘录。
-
-### 更多设置选项
-
-您可以在设置中找到许多有趣的功能，不妨尝试一下。
-
-### 为热图设置不同颜色
-
-您可以在这里下载 CSS 片段：[Heatmap-color](./document/Heatmap-css-snippet.css)
-
-## 安装方法
-
-### 从 Obsidian 插件市场安装
-
-💜: 直接从 Obsidian 插件市场安装。
-
-### 使用 BRAT 安装
-
-��: 将 `[您的GitHub用户名]/rememo` 添加到 BRAT。
-
-### 手动下载安装
-
-🚚: 下载最新版本。解压并将三个文件(main.js, manifest.json, styles.css)放入 `{{obsidian_vault}}/.obsidian/plugins/rememo` 文件夹。
-
-## 关于作者
-
-<!-- 这里是您的个人信息位置 -->
-<!-- 您可以添加您的个人介绍、联系方式、其他项目链接等 -->
+调试：把产物复制到上面的插件目录，在 Obsidian 里重载插件（若改动未生效，完整重启 Obsidian）。
 
 ## 致谢
 
-本项目基于[Boninall (Quorafind)](https://github.com/Quorafind/)开发的[Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos)插件。感谢原作者的创意和贡献，使这个有用的工具成为可能。
-
-## 支持项目
-
-如果您喜欢这个插件，可以通过以下方式支持：
-
-<!-- 这里是您的赞助信息位置 -->
-<!-- 您可以添加您的赞助链接、二维码等 -->
-
-## 许可证
-
-本项目采用 MIT 许可证。详情请参阅[LICENSE](LICENSE)文件。
+本项目基于 [Boninall (Quorafind)](https://github.com/Quorafind/) 开发的 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) 开发；设计灵感来自 [memos](https://github.com/justmemos/memos) 与 [flomo](https://flomoapp.com/)。MIT 许可证，详见 [LICENSE](LICENSE)。
