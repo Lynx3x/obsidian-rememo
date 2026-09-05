@@ -24,7 +24,8 @@
 | **^id** | 行尾 `^` + **6 位** [A-Za-z0-9]{6}，Obsidian 原生维护。**恒 6 位（踩坑教训：样例别造 7 位）**。 |
 | **deletedAt** | 软删标记，在 `^id` 前，无方括号；值可读 `YYYY-MM-DD HH:mm:ss` 或旧 14 位（读取双兼容）。 |
 | **daily note** | 数据源。memo 处理区 = ProcessEntriesBelow 语义（`''` 时从文件头到首个 `# ` 标题止；读取/体检/迁移三处同款）。 |
-| **评论** | **已停摆**（缩进子树+linkId 代码已拆，P3 引用卡重建）。 |
+| **评论（旧）** | **已废弃**：缩进子树 + linkId 格式作废，正式库旧评论行由迁移 v2 直转引用卡（ADR-0003）。 |
+| **引用卡** | 正文含 MEMO_LINK `[@标签](日记文件#^id)` 的普通 memo——评论 ≡ 引用（可多引用、链式）；渲染 = 被引用卡下聚合区。 |
 | **回收站** | isDeleted 的卡（头行 deletedAt）；恢复=去标记、永久删除=删整块。 |
 | **task 卡** | 头行带 `[ ]`/`[x]`（TASK-TODO/DONE）；勾选框在头部时间右侧写回头行；菜单可普通⇄任务卡。 |
 
@@ -36,21 +37,22 @@
 - **体检**：`src/audit/`（rules 注册表 + engine 行修复 + migrate 整文件迁移 + AuditPage 路由 /audit）。
 - **样式**：`src/less/` 全部 token 化收口（theme.less 定义 `--memo-*`，作用域 memos_view + .dialog-wrapper；坑见 UI-STYLE.md）。
 
-## 3. 技术决策（一句话版，现行有效；被修订旧决策已删，完整论证与演变史见 [docs/adr/](docs/adr/)：0001 输入内核 / 0002 存储格式）
+## 3. 技术决策（一句话版，现行有效；被修订旧决策已删，完整论证与演变史见 [docs/adr/](docs/adr/)：0001 输入内核 / 0002 存储格式 / 0003 引用模型）
 
 - 时间统一 `HH:mm:ss` 落盘；`TimeFormat` 设置只影响显示与回写策略（HH:mm 模式暂停回写）。
 - 删除 = 头行 `deletedAt` 软删（值可读）；永久删除 = 删整卡片块。
 - 旧数据不渲染、写入只写新格式、混合文件合法（旧行等体检迁移）——见 §6 之外的 P1b 记录（git log 4c881ec）。
-- 评论停摆至 P3；linkId 语义作废（模型字段保留备用）。
+- 评论（缩进/linkId）**已废弃**——引用系统取代（[ADR-0003](docs/adr/0003-memo-link-reference-model.md)）：引用 = 正文 MEMO_LINK `[@标签](文件#^id)` 的普通卡，无独立字段，content 即真相。
 - Feed 排序 = createdAt 降序；指定日期写入走 `waitForInsert` 的 insertDate（moment）。
 - 输入内核 = **Obsidian 原生 MarkdownEditor 子类 + 首次 set() 建态 + DOM 外层控制**（2026-09-05 owner 拍板，论证见 [docs/adr/0001](docs/adr/0001-input-core-native-markdowneditor.md)，接入细节见 §6）；存储/体检规格见 PLAN-FORMAT.md，勿在 CONTEXT 重复。
 
 ## 4. Pending（按顺序）
 
-0. **P1.5 迁移正式化**（2026-09-05 dev 库全面测试，owner 已跑 8 样本迁移目视：**结论 OK**——评论行折叠进正文嵌套列表即为现行定案（v1 保真，P3 前不再改）；**正式库启用待 P3**）：真实范围 = 正式库 `## Memo` 区内 **407 memo + 68 评论行**（38 文件；274/322 有 memo；`## Tasks` 区与 delete.md 都在处理区外，迁移不碰）。已修 computeScope **标题型 token 空转 bug**（正式库 `ProcessEntriesBelow=## Memo` 时迁移/体检静默失效——token 行被当标题当场熄灭；现与读取器语义对齐：token 行只开门不入区）。dev 库处理区已切 `## Memo`（data.json 双键，旧测试数据不再显示）。样本池：`bak/prod-memos-20260905/`（8 个代表性文件，评论极端 2023-02-15 等）。
-1. **阶段 G**：formatMemoContent 渲染与图片/标签结构化拆分（小重构）。
-2. **F2 小红书导出**（最低优先，可弃）。
-3. **Roadmap**（§5）等 owner 细化后实施。
+0. **P3 引用系统（2026-09-05 grill 定案，ADR-0003；实施中）**：评论 ≡ 引用统一模型——MEMO_LINK 升级（`[@标签](文件#^id)`、多引用、链式）+ 父卡下聚合渲染。切片：**P3a 数据层** = MEMO_LINK 识别升级/聚合服务/迁移器 v2（旧评论行 → 引用卡，跨文件引擎）→ dev bak 重测；**P3b UI 层** = 折叠聚合区/入口按钮/浮窗/灰链/回收站（后置）。迁移器 v2 定稿后正式库一次到位（解 A2）。
+1. **P1.5 迁移正式化**（2026-09-05 dev 库全面测试，owner 已跑 8 样本迁移目视：**结论 OK**——评论行折叠进正文嵌套列表即为现行定案（v1 保真，P3 前不再改）；**正式库启用待 P3**）：真实范围 = 正式库 `## Memo` 区内 **407 memo + 68 评论行**（38 文件；274/322 有 memo；`## Tasks` 区与 delete.md 都在处理区外，迁移不碰）。已修 computeScope **标题型 token 空转 bug**（正式库 `ProcessEntriesBelow=## Memo` 时迁移/体检静默失效——token 行被当标题当场熄灭；现与读取器语义对齐：token 行只开门不入区）。dev 库处理区已切 `## Memo`（data.json 双键，旧测试数据不再显示）。样本池：`bak/prod-memos-20260905/`（8 个代表性文件，评论极端 2023-02-15 等）。
+2. **阶段 G**：formatMemoContent 渲染与图片/标签结构化拆分（小重构）。
+3. **F2 小红书导出**（最低优先，可弃）。
+4. **Roadmap**（§5）等 owner 细化后实施。
 
 ## 5. Roadmap（2026-09-04 登记，未排期，需 owner 细化）
 
