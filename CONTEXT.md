@@ -7,7 +7,7 @@
 
 - 插件 Rememo（id `rememo`，曾名 Memos Plus）。仓库：`L:\Files\ObsidianDevVault\.obsidian\plugins\obsidian-rememo`，分支 `dev`，pnpm+vite，`pnpm build` 出 main.js/styles.css 随提交附。`L:\Files\md-note-repo` 是正式库（317 日记）**勿碰**。HEAD 见 `git log -1`。
 - **存储唯一格式 = 卡片块**：头行 `- [ ]? HH:mm:ss [deletedAt: 可读] ^6位id`（纯标识，行内无正文）+ 其后 ≥4 空格正文。旧单行/<br>/评论已不渲染、写入只写新格式、旧行由体检整文件迁移恢复（决策 8 修订，2026-09-05）。
-- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 转向：输入内核已切换为 Obsidian 原生 MarkdownEditor 子类（530d1a5，kanban 式接入；自打包 cm6 + capture 兜底退役），待 owner 复测（清单见 §6）**；联想弹层/编辑命令路由随原生接入一并实测；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
+- **主线状态（2026-09-05）**：P1b（读收窄/写端/任务卡/迁移 v1）✅ 目视通过；**P2 输入内核定稿 ✅ owner 目视全绿（7b2c051）：原生 MarkdownEditor + 纯外层 DOM 控制 + appendConfig 观感注入（架构要点见 §6）**；P1.5 正式库迁移/G/F2/Roadmap 未排期（见 §4/§5）。
 - 已知可复验状态：新样例 `daily/2026-09-06.md`（dm0001~5）；旧测试数据在 dev 库 09-03/04/05 等文件（可一键体检迁移）；styles.css ~212 KiB、main.js ~1.35 MB（cm6 捆绑后）。
 
 ## 1. 核心域词汇（现行）
@@ -42,7 +42,7 @@
 
 ## 4. Pending（按顺序）
 
-0. **P2 原生接入复测**（530d1a5，清单见 §6）——owner 在 Obsidian 目视，据结果定后续（联想双弹层去留/格式键/回退决策）。
+0. **P2 收尾观察**（7b2c051 已全绿）：编辑态/弹窗多实例回归、占位/联想在极端重载时序下的稳定性；随后进入 P1.5 或 Roadmap 等 owner 定夺。
 1. **P1.5 迁移正式化**：v1 已在用；收紧（已删评论折叠/缺时间行政策），正式库 317 **只读体检报告 → 逐文件试点需 owner 点头**。
 2. **阶段 G**：formatMemoContent 渲染与图片/标签结构化拆分（小重构）。
 3. **F2 小红书导出**（最低优先，可弃）。
@@ -55,16 +55,17 @@
 - 格式/设置：输入框 `[[` 文件联想（rta 基础版已做过，P2 cm6 重做中）；markdown 所见即所得评估（P2 高亮为铺垫）。
 - 标签：平铺/树状切换按钮。
 
-## 6. P2 原生接入——已提交（530d1a5），待 owner 复测
+## 6. P2 输入内核定稿——7b2c051（owner 目视全绿），关键事实与坑
 
-- **背景**：75b16ec 的 window capture 兜底复测通过（Ctrl+Enter 已好），但 owner 拍板转 **Obsidian 原生编辑器体系**（kanban 式），Mod-B/I/E 等不必自做。根因侦察结论保留：Obsidian 内核在 window capture 最早注册 keydown、命中命令即 preventDefault+stopPropagation。
-- **接入**（仿 mgmeyers/obsidian-kanban main.ts getEditorClass + MarkdownEditor.tsx）：
-  - `src/editor/native.ts`：取内核 MarkdownEditor 构造器 = 瞬时 md embed（detached）→ `editable=true; showEditor()` → `editMode` 原型链倒退一层 `.constructor`；失败返回 null（UI 显示 init failed 不崩溃）。内部 API（embedRegistry/embedByExtension.md/editMode）在 Obsidian 1.13.7 已验证存在；**内核大版本升级需复测此 hack**。
-  - Editor.tsx 内层：`new 原生子类(app, el, controller)`；聚焦时 `workspace.activeEditor` 桥到 controller（`getMode:'source'` + `editor` getter）→ Obsidian 编辑器命令（Mod-B/I/E/任务等）直接作用于 memo 输入，不再吞键/误改主编辑器。
-  - Enter 策略：默认模式 Enter 交原生续行、Mod-Enter=发送；EnterToSend 模式 Enter=发送（联想 active 放行）、Mod-Enter=单行换行（最高优先级 keymap）。
-  - 自产扩展保留：placeholder / memoInputHighlight / memoAutocomplete（#/[[ 数据源 apply 可控）/ readOnly Compartment / updateListener。
-  - `src/editor/{keys,format,capture}.ts` 停用（未打包）；clear 无原生 clearHistory（发后 Ctrl+Z 复活旧文=已知低优先）。
-- **待 owner 复测清单**：① 输入框是否正常初始化（失败会显示 init failed）；② 打字/中文 IME；③ Enter 列表/任务续行、空项退出；④ Ctrl+Enter 发送、按钮发送、squash 动画；⑤ **Mod-B/I/E 原生格式键**（选区包裹）；⑥ **主编辑器文件是否不再被误改**；⑦ `#`/`[[` 联想是否出现、是否与原生联想双弹层（双弹层出现即停用自产 suggest，改原生）；⑧ undo/redo、placeholder 观感、编辑态（setContent/clear）流程。回退点：530d1a5 前一版（75b16ec capture 过渡版）。
+- **架构**：内核 MarkdownEditor 裸实例嵌入（native.ts embed hack 取类）+ **控制权全在编辑器外**：
+  - 变更回调 = contentDOM `input` 事件（DOM 通道必触发）→ 发送按钮可用态/缓存；`onUpdate` 覆写与 push updateListener 保留为多通道（幂等）
+  - activeEditor 桥 = contentDOM focus/blur → Obsidian 编辑命令（Mod-B/I/E 等）路由到 memo 输入
+  - 键盘 = contentDOM keydown（纯 Enter 发送）+ **window capture 兜底**（Ctrl+Enter；Obsidian 吞 Mod 键，75b16ec 机制，capture.ts 复用）
+  - 生命周期 = `plugin.addChild(editor)`（kanban 同款）；`removeHighlights/hasHighlight` 实例遮蔽（裸编辑器 state 无搜索高亮 field，点击/Esc 会 RangeError——已修）
+  - 观感扩展（换行/高亮/#·[[ 联想/占位）走 **`StateEffect.appendConfig`** 注入生效 state；load 链可能异步重建抹掉注入 → 立即全量 + 延迟(300/1500ms)补注 lineWrapping/高亮（facet/装饰类重复追加安全）
+- **血泪坑**：① buildLocalExtensions 覆写/原型 patch/onUpdate 全部不进生效 state（updateListener facet 实测恒 0，别在此路投入）；② `clear()` 禁 setState 重建（丢内核私有 StateField → RangeError 崩实例，d81/43ab64d 教训）；③ console.debug 探针会被控制台级别过滤吞掉（排查期用 console.warn）；④ 530d1a5 的"可用"复测疑为旧构建仍在跑（Obsidian 插件重载不一定加载新 main.js，验证前先确认探针/行为版本）
+- 视觉收尾：`==高亮==` 输入框（decoration .cm-hl-mark）+ 卡片渲染（marked.ts `<mark>`）；占位 CSS 叠层（.cm-host.is-empty::before + data-placeholder）；滚动条细条化 + overflow-x hidden + overflow-wrap anywhere
+- 已知小项：占位/联想单份注入若被 load 重建抹掉需重载恢复（补注只含 lineWrapping/高亮）；编辑态/弹窗多实例未回归测。回退点：75b16ec（自打包 cm6 版）为可用基线。
 
 ## 7. 当前事实（verified 2026-09-05）
 
