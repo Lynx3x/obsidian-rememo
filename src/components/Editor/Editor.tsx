@@ -2,12 +2,12 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import { Compartment, EditorState } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { handleModEnter, memoInputKeymap, type MemoKeymapOptions } from '../../editor/keys';
-import { memoFormatKeymap, runFormatAction } from '../../editor/format';
-import { attachKeyCapture } from '../../editor/capture';
+import { Prec } from '@codemirror/state';
+import { completionStatus } from '@codemirror/autocomplete';
 import { memoAutocomplete } from '../../editor/suggest';
 import { memoInputHighlight } from '../../editor/highlight';
+import { getNativeMarkdownEditorClass } from '../../editor/native';
+import appStore from '../../stores/appStore';
 import '../../less/editor.less';
 import { FocusOnEditor } from '../../memos';
 import SendIcon from '../../icons/send.svg?component';
@@ -15,13 +15,15 @@ import { t } from '../../translations/helper';
 import Only from '../common/OnlyWhen';
 
 /**
- * memo 主输入（P2：CodeMirror 6 迷你 EditorView，替代 rta textarea）。
- * 外层壳（.common-editor-wrapper + tools）与 props 契约保持，内层全换：
- *  - 列表/任务回车续行、Ctrl/Cmd+Enter 发送（keys.ts）
- *  - `#` 标签 / `[[` 文件联想（suggest.ts，复用 obTag/FileSuggester 数据源）
- *  - 轻量行内高亮（highlight.ts）+ 原生 history（commands）
- *  - 高度自适应走 CSS；readOnly 用 Compartment 动态开关
- * rta 弹层与 tiny-undo 已退役。
+ * memo 主输入（P2 转向：Obsidian 原生 MarkdownEditor 子类，替代自打包 cm6）。
+ * 外层壳（.common-editor-wrapper + tools）与 props/ref 契约不变，内层引擎换成
+ * 内核编辑器的子类实例（kanban 同款接入，见 native.ts）：
+ *  - 键盘 = Obsidian 原生（列表/任务续行、IME、undo/redo、原生 markdown 格式键）
+ *  - 编辑器聚焦时把 workspace.activeEditor 桥到本实例 → Obsidian 的编辑器命令
+ *    （Mod-B/I/E 等）直接作用于 memo 输入，不再被全局键拦截或误改主编辑器
+ *  - 发送键位（Enter / Ctrl+Enter 按 EnterToSend 设置）在最高优先级 keymap 覆写
+ *  - `#`/`[[` 联想、轻量高亮、placeholder 仍是自产扩展（数据源/apply 语义可控）
+ *  - readOnly（发送后发射前锁输入）走 Compartment
  */
 
 export interface EditorRefActions {
@@ -33,7 +35,7 @@ export interface EditorRefActions {
   insertText: (text: string) => void;
   setContent: (text: string) => void;
   getContent: () => string;
-  /** 清空输入（重建 state 同时清空 undo 历史——发送后不该能撤销回旧文） */
+  /** 清空输入（同时清 undo 历史——发送后不该能撤销回旧文） */
   clear: () => void;
   /** 锁定/解锁输入（readOnly），用于"发送后发射前"不让用户继续改内容 */
   setEditable: (editable: boolean) => void;
@@ -70,10 +72,10 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
   } = props;
 
   const mountRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<EditorView | null>(null);
+  const viewRef = useRef<EditorView | null>(null); // 原生实例的 cm（EditorView）
+  const nativeRef = useRef<any>(null); // 内核 MarkdownEditor 子类实例
   const roCompartmentRef = useRef(new Compartment());
-  const extRef = useRef<Extension[]>([]);
-  // 动态回调经 ref 转发（扩展实例只建一次）
+  // 动态回调经 ref 转发（原生实例只建一次）
   const cbRef = useRef<{
     confirm: (content: string) => void;
     change: (content: string) => void;
@@ -99,99 +101,151 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     if (!parent || parent.querySelector('.cm-editor')) {
       return;
     }
-    const buildExtensions = (): Extension[] => [
-      EditorView.lineWrapping,
-      history(),
-      placeholder(cbRef.current.placeholder),
-      memoInputHighlight,
-      memoAutocomplete(),
-      memoFormatKeymap(),
-      memoInputKeymap({
-        // 发送 = 以编辑器当前文档为准（缓存由 change 回调维护）
-        send: () => cbRef.current.confirm(cbRef.current.get?.() ?? ''),
-        isEnterToSend: () => cbRef.current.enterToSend,
-      }),
-      keymap.of([...defaultKeymap, ...historyKeymap]),
-      // Ctrl/Cmd+Enter 最后防线：正常情况下事件会被 window 层 capture 兜底
-      // （capture.ts）吞掉到不了这里；万一 capture 漏放行，DOM 层再拦一次发送
-      EditorView.domEventHandlers({
-        keydown: (event, view) => {
-          if (event.key !== 'Enter' || !(event.ctrlKey || event.metaKey)) {
-            return false;
-          }
-          if (cbRef.current.enterToSend) {
-            // Enter 发送模式：Ctrl+Enter = 单个换行
-            if (view.state.readOnly) return true;
-            const head = view.state.selection.main.head;
-            view.dispatch({
-              changes: { from: head, to: head, insert: '\n' },
-              selection: { anchor: head + 1 },
-            });
-          } else {
-            cbRef.current.confirm(cbRef.current.get?.() ?? '');
-          }
-          return true;
-        },
-      }),
-      roCompartmentRef.current.of([]),
-      EditorView.updateListener.of((u) => {
-        if (u.docChanged) {
-          const text = u.state.doc.toString();
-          setHasContent(text.length > 0);
-          cbRef.current.change(text);
+    const app: any = appStore.getState().dailyNotesState.app;
+    const NativeEditor = getNativeMarkdownEditorClass(app);
+    if (!NativeEditor) {
+      console.error('[rememo] 原生 MarkdownEditor 初始化失败（内核 API 变动，见 native.ts）');
+      parent.textContent = '[rememo] editor init failed (see console)';
+      return;
+    }
+
+    // ---- workspace.activeEditor 桥：聚焦时把本实例接为 activeEditor，让 Obsidian
+    // 编辑器命令（Mod-B/I/E、任务切换等）作用于 memo 输入而非主编辑器 ----
+    const controller = {
+      app,
+      getMode: () => 'source',
+      showSearch: () => undefined,
+      toggleMode: () => undefined,
+      onMarkdownScroll: () => undefined,
+      scroll: 0,
+      editMode: null,
+      file: null,
+      path: '',
+      get editor() {
+        return nativeRef.current?.editor;
+      },
+    };
+    const bridgeActiveEditor = (on: boolean) => {
+      const ws = app?.workspace;
+      if (!ws) return;
+      if (on) {
+        ws.activeEditor = controller;
+      } else if (ws.activeEditor === controller) {
+        ws.activeEditor = null;
+      }
+    };
+
+    // ---- 发送/换行：以编辑器当前文档为准（缓存由 change 回调维护） ----
+    const sendFrom = (view: EditorView) => {
+      cbRef.current.confirm(view.state.doc.toString());
+    };
+
+    class MemoNativeEditor extends NativeEditor {
+      constructor(...args: any[]) {
+        super(...args);
+      }
+
+      buildLocalExtensions(): Extension[] {
+        const exts: Extension[] = super.buildLocalExtensions?.() ?? [];
+        exts.push(
+          // 聚焦/失焦即桥接/卸下 activeEditor（仿 kanban MarkdownEditor focus 处理）
+          Prec.highest(
+            EditorView.domEventHandlers({
+              focus: () => {
+                bridgeActiveEditor(true);
+                return true;
+              },
+              blur: () => {
+                bridgeActiveEditor(false);
+                return true;
+              },
+            }),
+          ),
+          placeholder(cbRef.current.placeholder),
+          memoInputHighlight,
+          memoAutocomplete(),
+          keymap.of([
+            {
+              key: 'Enter',
+              run: (view) => {
+                if (!cbRef.current.enterToSend) return false; // 默认模式：交原生续行/换行
+                if (completionStatus(view.state) === 'active') return false; // 联想打开：交联想接受
+                sendFrom(view);
+                return true;
+              },
+            },
+            {
+              key: 'Mod-Enter',
+              run: (view) => {
+                if (cbRef.current.enterToSend) {
+                  // 发送模式：Ctrl/Cmd+Enter = 单行换行
+                  const head = view.state.selection.main.head;
+                  view.dispatch({
+                    changes: { from: head, to: head, insert: '\n' },
+                    selection: { anchor: head + 1 },
+                  });
+                  return true;
+                }
+                sendFrom(view);
+                return true;
+              },
+            },
+          ]),
+          roCompartmentRef.current.of([]),
+          EditorView.updateListener.of((u) => {
+            if (u.docChanged) {
+              const text = u.state.doc.toString();
+              setHasContent(text.length > 0);
+              cbRef.current.change(text);
+            }
+          }),
+        );
+        return exts;
+      }
+    }
+
+    let native: any;
+    try {
+      native = new MemoNativeEditor(app, parent, controller);
+    } catch (err) {
+      console.error('[rememo] 原生 MarkdownEditor 构造失败', err);
+      parent.textContent = '[rememo] editor init failed (see console)';
+      return;
+    }
+    nativeRef.current = native;
+    const cm: EditorView | undefined = native.cm;
+    if (!cm) {
+      console.error('[rememo] 原生实例无 .cm（内核结构变动？）');
+      parent.textContent = '[rememo] editor init failed (see console)';
+      return;
+    }
+    viewRef.current = cm;
+    cbRef.current.get = () => cm.state.doc.toString();
+
+    // 初始内容：优先实例 .set（kanban 同款），缺则走 editor 包装 setValue
+    const initial = initialContent ?? '';
+    if (initial) {
+      try {
+        if (typeof native.set === 'function') {
+          native.set(initial);
+        } else {
+          native.editor?.setValue?.(initial);
         }
-      }),
-    ];
-    const createState = (doc: string): EditorState =>
-      EditorState.create({ doc, extensions: buildExtensions() });
-
-    extRef.current = buildExtensions();
-    const view = new EditorView({
-      state: createState(initialContent ?? ''),
-      parent,
-    });
-    viewRef.current = view;
-    cbRef.current.get = () => view.state.doc.toString();
-
-    // window capture 兜底（Obsidian 全局键会吞掉 Mod 组合，见 capture.ts）：
-    // 与 cm keymap 同一语义（keys/format 共用函数），聚焦本编辑器时命中即拦截
-    const kbOpts = (): MemoKeymapOptions => ({
-      send: () => cbRef.current.confirm(cbRef.current.get?.() ?? ''),
-      isEnterToSend: () => cbRef.current.enterToSend,
-    });
-    const isMod = (e: KeyboardEvent) => (e.ctrlKey || e.metaKey) && !e.altKey;
-    const detachCapture = attachKeyCapture(view, [
-      {
-        match: (e) => !e.shiftKey && e.key === 'Enter' && isMod(e),
-        run: (v) => {
-          handleModEnter(v, kbOpts());
-        },
-      },
-      {
-        match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === 'b',
-        run: (v) => {
-          runFormatAction(v, 'b');
-        },
-      },
-      {
-        match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === 'i',
-        run: (v) => {
-          runFormatAction(v, 'i');
-        },
-      },
-      {
-        match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === 'e',
-        run: (v) => {
-          runFormatAction(v, 'e');
-        },
-      },
-    ]);
+      } catch (err) {
+        console.error('[rememo] 设置初始内容失败', err);
+      }
+    }
 
     return () => {
-      detachCapture();
-      view.destroy();
+      bridgeActiveEditor(false);
+      nativeRef.current = null;
       viewRef.current = null;
       cbRef.current.get = undefined;
+      try {
+        native.unload?.();
+      } catch (err) {
+        console.error('[rememo] 原生编辑器卸载异常', err);
+      }
     };
     // 只在挂载时建一次
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,9 +290,13 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       clear: () => {
         const view = viewRef.current;
         if (!view) return;
-        // 重建 state：同时清掉 undo 历史（发送后 Ctrl+Z 不应复活旧文）
-        view.setState(EditorState.create({ doc: '', extensions: extRef.current }));
+        if (view.state.doc.length > 0) {
+          view.dispatch({
+            changes: { from: 0, to: view.state.doc.length, insert: '' },
+          });
+        }
         setHasContent(false);
+        // 原生编辑器无公开 clearHistory：发后 Ctrl+Z 理论上可复活旧文（低优先，见 TODO）
       },
       setEditable: (editable: boolean) => {
         const view = viewRef.current;

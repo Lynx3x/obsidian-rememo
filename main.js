@@ -12446,7 +12446,7 @@ function Portal({ children, animation, styles: styles2, className, on, portal, c
     }, animationDuration);
   });
   react.exports.useEffect(() => subscribe(ACTION_CLOSE, handleClose), [subscribe, handleClose]);
-  const handleEnter2 = useEventCallback((node) => {
+  const handleEnter = useEventCallback((node) => {
     var _a2, _b, _c;
     node.scrollTop;
     setVisible(true);
@@ -12470,11 +12470,11 @@ function Portal({ children, animation, styles: styles2, className, on, portal, c
   });
   const handleRef = react.exports.useCallback((node) => {
     if (node) {
-      handleEnter2(node);
+      handleEnter(node);
     } else {
       handleCleanup();
     }
-  }, [handleEnter2, handleCleanup]);
+  }, [handleEnter, handleCleanup]);
   return mounted ? reactDom.exports.createPortal(react.exports.createElement(LightboxRoot, { ref: handleRef, className: clsx(className, cssClass(cssPrefix$1()), cssClass(CLASS_NO_SCROLL_PADDING), visible && cssClass(cssPrefix$1("open"))), role: "presentation", "aria-live": "polite", style: {
     ...animation.fade !== LightboxDefaultProps.animation.fade ? { [cssVar("fade_animation_duration")]: `${animationDuration}ms` } : null,
     ...animation.easing.fade !== LightboxDefaultProps.animation.easing.fade ? { [cssVar("fade_animation_timing_function")]: animation.easing.fade } : null,
@@ -17687,9 +17687,9 @@ function extendTransaction(tr2) {
   }
   return spec == tr2 ? tr2 : Transaction.create(state, tr2.changes, tr2.selection, spec.effects, spec.annotations, spec.scrollIntoView);
 }
-const none$2 = [];
+const none$1 = [];
 function asArray(value) {
-  return value == null ? none$2 : Array.isArray(value) ? value : [value];
+  return value == null ? none$1 : Array.isArray(value) ? value : [value];
 }
 var CharCategory = /* @__PURE__ */ function(CharCategory2) {
   CharCategory2[CharCategory2["Word"] = 0] = "Word";
@@ -18664,19 +18664,6 @@ function findMinIndex(value, array) {
       foundPos = array[i2];
     }
   return found;
-}
-function countColumn(string2, tabSize, to = string2.length) {
-  let n2 = 0;
-  for (let i2 = 0; i2 < to && i2 < string2.length; ) {
-    if (string2.charCodeAt(i2) == 9) {
-      n2 += tabSize - n2 % tabSize;
-      i2++;
-    } else {
-      n2++;
-      i2 = findClusterBreak(string2, i2);
-    }
-  }
-  return n2;
 }
 function findColumn(string2, col, tabSize, strict) {
   for (let i2 = 0, n2 = 0; ; ) {
@@ -26475,7 +26462,7 @@ function buildKeymap(bindings, platform = currentPlatform) {
     else if (current != is)
       throw new Error("Key binding " + name2 + " is used both as a regular binding and as a multi-stroke prefix");
   };
-  let add = (scope, key, command2, preventDefault, stopPropagation) => {
+  let add = (scope, key, command, preventDefault, stopPropagation) => {
     var _a2, _b;
     let scopeObj = bound[scope] || (bound[scope] = /* @__PURE__ */ Object.create(null));
     let parts = key.split(/ (?!$)/).map((k) => normalizeKeyName(k, platform));
@@ -26503,8 +26490,8 @@ function buildKeymap(bindings, platform = currentPlatform) {
       stopPropagation: false,
       run: ((_b = (_a2 = scopeObj._any) === null || _a2 === void 0 ? void 0 : _a2.run) === null || _b === void 0 ? void 0 : _b.slice()) || []
     });
-    if (command2)
-      binding.run.push(command2);
+    if (command)
+      binding.run.push(command);
     if (preventDefault)
       binding.preventDefault = true;
     if (stopPropagation)
@@ -26548,10 +26535,10 @@ function runHandlers(map, event, view, scope) {
   let ran = /* @__PURE__ */ new Set();
   let runFor = (binding) => {
     if (binding) {
-      for (let cmd2 of binding.run)
-        if (!ran.has(cmd2)) {
-          ran.add(cmd2);
-          if (cmd2(view)) {
+      for (let cmd of binding.run)
+        if (!ran.has(cmd)) {
+          ran.add(cmd);
+          if (cmd(view)) {
             if (binding.stopPropagation)
               stopPropagation = true;
             return true;
@@ -28970,203 +28957,6 @@ const language = /* @__PURE__ */ Facet.define({
     })
   ]
 });
-const indentService = /* @__PURE__ */ Facet.define();
-const indentUnit = /* @__PURE__ */ Facet.define({
-  combine: (values) => {
-    if (!values.length)
-      return "  ";
-    let unit = values[0];
-    if (!unit || /\S/.test(unit) || Array.from(unit).some((e) => e != unit[0]))
-      throw new Error("Invalid indent unit: " + JSON.stringify(values[0]));
-    return unit;
-  }
-});
-function getIndentUnit(state) {
-  let unit = state.facet(indentUnit);
-  return unit.charCodeAt(0) == 9 ? state.tabSize * unit.length : unit.length;
-}
-function indentString(state, cols) {
-  let result = "", ts = state.tabSize, ch2 = state.facet(indentUnit)[0];
-  if (ch2 == "	") {
-    while (cols >= ts) {
-      result += "	";
-      cols -= ts;
-    }
-    ch2 = " ";
-  }
-  for (let i2 = 0; i2 < cols; i2++)
-    result += ch2;
-  return result;
-}
-function getIndentation(context, pos) {
-  if (context instanceof EditorState)
-    context = new IndentContext(context);
-  for (let service of context.state.facet(indentService)) {
-    let result = service(context, pos);
-    if (result !== void 0)
-      return result;
-  }
-  let tree = syntaxTree(context.state);
-  return tree.length >= pos ? syntaxIndentation(context, tree, pos) : null;
-}
-class IndentContext {
-  constructor(state, options = {}) {
-    this.state = state;
-    this.options = options;
-    this.unit = getIndentUnit(state);
-  }
-  lineAt(pos, bias = 1) {
-    let line = this.state.doc.lineAt(pos);
-    let { simulateBreak, simulateDoubleBreak } = this.options;
-    if (simulateBreak != null && simulateBreak >= line.from && simulateBreak <= line.to) {
-      if (simulateDoubleBreak && simulateBreak == pos)
-        return { text: "", from: pos };
-      else if (bias < 0 ? simulateBreak < pos : simulateBreak <= pos)
-        return { text: line.text.slice(simulateBreak - line.from), from: simulateBreak };
-      else
-        return { text: line.text.slice(0, simulateBreak - line.from), from: line.from };
-    }
-    return line;
-  }
-  textAfterPos(pos, bias = 1) {
-    if (this.options.simulateDoubleBreak && pos == this.options.simulateBreak)
-      return "";
-    let { text, from } = this.lineAt(pos, bias);
-    return text.slice(pos - from, Math.min(text.length, pos + 100 - from));
-  }
-  column(pos, bias = 1) {
-    let { text, from } = this.lineAt(pos, bias);
-    let result = this.countColumn(text, pos - from);
-    let override = this.options.overrideIndentation ? this.options.overrideIndentation(from) : -1;
-    if (override > -1)
-      result += override - this.countColumn(text, text.search(/\S|$/));
-    return result;
-  }
-  countColumn(line, pos = line.length) {
-    return countColumn(line, this.state.tabSize, pos);
-  }
-  lineIndent(pos, bias = 1) {
-    let { text, from } = this.lineAt(pos, bias);
-    let override = this.options.overrideIndentation;
-    if (override) {
-      let overriden = override(from);
-      if (overriden > -1)
-        return overriden;
-    }
-    return this.countColumn(text, text.search(/\S|$/));
-  }
-  get simulatedBreak() {
-    return this.options.simulateBreak || null;
-  }
-}
-const indentNodeProp = /* @__PURE__ */ new NodeProp();
-function syntaxIndentation(cx, ast, pos) {
-  let stack = ast.resolveStack(pos);
-  let inner = ast.resolveInner(pos, -1).resolve(pos, 0).enterUnfinishedNodesBefore(pos);
-  if (inner != stack.node) {
-    let add = [];
-    for (let cur2 = inner; cur2 && !(cur2.from < stack.node.from || cur2.to > stack.node.to || cur2.from == stack.node.from && cur2.type == stack.node.type); cur2 = cur2.parent)
-      add.push(cur2);
-    for (let i2 = add.length - 1; i2 >= 0; i2--)
-      stack = { node: add[i2], next: stack };
-  }
-  return indentFor(stack, cx, pos);
-}
-function indentFor(stack, cx, pos) {
-  for (let cur2 = stack; cur2; cur2 = cur2.next) {
-    let strategy = indentStrategy(cur2.node);
-    if (strategy)
-      return strategy(TreeIndentContext.create(cx, pos, cur2));
-  }
-  return 0;
-}
-function ignoreClosed(cx) {
-  return cx.pos == cx.options.simulateBreak && cx.options.simulateDoubleBreak;
-}
-function indentStrategy(tree) {
-  let strategy = tree.type.prop(indentNodeProp);
-  if (strategy)
-    return strategy;
-  let first = tree.firstChild, close;
-  if (first && (close = first.type.prop(NodeProp.closedBy))) {
-    let last2 = tree.lastChild, closed = last2 && close.indexOf(last2.name) > -1;
-    return (cx) => delimitedStrategy(cx, true, 1, void 0, closed && !ignoreClosed(cx) ? last2.from : void 0);
-  }
-  return tree.parent == null ? topIndent : null;
-}
-function topIndent() {
-  return 0;
-}
-class TreeIndentContext extends IndentContext {
-  constructor(base2, pos, context) {
-    super(base2.state, base2.options);
-    this.base = base2;
-    this.pos = pos;
-    this.context = context;
-  }
-  get node() {
-    return this.context.node;
-  }
-  static create(base2, pos, context) {
-    return new TreeIndentContext(base2, pos, context);
-  }
-  get textAfter() {
-    return this.textAfterPos(this.pos);
-  }
-  get baseIndent() {
-    return this.baseIndentFor(this.node);
-  }
-  baseIndentFor(node) {
-    let line = this.state.doc.lineAt(node.from);
-    for (; ; ) {
-      let atBreak = node.resolve(line.from);
-      while (atBreak.parent && atBreak.parent.from == atBreak.from)
-        atBreak = atBreak.parent;
-      if (isParent(atBreak, node))
-        break;
-      line = this.state.doc.lineAt(atBreak.from);
-    }
-    return this.lineIndent(line.from);
-  }
-  continue() {
-    return indentFor(this.context.next, this.base, this.pos);
-  }
-}
-function isParent(parent, of2) {
-  for (let cur2 = of2; cur2; cur2 = cur2.parent)
-    if (parent == cur2)
-      return true;
-  return false;
-}
-function bracketedAligned(context) {
-  let tree = context.node;
-  let openToken = tree.childAfter(tree.from), last2 = tree.lastChild;
-  if (!openToken)
-    return null;
-  let sim = context.options.simulateBreak;
-  let openLine = context.state.doc.lineAt(openToken.from);
-  let lineEnd = sim == null || sim <= openLine.from ? openLine.to : Math.min(openLine.to, sim);
-  for (let pos = openToken.to; ; ) {
-    let next = tree.childAfter(pos);
-    if (!next || next == last2)
-      return null;
-    if (!next.type.isSkipped) {
-      if (next.from >= lineEnd)
-        return null;
-      let space = /^ */.exec(openLine.text.slice(openToken.to - openLine.from))[0].length;
-      return { from: openToken.from, to: openToken.to + space };
-    }
-    pos = next.to;
-  }
-}
-function delimitedStrategy(context, align, units, closing, closedAt) {
-  let after = context.textAfter, space = after.match(/^\s*/)[0].length;
-  let closed = closing && after.slice(space, space + closing.length) == closing || closedAt == context.pos + space;
-  let aligned = align ? bracketedAligned(context) : null;
-  if (aligned)
-    return closed ? context.column(aligned.from) : context.column(aligned.to);
-  return context.baseIndent + (closed ? 0 : context.unit * units);
-}
 class HighlightStyle {
   constructor(specs, options) {
     this.specs = specs;
@@ -29271,93 +29061,6 @@ class HighlightStyle {
     color: "#f00"
   }
 ]);
-const DefaultScanDist = 1e4, DefaultBrackets = "()[]{}";
-const bracketMatchingHandle = /* @__PURE__ */ new NodeProp();
-function matchingNodes(node, dir, brackets) {
-  let byProp = node.prop(dir < 0 ? NodeProp.openedBy : NodeProp.closedBy);
-  if (byProp)
-    return byProp;
-  if (node.name.length == 1) {
-    let index = brackets.indexOf(node.name);
-    if (index > -1 && index % 2 == (dir < 0 ? 1 : 0))
-      return [brackets[index + dir]];
-  }
-  return null;
-}
-function findHandle(node) {
-  let hasHandle = node.type.prop(bracketMatchingHandle);
-  return hasHandle ? hasHandle(node.node) : node;
-}
-function matchBrackets(state, pos, dir, config = {}) {
-  let maxScanDistance = config.maxScanDistance || DefaultScanDist, brackets = config.brackets || DefaultBrackets;
-  let tree = syntaxTree(state), node = tree.resolveInner(pos, dir);
-  for (let cur2 = node; cur2; cur2 = cur2.parent) {
-    let matches = matchingNodes(cur2.type, dir, brackets);
-    if (matches && cur2.from < cur2.to) {
-      let handle = findHandle(cur2);
-      if (handle && (dir > 0 ? pos >= handle.from && pos < handle.to : pos > handle.from && pos <= handle.to))
-        return matchMarkedBrackets(state, pos, dir, cur2, handle, matches, brackets);
-    }
-  }
-  return matchPlainBrackets(state, pos, dir, tree, node.type, maxScanDistance, brackets);
-}
-function matchMarkedBrackets(_state, _pos, dir, token, handle, matching, brackets) {
-  let parent = token.parent, firstToken = { from: handle.from, to: handle.to };
-  let depth = 0, cursor = parent === null || parent === void 0 ? void 0 : parent.cursor();
-  if (cursor && (dir < 0 ? cursor.childBefore(token.from) : cursor.childAfter(token.to)))
-    do {
-      if (dir < 0 ? cursor.to <= token.from : cursor.from >= token.to) {
-        if (depth == 0 && matching.indexOf(cursor.type.name) > -1 && cursor.from < cursor.to) {
-          let endHandle = findHandle(cursor);
-          return { start: firstToken, end: endHandle ? { from: endHandle.from, to: endHandle.to } : void 0, matched: true };
-        } else if (matchingNodes(cursor.type, dir, brackets)) {
-          depth++;
-        } else if (matchingNodes(cursor.type, -dir, brackets)) {
-          if (depth == 0) {
-            let endHandle = findHandle(cursor);
-            return {
-              start: firstToken,
-              end: endHandle && endHandle.from < endHandle.to ? { from: endHandle.from, to: endHandle.to } : void 0,
-              matched: false
-            };
-          }
-          depth--;
-        }
-      }
-    } while (dir < 0 ? cursor.prevSibling() : cursor.nextSibling());
-  return { start: firstToken, matched: false };
-}
-function matchPlainBrackets(state, pos, dir, tree, tokenType, maxScanDistance, brackets) {
-  if (dir < 0 ? !pos : pos == state.doc.length)
-    return null;
-  let startCh = dir < 0 ? state.sliceDoc(pos - 1, pos) : state.sliceDoc(pos, pos + 1);
-  let bracket2 = brackets.indexOf(startCh);
-  if (bracket2 < 0 || bracket2 % 2 == 0 != dir > 0)
-    return null;
-  let startToken = { from: dir < 0 ? pos - 1 : pos, to: dir > 0 ? pos + 1 : pos };
-  let iter = state.doc.iterRange(pos, dir > 0 ? state.doc.length : 0), depth = 0;
-  for (let distance2 = 0; !iter.next().done && distance2 <= maxScanDistance; ) {
-    let text = iter.value;
-    if (dir < 0)
-      distance2 += text.length;
-    let basePos = pos + distance2 * dir;
-    for (let pos2 = dir > 0 ? 0 : text.length - 1, end2 = dir > 0 ? text.length : -1; pos2 != end2; pos2 += dir) {
-      let found = brackets.indexOf(text[pos2]);
-      if (found < 0 || tree.resolveInner(basePos + pos2, 1).type != tokenType)
-        continue;
-      if (found % 2 == 0 == dir > 0) {
-        depth++;
-      } else if (depth == 1) {
-        return { start: startToken, end: { from: basePos + pos2, to: basePos + pos2 + 1 }, matched: found >> 1 == bracket2 >> 1 };
-      } else {
-        depth--;
-      }
-    }
-    if (dir > 0)
-      distance2 += text.length;
-  }
-  return iter.done ? { start: startToken, matched: false } : null;
-}
 const noTokens = /* @__PURE__ */ Object.create(null);
 const typeArray = [NodeType.none];
 const warned = [];
@@ -29426,1082 +29129,6 @@ function createTokenType(extra, tagStr) {
   ltr: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "ltr" }, bidiIsolate: Direction.LTR }),
   auto: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "auto" }, bidiIsolate: null })
 });
-const toggleComment = (target) => {
-  let { state } = target, line = state.doc.lineAt(state.selection.main.from), config = getConfig(target.state, line.from);
-  return config.line ? toggleLineComment(target) : config.block ? toggleBlockCommentByLine(target) : false;
-};
-function command(f2, option) {
-  return ({ state, dispatch }) => {
-    if (state.readOnly)
-      return false;
-    let tr2 = f2(option, state);
-    if (!tr2)
-      return false;
-    dispatch(state.update(tr2));
-    return true;
-  };
-}
-const toggleLineComment = /* @__PURE__ */ command(changeLineComment, 0);
-const toggleBlockComment = /* @__PURE__ */ command(changeBlockComment, 0);
-const toggleBlockCommentByLine = /* @__PURE__ */ command((o, s) => changeBlockComment(o, s, selectedLineRanges(s)), 0);
-function getConfig(state, pos) {
-  let data = state.languageDataAt("commentTokens", pos, 1);
-  return data.length ? data[0] : {};
-}
-const SearchMargin = 50;
-function findBlockComment(state, { open, close }, from, to) {
-  let textBefore = state.sliceDoc(from - SearchMargin, from);
-  let textAfter = state.sliceDoc(to, to + SearchMargin);
-  let spaceBefore = /\s*$/.exec(textBefore)[0].length, spaceAfter = /^\s*/.exec(textAfter)[0].length;
-  let beforeOff = textBefore.length - spaceBefore;
-  if (textBefore.slice(beforeOff - open.length, beforeOff) == open && textAfter.slice(spaceAfter, spaceAfter + close.length) == close) {
-    return {
-      open: { pos: from - spaceBefore, margin: spaceBefore && 1 },
-      close: { pos: to + spaceAfter, margin: spaceAfter && 1 }
-    };
-  }
-  let startText, endText;
-  if (to - from <= 2 * SearchMargin) {
-    startText = endText = state.sliceDoc(from, to);
-  } else {
-    startText = state.sliceDoc(from, from + SearchMargin);
-    endText = state.sliceDoc(to - SearchMargin, to);
-  }
-  let startSpace = /^\s*/.exec(startText)[0].length, endSpace = /\s*$/.exec(endText)[0].length;
-  let endOff = endText.length - endSpace - close.length;
-  if (startText.slice(startSpace, startSpace + open.length) == open && endText.slice(endOff, endOff + close.length) == close) {
-    return {
-      open: {
-        pos: from + startSpace + open.length,
-        margin: /\s/.test(startText.charAt(startSpace + open.length)) ? 1 : 0
-      },
-      close: {
-        pos: to - endSpace - close.length,
-        margin: /\s/.test(endText.charAt(endOff - 1)) ? 1 : 0
-      }
-    };
-  }
-  return null;
-}
-function selectedLineRanges(state) {
-  let ranges = [];
-  for (let r2 of state.selection.ranges) {
-    let fromLine = state.doc.lineAt(r2.from);
-    let toLine = r2.to <= fromLine.to ? fromLine : state.doc.lineAt(r2.to);
-    if (toLine.from > fromLine.from && toLine.from == r2.to)
-      toLine = r2.to == fromLine.to + 1 ? fromLine : state.doc.lineAt(r2.to - 1);
-    let last2 = ranges.length - 1;
-    if (last2 >= 0 && ranges[last2].to > fromLine.from)
-      ranges[last2].to = toLine.to;
-    else
-      ranges.push({ from: fromLine.from + /^\s*/.exec(fromLine.text)[0].length, to: toLine.to });
-  }
-  return ranges;
-}
-function changeBlockComment(option, state, ranges = state.selection.ranges) {
-  let tokens = ranges.map((r2) => getConfig(state, r2.from).block);
-  if (!tokens.every((c) => c))
-    return null;
-  let comments = ranges.map((r2, i2) => findBlockComment(state, tokens[i2], r2.from, r2.to));
-  if (option != 2 && !comments.every((c) => c)) {
-    return { changes: state.changes(ranges.map((range, i2) => {
-      if (comments[i2])
-        return [];
-      return [{ from: range.from, insert: tokens[i2].open + " " }, { from: range.to, insert: " " + tokens[i2].close }];
-    })) };
-  } else if (option != 1 && comments.some((c) => c)) {
-    let changes = [];
-    for (let i2 = 0, comment2; i2 < comments.length; i2++)
-      if (comment2 = comments[i2]) {
-        let token = tokens[i2], { open, close } = comment2;
-        changes.push({ from: open.pos - token.open.length, to: open.pos + open.margin }, { from: close.pos - close.margin, to: close.pos + token.close.length });
-      }
-    return { changes };
-  }
-  return null;
-}
-function changeLineComment(option, state, ranges = state.selection.ranges) {
-  let lines = [];
-  let prevLine = -1;
-  ranges:
-    for (let { from, to } of ranges) {
-      let startI = lines.length, minIndent = 1e9, token;
-      for (let pos = from; pos <= to; ) {
-        let line = state.doc.lineAt(pos);
-        if (token == void 0) {
-          token = getConfig(state, line.from).line;
-          if (!token)
-            continue ranges;
-        }
-        if (line.from > prevLine && (from == to || to > line.from)) {
-          prevLine = line.from;
-          let indent = /^\s*/.exec(line.text)[0].length;
-          let empty = indent == line.length;
-          let comment2 = line.text.slice(indent, indent + token.length) == token ? indent : -1;
-          if (indent < line.text.length && indent < minIndent)
-            minIndent = indent;
-          lines.push({ line, comment: comment2, token, indent, empty, single: false });
-        }
-        pos = line.to + 1;
-      }
-      if (minIndent < 1e9) {
-        for (let i2 = startI; i2 < lines.length; i2++)
-          if (lines[i2].indent < lines[i2].line.text.length)
-            lines[i2].indent = minIndent;
-      }
-      if (lines.length == startI + 1)
-        lines[startI].single = true;
-    }
-  if (option != 2 && lines.some((l2) => l2.comment < 0 && (!l2.empty || l2.single))) {
-    let changes = [];
-    for (let { line, token, indent, empty, single } of lines)
-      if (single || !empty)
-        changes.push({ from: line.from + indent, insert: token + " " });
-    let changeSet = state.changes(changes);
-    return { changes: changeSet, selection: state.selection.map(changeSet, 1) };
-  } else if (option != 1 && lines.some((l2) => l2.comment >= 0)) {
-    let changes = [];
-    for (let { line, comment: comment2, token } of lines)
-      if (comment2 >= 0) {
-        let from = line.from + comment2, to = from + token.length;
-        if (line.text[to - line.from] == " ")
-          to++;
-        changes.push({ from, to });
-      }
-    return { changes };
-  }
-  return null;
-}
-const fromHistory = /* @__PURE__ */ Annotation.define();
-const isolateHistory = /* @__PURE__ */ Annotation.define();
-const invertedEffects = /* @__PURE__ */ Facet.define();
-const historyConfig = /* @__PURE__ */ Facet.define({
-  combine(configs) {
-    return combineConfig(configs, {
-      minDepth: 100,
-      newGroupDelay: 500,
-      joinToEvent: (_t, isAdjacent2) => isAdjacent2
-    }, {
-      minDepth: Math.max,
-      newGroupDelay: Math.min,
-      joinToEvent: (a, b) => (tr2, adj) => a(tr2, adj) || b(tr2, adj)
-    });
-  }
-});
-const historyField_ = /* @__PURE__ */ StateField.define({
-  create() {
-    return HistoryState.empty;
-  },
-  update(state, tr2) {
-    let config = tr2.state.facet(historyConfig);
-    let fromHist = tr2.annotation(fromHistory);
-    if (fromHist) {
-      let item = HistEvent.fromTransaction(tr2, fromHist.selection), from = fromHist.side;
-      let other = from == 0 ? state.undone : state.done;
-      if (item)
-        other = updateBranch(other, other.length, config.minDepth, item);
-      else
-        other = addSelection(other, tr2.startState.selection);
-      return new HistoryState(from == 0 ? fromHist.rest : other, from == 0 ? other : fromHist.rest);
-    }
-    let isolate = tr2.annotation(isolateHistory);
-    if (isolate == "full" || isolate == "before")
-      state = state.isolate();
-    if (tr2.annotation(Transaction.addToHistory) === false)
-      return !tr2.changes.empty ? state.addMapping(tr2.changes.desc) : state;
-    let event = HistEvent.fromTransaction(tr2);
-    let time = tr2.annotation(Transaction.time), userEvent = tr2.annotation(Transaction.userEvent);
-    if (event)
-      state = state.addChanges(event, time, userEvent, config, tr2);
-    else if (tr2.selection)
-      state = state.addSelection(tr2.startState.selection, time, userEvent, config.newGroupDelay);
-    if (isolate == "full" || isolate == "after")
-      state = state.isolate();
-    return state;
-  },
-  toJSON(value) {
-    return { done: value.done.map((e) => e.toJSON()), undone: value.undone.map((e) => e.toJSON()) };
-  },
-  fromJSON(json) {
-    return new HistoryState(json.done.map(HistEvent.fromJSON), json.undone.map(HistEvent.fromJSON));
-  }
-});
-function history(config = {}) {
-  return [
-    historyField_,
-    historyConfig.of(config),
-    EditorView.domEventHandlers({
-      beforeinput(e, view) {
-        let command2 = e.inputType == "historyUndo" ? undo : e.inputType == "historyRedo" ? redo : null;
-        if (!command2)
-          return false;
-        e.preventDefault();
-        return command2(view);
-      }
-    })
-  ];
-}
-function cmd(side, selection) {
-  return function({ state, dispatch }) {
-    if (!selection && state.readOnly)
-      return false;
-    let historyState = state.field(historyField_, false);
-    if (!historyState)
-      return false;
-    let tr2 = historyState.pop(side, state, selection);
-    if (!tr2)
-      return false;
-    dispatch(tr2);
-    return true;
-  };
-}
-const undo = /* @__PURE__ */ cmd(0, false);
-const redo = /* @__PURE__ */ cmd(1, false);
-const undoSelection = /* @__PURE__ */ cmd(0, true);
-const redoSelection = /* @__PURE__ */ cmd(1, true);
-class HistEvent {
-  constructor(changes, effects, mapped, startSelection, selectionsAfter) {
-    this.changes = changes;
-    this.effects = effects;
-    this.mapped = mapped;
-    this.startSelection = startSelection;
-    this.selectionsAfter = selectionsAfter;
-  }
-  setSelAfter(after) {
-    return new HistEvent(this.changes, this.effects, this.mapped, this.startSelection, after);
-  }
-  toJSON() {
-    var _a2, _b, _c;
-    return {
-      changes: (_a2 = this.changes) === null || _a2 === void 0 ? void 0 : _a2.toJSON(),
-      mapped: (_b = this.mapped) === null || _b === void 0 ? void 0 : _b.toJSON(),
-      startSelection: (_c = this.startSelection) === null || _c === void 0 ? void 0 : _c.toJSON(),
-      selectionsAfter: this.selectionsAfter.map((s) => s.toJSON())
-    };
-  }
-  static fromJSON(json) {
-    return new HistEvent(json.changes && ChangeSet.fromJSON(json.changes), [], json.mapped && ChangeDesc.fromJSON(json.mapped), json.startSelection && EditorSelection.fromJSON(json.startSelection), json.selectionsAfter.map(EditorSelection.fromJSON));
-  }
-  static fromTransaction(tr2, selection) {
-    let effects = none$1;
-    for (let invert of tr2.startState.facet(invertedEffects)) {
-      let result = invert(tr2);
-      if (result.length)
-        effects = effects.concat(result);
-    }
-    if (!effects.length && tr2.changes.empty)
-      return null;
-    return new HistEvent(tr2.changes.invert(tr2.startState.doc), effects, void 0, selection || tr2.startState.selection, none$1);
-  }
-  static selection(selections) {
-    return new HistEvent(void 0, none$1, void 0, void 0, selections);
-  }
-}
-function updateBranch(branch, to, maxLen, newEvent) {
-  let start2 = to + 1 > maxLen + 20 ? to - maxLen - 1 : 0;
-  let newBranch = branch.slice(start2, to);
-  newBranch.push(newEvent);
-  return newBranch;
-}
-function isAdjacent(a, b) {
-  let ranges = [], isAdjacent2 = false;
-  a.iterChangedRanges((f2, t2) => ranges.push(f2, t2));
-  b.iterChangedRanges((_f, _t, f2, t2) => {
-    for (let i2 = 0; i2 < ranges.length; ) {
-      let from = ranges[i2++], to = ranges[i2++];
-      if (t2 >= from && f2 <= to)
-        isAdjacent2 = true;
-    }
-  });
-  return isAdjacent2;
-}
-function eqSelectionShape(a, b) {
-  return a.ranges.length == b.ranges.length && a.ranges.filter((r2, i2) => r2.empty != b.ranges[i2].empty).length === 0;
-}
-function conc(a, b) {
-  return !a.length ? b : !b.length ? a : a.concat(b);
-}
-const none$1 = [];
-const MaxSelectionsPerEvent = 200;
-function addSelection(branch, selection) {
-  if (!branch.length) {
-    return [HistEvent.selection([selection])];
-  } else {
-    let lastEvent = branch[branch.length - 1];
-    let sels = lastEvent.selectionsAfter.slice(Math.max(0, lastEvent.selectionsAfter.length - MaxSelectionsPerEvent));
-    if (sels.length && sels[sels.length - 1].eq(selection))
-      return branch;
-    sels.push(selection);
-    return updateBranch(branch, branch.length - 1, 1e9, lastEvent.setSelAfter(sels));
-  }
-}
-function popSelection(branch) {
-  let last2 = branch[branch.length - 1];
-  let newBranch = branch.slice();
-  newBranch[branch.length - 1] = last2.setSelAfter(last2.selectionsAfter.slice(0, last2.selectionsAfter.length - 1));
-  return newBranch;
-}
-function addMappingToBranch(branch, mapping) {
-  if (!branch.length)
-    return branch;
-  let length = branch.length, selections = none$1;
-  while (length) {
-    let event = mapEvent(branch[length - 1], mapping, selections);
-    if (event.changes && !event.changes.empty || event.effects.length) {
-      let result = branch.slice(0, length);
-      result[length - 1] = event;
-      return result;
-    } else {
-      mapping = event.mapped;
-      length--;
-      selections = event.selectionsAfter;
-    }
-  }
-  return selections.length ? [HistEvent.selection(selections)] : none$1;
-}
-function mapEvent(event, mapping, extraSelections) {
-  let selections = conc(event.selectionsAfter.length ? event.selectionsAfter.map((s) => s.map(mapping)) : none$1, extraSelections);
-  if (!event.changes)
-    return HistEvent.selection(selections);
-  let mappedChanges = event.changes.map(mapping), before = mapping.mapDesc(event.changes, true);
-  let fullMapping = event.mapped ? event.mapped.composeDesc(before) : before;
-  return new HistEvent(mappedChanges, StateEffect.mapEffects(event.effects, mapping), fullMapping, event.startSelection.map(before), selections);
-}
-const joinableUserEvent = /^(input\.type|delete)($|\.)/;
-class HistoryState {
-  constructor(done, undone, prevTime = 0, prevUserEvent = void 0) {
-    this.done = done;
-    this.undone = undone;
-    this.prevTime = prevTime;
-    this.prevUserEvent = prevUserEvent;
-  }
-  isolate() {
-    return this.prevTime ? new HistoryState(this.done, this.undone) : this;
-  }
-  addChanges(event, time, userEvent, config, tr2) {
-    let done = this.done, lastEvent = done[done.length - 1];
-    if (lastEvent && lastEvent.changes && !lastEvent.changes.empty && event.changes && (!userEvent || joinableUserEvent.test(userEvent)) && (!lastEvent.selectionsAfter.length && time - this.prevTime < config.newGroupDelay && config.joinToEvent(tr2, isAdjacent(lastEvent.changes, event.changes)) || userEvent == "input.type.compose")) {
-      done = updateBranch(done, done.length - 1, config.minDepth, new HistEvent(event.changes.compose(lastEvent.changes), conc(StateEffect.mapEffects(event.effects, lastEvent.changes), lastEvent.effects), lastEvent.mapped, lastEvent.startSelection, none$1));
-    } else {
-      done = updateBranch(done, done.length, config.minDepth, event);
-    }
-    return new HistoryState(done, none$1, time, userEvent);
-  }
-  addSelection(selection, time, userEvent, newGroupDelay) {
-    let last2 = this.done.length ? this.done[this.done.length - 1].selectionsAfter : none$1;
-    if (last2.length > 0 && time - this.prevTime < newGroupDelay && userEvent == this.prevUserEvent && userEvent && /^select($|\.)/.test(userEvent) && eqSelectionShape(last2[last2.length - 1], selection))
-      return this;
-    return new HistoryState(addSelection(this.done, selection), this.undone, time, userEvent);
-  }
-  addMapping(mapping) {
-    return new HistoryState(addMappingToBranch(this.done, mapping), addMappingToBranch(this.undone, mapping), this.prevTime, this.prevUserEvent);
-  }
-  pop(side, state, onlySelection) {
-    let branch = side == 0 ? this.done : this.undone;
-    if (branch.length == 0)
-      return null;
-    let event = branch[branch.length - 1], selection = event.selectionsAfter[0] || (event.startSelection ? event.startSelection.map(event.changes.invertedDesc, 1) : state.selection);
-    if (onlySelection && event.selectionsAfter.length) {
-      return state.update({
-        selection: event.selectionsAfter[event.selectionsAfter.length - 1],
-        annotations: fromHistory.of({ side, rest: popSelection(branch), selection }),
-        userEvent: side == 0 ? "select.undo" : "select.redo",
-        scrollIntoView: true
-      });
-    } else if (!event.changes) {
-      return null;
-    } else {
-      let rest = branch.length == 1 ? none$1 : branch.slice(0, branch.length - 1);
-      if (event.mapped)
-        rest = addMappingToBranch(rest, event.mapped);
-      return state.update({
-        changes: event.changes,
-        selection: event.startSelection,
-        effects: event.effects,
-        annotations: fromHistory.of({ side, rest, selection }),
-        filter: false,
-        userEvent: side == 0 ? "undo" : "redo",
-        scrollIntoView: true
-      });
-    }
-  }
-}
-HistoryState.empty = /* @__PURE__ */ new HistoryState(none$1, none$1);
-const historyKeymap = [
-  { key: "Mod-z", run: undo, preventDefault: true },
-  { key: "Mod-y", mac: "Mod-Shift-z", run: redo, preventDefault: true },
-  { linux: "Ctrl-Shift-z", run: redo, preventDefault: true },
-  { key: "Mod-u", run: undoSelection, preventDefault: true },
-  { key: "Alt-u", mac: "Mod-Shift-u", run: redoSelection, preventDefault: true }
-];
-function updateSel(sel, by) {
-  return EditorSelection.create(sel.ranges.map(by), sel.mainIndex);
-}
-function setSel(state, selection) {
-  return state.update({ selection, scrollIntoView: true, userEvent: "select" });
-}
-function moveSel({ state, dispatch }, how) {
-  let selection = updateSel(state.selection, how);
-  if (selection.eq(state.selection, true))
-    return false;
-  dispatch(setSel(state, selection));
-  return true;
-}
-function rangeEnd(range, forward) {
-  return EditorSelection.cursor(forward ? range.to : range.from);
-}
-function cursorByChar(view, forward) {
-  return moveSel(view, (range) => range.empty ? view.moveByChar(range, forward) : rangeEnd(range, forward));
-}
-function ltrAtCursor(view) {
-  return view.textDirectionAt(view.state.selection.main.head) == Direction.LTR;
-}
-const cursorCharLeft = (view) => cursorByChar(view, !ltrAtCursor(view));
-const cursorCharRight = (view) => cursorByChar(view, ltrAtCursor(view));
-function cursorByGroup(view, forward) {
-  return moveSel(view, (range) => range.empty ? view.moveByGroup(range, forward) : rangeEnd(range, forward));
-}
-const cursorGroupLeft = (view) => cursorByGroup(view, !ltrAtCursor(view));
-const cursorGroupRight = (view) => cursorByGroup(view, ltrAtCursor(view));
-function interestingNode(state, node, bracketProp) {
-  if (node.type.prop(bracketProp))
-    return true;
-  let len = node.to - node.from;
-  return len && (len > 2 || /[^\s,.;:]/.test(state.sliceDoc(node.from, node.to))) || node.firstChild;
-}
-function moveBySyntax(state, start2, forward) {
-  let pos = syntaxTree(state).resolveInner(start2.head);
-  let bracketProp = forward ? NodeProp.closedBy : NodeProp.openedBy;
-  for (let at = start2.head; ; ) {
-    let next = forward ? pos.childAfter(at) : pos.childBefore(at);
-    if (!next)
-      break;
-    if (interestingNode(state, next, bracketProp))
-      pos = next;
-    else
-      at = forward ? next.to : next.from;
-  }
-  let bracket2 = pos.type.prop(bracketProp), match, newPos;
-  if (bracket2 && (match = forward ? matchBrackets(state, pos.from, 1) : matchBrackets(state, pos.to, -1)) && match.matched)
-    newPos = forward ? match.end.to : match.end.from;
-  else
-    newPos = forward ? pos.to : pos.from;
-  return EditorSelection.cursor(newPos, forward ? -1 : 1);
-}
-const cursorSyntaxLeft = (view) => moveSel(view, (range) => moveBySyntax(view.state, range, !ltrAtCursor(view)));
-const cursorSyntaxRight = (view) => moveSel(view, (range) => moveBySyntax(view.state, range, ltrAtCursor(view)));
-function cursorByLine(view, forward) {
-  return moveSel(view, (range) => {
-    if (!range.empty)
-      return rangeEnd(range, forward);
-    let moved = view.moveVertically(range, forward);
-    return moved.head != range.head ? moved : view.moveToLineBoundary(range, forward);
-  });
-}
-const cursorLineUp = (view) => cursorByLine(view, false);
-const cursorLineDown = (view) => cursorByLine(view, true);
-function pageInfo(view) {
-  let selfScroll = view.scrollDOM.clientHeight < view.scrollDOM.scrollHeight - 2;
-  let marginTop = 0, marginBottom = 0, height;
-  if (selfScroll) {
-    for (let source of view.state.facet(EditorView.scrollMargins)) {
-      let margins = source(view);
-      if (margins === null || margins === void 0 ? void 0 : margins.top)
-        marginTop = Math.max(margins === null || margins === void 0 ? void 0 : margins.top, marginTop);
-      if (margins === null || margins === void 0 ? void 0 : margins.bottom)
-        marginBottom = Math.max(margins === null || margins === void 0 ? void 0 : margins.bottom, marginBottom);
-    }
-    height = view.scrollDOM.clientHeight - marginTop - marginBottom;
-  } else {
-    height = (view.dom.ownerDocument.defaultView || window).innerHeight;
-  }
-  return {
-    marginTop,
-    marginBottom,
-    selfScroll,
-    height: Math.max(view.defaultLineHeight, height - 5)
-  };
-}
-function cursorByPage(view, forward) {
-  let page = pageInfo(view);
-  let { state } = view, selection = updateSel(state.selection, (range) => {
-    return range.empty ? view.moveVertically(range, forward, page.height) : rangeEnd(range, forward);
-  });
-  if (selection.eq(state.selection))
-    return false;
-  let effect2;
-  if (page.selfScroll) {
-    let startPos = view.coordsAtPos(state.selection.main.head);
-    let scrollRect = view.scrollDOM.getBoundingClientRect();
-    let scrollTop = scrollRect.top + page.marginTop, scrollBottom = scrollRect.bottom - page.marginBottom;
-    if (startPos && startPos.top > scrollTop && startPos.bottom < scrollBottom)
-      effect2 = EditorView.scrollIntoView(selection.main.head, { y: "start", yMargin: startPos.top - scrollTop });
-  }
-  view.dispatch(setSel(state, selection), { effects: effect2 });
-  return true;
-}
-const cursorPageUp = (view) => cursorByPage(view, false);
-const cursorPageDown = (view) => cursorByPage(view, true);
-function moveByLineBoundary(view, start2, forward) {
-  let line = view.lineBlockAt(start2.head), moved = view.moveToLineBoundary(start2, forward);
-  if (moved.head == start2.head && moved.head != (forward ? line.to : line.from))
-    moved = view.moveToLineBoundary(start2, forward, false);
-  if (!forward && moved.head == line.from && line.length) {
-    let space = /^\s*/.exec(view.state.sliceDoc(line.from, Math.min(line.from + 100, line.to)))[0].length;
-    if (space && start2.head != line.from + space)
-      moved = EditorSelection.cursor(line.from + space);
-  }
-  return moved;
-}
-const cursorLineBoundaryForward = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, true));
-const cursorLineBoundaryBackward = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, false));
-const cursorLineBoundaryLeft = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, !ltrAtCursor(view)));
-const cursorLineBoundaryRight = (view) => moveSel(view, (range) => moveByLineBoundary(view, range, ltrAtCursor(view)));
-const cursorLineStart = (view) => moveSel(view, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).from, 1));
-const cursorLineEnd = (view) => moveSel(view, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).to, -1));
-function toMatchingBracket(state, dispatch, extend) {
-  let found = false, selection = updateSel(state.selection, (range) => {
-    let matching = matchBrackets(state, range.head, -1) || matchBrackets(state, range.head, 1) || range.head > 0 && matchBrackets(state, range.head - 1, 1) || range.head < state.doc.length && matchBrackets(state, range.head + 1, -1);
-    if (!matching || !matching.end)
-      return range;
-    found = true;
-    let head = matching.start.from == range.head ? matching.end.to : matching.end.from;
-    return extend ? EditorSelection.range(range.anchor, head) : EditorSelection.cursor(head);
-  });
-  if (!found)
-    return false;
-  dispatch(setSel(state, selection));
-  return true;
-}
-const cursorMatchingBracket = ({ state, dispatch }) => toMatchingBracket(state, dispatch, false);
-function extendSel(target, forward, how) {
-  let selection = updateSel(target.state.selection, (range) => {
-    if (range.undirectional && range.head >= range.anchor != forward)
-      range = EditorSelection.range(range.head, range.anchor);
-    let head = how(range);
-    return EditorSelection.range(range.anchor, head.head, head.goalColumn, head.bidiLevel || void 0, head.assoc);
-  });
-  if (selection.eq(target.state.selection))
-    return false;
-  target.dispatch(setSel(target.state, selection));
-  return true;
-}
-function selectByChar(view, forward) {
-  return extendSel(view, forward, (range) => view.moveByChar(range, forward));
-}
-const selectCharLeft = (view) => selectByChar(view, !ltrAtCursor(view));
-const selectCharRight = (view) => selectByChar(view, ltrAtCursor(view));
-function selectByGroup(view, forward) {
-  return extendSel(view, forward, (range) => view.moveByGroup(range, forward));
-}
-const selectGroupLeft = (view) => selectByGroup(view, !ltrAtCursor(view));
-const selectGroupRight = (view) => selectByGroup(view, ltrAtCursor(view));
-const selectSyntaxLeft = (view) => {
-  let forward = !ltrAtCursor(view);
-  return extendSel(view, forward, (range) => moveBySyntax(view.state, range, forward));
-};
-const selectSyntaxRight = (view) => {
-  let forward = ltrAtCursor(view);
-  return extendSel(view, forward, (range) => moveBySyntax(view.state, range, forward));
-};
-function selectByLine(view, forward) {
-  return extendSel(view, forward, (range) => view.moveVertically(range, forward));
-}
-const selectLineUp = (view) => selectByLine(view, false);
-const selectLineDown = (view) => selectByLine(view, true);
-function selectByPage(view, forward) {
-  return extendSel(view, forward, (range) => view.moveVertically(range, forward, pageInfo(view).height));
-}
-const selectPageUp = (view) => selectByPage(view, false);
-const selectPageDown = (view) => selectByPage(view, true);
-const selectLineBoundaryForward = (view) => extendSel(view, true, (range) => moveByLineBoundary(view, range, true));
-const selectLineBoundaryBackward = (view) => extendSel(view, false, (range) => moveByLineBoundary(view, range, false));
-const selectLineBoundaryLeft = (view) => {
-  let forward = !ltrAtCursor(view);
-  return extendSel(view, forward, (range) => moveByLineBoundary(view, range, forward));
-};
-const selectLineBoundaryRight = (view) => {
-  let forward = ltrAtCursor(view);
-  return extendSel(view, forward, (range) => moveByLineBoundary(view, range, forward));
-};
-const selectLineStart = (view) => extendSel(view, false, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).from));
-const selectLineEnd = (view) => extendSel(view, true, (range) => EditorSelection.cursor(view.lineBlockAt(range.head).to));
-const cursorDocStart = ({ state, dispatch }) => {
-  dispatch(setSel(state, { anchor: 0 }));
-  return true;
-};
-const cursorDocEnd = ({ state, dispatch }) => {
-  dispatch(setSel(state, { anchor: state.doc.length }));
-  return true;
-};
-const selectDocStart = ({ state, dispatch }) => {
-  dispatch(setSel(state, { anchor: state.selection.main.anchor, head: 0 }));
-  return true;
-};
-const selectDocEnd = ({ state, dispatch }) => {
-  dispatch(setSel(state, { anchor: state.selection.main.anchor, head: state.doc.length }));
-  return true;
-};
-const selectAll = ({ state, dispatch }) => {
-  dispatch(state.update({ selection: { anchor: 0, head: state.doc.length }, userEvent: "select" }));
-  return true;
-};
-const selectLine = ({ state, dispatch }) => {
-  let ranges = selectedLineBlocks(state).map(({ from, to }) => EditorSelection.undirectionalRange(from, Math.min(to + 1, state.doc.length)));
-  dispatch(state.update({ selection: EditorSelection.create(ranges), userEvent: "select" }));
-  return true;
-};
-const selectParentSyntax = ({ state, dispatch }) => {
-  let selection = updateSel(state.selection, (range) => {
-    let tree = syntaxTree(state), stack = tree.resolveStack(range.from, 1);
-    if (range.empty) {
-      let stackBefore = tree.resolveStack(range.from, -1);
-      if (stackBefore.node.from >= stack.node.from && stackBefore.node.to <= stack.node.to)
-        stack = stackBefore;
-    }
-    for (let cur2 = stack; cur2; cur2 = cur2.next) {
-      let { node } = cur2;
-      if ((node.from < range.from && node.to >= range.to || node.to > range.to && node.from <= range.from) && cur2.next)
-        return EditorSelection.undirectionalRange(node.from, node.to);
-    }
-    return range;
-  });
-  if (selection.eq(state.selection))
-    return false;
-  dispatch(setSel(state, selection));
-  return true;
-};
-function addCursorVertically(view, forward) {
-  let { state } = view, sel = state.selection, ranges = state.selection.ranges.slice();
-  for (let range of state.selection.ranges) {
-    let line = state.doc.lineAt(range.head);
-    if (forward ? line.to < view.state.doc.length : line.from > 0)
-      for (let cur2 = range; ; ) {
-        let next = view.moveVertically(cur2, forward);
-        if (next.head < line.from || next.head > line.to) {
-          if (!ranges.some((r2) => r2.head == next.head))
-            ranges.push(next);
-          break;
-        } else if (next.head == cur2.head) {
-          break;
-        } else {
-          cur2 = next;
-        }
-      }
-  }
-  if (ranges.length == sel.ranges.length)
-    return false;
-  view.dispatch(setSel(state, EditorSelection.create(ranges, ranges.length - 1)));
-  return true;
-}
-const addCursorAbove = (view) => addCursorVertically(view, false);
-const addCursorBelow = (view) => addCursorVertically(view, true);
-const simplifySelection = ({ state, dispatch }) => {
-  let cur2 = state.selection, selection = null;
-  if (cur2.ranges.length > 1)
-    selection = EditorSelection.create([cur2.main]);
-  else if (!cur2.main.empty)
-    selection = EditorSelection.create([EditorSelection.cursor(cur2.main.head)]);
-  if (!selection)
-    return false;
-  dispatch(setSel(state, selection));
-  return true;
-};
-function deleteBy(target, by) {
-  if (target.state.readOnly)
-    return false;
-  let event = "delete.selection", { state } = target;
-  let changes = state.changeByRange((range) => {
-    let { from, to } = range;
-    if (from == to) {
-      let towards = by(range);
-      if (towards < from) {
-        event = "delete.backward";
-        towards = skipAtomic(target, towards, false);
-      } else if (towards > from) {
-        event = "delete.forward";
-        towards = skipAtomic(target, towards, true);
-      }
-      from = Math.min(from, towards);
-      to = Math.max(to, towards);
-    } else {
-      from = skipAtomic(target, from, false);
-      to = skipAtomic(target, to, true);
-    }
-    return from == to ? { range } : { changes: { from, to }, range: EditorSelection.cursor(from, from < range.head ? -1 : 1) };
-  });
-  if (changes.changes.empty)
-    return false;
-  target.dispatch(state.update(changes, {
-    scrollIntoView: true,
-    userEvent: event,
-    effects: event == "delete.selection" ? EditorView.announce.of(state.phrase("Selection deleted")) : void 0
-  }));
-  return true;
-}
-function skipAtomic(target, pos, forward) {
-  if (target instanceof EditorView)
-    for (let ranges of target.state.facet(EditorView.atomicRanges).map((f2) => f2(target)))
-      ranges.between(pos, pos, (from, to) => {
-        if (from < pos && to > pos)
-          pos = forward ? to : from;
-      });
-  return pos;
-}
-const deleteByChar = (target, forward, byIndentUnit) => deleteBy(target, (range) => {
-  let pos = range.from, { state } = target, line = state.doc.lineAt(pos), before, targetPos;
-  if (byIndentUnit && !forward && pos > line.from && pos < line.from + 200 && !/[^ \t]/.test(before = line.text.slice(0, pos - line.from))) {
-    if (before[before.length - 1] == "	")
-      return pos - 1;
-    let col = countColumn(before, state.tabSize), drop = col % getIndentUnit(state) || getIndentUnit(state);
-    for (let i2 = 0; i2 < drop && before[before.length - 1 - i2] == " "; i2++)
-      pos--;
-    targetPos = pos;
-  } else {
-    targetPos = findClusterBreak(line.text, pos - line.from, forward, forward) + line.from;
-    if (targetPos == pos && line.number != (forward ? state.doc.lines : 1))
-      targetPos += forward ? 1 : -1;
-    else if (!forward && /[\ufe00-\ufe0f]/.test(line.text.slice(targetPos - line.from, pos - line.from)))
-      targetPos = findClusterBreak(line.text, targetPos - line.from, false, false) + line.from;
-  }
-  return targetPos;
-});
-const deleteCharBackward = (view) => deleteByChar(view, false, true);
-const deleteCharForward = (view) => deleteByChar(view, true, false);
-const deleteByGroup = (target, forward) => deleteBy(target, (range) => {
-  let pos = range.head, { state } = target, line = state.doc.lineAt(pos);
-  let categorize = state.charCategorizer(pos);
-  for (let cat = null; ; ) {
-    if (pos == (forward ? line.to : line.from)) {
-      if (pos == range.head && line.number != (forward ? state.doc.lines : 1))
-        pos += forward ? 1 : -1;
-      break;
-    }
-    let next = findClusterBreak(line.text, pos - line.from, forward) + line.from;
-    let nextChar = line.text.slice(Math.min(pos, next) - line.from, Math.max(pos, next) - line.from);
-    let nextCat = categorize(nextChar);
-    if (cat != null && nextCat != cat)
-      break;
-    if (nextChar != " " || pos != range.head)
-      cat = nextCat;
-    pos = next;
-  }
-  return pos;
-});
-const deleteGroupBackward = (target) => deleteByGroup(target, false);
-const deleteGroupForward = (target) => deleteByGroup(target, true);
-const deleteToLineEnd = (view) => deleteBy(view, (range) => {
-  let lineEnd = view.lineBlockAt(range.head).to;
-  return range.head < lineEnd ? lineEnd : Math.min(view.state.doc.length, range.head + 1);
-});
-const deleteLineBoundaryBackward = (view) => deleteBy(view, (range) => {
-  let lineStart = view.moveToLineBoundary(range, false).head;
-  return range.head > lineStart ? lineStart : Math.max(0, range.head - 1);
-});
-const deleteLineBoundaryForward = (view) => deleteBy(view, (range) => {
-  let lineStart = view.moveToLineBoundary(range, true).head;
-  return range.head < lineStart ? lineStart : Math.min(view.state.doc.length, range.head + 1);
-});
-const splitLine = ({ state, dispatch }) => {
-  if (state.readOnly)
-    return false;
-  let changes = state.changeByRange((range) => {
-    return {
-      changes: { from: range.from, to: range.to, insert: Text.of(["", ""]) },
-      range: EditorSelection.cursor(range.from)
-    };
-  });
-  dispatch(state.update(changes, { scrollIntoView: true, userEvent: "input" }));
-  return true;
-};
-const transposeChars = ({ state, dispatch }) => {
-  if (state.readOnly)
-    return false;
-  let changes = state.changeByRange((range) => {
-    if (!range.empty || range.from == 0 || range.from == state.doc.length)
-      return { range };
-    let pos = range.from, line = state.doc.lineAt(pos);
-    let from = pos == line.from ? pos - 1 : findClusterBreak(line.text, pos - line.from, false) + line.from;
-    let to = pos == line.to ? pos + 1 : findClusterBreak(line.text, pos - line.from, true) + line.from;
-    return {
-      changes: { from, to, insert: state.doc.slice(pos, to).append(state.doc.slice(from, pos)) },
-      range: EditorSelection.cursor(to)
-    };
-  });
-  if (changes.changes.empty)
-    return false;
-  dispatch(state.update(changes, { scrollIntoView: true, userEvent: "move.character" }));
-  return true;
-};
-function selectedLineBlocks(state) {
-  let blocks = [], upto = -1;
-  for (let range of state.selection.ranges) {
-    let startLine = state.doc.lineAt(range.from), endLine = state.doc.lineAt(range.to);
-    if (!range.empty && range.to == endLine.from)
-      endLine = state.doc.lineAt(range.to - 1);
-    if (upto >= startLine.number) {
-      let prev = blocks[blocks.length - 1];
-      prev.to = endLine.to;
-      prev.ranges.push(range);
-    } else {
-      blocks.push({ from: startLine.from, to: endLine.to, ranges: [range] });
-    }
-    upto = endLine.number + 1;
-  }
-  return blocks;
-}
-function moveLine(state, dispatch, forward) {
-  if (state.readOnly)
-    return false;
-  let changes = [], ranges = [];
-  for (let block of selectedLineBlocks(state)) {
-    if (forward ? block.to == state.doc.length : block.from == 0)
-      continue;
-    let nextLine = state.doc.lineAt(forward ? block.to + 1 : block.from - 1);
-    let size = nextLine.length + 1;
-    if (forward) {
-      changes.push({ from: block.to, to: nextLine.to }, { from: block.from, insert: nextLine.text + state.lineBreak });
-      for (let r2 of block.ranges)
-        ranges.push(EditorSelection.range(Math.min(state.doc.length, r2.anchor + size), Math.min(state.doc.length, r2.head + size)));
-    } else {
-      changes.push({ from: nextLine.from, to: block.from }, { from: block.to, insert: state.lineBreak + nextLine.text });
-      for (let r2 of block.ranges)
-        ranges.push(EditorSelection.range(r2.anchor - size, r2.head - size));
-    }
-  }
-  if (!changes.length)
-    return false;
-  dispatch(state.update({
-    changes,
-    scrollIntoView: true,
-    selection: EditorSelection.create(ranges, state.selection.mainIndex),
-    userEvent: "move.line"
-  }));
-  return true;
-}
-const moveLineUp = ({ state, dispatch }) => moveLine(state, dispatch, false);
-const moveLineDown = ({ state, dispatch }) => moveLine(state, dispatch, true);
-function copyLine(state, dispatch, forward) {
-  if (state.readOnly)
-    return false;
-  let changes = [];
-  for (let block of selectedLineBlocks(state)) {
-    if (forward)
-      changes.push({ from: block.from, insert: state.doc.slice(block.from, block.to) + state.lineBreak });
-    else
-      changes.push({ from: block.to, insert: state.lineBreak + state.doc.slice(block.from, block.to) });
-  }
-  let changeSet = state.changes(changes);
-  dispatch(state.update({
-    changes: changeSet,
-    selection: state.selection.map(changeSet, forward ? 1 : -1),
-    scrollIntoView: true,
-    userEvent: "input.copyline"
-  }));
-  return true;
-}
-const copyLineUp = ({ state, dispatch }) => copyLine(state, dispatch, false);
-const copyLineDown = ({ state, dispatch }) => copyLine(state, dispatch, true);
-const deleteLine = (view) => {
-  if (view.state.readOnly)
-    return false;
-  let { state } = view, changes = state.changes(selectedLineBlocks(state).map(({ from, to }) => {
-    if (from > 0)
-      from--;
-    else if (to < state.doc.length)
-      to++;
-    return { from, to };
-  }));
-  let selection = updateSel(state.selection, (range) => {
-    let dist2 = void 0;
-    if (view.lineWrapping) {
-      let block = view.lineBlockAt(range.head), pos = view.coordsAtPos(range.head, range.assoc || 1);
-      if (pos)
-        dist2 = block.bottom + view.documentTop - pos.bottom + view.defaultLineHeight / 2;
-    }
-    return view.moveVertically(range, true, dist2);
-  }).map(changes);
-  view.dispatch({ changes, selection, scrollIntoView: true, userEvent: "delete.line" });
-  return true;
-};
-function isBetweenBrackets(state, pos) {
-  if (/\(\)|\[\]|\{\}/.test(state.sliceDoc(pos - 1, pos + 1)))
-    return { from: pos, to: pos };
-  let context = syntaxTree(state).resolveInner(pos);
-  let before = context.childBefore(pos), after = context.childAfter(pos), closedBy;
-  if (before && after && before.to <= pos && after.from >= pos && (closedBy = before.type.prop(NodeProp.closedBy)) && closedBy.indexOf(after.name) > -1 && state.doc.lineAt(before.to).from == state.doc.lineAt(after.from).from && !/\S/.test(state.sliceDoc(before.to, after.from)))
-    return { from: before.to, to: after.from };
-  return null;
-}
-const insertNewlineAndIndent = /* @__PURE__ */ newlineAndIndent(false);
-const insertBlankLine = /* @__PURE__ */ newlineAndIndent(true);
-function newlineAndIndent(atEof) {
-  return ({ state, dispatch }) => {
-    if (state.readOnly)
-      return false;
-    let changes = state.changeByRange((range) => {
-      let { from, to } = range, line = state.doc.lineAt(from);
-      let explode = !atEof && from == to && isBetweenBrackets(state, from);
-      if (atEof)
-        from = to = (to <= line.to ? line : state.doc.lineAt(to)).to;
-      let cx = new IndentContext(state, { simulateBreak: from, simulateDoubleBreak: !!explode });
-      let indent = getIndentation(cx, from);
-      if (indent == null)
-        indent = countColumn(/^\s*/.exec(state.doc.lineAt(from).text)[0], state.tabSize);
-      while (to < line.to && /\s/.test(line.text[to - line.from]))
-        to++;
-      if (explode)
-        ({ from, to } = explode);
-      else if (from > line.from && from < line.from + 100 && !/\S/.test(line.text.slice(0, from)))
-        from = line.from;
-      let insert2 = ["", indentString(state, indent)];
-      if (explode)
-        insert2.push(indentString(state, cx.lineIndent(line.from, -1)));
-      return {
-        changes: { from, to, insert: Text.of(insert2) },
-        range: EditorSelection.cursor(from + 1 + insert2[1].length)
-      };
-    });
-    dispatch(state.update(changes, { scrollIntoView: true, userEvent: "input" }));
-    return true;
-  };
-}
-function changeBySelectedLine(state, f2) {
-  let atLine = -1;
-  return state.changeByRange((range) => {
-    let changes = [];
-    for (let pos = range.from; pos <= range.to; ) {
-      let line = state.doc.lineAt(pos);
-      if (line.number > atLine && (range.empty || range.to > line.from)) {
-        f2(line, changes, range);
-        atLine = line.number;
-      }
-      pos = line.to + 1;
-    }
-    let changeSet = state.changes(changes);
-    return {
-      changes,
-      range: EditorSelection.range(changeSet.mapPos(range.anchor, 1), changeSet.mapPos(range.head, 1))
-    };
-  });
-}
-const indentSelection = ({ state, dispatch }) => {
-  if (state.readOnly)
-    return false;
-  let updated = /* @__PURE__ */ Object.create(null);
-  let context = new IndentContext(state, { overrideIndentation: (start2) => {
-    let found = updated[start2];
-    return found == null ? -1 : found;
-  } });
-  let changes = changeBySelectedLine(state, (line, changes2, range) => {
-    let indent = getIndentation(context, line.from);
-    if (indent == null)
-      return;
-    if (!/\S/.test(line.text))
-      indent = 0;
-    let cur2 = /^\s*/.exec(line.text)[0];
-    let norm = indentString(state, indent);
-    if (cur2 != norm || range.from < line.from + cur2.length) {
-      updated[line.from] = indent;
-      changes2.push({ from: line.from, to: line.from + cur2.length, insert: norm });
-    }
-  });
-  if (!changes.changes.empty)
-    dispatch(state.update(changes, { userEvent: "indent" }));
-  return true;
-};
-const indentMore = ({ state, dispatch }) => {
-  if (state.readOnly)
-    return false;
-  dispatch(state.update(changeBySelectedLine(state, (line, changes) => {
-    changes.push({ from: line.from, insert: state.facet(indentUnit) });
-  }), { userEvent: "input.indent" }));
-  return true;
-};
-const indentLess = ({ state, dispatch }) => {
-  if (state.readOnly)
-    return false;
-  dispatch(state.update(changeBySelectedLine(state, (line, changes) => {
-    let space = /^\s*/.exec(line.text)[0];
-    if (!space)
-      return;
-    let col = countColumn(space, state.tabSize), keep = 0;
-    let insert2 = indentString(state, Math.max(0, col - getIndentUnit(state)));
-    while (keep < space.length && keep < insert2.length && space.charCodeAt(keep) == insert2.charCodeAt(keep))
-      keep++;
-    changes.push({ from: line.from + keep, to: line.from + space.length, insert: insert2.slice(keep) });
-  }), { userEvent: "delete.dedent" }));
-  return true;
-};
-const toggleTabFocusMode = (view) => {
-  view.setTabFocusMode();
-  return true;
-};
-const emacsStyleKeymap = [
-  { key: "Ctrl-b", run: cursorCharLeft, shift: selectCharLeft, preventDefault: true },
-  { key: "Ctrl-f", run: cursorCharRight, shift: selectCharRight },
-  { key: "Ctrl-p", run: cursorLineUp, shift: selectLineUp },
-  { key: "Ctrl-n", run: cursorLineDown, shift: selectLineDown },
-  { key: "Ctrl-a", run: cursorLineStart, shift: selectLineStart },
-  { key: "Ctrl-e", run: cursorLineEnd, shift: selectLineEnd },
-  { key: "Ctrl-d", run: deleteCharForward },
-  { key: "Ctrl-h", run: deleteCharBackward },
-  { key: "Ctrl-k", run: deleteToLineEnd },
-  { key: "Ctrl-Alt-h", run: deleteGroupBackward },
-  { key: "Ctrl-o", run: splitLine },
-  { key: "Ctrl-t", run: transposeChars },
-  { key: "Ctrl-v", run: cursorPageDown }
-];
-const standardKeymap = /* @__PURE__ */ [
-  { key: "ArrowLeft", run: cursorCharLeft, shift: selectCharLeft, preventDefault: true },
-  { key: "Mod-ArrowLeft", mac: "Alt-ArrowLeft", run: cursorGroupLeft, shift: selectGroupLeft, preventDefault: true },
-  { mac: "Cmd-ArrowLeft", run: cursorLineBoundaryLeft, shift: selectLineBoundaryLeft, preventDefault: true },
-  { key: "ArrowRight", run: cursorCharRight, shift: selectCharRight, preventDefault: true },
-  { key: "Mod-ArrowRight", mac: "Alt-ArrowRight", run: cursorGroupRight, shift: selectGroupRight, preventDefault: true },
-  { mac: "Cmd-ArrowRight", run: cursorLineBoundaryRight, shift: selectLineBoundaryRight, preventDefault: true },
-  { key: "ArrowUp", run: cursorLineUp, shift: selectLineUp, preventDefault: true },
-  { mac: "Cmd-ArrowUp", run: cursorDocStart, shift: selectDocStart },
-  { mac: "Ctrl-ArrowUp", run: cursorPageUp, shift: selectPageUp },
-  { key: "ArrowDown", run: cursorLineDown, shift: selectLineDown, preventDefault: true },
-  { mac: "Cmd-ArrowDown", run: cursorDocEnd, shift: selectDocEnd },
-  { mac: "Ctrl-ArrowDown", run: cursorPageDown, shift: selectPageDown },
-  { key: "PageUp", run: cursorPageUp, shift: selectPageUp },
-  { key: "PageDown", run: cursorPageDown, shift: selectPageDown },
-  { key: "Home", run: cursorLineBoundaryBackward, shift: selectLineBoundaryBackward, preventDefault: true },
-  { key: "Mod-Home", run: cursorDocStart, shift: selectDocStart },
-  { key: "End", run: cursorLineBoundaryForward, shift: selectLineBoundaryForward, preventDefault: true },
-  { key: "Mod-End", run: cursorDocEnd, shift: selectDocEnd },
-  { key: "Enter", run: insertNewlineAndIndent, shift: insertNewlineAndIndent },
-  { key: "Mod-a", run: selectAll },
-  { key: "Backspace", run: deleteCharBackward, shift: deleteCharBackward, preventDefault: true },
-  { key: "Delete", run: deleteCharForward, preventDefault: true },
-  { key: "Mod-Backspace", mac: "Alt-Backspace", run: deleteGroupBackward, preventDefault: true },
-  { key: "Mod-Delete", mac: "Alt-Delete", run: deleteGroupForward, preventDefault: true },
-  { mac: "Mod-Backspace", run: deleteLineBoundaryBackward, preventDefault: true },
-  { mac: "Mod-Delete", run: deleteLineBoundaryForward, preventDefault: true }
-].concat(/* @__PURE__ */ emacsStyleKeymap.map((b) => ({ mac: b.key, run: b.run, shift: b.shift })));
-const defaultKeymap = /* @__PURE__ */ [
-  { key: "Alt-ArrowLeft", mac: "Ctrl-ArrowLeft", run: cursorSyntaxLeft, shift: selectSyntaxLeft },
-  { key: "Alt-ArrowRight", mac: "Ctrl-ArrowRight", run: cursorSyntaxRight, shift: selectSyntaxRight },
-  { key: "Alt-ArrowUp", run: moveLineUp },
-  { key: "Shift-Alt-ArrowUp", run: copyLineUp },
-  { key: "Alt-ArrowDown", run: moveLineDown },
-  { key: "Shift-Alt-ArrowDown", run: copyLineDown },
-  { key: "Mod-Alt-ArrowUp", run: addCursorAbove },
-  { key: "Mod-Alt-ArrowDown", run: addCursorBelow },
-  { key: "Escape", run: simplifySelection },
-  { key: "Mod-Enter", run: insertBlankLine },
-  { key: "Alt-l", mac: "Ctrl-l", run: selectLine },
-  { key: "Mod-i", run: selectParentSyntax, preventDefault: true },
-  { key: "Mod-[", run: indentLess },
-  { key: "Mod-]", run: indentMore },
-  { key: "Mod-Alt-\\", run: indentSelection },
-  { key: "Shift-Mod-k", run: deleteLine },
-  { key: "Shift-Mod-\\", run: cursorMatchingBracket },
-  { key: "Mod-/", run: toggleComment },
-  { key: "Alt-A", mac: "Ctrl-A", run: toggleBlockComment },
-  { key: "Ctrl-m", mac: "Shift-Alt-m", run: toggleTabFocusMode }
-].concat(standardKeymap);
 class CompletionContext {
   constructor(state, pos, explicit, view) {
     this.state = state;
@@ -31784,167 +30411,6 @@ function completionStatus(state) {
   let cState = state.field(completionState, false);
   return cState && cState.active.some((a) => a.isPending) ? "pending" : cState && cState.active.some((a) => a.state != 0) ? "active" : null;
 }
-const LIST_PREFIX = /^(\s*(?:[-*+]\s(?:\[[ xX]\]\s+)?|(?:\d+)[.)]\s+))/;
-function listPrefixOf(lineText) {
-  const m2 = LIST_PREFIX.exec(lineText);
-  return m2 ? m2[1] : null;
-}
-function continueList(view) {
-  const { state, dispatch } = view;
-  if (completionStatus(state) === "active")
-    return false;
-  const sel = state.selection.main;
-  const head = sel.head;
-  const line = state.doc.lineAt(head);
-  const prefix = listPrefixOf(line.text);
-  if (prefix === null)
-    return false;
-  const rest = line.text.slice(prefix.length);
-  if (rest.trim() === "") {
-    dispatch({
-      changes: { from: line.from, to: line.from + prefix.length, insert: "" },
-      selection: { anchor: line.from }
-    });
-    return true;
-  }
-  const numMatch = /^(\s*)(\d+)([.)]\s+)/.exec(prefix);
-  let nextPrefix = prefix;
-  if (numMatch) {
-    const n2 = parseInt(numMatch[2], 10);
-    nextPrefix = `${numMatch[1]}${n2 + 1}${numMatch[3]}`;
-  }
-  const insert2 = "\n" + nextPrefix;
-  dispatch({
-    changes: { from: head, to: head, insert: insert2 },
-    selection: { anchor: head + insert2.length }
-  });
-  return true;
-}
-const insertSingleNewline = (view) => {
-  const head = view.state.selection.main.head;
-  view.dispatch({
-    changes: { from: head, to: head, insert: "\n" },
-    selection: { anchor: head + 1 }
-  });
-  return true;
-};
-function handleEnter(view, opts) {
-  if (opts.isEnterToSend()) {
-    opts.send();
-    return true;
-  }
-  return continueList(view);
-}
-function handleModEnter(view, opts) {
-  if (opts.isEnterToSend()) {
-    return insertSingleNewline(view);
-  }
-  opts.send();
-  return true;
-}
-function memoInputKeymap(opts) {
-  return [
-    Prec.high(
-      keymap.of([
-        { key: "Enter", run: (view) => handleEnter(view, opts) },
-        { key: "Mod-Enter", run: (view) => handleModEnter(view, opts) }
-      ])
-    )
-  ];
-}
-function wrapToggle(view, open, close = open) {
-  const { state, dispatch } = view;
-  const sel = state.selection.main;
-  if (sel.empty) {
-    const head = sel.head;
-    dispatch({
-      changes: { from: head, to: head, insert: open + close },
-      selection: { anchor: head + open.length }
-    });
-    return true;
-  }
-  const from = Math.min(sel.from, sel.to);
-  const to = Math.max(sel.from, sel.to);
-  const text = state.sliceDoc(from, to);
-  dispatch({
-    changes: { from, to, insert: open + text + close },
-    selection: { anchor: from + open.length, head: to + open.length }
-  });
-  return true;
-}
-const FORMAT_TOKENS = {
-  b: ["**", "**"],
-  i: ["*", "*"],
-  e: ["`", "`"]
-};
-function runFormatAction(view, kind) {
-  const [open, close] = FORMAT_TOKENS[kind];
-  return wrapToggle(view, open, close);
-}
-function memoFormatKeymap() {
-  return [
-    Prec.high(
-      keymap.of([
-        { key: "Mod-b", run: (v2) => runFormatAction(v2, "b") },
-        { key: "Mod-i", run: (v2) => runFormatAction(v2, "i") },
-        { key: "Mod-e", run: (v2) => runFormatAction(v2, "e") }
-      ])
-    )
-  ];
-}
-const holders = /* @__PURE__ */ new Set();
-let installed = false;
-function onWindowKeydown(e) {
-  if (e.isComposing)
-    return;
-  const target = e.target instanceof Node ? e.target : null;
-  if (!target)
-    return;
-  let holder;
-  for (const h2 of holders) {
-    if (h2.view.dom.contains(target)) {
-      holder = h2;
-      break;
-    }
-  }
-  if (!holder)
-    return;
-  for (const b of holder.binds) {
-    if (b.match(e)) {
-      if (e.defaultPrevented) {
-        console.debug("[rememo-kb] \u6309\u952E\u5DF2\u88AB Obsidian \u62A2\u5148\u5904\u7406\uFF08\u53EF\u80FD\u4F5C\u7528\u4E8E\u4E3B\u7F16\u8F91\u5668\uFF09", {
-          key: e.key,
-          ctrlKey: e.ctrlKey,
-          metaKey: e.metaKey
-        });
-      }
-      b.run(holder.view);
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      return;
-    }
-  }
-}
-function attachKeyCapture(view, binds) {
-  holders.add({ view, binds });
-  if (!installed) {
-    window.addEventListener("keydown", onWindowKeydown, true);
-    installed = true;
-  }
-  return () => {
-    for (const h2 of holders) {
-      if (h2.view === view) {
-        holders.delete(h2);
-        break;
-      }
-    }
-    if (!holders.size && installed) {
-      window.removeEventListener("keydown", onWindowKeydown, true);
-      installed = false;
-    }
-  };
-}
 const etTags = () => {
   const { app: app2 } = dailyNotesService.getState();
   const tags2 = app2.metadataCache.getTags();
@@ -32177,6 +30643,34 @@ const memoInputHighlight = ViewPlugin.fromClass(
     decorations: (v2) => v2.deco
   }
 );
+let cachedClass = null;
+function getNativeMarkdownEditorClass(app2) {
+  if (cachedClass)
+    return cachedClass;
+  try {
+    const md2 = app2.embedRegistry.embedByExtension.md(
+      { app: app2, containerEl: createDiv(), state: {} },
+      null,
+      ""
+    );
+    md2.load();
+    md2.editable = true;
+    md2.showEditor();
+    const editorInstance = md2.editMode;
+    if (!editorInstance)
+      throw new Error("embed.editMode \u4E3A\u7A7A");
+    cachedClass = Object.getPrototypeOf(Object.getPrototypeOf(editorInstance)).constructor;
+    md2.unload();
+    if (typeof cachedClass !== "function") {
+      cachedClass = null;
+      throw new Error("editMode \u539F\u578B\u94FE\u6784\u9020\u5668\u975E\u51FD\u6570");
+    }
+    return cachedClass;
+  } catch (err) {
+    console.error("[rememo] \u53D6\u5185\u6838 MarkdownEditor \u6784\u9020\u5668\u5931\u8D25\uFF08\u5185\u6838 API \u53D8\u52A8\uFF1F\uFF09", err);
+    return null;
+  }
+}
 var editor = "";
 function SvgSend(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
@@ -32207,8 +30701,8 @@ const Editor = react.exports.forwardRef((props, ref) => {
   } = props;
   const mountRef = react.exports.useRef(null);
   const viewRef = react.exports.useRef(null);
+  const nativeRef = react.exports.useRef(null);
   const roCompartmentRef = react.exports.useRef(new Compartment());
-  const extRef = react.exports.useRef([]);
   const cbRef = react.exports.useRef({
     confirm: handleConfirmBtnClickCallback,
     change: handleContentChangeCallback,
@@ -32221,105 +30715,150 @@ const Editor = react.exports.forwardRef((props, ref) => {
   cbRef.current.enterToSend = enterToSend === true;
   const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
   react.exports.useEffect(() => {
+    var _a2, _b;
     const parent = mountRef.current;
     if (!parent || parent.querySelector(".cm-editor")) {
       return;
     }
-    const buildExtensions = () => [
-      EditorView.lineWrapping,
-      history(),
-      placeholder(cbRef.current.placeholder),
-      memoInputHighlight,
-      memoAutocomplete(),
-      memoFormatKeymap(),
-      memoInputKeymap({
-        send: () => {
-          var _a2, _b, _c;
-          return cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
-        },
-        isEnterToSend: () => cbRef.current.enterToSend
-      }),
-      keymap.of([...defaultKeymap, ...historyKeymap]),
-      EditorView.domEventHandlers({
-        keydown: (event, view2) => {
-          var _a2, _b, _c;
-          if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey)) {
-            return false;
-          }
-          if (cbRef.current.enterToSend) {
-            if (view2.state.readOnly)
+    const app2 = appStore.getState().dailyNotesState.app;
+    const NativeEditor = getNativeMarkdownEditorClass(app2);
+    if (!NativeEditor) {
+      console.error("[rememo] \u539F\u751F MarkdownEditor \u521D\u59CB\u5316\u5931\u8D25\uFF08\u5185\u6838 API \u53D8\u52A8\uFF0C\u89C1 native.ts\uFF09");
+      parent.textContent = "[rememo] editor init failed (see console)";
+      return;
+    }
+    const controller = {
+      app: app2,
+      getMode: () => "source",
+      showSearch: () => void 0,
+      toggleMode: () => void 0,
+      onMarkdownScroll: () => void 0,
+      scroll: 0,
+      editMode: null,
+      file: null,
+      path: "",
+      get editor() {
+        var _a3;
+        return (_a3 = nativeRef.current) == null ? void 0 : _a3.editor;
+      }
+    };
+    const bridgeActiveEditor = (on) => {
+      const ws = app2 == null ? void 0 : app2.workspace;
+      if (!ws)
+        return;
+      if (on) {
+        ws.activeEditor = controller;
+      } else if (ws.activeEditor === controller) {
+        ws.activeEditor = null;
+      }
+    };
+    const sendFrom = (view) => {
+      cbRef.current.confirm(view.state.doc.toString());
+    };
+    class MemoNativeEditor extends NativeEditor {
+      constructor(...args) {
+        super(...args);
+      }
+      buildLocalExtensions() {
+        var _a3, _b2;
+        const exts = (_b2 = (_a3 = super.buildLocalExtensions) == null ? void 0 : _a3.call(this)) != null ? _b2 : [];
+        exts.push(
+          Prec.highest(EditorView.domEventHandlers({
+            focus: () => {
+              bridgeActiveEditor(true);
               return true;
-            const head = view2.state.selection.main.head;
-            view2.dispatch({
-              changes: {
-                from: head,
-                to: head,
-                insert: "\n"
-              },
-              selection: {
-                anchor: head + 1
+            },
+            blur: () => {
+              bridgeActiveEditor(false);
+              return true;
+            }
+          })),
+          placeholder(cbRef.current.placeholder),
+          memoInputHighlight,
+          memoAutocomplete(),
+          keymap.of([{
+            key: "Enter",
+            run: (view) => {
+              if (!cbRef.current.enterToSend)
+                return false;
+              if (completionStatus(view.state) === "active")
+                return false;
+              sendFrom(view);
+              return true;
+            }
+          }, {
+            key: "Mod-Enter",
+            run: (view) => {
+              if (cbRef.current.enterToSend) {
+                const head = view.state.selection.main.head;
+                view.dispatch({
+                  changes: {
+                    from: head,
+                    to: head,
+                    insert: "\n"
+                  },
+                  selection: {
+                    anchor: head + 1
+                  }
+                });
+                return true;
               }
-            });
-          } else {
-            cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
-          }
-          return true;
+              sendFrom(view);
+              return true;
+            }
+          }]),
+          roCompartmentRef.current.of([]),
+          EditorView.updateListener.of((u2) => {
+            if (u2.docChanged) {
+              const text = u2.state.doc.toString();
+              setHasContent(text.length > 0);
+              cbRef.current.change(text);
+            }
+          })
+        );
+        return exts;
+      }
+    }
+    let native;
+    try {
+      native = new MemoNativeEditor(app2, parent, controller);
+    } catch (err) {
+      console.error("[rememo] \u539F\u751F MarkdownEditor \u6784\u9020\u5931\u8D25", err);
+      parent.textContent = "[rememo] editor init failed (see console)";
+      return;
+    }
+    nativeRef.current = native;
+    const cm = native.cm;
+    if (!cm) {
+      console.error("[rememo] \u539F\u751F\u5B9E\u4F8B\u65E0 .cm\uFF08\u5185\u6838\u7ED3\u6784\u53D8\u52A8\uFF1F\uFF09");
+      parent.textContent = "[rememo] editor init failed (see console)";
+      return;
+    }
+    viewRef.current = cm;
+    cbRef.current.get = () => cm.state.doc.toString();
+    const initial = initialContent != null ? initialContent : "";
+    if (initial) {
+      try {
+        if (typeof native.set === "function") {
+          native.set(initial);
+        } else {
+          (_b = (_a2 = native.editor) == null ? void 0 : _a2.setValue) == null ? void 0 : _b.call(_a2, initial);
         }
-      }),
-      roCompartmentRef.current.of([]),
-      EditorView.updateListener.of((u2) => {
-        if (u2.docChanged) {
-          const text = u2.state.doc.toString();
-          setHasContent(text.length > 0);
-          cbRef.current.change(text);
-        }
-      })
-    ];
-    const createState = (doc2) => EditorState.create({
-      doc: doc2,
-      extensions: buildExtensions()
-    });
-    extRef.current = buildExtensions();
-    const view = new EditorView({
-      state: createState(initialContent != null ? initialContent : ""),
-      parent
-    });
-    viewRef.current = view;
-    cbRef.current.get = () => view.state.doc.toString();
-    const kbOpts = () => ({
-      send: () => {
-        var _a2, _b, _c;
-        return cbRef.current.confirm((_c = (_b = (_a2 = cbRef.current).get) == null ? void 0 : _b.call(_a2)) != null ? _c : "");
-      },
-      isEnterToSend: () => cbRef.current.enterToSend
-    });
-    const isMod = (e) => (e.ctrlKey || e.metaKey) && !e.altKey;
-    const detachCapture = attachKeyCapture(view, [{
-      match: (e) => !e.shiftKey && e.key === "Enter" && isMod(e),
-      run: (v2) => {
-        handleModEnter(v2, kbOpts());
+      } catch (err) {
+        console.error("[rememo] \u8BBE\u7F6E\u521D\u59CB\u5185\u5BB9\u5931\u8D25", err);
       }
-    }, {
-      match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === "b",
-      run: (v2) => {
-        runFormatAction(v2, "b");
-      }
-    }, {
-      match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === "i",
-      run: (v2) => {
-        runFormatAction(v2, "i");
-      }
-    }, {
-      match: (e) => !e.shiftKey && isMod(e) && e.key.toLowerCase() === "e",
-      run: (v2) => {
-        runFormatAction(v2, "e");
-      }
-    }]);
+    }
     return () => {
-      detachCapture();
-      view.destroy();
+      var _a3;
+      bridgeActiveEditor(false);
+      nativeRef.current = null;
       viewRef.current = null;
       cbRef.current.get = void 0;
+      try {
+        (_a3 = native.unload) == null ? void 0 : _a3.call(native);
+      } catch (err) {
+        console.error("[rememo] \u539F\u751F\u7F16\u8F91\u5668\u5378\u8F7D\u5F02\u5E38", err);
+      }
     };
   }, []);
   react.exports.useImperativeHandle(ref, () => ({
@@ -32380,10 +30919,15 @@ const Editor = react.exports.forwardRef((props, ref) => {
       const view = viewRef.current;
       if (!view)
         return;
-      view.setState(EditorState.create({
-        doc: "",
-        extensions: extRef.current
-      }));
+      if (view.state.doc.length > 0) {
+        view.dispatch({
+          changes: {
+            from: 0,
+            to: view.state.doc.length,
+            insert: ""
+          }
+        });
+      }
       setHasContent(false);
     },
     setEditable: (editable2) => {
