@@ -35413,7 +35413,12 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     this.containerEl.createEl("h1", { text: t$2("Data tools") });
     new require$$0.Setting(containerEl).setName(t$2("Data Audit")).setDesc(t$2("Open the audit page to inspect and migrate memo data in daily notes.")).addButton(
       (bt) => bt.setButtonText(t$2("Audit data")).onClick(async () => {
-        await this.plugin.openMemos();
+        const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
+        if (leaves.length === 0) {
+          await this.plugin.openMemos();
+        } else {
+          this.app.workspace.setActiveLeaf(leaves[0]);
+        }
         locationService.pushHistory("/audit");
       })
     );

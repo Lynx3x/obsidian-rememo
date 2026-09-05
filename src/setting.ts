@@ -1,5 +1,6 @@
 import { App, DropdownComponent, PluginSettingTab, Setting } from 'obsidian';
 import type MemosPlugin from './index';
+import { MEMOS_VIEW_TYPE } from './constants';
 import memoService from './services/memoService';
 import locationService from './services/locationService';
 import { t } from './translations/helper';
@@ -479,7 +480,13 @@ export class MemosSettingTab extends PluginSettingTab {
       .setDesc(t('Open the audit page to inspect and migrate memo data in daily notes.'))
       .addButton((bt) =>
         bt.setButtonText(t('Audit data')).onClick(async () => {
-          await this.plugin.openMemos();
+          // 已有视图只激活不重开（openMemos 会 detach 重开，开着页面时会闪关）
+          const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
+          if (leaves.length === 0) {
+            await this.plugin.openMemos();
+          } else {
+            this.app.workspace.setActiveLeaf(leaves[0]);
+          }
           locationService.pushHistory('/audit');
         }),
       );
