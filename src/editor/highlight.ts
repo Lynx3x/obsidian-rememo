@@ -10,6 +10,7 @@ const TAG_CHAR = '\\p{L}\\p{N}_/\\.\\-';
 const CODE_RE = /`[^`\n]+?`/g;
 const BOLD_RE = /\*\*[^*\n]+?\*\*/g;
 const ITALIC_RE = /(?<!\*)\*[^*\n]+?\*(?!\*)/g;
+const MARK_RE = /==[^=\n]+?==/g; // Obsidian 高亮语法 ==text==
 const LINK_RE = /\[\[[^\[\]\n]+?\]\]/g;
 const TAG_RE = new RegExp(`(?<![#${TAG_CHAR}])#(?:[${TAG_CHAR}]+)`, 'gu');
 
@@ -18,6 +19,7 @@ const mk = (cls: string) => Decoration.mark({ class: cls });
 const CODE = mk('cm-hl-code');
 const BOLD = mk('cm-hl-bold');
 const ITALIC = mk('cm-hl-italic');
+const MARK = mk('cm-hl-mark');
 const TAG = mk('cm-hl-tag');
 const LINK = mk('cm-hl-link');
 
@@ -50,9 +52,10 @@ function buildSet(doc: Text): DecorationSet {
       codeRanges.push({ from: a, to: b });
       builder.add(a, b, CODE);
     }
-    // 2) 粗体/斜体（斜体靠 (?<!\*) 边界天然避开 **）
+    // 2) 粗体/斜体（斜体靠 (?<!\*) 边界天然避开 **）+ ==高亮==
     push(BOLD_RE, BOLD, codeRanges);
     push(ITALIC_RE, ITALIC, codeRanges);
+    push(MARK_RE, MARK, codeRanges);
     // 3) #tag / [[链接]]
     push(TAG_RE, TAG, codeRanges);
     push(LINK_RE, LINK, codeRanges);

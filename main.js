@@ -13204,6 +13204,7 @@ var useStateRef = function(initialState) {
 };
 var dist$1 = useStateRef;
 const BOLD_TEXT_REG = /\*\*(.+?)\*\*/g;
+const MARK_TEXT_REG = /==([^=\n]+?)==/g;
 const EM_TEXT_REG = /\*(.+?)\*/g;
 const CODE_INLINE_REG = /(^|[^`])`([^`\n]+?)`([^`]|$)/g;
 const INTERNAL_MD_REG = /\[\[([^\]]+)\]\]/g;
@@ -13278,7 +13279,7 @@ const parseMarkedToHtml = (htmlStr, memoid) => {
     pres.push(m2);
     return `${PLACEHOLDER}PRE${pres.length - 1}${PLACEHOLDER}`;
   });
-  let text = masked.replace(BOLD_TEXT_REG, "<strong>$1</strong>").replace(EM_TEXT_REG, "<em>$1</em>").replace(CODE_INLINE_REG, "$1<code>$2</code>$3").replace(/&amp;/g, "&");
+  let text = masked.replace(BOLD_TEXT_REG, "<strong>$1</strong>").replace(MARK_TEXT_REG, "<mark>$1</mark>").replace(EM_TEXT_REG, "<em>$1</em>").replace(CODE_INLINE_REG, "$1<code>$2</code>$3").replace(/&amp;/g, "&");
   if (memoid) {
     if (INTERNAL_MD_REG.test(text)) {
       const internalMD = text.match(INTERNAL_MD_REG);
@@ -30587,12 +30588,14 @@ const TAG_CHAR = "\\p{L}\\p{N}_/\\.\\-";
 const CODE_RE = /`[^`\n]+?`/g;
 const BOLD_RE = /\*\*[^*\n]+?\*\*/g;
 const ITALIC_RE = new RegExp("(?<!\\*)\\*[^*\\n]+?\\*(?!\\*)", "g");
+const MARK_RE = /==[^=\n]+?==/g;
 const LINK_RE = /\[\[[^\[\]\n]+?\]\]/g;
 const TAG_RE = new RegExp(`(?<![#${TAG_CHAR}])#(?:[${TAG_CHAR}]+)`, "gu");
 const mk = (cls) => Decoration.mark({ class: cls });
 const CODE = mk("cm-hl-code");
 const BOLD = mk("cm-hl-bold");
 const ITALIC = mk("cm-hl-italic");
+const MARK = mk("cm-hl-mark");
 const TAG = mk("cm-hl-tag");
 const LINK = mk("cm-hl-link");
 const overlaps = (aFrom, aTo, ranges) => ranges.some((r2) => aFrom < r2.to && aTo > r2.from);
@@ -30623,6 +30626,7 @@ function buildSet(doc2) {
     }
     push(BOLD_RE, BOLD, codeRanges);
     push(ITALIC_RE, ITALIC, codeRanges);
+    push(MARK_RE, MARK, codeRanges);
     push(TAG_RE, TAG, codeRanges);
     push(LINK_RE, LINK, codeRanges);
   }
@@ -30671,6 +30675,59 @@ function getNativeMarkdownEditorClass(app2) {
     return null;
   }
 }
+const holders = /* @__PURE__ */ new Set();
+let installed = false;
+function onWindowKeydown(e) {
+  if (e.isComposing)
+    return;
+  const target = e.target instanceof Node ? e.target : null;
+  if (!target)
+    return;
+  let holder;
+  for (const h2 of holders) {
+    if (h2.view.dom.contains(target)) {
+      holder = h2;
+      break;
+    }
+  }
+  if (!holder)
+    return;
+  for (const b of holder.binds) {
+    if (b.match(e)) {
+      if (e.defaultPrevented) {
+        console.debug("[rememo-kb] \u6309\u952E\u5DF2\u88AB Obsidian \u62A2\u5148\u5904\u7406\uFF08\u53EF\u80FD\u4F5C\u7528\u4E8E\u4E3B\u7F16\u8F91\u5668\uFF09", {
+          key: e.key,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey
+        });
+      }
+      b.run(holder.view);
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return;
+    }
+  }
+}
+function attachKeyCapture(view, binds) {
+  holders.add({ view, binds });
+  if (!installed) {
+    window.addEventListener("keydown", onWindowKeydown, true);
+    installed = true;
+  }
+  return () => {
+    for (const h2 of holders) {
+      if (h2.view === view) {
+        holders.delete(h2);
+        break;
+      }
+    }
+    if (!holders.size && installed) {
+      window.removeEventListener("keydown", onWindowKeydown, true);
+      installed = false;
+    }
+  };
+}
 var editor = "";
 function SvgSend(props) {
   return /* @__PURE__ */ react.exports.createElement("svg", {
@@ -30703,7 +30760,6 @@ const Editor = react.exports.forwardRef((props, ref) => {
   const viewRef = react.exports.useRef(null);
   const nativeRef = react.exports.useRef(null);
   const roCompartmentRef = react.exports.useRef(new Compartment());
-  const extRef = react.exports.useRef([]);
   const cbRef = react.exports.useRef({
     confirm: handleConfirmBtnClickCallback,
     change: handleContentChangeCallback,
@@ -30716,7 +30772,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
   cbRef.current.enterToSend = enterToSend === true;
   const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
   react.exports.useEffect(() => {
-    var _a2, _b;
+    var _a2, _b, _c, _d, _e, _f, _g;
     const parent = mountRef.current;
     if (!parent || parent.querySelector(".cm-editor")) {
       return;
@@ -30763,63 +30819,53 @@ const Editor = react.exports.forwardRef((props, ref) => {
       buildLocalExtensions() {
         var _a3, _b2;
         const exts = (_b2 = (_a3 = super.buildLocalExtensions) == null ? void 0 : _a3.call(this)) != null ? _b2 : [];
-        exts.push(EditorView.lineWrapping);
-        exts.push(
-          Prec.highest(EditorView.domEventHandlers({
-            focus: () => {
-              bridgeActiveEditor(true);
-              return true;
-            },
-            blur: () => {
-              bridgeActiveEditor(false);
-              return true;
-            }
-          })),
-          placeholder(cbRef.current.placeholder),
-          memoInputHighlight,
-          memoAutocomplete(),
-          keymap.of([{
-            key: "Enter",
-            run: (view) => {
-              if (!cbRef.current.enterToSend)
-                return false;
-              if (completionStatus(view.state) === "active")
-                return false;
-              sendFrom(view);
-              return true;
-            }
-          }, {
-            key: "Mod-Enter",
-            run: (view) => {
-              if (cbRef.current.enterToSend) {
-                const head = view.state.selection.main.head;
-                view.dispatch({
-                  changes: {
-                    from: head,
-                    to: head,
-                    insert: "\n"
-                  },
-                  selection: {
-                    anchor: head + 1
-                  }
-                });
-                return true;
-              }
-              sendFrom(view);
+        exts.push(placeholder(cbRef.current.placeholder), keymap.of([{
+          key: "Enter",
+          run: (view) => {
+            if (!cbRef.current.enterToSend)
+              return false;
+            if (completionStatus(view.state) === "active")
+              return false;
+            sendFrom(view);
+            return true;
+          }
+        }, {
+          key: "Mod-Enter",
+          run: (view) => {
+            if (cbRef.current.enterToSend) {
+              const head = view.state.selection.main.head;
+              view.dispatch({
+                changes: {
+                  from: head,
+                  to: head,
+                  insert: "\n"
+                },
+                selection: {
+                  anchor: head + 1
+                }
+              });
               return true;
             }
-          }]),
-          roCompartmentRef.current.of([]),
-          EditorView.updateListener.of((u2) => {
-            if (u2.docChanged) {
-              const text = u2.state.doc.toString();
-              setHasContent(text.length > 0);
-              cbRef.current.change(text);
-            }
-          })
-        );
-        extRef.current = exts;
+            sendFrom(view);
+            return true;
+          }
+        }]), roCompartmentRef.current.of([]), EditorView.updateListener.of((u2) => {
+          if (u2.docChanged) {
+            const text = u2.state.doc.toString();
+            setHasContent(text.length > 0);
+            cbRef.current.change(text);
+          }
+        }));
         return exts;
+      }
+      onUpdate(update, changed) {
+        var _a3;
+        (_a3 = super.onUpdate) == null ? void 0 : _a3.call(this, update, changed);
+        if (update == null ? void 0 : update.docChanged) {
+          const text = update.state.doc.toString();
+          setHasContent(text.length > 0);
+          cbRef.current.change(text);
+        }
       }
     }
     let native;
@@ -30831,36 +30877,111 @@ const Editor = react.exports.forwardRef((props, ref) => {
       return;
     }
     nativeRef.current = native;
+    const plugin = (_b = (_a2 = app2 == null ? void 0 : app2.plugins) == null ? void 0 : _a2.plugins) == null ? void 0 : _b["rememo"];
+    let addedToPlugin = false;
+    if (plugin && typeof plugin.addChild === "function") {
+      try {
+        plugin.addChild(native);
+        addedToPlugin = true;
+      } catch (err) {
+        console.error("[rememo] addChild \u5931\u8D25", err);
+      }
+    }
     const cm = native.cm;
     if (!cm) {
       console.error("[rememo] \u539F\u751F\u5B9E\u4F8B\u65E0 .cm\uFF08\u5185\u6838\u7ED3\u6784\u53D8\u52A8\uFF1F\uFF09");
       parent.textContent = "[rememo] editor init failed (see console)";
       return;
     }
+    const editorWrapper = native.editor;
+    if (editorWrapper && typeof editorWrapper.removeHighlights === "function") {
+      editorWrapper.removeHighlights = () => void 0;
+      editorWrapper.hasHighlight = () => false;
+    }
     viewRef.current = cm;
     cbRef.current.get = () => cm.state.doc.toString();
+    const injectAppearance = (withSuggest) => {
+      try {
+        const exts = [EditorView.lineWrapping, memoInputHighlight];
+        if (withSuggest) {
+          exts.push(memoAutocomplete(), placeholder(cbRef.current.placeholder));
+        }
+        cm.dispatch({
+          effects: StateEffect.appendConfig.of(exts)
+        });
+      } catch (err) {
+        console.error("[rememo] appendConfig \u6CE8\u5165\u5931\u8D25", err);
+      }
+    };
+    injectAppearance(true);
+    setTimeout(() => injectAppearance(false), 300);
+    setTimeout(() => injectAppearance(false), 1500);
+    const onDomInput = () => {
+      const text = cm.state.doc.toString();
+      setHasContent(text.length > 0);
+      cbRef.current.change(text);
+    };
+    (_c = cm.contentDOM) == null ? void 0 : _c.addEventListener("input", onDomInput);
+    const onDomFocus = () => {
+      bridgeActiveEditor(true);
+    };
+    const onDomBlur = () => bridgeActiveEditor(false);
+    (_d = cm.contentDOM) == null ? void 0 : _d.addEventListener("focus", onDomFocus);
+    (_e = cm.contentDOM) == null ? void 0 : _e.addEventListener("blur", onDomBlur);
     const initial = initialContent != null ? initialContent : "";
     if (initial) {
       try {
         if (typeof native.set === "function") {
           native.set(initial);
         } else {
-          (_b = (_a2 = native.editor) == null ? void 0 : _a2.setValue) == null ? void 0 : _b.call(_a2, initial);
+          (_g = (_f = native.editor) == null ? void 0 : _f.setValue) == null ? void 0 : _g.call(_f, initial);
         }
       } catch (err) {
         console.error("[rememo] \u8BBE\u7F6E\u521D\u59CB\u5185\u5BB9\u5931\u8D25", err);
       }
     }
+    const detachCapture = attachKeyCapture(cm, [{
+      match: (e) => !e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey && e.key === "Enter",
+      run: (view) => {
+        if (cbRef.current.enterToSend) {
+          const head = view.state.selection.main.head;
+          view.dispatch({
+            changes: {
+              from: head,
+              to: head,
+              insert: "\n"
+            },
+            selection: {
+              anchor: head + 1
+            }
+          });
+        } else {
+          sendFrom(view);
+        }
+      }
+    }]);
     return () => {
-      var _a3;
+      var _a3, _b2, _c2, _d2;
+      detachCapture();
+      (_a3 = cm.contentDOM) == null ? void 0 : _a3.removeEventListener("input", onDomInput);
+      (_b2 = cm.contentDOM) == null ? void 0 : _b2.removeEventListener("focus", onDomFocus);
+      (_c2 = cm.contentDOM) == null ? void 0 : _c2.removeEventListener("blur", onDomBlur);
       bridgeActiveEditor(false);
       nativeRef.current = null;
       viewRef.current = null;
       cbRef.current.get = void 0;
-      try {
-        (_a3 = native.unload) == null ? void 0 : _a3.call(native);
-      } catch (err) {
-        console.error("[rememo] \u539F\u751F\u7F16\u8F91\u5668\u5378\u8F7D\u5F02\u5E38", err);
+      if (addedToPlugin && typeof (plugin == null ? void 0 : plugin.removeChild) === "function") {
+        try {
+          plugin.removeChild(native);
+        } catch (err) {
+          console.error("[rememo] removeChild \u5378\u8F7D\u5F02\u5E38", err);
+        }
+      } else {
+        try {
+          (_d2 = native.unload) == null ? void 0 : _d2.call(native);
+        } catch (err) {
+          console.error("[rememo] \u539F\u751F\u7F16\u8F91\u5668\u5378\u8F7D\u5F02\u5E38", err);
+        }
       }
     };
   }, []);
@@ -30919,19 +31040,14 @@ const Editor = react.exports.forwardRef((props, ref) => {
       return (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.state.doc.toString()) != null ? _b : "";
     },
     clear: () => {
-      const cm = viewRef.current;
-      if (!cm)
+      const view = viewRef.current;
+      if (!view)
         return;
-      if (extRef.current.length > 0) {
-        cm.setState(EditorState.create({
-          doc: "",
-          extensions: extRef.current
-        }));
-      } else if (cm.state.doc.length > 0) {
-        cm.dispatch({
+      if (view.state.doc.length > 0) {
+        view.dispatch({
           changes: {
             from: 0,
-            to: cm.state.doc.length,
+            to: view.state.doc.length,
             insert: ""
           }
         });
@@ -30942,9 +31058,15 @@ const Editor = react.exports.forwardRef((props, ref) => {
       const view = viewRef.current;
       if (!view)
         return;
-      view.dispatch({
-        effects: roCompartmentRef.current.reconfigure(editable2 ? [] : EditorState.readOnly.of(true))
-      });
+      try {
+        view.dispatch({
+          effects: roCompartmentRef.current.reconfigure(editable2 ? [] : EditorState.readOnly.of(true))
+        });
+      } catch {
+        const el = view.contentDOM;
+        if (el)
+          el.contentEditable = editable2 ? "true" : "false";
+      }
     },
     toggleHashAtCursor: () => {
       const view = viewRef.current;
@@ -30986,7 +31108,8 @@ const Editor = react.exports.forwardRef((props, ref) => {
   return /* @__PURE__ */ jsxs("div", {
     className: "common-editor-wrapper " + className,
     children: [/* @__PURE__ */ jsx("div", {
-      className: "cm-host",
+      className: "cm-host" + (hasContent2 ? "" : " is-empty"),
+      "data-placeholder": placeholderText,
       ref: mountRef
     }), /* @__PURE__ */ jsxs("div", {
       className: "common-tools-wrapper",

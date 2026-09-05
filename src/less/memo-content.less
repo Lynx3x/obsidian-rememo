@@ -11,6 +11,13 @@
   white-space: pre-wrap;
   color: var(--text-normal);
 
+  // ==高亮== 渲染兜底（部分主题 mark 无样式）
+  mark {
+    background-color: var(--text-highlight-bg, rgba(255, 220, 80, 0.4));
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
   > p {
     display: inline-block;
     width: 100%;

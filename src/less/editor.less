@@ -13,8 +13,25 @@ div[data-type='memos_view'] .common-editor-wrapper {
 
   // ---- cm6 输入区 ----
   > .cm-host {
+    position: relative;
     width: 100%;
     margin-bottom: 4px;
+
+    // 空内容占位（CSS 叠层：不依赖内核 placeholder 扩展）
+    &.is-empty::before {
+      content: attr(data-placeholder);
+      position: absolute;
+      top: 0;
+      left: 4px;
+      max-width: calc(100% - 8px);
+      color: var(--memo-text-faint);
+      font-size: 15px;
+      line-height: 24px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
 
     > .cm-editor {
       width: 100%;
@@ -29,13 +46,35 @@ div[data-type='memos_view'] .common-editor-wrapper {
       max-height: 40vh;
       min-height: 48px;
       overflow-y: auto;
+      overflow-x: hidden; // 禁横向滚动：长词/URL 由 overflow-wrap 折行处理
       overscroll-behavior: contain;
-      .hide-scroll-bar();
+      scrollbar-width: thin;
+      scrollbar-color: var(--memo-border, #d5d5d5) transparent;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: var(--memo-border, #d5d5d5);
+        border-radius: 8px;
+
+        &:hover {
+          background-color: var(--memo-border-strong, #ccc);
+        }
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
     }
 
     .cm-content {
       padding: 0 2px;
       caret-color: var(--memo-accent);
+      // 长词/URL 折行（配合 lineWrapping，防横向溢出出水平滚动条）
+      overflow-wrap: anywhere;
       // 空内容时也保持可点高度
       min-height: 24px;
 
@@ -66,6 +105,11 @@ div[data-type='memos_view'] .common-editor-wrapper {
 
     .cm-hl-italic {
       font-style: italic;
+    }
+
+    .cm-hl-mark {
+      background-color: var(--text-highlight-bg, rgba(255, 220, 80, 0.4));
+      border-radius: 2px;
     }
 
     .cm-hl-tag {

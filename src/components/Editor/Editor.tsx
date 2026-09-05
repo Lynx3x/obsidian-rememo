@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Compartment, EditorState } from '@codemirror/state';
+import { Compartment, EditorState, StateEffect } from '@codemirror/state';
 import type { Extension } from '@codemirror/state';
 import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
@@ -7,6 +7,7 @@ import { completionStatus } from '@codemirror/autocomplete';
 import { memoAutocomplete } from '../../editor/suggest';
 import { memoInputHighlight } from '../../editor/highlight';
 import { getNativeMarkdownEditorClass } from '../../editor/native';
+import { attachKeyCapture } from '../../editor/capture';
 import appStore from '../../stores/appStore';
 import '../../less/editor.less';
 import { FocusOnEditor } from '../../memos';
@@ -15,31 +16,33 @@ import { t } from '../../translations/helper';
 import Only from '../common/OnlyWhen';
 
 /**
- * memo 主输入（P2 转向：Obsidian 原生 MarkdownEditor 子类，替代自打包 cm6）。
- * 外层壳（.common-editor-wrapper + tools）与 props/ref 契约不变，内层引擎换成
- * 内核编辑器的子类实例（kanban 同款接入，见 native.ts）：
- *  - 键盘 = Obsidian 原生（列表/任务续行、IME、undo/redo、原生 markdown 格式键）
- *  - 编辑器聚焦时把 workspace.activeEditor 桥到本实例 → Obsidian 的编辑器命令
- *    （Mod-B/I/E 等）直接作用于 memo 输入，不再被全局键拦截或误改主编辑器
- *  - 发送键位（Enter / Ctrl+Enter 按 EnterToSend 设置）在最高优先级 keymap 覆写
- *  - `#`/`[[` 联想、轻量高亮、placeholder 仍是自产扩展（数据源/apply 语义可控）
- *  - readOnly（发送后发射前锁输入）走 Compartment
+ * memo 主输入（P2 定稿：Obsidian 原生 MarkdownEditor 嵌入 + 纯外层 DOM 控制）。
+ *
+ * 架构（2026-09-05 探针实测定稿）：
+ * - 内核 embed/裸编辑器的生效 state 不吃任何 buildLocalExtensions 返回值
+ *   （覆写/原型 patch/onUpdate 均不可靠）→ 控制权全部放在编辑器之外：
+ *   * 变更回调 = contentDOM 的 input 事件（DOM 通道，驱动发送按钮可用态/缓存）
+ *   * activeEditor 桥 = contentDOM focus/blur（Obsidian 编辑器命令路由到本输入）
+ *   * 键盘 = contentDOM keydown（纯 Enter 发送模式）+ window capture 兜底
+ *     （Ctrl/Cmd+Enter：Obsidian window capture 吞命中命令的 Mod 键，75b16ec 机制）
+ *   * 编辑器挂进插件组件树（plugin.addChild，kanban 同款生命周期）
+ * - 观感扩展（换行/高亮/联想/占位）走 cm6 官方 StateEffect.appendConfig 注入
+ *   生效 state；addChild 的 load 链可能异步重建 state 抹掉注入 → 立即注入全量 +
+ *   延迟补注 lineWrapping/高亮（facet/装饰类重复追加安全）
+ * - removeHighlights 实例遮蔽：裸编辑器 state 无搜索高亮 field，点击/Esc 会崩
+ * - readOnly 锁（发送后发射前）走 roCompartment（随 buildLocalExtensions 尝试，
+ *   兜底由外层置 contenteditable 不可编辑）
  */
 
 export interface EditorRefActions {
-  /** cm 编辑器容器 DOM（.cm-editor），供外部挂 paste/drop、blur 等 */
   element: HTMLElement;
-  /** 可聚焦的内容 DOM（.cm-content） */
   contentEl: HTMLElement;
   focus: FunctionType;
   insertText: (text: string) => void;
   setContent: (text: string) => void;
   getContent: () => string;
-  /** 清空输入（同时清 undo 历史——发送后不该能撤销回旧文） */
   clear: () => void;
-  /** 锁定/解锁输入（readOnly），用于"发送后发射前"不让用户继续改内容 */
   setEditable: (editable: boolean) => void;
-  /** 工具按钮：# 标签切换（光标前有 '#' 则删、无则插） */
   toggleHashAtCursor: () => void;
 }
 
@@ -53,7 +56,6 @@ interface EditorProps {
   onConfirmBtnClick: (content: string) => void;
   onCancelBtnClick: () => void;
   onContentChange: (content: string) => void;
-  /** true = Enter 直接发送（Ctrl/Cmd+Enter 换行）；false（默认）= Enter 换行/续行，Ctrl+Enter 发送 */
   enterToSend?: boolean;
 }
 
@@ -72,12 +74,9 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
   } = props;
 
   const mountRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<EditorView | null>(null); // 原生实例的 cm（EditorView）
-  const nativeRef = useRef<any>(null); // 内核 MarkdownEditor 子类实例
+  const viewRef = useRef<EditorView | null>(null);
+  const nativeRef = useRef<any>(null);
   const roCompartmentRef = useRef(new Compartment());
-  // 全量扩展快照（内核 super + 自产，buildLocalExtensions 内捕获一次）——clear() 重建 state 用
-  const extRef = useRef<Extension[]>([]);
-  // 动态回调经 ref 转发（原生实例只建一次）
   const cbRef = useRef<{
     confirm: (content: string) => void;
     change: (content: string) => void;
@@ -95,7 +94,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
   cbRef.current.placeholder = placeholderText;
   cbRef.current.enterToSend = enterToSend === true;
 
-  // 发送键可用态（仅空内容时禁用确认钮，与旧 textarea disabled 语义一致）
   const [hasContent, setHasContent] = useState(() => initialContent.length > 0);
 
   useEffect(() => {
@@ -111,8 +109,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       return;
     }
 
-    // ---- workspace.activeEditor 桥：聚焦时把本实例接为 activeEditor，让 Obsidian
-    // 编辑器命令（Mod-B/I/E、任务切换等）作用于 memo 输入而非主编辑器 ----
     const controller = {
       app,
       getMode: () => 'source',
@@ -136,8 +132,6 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
         ws.activeEditor = null;
       }
     };
-
-    // ---- 发送/换行：以编辑器当前文档为准（缓存由 change 回调维护） ----
     const sendFrom = (view: EditorView) => {
       cbRef.current.confirm(view.state.doc.toString());
     };
@@ -148,26 +142,11 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       }
 
       buildLocalExtensions(): Extension[] {
+        // 注：此返回值在部分构造路径不进生效 state（探针G 实测），观感扩展（换行/
+        // 高亮/联想）改走 appendConfig 注入（见下）；这里只留键盘与回调扩展作为尝试
         const exts: Extension[] = super.buildLocalExtensions?.() ?? [];
-        // 换行：主编辑器的 lineWrapping 由内核更外层注入，子类不自带——这里显式补上
-        exts.push(EditorView.lineWrapping);
         exts.push(
-          // 聚焦/失焦即桥接/卸下 activeEditor（仿 kanban MarkdownEditor focus 处理）
-          Prec.highest(
-            EditorView.domEventHandlers({
-              focus: () => {
-                bridgeActiveEditor(true);
-                return true;
-              },
-              blur: () => {
-                bridgeActiveEditor(false);
-                return true;
-              },
-            }),
-          ),
           placeholder(cbRef.current.placeholder),
-          memoInputHighlight,
-          memoAutocomplete(),
           keymap.of([
             {
               key: 'Enter',
@@ -204,10 +183,16 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
             }
           }),
         );
-        // 全量扩展快照（内核 super + 自产）：仅在内核构造调用本方法这一次时捕获，
-        // 供 clear() 重建 state 用（重建 = undo 历史一起清，发送后 Ctrl+Z 不复活旧文）
-        extRef.current = exts;
         return exts;
+      }
+
+      onUpdate(update: any, changed: boolean) {
+        super.onUpdate?.(update, changed);
+        if (update?.docChanged) {
+          const text = update.state.doc.toString();
+          setHasContent(text.length > 0);
+          cbRef.current.change(text);
+        }
       }
     }
 
@@ -220,14 +205,83 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       return;
     }
     nativeRef.current = native;
-    const cm: EditorView | undefined = native.cm;
+
+    // kanban 同款生命周期：把编辑器挂进插件组件树（addChild → 内核完整 load 链）。
+    // 这是与 kanban 接入方式最后未验证的差异（kanban: plugin.addChild(editor)）。
+    const plugin: any = app?.plugins?.plugins?.['rememo'];
+    let addedToPlugin = false;
+    if (plugin && typeof plugin.addChild === 'function') {
+      try {
+        plugin.addChild(native);
+        addedToPlugin = true;
+      } catch (err) {
+        console.error('[rememo] addChild 失败', err);
+      }
+    } else {
+    }
+
+    const cm: EditorView | undefined = native.cm; // addChild/load 后重取
     if (!cm) {
       console.error('[rememo] 原生实例无 .cm（内核结构变动？）');
       parent.textContent = '[rememo] editor init failed (see console)';
       return;
     }
+
+    // 遮蔽内核"搜索高亮"方法：该功能的 StateField 由主编辑器外层注入，裸编辑器 state
+    // 没有；内核点击（onViewClick）与 Esc 会调 removeHighlights → 读缺失 field →
+    // RangeError（实测崩输入）。memo 输入无搜索高亮，实例级 no-op 遮蔽。
+    const editorWrapper = native.editor;
+    if (editorWrapper && typeof editorWrapper.removeHighlights === 'function') {
+      editorWrapper.removeHighlights = () => undefined;
+      editorWrapper.hasHighlight = () => false;
+    }
     viewRef.current = cm;
     cbRef.current.get = () => cm.state.doc.toString();
+
+    // ---- appendConfig 注入观感扩展（cm6 官方通道，直接追加进当前生效 state；
+    // buildLocalExtensions 通道已证不可靠）。addChild 的 load 链可能异步重建 state
+    // 抹掉注入（换行曾随机丢失）→ 立即注入全量 + 延迟补注 lineWrapping/高亮
+    // （两者为 facet/装饰类扩展，重复追加安全；联想/占位保持单份防重复冲突）----
+    const injectAppearance = (withSuggest: boolean) => {
+      try {
+        const exts: Extension[] = [EditorView.lineWrapping, memoInputHighlight];
+        if (withSuggest) {
+          exts.push(memoAutocomplete(), placeholder(cbRef.current.placeholder));
+        }
+        cm.dispatch({ effects: StateEffect.appendConfig.of(exts) });
+      } catch (err) {
+        console.error('[rememo] appendConfig 注入失败', err);
+      }
+    };
+    injectAppearance(true);
+    setTimeout(() => injectAppearance(false), 300);
+    setTimeout(() => injectAppearance(false), 1500);
+
+    // ---- 输入变更检测（DOM 通道，不依赖内核扩展）：contenteditable 的 input 事件
+    // 在用户打字/粘贴/删除时必然触发 → 驱动发送按钮可用态与内容缓存 ----
+    let probeInput = false;
+    const onDomInput = () => {
+      if (!probeInput) {
+        probeInput = true;
+      }
+      const text = cm.state.doc.toString();
+      setHasContent(text.length > 0);
+      cbRef.current.change(text);
+    };
+    cm.contentDOM?.addEventListener('input', onDomInput);
+
+    // ---- activeEditor 桥（DOM 通道）：聚焦把本实例接为 activeEditor → Obsidian
+    // 编辑器命令（Mod-B/I/E、任务切换等）路由到 memo 输入而非主编辑器 ----
+    let probeBridge = false;
+    const onDomFocus = () => {
+      if (!probeBridge) {
+        probeBridge = true;
+      }
+      bridgeActiveEditor(true);
+    };
+    const onDomBlur = () => bridgeActiveEditor(false);
+    cm.contentDOM?.addEventListener('focus', onDomFocus);
+    cm.contentDOM?.addEventListener('blur', onDomBlur);
 
     // 初始内容：优先实例 .set（kanban 同款），缺则走 editor 包装 setValue
     const initial = initialContent ?? '';
@@ -243,15 +297,47 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       }
     }
 
+    // Mod 组合键兜底：Obsidian window capture 会吞命中其命令的 Mod 键（Ctrl+Enter
+    // 勾选任务等）→ window 层 capture 拦截执行发送/换行（75b16ec 验证过的机制）
+    const detachCapture = attachKeyCapture(cm, [
+      {
+        match: (e) => !e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey && e.key === 'Enter',
+        run: (view) => {
+          if (cbRef.current.enterToSend) {
+            // 发送模式：Ctrl+Enter = 单行换行
+            const head = view.state.selection.main.head;
+            view.dispatch({
+              changes: { from: head, to: head, insert: '\n' },
+              selection: { anchor: head + 1 },
+            });
+          } else {
+            sendFrom(view);
+          }
+        },
+      },
+    ]);
+
     return () => {
+      detachCapture();
+      cm.contentDOM?.removeEventListener('input', onDomInput);
+      cm.contentDOM?.removeEventListener('focus', onDomFocus);
+      cm.contentDOM?.removeEventListener('blur', onDomBlur);
       bridgeActiveEditor(false);
       nativeRef.current = null;
       viewRef.current = null;
       cbRef.current.get = undefined;
-      try {
-        native.unload?.();
-      } catch (err) {
-        console.error('[rememo] 原生编辑器卸载异常', err);
+      if (addedToPlugin && typeof plugin?.removeChild === 'function') {
+        try {
+          plugin.removeChild(native);
+        } catch (err) {
+          console.error('[rememo] removeChild 卸载异常', err);
+        }
+      } else {
+        try {
+          native.unload?.();
+        } catch (err) {
+          console.error('[rememo] 原生编辑器卸载异常', err);
+        }
       }
     };
     // 只在挂载时建一次
@@ -295,25 +381,30 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
         return viewRef.current?.state.doc.toString() ?? '';
       },
       clear: () => {
-        const cm = viewRef.current;
-        if (!cm) return;
-        if (extRef.current.length > 0) {
-          // 重建 state：undo 历史随重建一起清掉——发送后 Ctrl+Z 不应复活旧文（旧 dispatch
-          // 清空会被原生 undo 拉回，造成输入框残留旧文 + 状态失步）；setState 不受 readOnly 拦
-          cm.setState(EditorState.create({ doc: '', extensions: extRef.current }));
-        } else if (cm.state.doc.length > 0) {
-          cm.dispatch({ changes: { from: 0, to: cm.state.doc.length, insert: '' } });
+        const view = viewRef.current;
+        if (!view) return;
+        if (view.state.doc.length > 0) {
+          // 只用 dispatch 清空——setState 重建 state 会丢内核私有 StateField
+          // （RangeError: Field is not present，实测崩输入）
+          view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: '' } });
         }
         setHasContent(false);
+        // 注：dispatch 清空后 Ctrl+Z 仍可撤销回旧文（undo 历史无法安全清空，已知小瑕疵）
       },
       setEditable: (editable: boolean) => {
         const view = viewRef.current;
         if (!view) return;
-        view.dispatch({
-          effects: roCompartmentRef.current.reconfigure(
-            editable ? [] : EditorState.readOnly.of(true),
-          ),
-        });
+        try {
+          view.dispatch({
+            effects: roCompartmentRef.current.reconfigure(
+              editable ? [] : EditorState.readOnly.of(true),
+            ),
+          });
+        } catch {
+          // compartment 不在生效 state（构建路径差异）时退回 DOM 锁
+          const el = view.contentDOM as HTMLElement | undefined;
+          if (el) el.contentEditable = editable ? 'true' : 'false';
+        }
       },
       toggleHashAtCursor: () => {
         const view = viewRef.current;
@@ -346,7 +437,11 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
   return (
     <div className={'common-editor-wrapper ' + className}>
-      <div className="cm-host" ref={mountRef} />
+      <div
+        className={'cm-host' + (hasContent ? '' : ' is-empty')}
+        data-placeholder={placeholderText}
+        ref={mountRef}
+      />
       <div className="common-tools-wrapper">
         <div className="common-tools-container">
           <Only when={props.tools !== undefined}>{props.tools}</Only>
