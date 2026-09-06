@@ -33518,27 +33518,7 @@ const MemoList = () => {
       });
       const first = cards[0];
       if (first) {
-        const reduceMotion = (_c = (_b = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _b.matches) != null ? _c : false;
-        let slipEligible = false;
-        let host = null;
-        let originX = 0;
-        let originY = 0;
-        if (!reduceMotion && !require$$0.Platform.isMobile && first.offsetWidth > 0) {
-          const editorHost = container.parentElement;
-          const editor2 = editorHost == null ? void 0 : editorHost.querySelector(".memo-editor-wrapper");
-          if (editorHost && editor2) {
-            const editorRect = editor2.getBoundingClientRect();
-            const slotRect = first.getBoundingClientRect();
-            const hostRect = editorHost.getBoundingClientRect();
-            if (hostRect.width > 0 && slotRect.width > 0) {
-              originX = editorRect.left + editorRect.width / 2 - (slotRect.left + slotRect.width / 2);
-              originY = editorRect.bottom + 2 - (slotRect.top + slotRect.height / 2);
-              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -8;
-              host = editorHost;
-            }
-          }
-        }
-        if (reduceMotion) {
+        if ((_c = (_b = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _b.matches) != null ? _c : false) {
           const anim = first.animate([{
             opacity: 0
           }, {
@@ -33548,76 +33528,30 @@ const MemoList = () => {
             easing: "ease-out"
           });
           anim.onfinish = () => anim.cancel();
-        } else if (slipEligible && host) {
-          const slip = document.createElement("div");
-          slip.className = "memo-slip-paper";
-          const hostRect = host.getBoundingClientRect();
-          const slotRect = first.getBoundingClientRect();
-          const slipH = 46;
-          slip.style.cssText = `width:${first.offsetWidth}px;height:${slipH}px;left:${slotRect.left - hostRect.left}px;top:${slotRect.top - hostRect.top + (slotRect.height - slipH) / 2}px;`;
-          host.appendChild(slip);
-          const flyAnim = slip.animate([{
-            transform: `translate(${originX}px, ${originY}px) scale(0.4) rotate(-2deg)`,
-            opacity: 0,
-            offset: 0
-          }, {
-            transform: `translate(${originX - 8}px, ${originY * 0.78}px) scale(0.58) rotate(-1.4deg)`,
-            opacity: 1,
-            offset: 0.22
-          }, {
-            transform: `translate(${originX + 5}px, ${originY * 0.45}px) scale(0.8) rotate(-0.6deg)`,
-            opacity: 1,
-            offset: 0.5
-          }, {
-            transform: `translate(${originX - 2}px, ${originY * 0.12}px) scale(0.96) rotate(0deg)`,
-            opacity: 1,
-            offset: 0.76
-          }, {
-            transform: "translate(0px, 0px) scale(1) rotate(0deg)",
-            opacity: 0,
-            offset: 1
-          }], {
-            duration: 240,
-            easing: "cubic-bezier(0.25, 0.8, 0.3, 1)"
-          });
-          flyAnim.onfinish = () => {
-            flyAnim.cancel();
-            slip.remove();
-          };
-          const cardAnim = first.animate([{
-            opacity: 0,
-            transform: "translateY(12px)",
-            offset: 0
-          }, {
-            opacity: 1,
-            transform: "translateY(0px)",
-            offset: 1
-          }], {
-            duration: 200,
-            delay: 80,
-            easing: "ease-out"
-          });
-          cardAnim.onfinish = () => cardAnim.cancel();
         } else {
           const anim = first.animate([{
-            transform: "translateY(-150px)",
+            transform: "translateY(-150px) rotate(1.5deg)",
             opacity: 0,
             offset: 0
           }, {
-            transform: "translateY(12px)",
+            transform: "translateY(14px) rotate(-0.8deg)",
             opacity: 1,
-            offset: 0.55
+            offset: 0.45
           }, {
-            transform: "translateY(-2px)",
+            transform: "translateY(-7px) rotate(0.4deg)",
             opacity: 1,
-            offset: 0.82
+            offset: 0.66
           }, {
-            transform: "none",
+            transform: "translateY(3px) rotate(-0.2deg)",
+            opacity: 1,
+            offset: 0.83
+          }, {
+            transform: "translateY(0px) rotate(0deg)",
             opacity: 1,
             offset: 1
           }], {
-            duration: 160,
-            easing: "cubic-bezier(0.12, 0.8, 0.2, 1)"
+            duration: 260,
+            easing: "cubic-bezier(0.25, 0.7, 0.3, 1)"
           });
           anim.onfinish = () => anim.cancel();
         }

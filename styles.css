@@ -6274,18 +6274,6 @@ div[data-type='memos_view'] .memolist-wrapper.completed {
 div[data-type='memos_view'].mobile-view .memolist-wrapper {
   padding: 0 12px 24px;
 }
-div[data-type='memos_view'] .memo-slip-paper {
-  position: absolute;
-  z-index: 40;
-  pointer-events: none;
-  box-sizing: border-box;
-  background-color: var(--memo-bg);
-  border: 1px solid var(--memo-border-strong);
-  border-radius: var(--memo-radius-m);
-  box-shadow: var(--memo-shadow-s);
-  opacity: 0;
-  will-change: transform, opacity;
-}
 .mono-font-family {
   font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
 }

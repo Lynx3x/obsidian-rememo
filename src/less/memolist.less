@@ -61,19 +61,3 @@ div[data-type='memos_view'] {
     padding: 0 12px 24px;
   }
 }
-
-// overdrive「纸片入列」：发送时从编辑器下沿飞到卡位的空白纸片（JS 创建于 .content-wrapper 内，
-// 坐标对齐落点卡位；无文字可安全缩放，只做飞行道具，真卡负责内容呈现。
-// 投影用浮层档(S)：需在灰底画布与白卡两背景上都读出轮廓)
-div[data-type='memos_view'] .memo-slip-paper {
-  position: absolute;
-  z-index: 40;
-  pointer-events: none;
-  box-sizing: border-box;
-  background-color: var(--memo-bg);
-  border: 1px solid var(--memo-border-strong);
-  border-radius: var(--memo-radius-m);
-  box-shadow: var(--memo-shadow-s);
-  opacity: 0;
-  will-change: transform, opacity;
-}

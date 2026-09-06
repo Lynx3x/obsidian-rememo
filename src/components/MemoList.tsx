@@ -235,105 +235,26 @@ const MemoList: React.FC<Props> = () => {
         }
       });
 
-      // 2) 新卡入场：桌面默认升级为「纸片入列」——空白纸片从编辑器中心弹出、长大落入卡位，
-      //    真卡在落点淡入与纸片交接（纸片无文字可安全缩放；世界动效律只禁文字缩放）。
-      //    回退链：prefers-reduced-motion → 纯淡入；移动端/编辑器不可测距(滚远) → 旧发射位移入场。
+      // 2) 新卡入场：Q 弹落位——从编辑器方向落下，弹性过冲衰减两次。
+      //    弹性全部由 translateY（+≤1.5° 微旋）承担，不加 scale：
+      //    文字多的卡片禁缩放（世界律动效 = 位移+淡入）
       const first = cards[0];
       if (first) {
-        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
-
-        let slipEligible = false;
-        let host: HTMLElement | null = null;
-        let originX = 0;
-        let originY = 0;
-        if (!reduceMotion && !Platform.isMobile && first.offsetWidth > 0) {
-          const editorHost = container.parentElement;
-          const editor = editorHost?.querySelector<HTMLElement>('.memo-editor-wrapper');
-          if (editorHost && editor) {
-            const editorRect = editor.getBoundingClientRect();
-            const slotRect = first.getBoundingClientRect();
-            const hostRect = editorHost.getBoundingClientRect();
-            if (hostRect.width > 0 && slotRect.width > 0) {
-              // 纸片飞行原点 = 编辑器下沿中心：一出膛就在列表灰底画布上，全程可见
-              // （旧版取编辑器中心，前段飞在白卡上方白纸对白卡不可见 → 观感只剩落点闪入）
-              originX = editorRect.left + editorRect.width / 2 - (slotRect.left + slotRect.width / 2);
-              originY = editorRect.bottom + 2 - (slotRect.top + slotRect.height / 2);
-              // 距离合理（未滚远）才做飞行；滚远时纸片在可视区外无意义
-              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -8;
-              host = editorHost;
-            }
-          }
-        }
-
-        if (reduceMotion) {
+        if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false) {
           // reduced-motion：最短淡入
           const anim = first.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140, easing: 'ease-out' });
           anim.onfinish = () => anim.cancel();
-        } else if (slipEligible && host) {
-          // —— 「纸片入列」choreography ——
-          const slip = document.createElement('div');
-          slip.className = 'memo-slip-paper';
-          const hostRect = host.getBoundingClientRect();
-          const slotRect = first.getBoundingClientRect();
-          const slipH = 46;
-          slip.style.cssText =
-            `width:${first.offsetWidth}px;height:${slipH}px;` +
-            `left:${slotRect.left - hostRect.left}px;` +
-            `top:${slotRect.top - hostRect.top + (slotRect.height - slipH) / 2}px;`;
-          host.appendChild(slip);
-
-          // 飞行：从编辑器下沿探出 → 弧线摆落（横向摇摆+微旋读出轨迹）→ 落位融出与真卡交接
-          const flyAnim = slip.animate(
-            [
-              {
-                transform: `translate(${originX}px, ${originY}px) scale(0.4) rotate(-2deg)`,
-                opacity: 0,
-                offset: 0,
-              },
-              {
-                transform: `translate(${originX - 8}px, ${originY * 0.78}px) scale(0.58) rotate(-1.4deg)`,
-                opacity: 1,
-                offset: 0.22,
-              },
-              {
-                transform: `translate(${originX + 5}px, ${originY * 0.45}px) scale(0.8) rotate(-0.6deg)`,
-                opacity: 1,
-                offset: 0.5,
-              },
-              {
-                transform: `translate(${originX - 2}px, ${originY * 0.12}px) scale(0.96) rotate(0deg)`,
-                opacity: 1,
-                offset: 0.76,
-              },
-              { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 0, offset: 1 },
-            ],
-            { duration: 240, easing: 'cubic-bezier(0.25, 0.8, 0.3, 1)' },
-          );
-          flyAnim.onfinish = () => {
-            flyAnim.cancel();
-            slip.remove();
-          };
-
-          // 真卡上浮落位：纸片融出时从下方 12px 升起并淡入（位移+淡入，文字安全），
-          // 完成“纸片→卡片”的落定感，不再是原地闪入
-          const cardAnim = first.animate(
-            [
-              { opacity: 0, transform: 'translateY(12px)', offset: 0 },
-              { opacity: 1, transform: 'translateY(0px)', offset: 1 },
-            ],
-            { duration: 200, delay: 80, easing: 'ease-out' },
-          );
-          cardAnim.onfinish = () => cardAnim.cancel();
         } else {
-          // 旧「从输入框底下发射」入场：纯位移+淡入（不加 scale，避免文字缩放抖动）
+          // 快速落地 → 两次回弹衰减（+14/-7/+3，微旋伴随归零）
           const anim = first.animate(
             [
-              { transform: 'translateY(-150px)', opacity: 0, offset: 0 },
-              { transform: 'translateY(12px)', opacity: 1, offset: 0.55 },
-              { transform: 'translateY(-2px)', opacity: 1, offset: 0.82 },
-              { transform: 'none', opacity: 1, offset: 1 },
+              { transform: 'translateY(-150px) rotate(1.5deg)', opacity: 0, offset: 0 },
+              { transform: 'translateY(14px) rotate(-0.8deg)', opacity: 1, offset: 0.45 },
+              { transform: 'translateY(-7px) rotate(0.4deg)', opacity: 1, offset: 0.66 },
+              { transform: 'translateY(3px) rotate(-0.2deg)', opacity: 1, offset: 0.83 },
+              { transform: 'translateY(0px) rotate(0deg)', opacity: 1, offset: 1 },
             ],
-            { duration: 160, easing: 'cubic-bezier(0.12, 0.8, 0.2, 1)' },
+            { duration: 260, easing: 'cubic-bezier(0.25, 0.7, 0.3, 1)' },
           );
           anim.onfinish = () => anim.cancel();
         }
