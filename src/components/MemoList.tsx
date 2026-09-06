@@ -254,11 +254,12 @@ const MemoList: React.FC<Props> = () => {
             const slotRect = first.getBoundingClientRect();
             const hostRect = editorHost.getBoundingClientRect();
             if (hostRect.width > 0 && slotRect.width > 0) {
-              // 纸片飞行原点 = 编辑器卡片中心（相对落点卡位中心的位移）
+              // 纸片飞行原点 = 编辑器下沿中心：一出膛就在列表灰底画布上，全程可见
+              // （旧版取编辑器中心，前段飞在白卡上方白纸对白卡不可见 → 观感只剩落点闪入）
               originX = editorRect.left + editorRect.width / 2 - (slotRect.left + slotRect.width / 2);
-              originY = editorRect.top + editorRect.height / 2 - (slotRect.top + slotRect.height / 2);
-              // 原点在上方且距离合理（未滚远）才做飞行；滚远时纸片在可视区外无意义
-              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -12;
+              originY = editorRect.bottom + 2 - (slotRect.top + slotRect.height / 2);
+              // 距离合理（未滚远）才做飞行；滚远时纸片在可视区外无意义
+              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -8;
               host = editorHost;
             }
           }
@@ -281,37 +282,46 @@ const MemoList: React.FC<Props> = () => {
             `top:${slotRect.top - hostRect.top + (slotRect.height - slipH) / 2}px;`;
           host.appendChild(slip);
 
-          // 飞行：原点 0.2 弹出 → 空中长到全尺寸微旋 → 落位定住；末段融出与真卡交接
+          // 飞行：从编辑器下沿探出 → 弧线摆落（横向摇摆+微旋读出轨迹）→ 落位融出与真卡交接
           const flyAnim = slip.animate(
             [
               {
-                transform: `translate(${originX}px, ${originY}px) scale(0.2) rotate(-2.5deg)`,
+                transform: `translate(${originX}px, ${originY}px) scale(0.4) rotate(-2deg)`,
                 opacity: 0,
                 offset: 0,
               },
               {
-                transform: `translate(${originX * 0.45}px, ${originY * 0.45}px) scale(0.55) rotate(-1.2deg)`,
+                transform: `translate(${originX - 8}px, ${originY * 0.78}px) scale(0.58) rotate(-1.4deg)`,
                 opacity: 1,
-                offset: 0.38,
+                offset: 0.22,
               },
-              { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 1, offset: 0.82 },
+              {
+                transform: `translate(${originX + 5}px, ${originY * 0.45}px) scale(0.8) rotate(-0.6deg)`,
+                opacity: 1,
+                offset: 0.5,
+              },
+              {
+                transform: `translate(${originX - 2}px, ${originY * 0.12}px) scale(0.96) rotate(0deg)`,
+                opacity: 1,
+                offset: 0.76,
+              },
               { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 0, offset: 1 },
             ],
-            { duration: 220, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)' },
+            { duration: 240, easing: 'cubic-bezier(0.25, 0.8, 0.3, 1)' },
           );
           flyAnim.onfinish = () => {
             flyAnim.cancel();
             slip.remove();
           };
 
-          // 真卡在纸片落位窗口淡入（4px 轻上浮），完成“纸片→卡片”交接
+          // 真卡上浮落位：纸片融出时从下方 12px 升起并淡入（位移+淡入，文字安全），
+          // 完成“纸片→卡片”的落定感，不再是原地闪入
           const cardAnim = first.animate(
             [
-              { opacity: 0, transform: 'translateY(4px)', offset: 0 },
-              { opacity: 0, transform: 'translateY(0px)', offset: 0.5 },
-              { opacity: 1, transform: 'none', offset: 1 },
+              { opacity: 0, transform: 'translateY(12px)', offset: 0 },
+              { opacity: 1, transform: 'translateY(0px)', offset: 1 },
             ],
-            { duration: 180, delay: 90, easing: 'ease-out' },
+            { duration: 200, delay: 80, easing: 'ease-out' },
           );
           cardAnim.onfinish = () => cardAnim.cancel();
         } else {

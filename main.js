@@ -33532,8 +33532,8 @@ const MemoList = () => {
             const hostRect = editorHost.getBoundingClientRect();
             if (hostRect.width > 0 && slotRect.width > 0) {
               originX = editorRect.left + editorRect.width / 2 - (slotRect.left + slotRect.width / 2);
-              originY = editorRect.top + editorRect.height / 2 - (slotRect.top + slotRect.height / 2);
-              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -12;
+              originY = editorRect.bottom + 2 - (slotRect.top + slotRect.height / 2);
+              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -8;
               host = editorHost;
             }
           }
@@ -33557,24 +33557,28 @@ const MemoList = () => {
           slip.style.cssText = `width:${first.offsetWidth}px;height:${slipH}px;left:${slotRect.left - hostRect.left}px;top:${slotRect.top - hostRect.top + (slotRect.height - slipH) / 2}px;`;
           host.appendChild(slip);
           const flyAnim = slip.animate([{
-            transform: `translate(${originX}px, ${originY}px) scale(0.2) rotate(-2.5deg)`,
+            transform: `translate(${originX}px, ${originY}px) scale(0.4) rotate(-2deg)`,
             opacity: 0,
             offset: 0
           }, {
-            transform: `translate(${originX * 0.45}px, ${originY * 0.45}px) scale(0.55) rotate(-1.2deg)`,
+            transform: `translate(${originX - 8}px, ${originY * 0.78}px) scale(0.58) rotate(-1.4deg)`,
             opacity: 1,
-            offset: 0.38
+            offset: 0.22
           }, {
-            transform: "translate(0px, 0px) scale(1) rotate(0deg)",
+            transform: `translate(${originX + 5}px, ${originY * 0.45}px) scale(0.8) rotate(-0.6deg)`,
             opacity: 1,
-            offset: 0.82
+            offset: 0.5
+          }, {
+            transform: `translate(${originX - 2}px, ${originY * 0.12}px) scale(0.96) rotate(0deg)`,
+            opacity: 1,
+            offset: 0.76
           }, {
             transform: "translate(0px, 0px) scale(1) rotate(0deg)",
             opacity: 0,
             offset: 1
           }], {
-            duration: 220,
-            easing: "cubic-bezier(0.2, 0.9, 0.3, 1)"
+            duration: 240,
+            easing: "cubic-bezier(0.25, 0.8, 0.3, 1)"
           });
           flyAnim.onfinish = () => {
             flyAnim.cancel();
@@ -33582,19 +33586,15 @@ const MemoList = () => {
           };
           const cardAnim = first.animate([{
             opacity: 0,
-            transform: "translateY(4px)",
+            transform: "translateY(12px)",
             offset: 0
           }, {
-            opacity: 0,
-            transform: "translateY(0px)",
-            offset: 0.5
-          }, {
             opacity: 1,
-            transform: "none",
+            transform: "translateY(0px)",
             offset: 1
           }], {
-            duration: 180,
-            delay: 90,
+            duration: 200,
+            delay: 80,
             easing: "ease-out"
           });
           cardAnim.onfinish = () => cardAnim.cancel();

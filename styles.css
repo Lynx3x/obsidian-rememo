@@ -6282,7 +6282,7 @@ div[data-type='memos_view'] .memo-slip-paper {
   background-color: var(--memo-bg);
   border: 1px solid var(--memo-border-strong);
   border-radius: var(--memo-radius-m);
-  box-shadow: var(--memo-shadow-card-hover);
+  box-shadow: var(--memo-shadow-s);
   opacity: 0;
   will-change: transform, opacity;
 }
