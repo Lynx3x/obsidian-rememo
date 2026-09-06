@@ -93,49 +93,6 @@ div[data-type='memos_view'] .common-editor-wrapper {
 
     // 占位 = 上方 .is-empty::before CSS 叠层（不依赖内核 placeholder 扩展——
     // 2026-09-05 收敛，对应扩展已从 buildLocalExtensions 移除）
-
-    // 联想弹层（cm6 tooltip），观感对齐旧 rta 弹层
-    // TODO(2026-09-05 目视后)：联想已换内核 editorSuggest，若弹层 DOM 是
-    // .suggestion-container（Obsidian 原生）而非 .cm-tooltip-autocomplete，
-    // 本块与下方 ul/li 样式整体可删
-    .cm-tooltip.cm-tooltip-autocomplete {
-      background-color: var(--memo-bg);
-      border: 1px solid var(--memo-border);
-      border-radius: var(--memo-radius-m);
-      box-shadow: var(--memo-shadow-l);
-      overflow: hidden;
-    }
-
-    .cm-tooltip-autocomplete ul {
-      margin: 0;
-      max-height: 250px;
-      font-family: inherit;
-    }
-
-    .cm-tooltip-autocomplete ul li {
-      display: flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 4px 10px;
-      line-height: 20px;
-      font-size: 13px;
-      color: var(--memo-text);
-      cursor: pointer;
-
-      // theme.less 会给作用域内 li::before 注入 '•'，这里要覆盖掉
-      &::before {
-        content: none;
-      }
-
-      &[aria-selected] {
-        color: var(--memo-accent);
-        background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
-      }
-
-      .cm-completionLabel {
-        font-family: inherit;
-      }
-    }
   }
 
   > .common-tools-wrapper {
@@ -247,10 +204,6 @@ div[data-type='memos_view'] .common-editor-wrapper {
 // 移动端输入区高度上限（旧 rta mobile 140px 语义）
 div[data-type='memos_view'].mobile-view .common-editor-wrapper .cm-scroller {
   max-height: 140px;
-}
-
-div[data-type='memos_view'] .scroll::-webkit-scrollbar {
-  display: none;
 }
 
 div[data-type='memos_view'] .memo-editor-wrapper {

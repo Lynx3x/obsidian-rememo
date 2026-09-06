@@ -79,10 +79,12 @@
         background-color: var(--background-modifier-hover);
       }
 
+      // 选中日 = accent 12% 淡底圆 + accent 数字（实底白字清零补漏 2026-09-06 polish；
+      // 浅 accent 主题下白字不可读，淡底+字重语义足够清楚）
       &.current {
-        background-color: var(--interactive-accent);
+        background-color: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
         font-weight: 600;
-        color: var(--text-on-accent, #ffffff);
+        color: var(--interactive-accent);
       }
 
       &.null {

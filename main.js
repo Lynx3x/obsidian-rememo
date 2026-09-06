@@ -7949,7 +7949,12 @@ var en = {
   Daily: "Daily",
   "Always Show Leaf Sidebar on PC": "Always Show Leaf Sidebar on PC",
   "Show left sidebar on PC even when the leaf width is less than 875px. False by default.": "Show left sidebar on PC even when the leaf width is less than 875px. False by default.",
-  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set format for daily notes in both periodic-notes and daily-notes plugins."
+  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.",
+  "Previous page": "Previous page",
+  "Next page": "Next page",
+  "Type Here": "Type Here",
+  TagTipFirst: "Input ",
+  TagTipSecond: "to create a tag..."
 };
 var enGB = {};
 var es = {};
@@ -8093,7 +8098,12 @@ var fr = {
   "Default Memo Composition": "Composition par d\xE9faut du m\xE9mo",
   "Show Tasks Label": "Afficher les \xE9tiquettes des t\xE2ches",
   "Show tasks label near the time text. False by default": "Afficher les \xE9tiquettes des t\xE2ches \xE0 c\xF4t\xE9 du texte horaire. D\xE9sactiv\xE9 par d\xE9faut.",
-  "Please Open Memos First": "Merci d'ouvrir les m\xE9mos en premier"
+  "Please Open Memos First": "Merci d'ouvrir les m\xE9mos en premier",
+  "Previous page": "Page pr\xE9c\xE9dente",
+  "Next page": "Page suivante",
+  "Type Here": "Saisissez ici",
+  TagTipFirst: "Saisissez ",
+  TagTipSecond: "pour cr\xE9er une \xE9tiquette..."
 };
 var hi = {};
 var id = {};
@@ -8282,7 +8292,12 @@ var pt = {
   "Please check your daily note plugin OR periodic notes plugin settings": "Por favor, verifique as configura\xE7\xF5es dos plugins de Notas Di\xE1rias OU de Notas Peri\xF3dicas",
   "Use Which Plugin's Default Configuration": "Usar a Configura\xE7\xE3o Padr\xE3o do Plugin",
   "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "O Memos usa a configura\xE7\xE3o padr\xE3o do plugin seleccionado para obter memorandos diariamente. Padr\xE3o: 'Notas Di\xE1rias'.",
-  Daily: "Di\xE1rio"
+  Daily: "Di\xE1rio",
+  "Previous page": "P\xE1gina anterior",
+  "Next page": "Pr\xF3xima p\xE1gina",
+  "Type Here": "Digite aqui",
+  TagTipFirst: "Digite ",
+  TagTipSecond: "para criar uma etiqueta..."
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -8463,7 +8478,12 @@ var ptBR = {
   "Please check your daily note plugin OR periodic notes plugin settings": "Por favor, verifique as configura\xE7\xF5es dos plugins de Notas Di\xE1rias OU de Notas Peri\xF3dicas",
   "Use Which Plugin's Default Configuration": "Usar a Configura\xE7\xE3o Padr\xE3o do Plugin",
   "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "O Memos usa a configura\xE7\xE3o padr\xE3o do plugin seleccionado para obter memorandos diariamente. Padr\xE3o: 'Notas Di\xE1rias'.",
-  Daily: "Di\xE1rio"
+  Daily: "Di\xE1rio",
+  "Previous page": "P\xE1gina anterior",
+  "Next page": "Pr\xF3xima p\xE1gina",
+  "Type Here": "Digite aqui",
+  TagTipFirst: "Digite ",
+  TagTipSecond: "para criar uma etiqueta..."
 };
 var ro = {};
 var ru = {};
@@ -8665,7 +8685,12 @@ var zhCN = {
   Daily: "\u65E5\u8BB0\u63D2\u4EF6",
   "Always Show Leaf Sidebar on PC": "\u5728 PC \u4E0A\u603B\u662F\u5C55\u793A\u5DE6\u4FA7\u680F",
   "Show left sidebar on PC even when the leaf width is less than 875px. False by default.": "\u5728 PC \u4E0A\u5373\u4F7F\u9875\u9762\u5BBD\u5EA6\u5C0F\u4E8E 875px \u65F6\u90FD\u5C55\u793A\u5DE6\u4FA7\u680F\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
-  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u683C\u5F0F"
+  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u683C\u5F0F",
+  "Previous page": "\u4E0A\u4E00\u9875",
+  "Next page": "\u4E0B\u4E00\u9875",
+  "Type Here": "\u8F93\u5165\u4EE5\u8FC7\u6EE4",
+  TagTipFirst: "\u8F93\u5165 ",
+  TagTipSecond: "\u5373\u53EF\u521B\u5EFA\u4E00\u4E2A\u6807\u7B7E"
 };
 var zhTW = {};
 const localeMap = {
@@ -10901,7 +10926,7 @@ const BaseDialog = (props) => {
   return /* @__PURE__ */ jsx("div", {
     className: `dialog-wrapper ${className}`,
     onClick: handleSpaceClicked,
-    onKeyPress: handleEscClicked,
+    onKeyDown: handleEscClicked,
     children: /* @__PURE__ */ jsx("div", {
       className: "dialog-container",
       onClick: (e) => e.stopPropagation(),
@@ -13473,7 +13498,7 @@ const MemoCardDialog = (props) => {
         setLinkedMemos([]);
         setMemo(nextMemo);
       } else {
-        new require$$0.Notice("MEMO Not Found");
+        new require$$0.Notice(t$2("No memo found"));
         targetEl.classList.remove("memo-link-text");
       }
     }
@@ -14191,7 +14216,7 @@ const Memo = (props) => {
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
       } else {
-        new require$$0.Notice("MEMO Not Found");
+        new require$$0.Notice(t$2("No memo found"));
         targetEl.classList.remove("memo-link-text");
       }
     } else if (targetEl.className === "todo-block")
@@ -14237,9 +14262,12 @@ const Memo = (props) => {
           })
         }), /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
-          children: [/* @__PURE__ */ jsx("span", {
+          children: [/* @__PURE__ */ jsx("button", {
+            type: "button",
             className: "btn more-action-btn",
             onClick: handleMoreMenuClick,
+            "aria-haspopup": "menu",
+            "aria-expanded": menuOpen,
             children: /* @__PURE__ */ jsx(SvgMore, {
               className: "icon-img"
             })
@@ -14248,27 +14276,33 @@ const Memo = (props) => {
             onClick: handleMoreActionClick,
             children: /* @__PURE__ */ jsxs("div", {
               className: "more-action-btns-container",
-              children: [/* @__PURE__ */ jsx("span", {
+              children: [/* @__PURE__ */ jsx("button", {
+                type: "button",
                 className: "btn",
                 onClick: handleShowMemoStoryDialog,
                 children: t$2("READ")
-              }), /* @__PURE__ */ jsx("span", {
+              }), /* @__PURE__ */ jsx("button", {
+                type: "button",
                 className: "btn",
                 onClick: handleGenMemoImageBtnClick,
                 children: t$2("SHARE")
-              }), /* @__PURE__ */ jsx("span", {
+              }), /* @__PURE__ */ jsx("button", {
+                type: "button",
                 className: "btn",
                 onClick: handleEditMemoClick,
                 children: t$2("EDIT")
-              }), /* @__PURE__ */ jsx("span", {
+              }), /* @__PURE__ */ jsx("button", {
+                type: "button",
                 className: "btn",
                 onClick: handleToggleTaskTypeClick,
                 children: isTaskCard ? t$2("TURN INTO MEMO") : t$2("TURN INTO TASK")
-              }), /* @__PURE__ */ jsx("span", {
+              }), /* @__PURE__ */ jsx("button", {
+                type: "button",
                 className: "btn",
                 onClick: () => handleSourceMemoClick(propsMemo),
                 children: t$2("SOURCE")
-              }), /* @__PURE__ */ jsx("span", {
+              }), /* @__PURE__ */ jsx("button", {
+                type: "button",
                 className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
                 onClick: handleDeleteMemoClick,
                 children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
@@ -14849,7 +14883,7 @@ const RandomMemoDialog = ({
         active: true
       });
     } else {
-      new require$$0.Notice("MEMO Not Found");
+      new require$$0.Notice(t$2("No memo found"));
     }
   }, [memo2]);
   return /* @__PURE__ */ jsxs(Fragment, {
@@ -15598,7 +15632,8 @@ const QueryList = () => {
       children: [/* @__PURE__ */ jsx("span", {
         className: "normal-text",
         children: t$2("QUERY")
-      }), /* @__PURE__ */ jsx("span", {
+      }), /* @__PURE__ */ jsx("button", {
+        type: "button",
         className: "btn",
         onClick: () => showCreateQueryDialog(),
         children: "+"
@@ -15607,7 +15642,8 @@ const QueryList = () => {
       when: loadingState.isSucceed && sortedQueries.length === 0,
       children: /* @__PURE__ */ jsx("div", {
         className: "create-query-btn-container",
-        children: /* @__PURE__ */ jsx("span", {
+        children: /* @__PURE__ */ jsx("button", {
+          type: "button",
           className: "btn",
           onClick: () => showCreateQueryDialog(),
           children: t$2("CREATE FILTER")
@@ -15698,7 +15734,8 @@ const QueryItemContainer = (props) => {
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
-        children: [/* @__PURE__ */ jsx("span", {
+        children: [/* @__PURE__ */ jsx("button", {
+          type: "button",
           className: "action-btn toggle-btn",
           onClick: handleShowActionBtnClick,
           children: isActive ? /* @__PURE__ */ jsx(SvgMoreWhite, {}) : /* @__PURE__ */ jsx(SvgMore, {})
@@ -15707,15 +15744,18 @@ const QueryItemContainer = (props) => {
           onMouseLeave: handleActionBtnContainerMouseLeave,
           children: /* @__PURE__ */ jsxs("div", {
             className: "action-btns-container",
-            children: [/* @__PURE__ */ jsx("span", {
+            children: [/* @__PURE__ */ jsx("button", {
+              type: "button",
               className: "btn",
               onClick: handlePinQueryBtnClick,
               children: query.pinnedAt ? t$2("UNPIN") : t$2("PIN")
-            }), /* @__PURE__ */ jsx("span", {
+            }), /* @__PURE__ */ jsx("button", {
+              type: "button",
               className: "btn",
               onClick: handleEditQueryBtnClick,
               children: t$2("EDIT")
-            }), /* @__PURE__ */ jsx("span", {
+            }), /* @__PURE__ */ jsx("button", {
+              type: "button",
               className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
               onClick: handleDeleteMemoClick,
               onMouseLeave: handleDeleteBtnMouseLeave,
@@ -15796,10 +15836,10 @@ const TagList = () => {
         when: tags2.length < 5 && memoService.initialized,
         children: /* @__PURE__ */ jsxs("p", {
           className: "tag-tip-container",
-          children: ["Input", /* @__PURE__ */ jsx("span", {
+          children: [t$2("TagTipFirst"), /* @__PURE__ */ jsx("span", {
             className: "code-text",
             children: "#Tag "
-          }), "to create tag..."]
+          }), t$2("TagTipSecond")]
         })
       })]
     })]
@@ -15846,9 +15886,11 @@ const TagItemContainer = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "tag-count",
           children: tag.count
-        }), hasSubTags ? /* @__PURE__ */ jsx("span", {
+        }), hasSubTags ? /* @__PURE__ */ jsx("button", {
+          type: "button",
           className: `action-btn toggle-btn ${showSubTags ? "shown" : ""}`,
           onClick: handleToggleBtnClick,
+          "aria-expanded": showSubTags,
           children: /* @__PURE__ */ jsx(SvgArrowRight, {
             className: "icon-img"
           })
@@ -33167,7 +33209,7 @@ const SearchBar = () => {
         type: "text",
         onMouseOver: mouseIn,
         onMouseOut: mouseOut,
-        placeholder: isSearchBarShow ? "Type Here" : "",
+        placeholder: isSearchBarShow ? t$2("Type Here") : "",
         onChange: handleTextQueryInput
       })]
     }), /* @__PURE__ */ jsx("div", {
@@ -33353,7 +33395,7 @@ const Pagination = ({
       className: "nav-button",
       onClick: () => onPageChange(currentPage - 1),
       disabled: currentPage === 1,
-      children: "\u4E0A\u4E00\u9875"
+      children: t$2("Previous page")
     }), /* @__PURE__ */ jsx("div", {
       className: "page-numbers",
       children: renderPageNumbers()
@@ -33361,7 +33403,7 @@ const Pagination = ({
       className: "nav-button",
       onClick: () => onPageChange(currentPage + 1),
       disabled: currentPage === totalPages,
-      children: "\u4E0B\u4E00\u9875"
+      children: t$2("Next page")
     })]
   });
 };
@@ -33806,9 +33848,9 @@ const MemoFilter = () => {
     className: `filter-query-container ${showFilter ? "" : "hidden"}`,
     children: [/* @__PURE__ */ jsxs("div", {
       className: "filter-query",
-      children: [/* @__PURE__ */ jsx("span", {
+      children: [/* @__PURE__ */ jsxs("span", {
         className: "tip-text",
-        children: "FILTER: "
+        children: [t$2("FILTER"), ": "]
       }), /* @__PURE__ */ jsxs("div", {
         className: "filter-item-container " + (queryFilter ? "" : "hidden"),
         onClick: () => {
@@ -33896,6 +33938,40 @@ const DeletedMemo = (props) => {
   };
   const [showConfirmDeleteBtn, toggleConfirmDeleteBtn] = useToggle(false);
   const rootRef = react.exports.useRef(null);
+  const [menuOpen, setMenuOpen] = react.exports.useState(false);
+  react.exports.useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+    const handleMouseDown = (e) => {
+      const target = e.target;
+      if (rootRef.current && !rootRef.current.contains(target)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
+  const handleMoreMenuClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuOpen((v2) => !v2);
+  };
+  const handleMoreActionClick = (e) => {
+    const el = e.target;
+    if (!el.closest(".delete-btn")) {
+      setMenuOpen(false);
+    }
+  };
   const animateOut = (up) => {
     const el = rootRef.current;
     if (!el) {
@@ -33906,11 +33982,11 @@ const DeletedMemo = (props) => {
       opacity: 1,
       offset: 0
     }, {
-      transform: "translateY(-4px) scale(0.98)",
+      transform: "translateY(-8px)",
       opacity: 1,
       offset: 0.4
     }, {
-      transform: "translateY(-14px) scale(0.96)",
+      transform: "translateY(-20px)",
       opacity: 0,
       offset: 1
     }] : [{
@@ -33918,11 +33994,11 @@ const DeletedMemo = (props) => {
       opacity: 1,
       offset: 0
     }, {
-      transform: "translateY(2px) scale(0.98)",
+      transform: "translateY(8px)",
       opacity: 1,
       offset: 0.3
     }, {
-      transform: "translateY(14px) scale(0.95)",
+      transform: "translateY(20px)",
       opacity: 0,
       offset: 1
     }], {
@@ -33962,7 +34038,7 @@ const DeletedMemo = (props) => {
   const isTaskCard = propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE";
   return /* @__PURE__ */ jsxs("div", {
     ref: rootRef,
-    className: `memo-wrapper ${"memos-" + memo2.id} ${(_a2 = propsMemo.memoType) != null ? _a2 : ""}`,
+    className: `memo-wrapper ${"memos-" + memo2.id} ${(_a2 = propsMemo.memoType) != null ? _a2 : ""}${menuOpen ? " menu-open" : ""}`,
     onMouseLeave: handleMouseLeaveMemoWrapper,
     children: [isTaskCard && /* @__PURE__ */ jsx("span", {
       className: `memo-task-corner ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
@@ -33974,20 +34050,27 @@ const DeletedMemo = (props) => {
         children: [t$2("DELETE AT"), " ", memo2.deletedAtStr]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
-        children: [/* @__PURE__ */ jsx("span", {
+        children: [/* @__PURE__ */ jsx("button", {
+          type: "button",
           className: "btn more-action-btn",
+          onClick: handleMoreMenuClick,
+          "aria-haspopup": "menu",
+          "aria-expanded": menuOpen,
           children: /* @__PURE__ */ jsx(SvgMore, {
             className: "icon-img"
           })
         }), /* @__PURE__ */ jsx("div", {
           className: "more-action-btns-wrapper",
+          onClick: handleMoreActionClick,
           children: /* @__PURE__ */ jsxs("div", {
             className: "more-action-btns-container",
-            children: [/* @__PURE__ */ jsx("span", {
+            children: [/* @__PURE__ */ jsx("button", {
+              type: "button",
               className: "btn restore-btn",
               onClick: handleRestoreMemoClick,
               children: t$2("RESTORE")
-            }), /* @__PURE__ */ jsx("span", {
+            }), /* @__PURE__ */ jsx("button", {
+              type: "button",
               className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
               onClick: handleDeleteMemoClick,
               children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")

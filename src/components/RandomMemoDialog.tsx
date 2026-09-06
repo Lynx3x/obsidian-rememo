@@ -52,7 +52,7 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
       const leaf = app.workspace.getLeaf(false);
       await leaf.openFile(file, { active: true });
     } else {
-      new Notice('MEMO Not Found');
+      new Notice(t('No memo found'));
     }
   }, [memo]);
 

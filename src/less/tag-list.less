@@ -62,7 +62,10 @@ div[data-type='memos_view'] .tags-wrapper {
         background-color: var(--memo-surface-hover);
       }
 
+      // 激活 = 数据行选中同款：12% 淡底 + accent 粗体（与查询行对齐；2026-09-06 polish 补齐）
       &.active {
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+
         > .tag-text-container {
           > * {
             color: var(--memo-accent);
@@ -73,6 +76,8 @@ div[data-type='memos_view'] .tags-wrapper {
 
       > .tag-text-container {
         .flex(row, flex-start, center);
+        // 文字起点与导航行统一（16 内边 + 18 图标槽 + 10 间距 = x44；2026-09-06 polish 悬案收口）
+        gap: 10px;
         max-width: calc(100% - 24px);
         color: var(--memo-text);
         overflow: hidden;
@@ -82,7 +87,8 @@ div[data-type='memos_view'] .tags-wrapper {
 
         > .icon-text {
           display: block;
-          width: 16px;
+          width: 18px;
+          text-align: center; // # 字符在槽内居中（与导航图标同 x 中线）
           flex-shrink: 0;
         }
 
@@ -93,6 +99,14 @@ div[data-type='memos_view'] .tags-wrapper {
 
       > .btns-container {
         .flex(row, flex-end, center);
+
+        > .tag-count {
+          flex-shrink: 0;
+          margin-right: 4px;
+          font-size: 12px;
+          line-height: 20px;
+          color: var(--memo-text-muted);
+        }
 
         > .action-btn {
           .flex(row, center, center);

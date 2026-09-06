@@ -88,6 +88,11 @@
     outline: none;
   }
 
+  // 插件自己的按钮一律随父字体；span 时代的 .btn 亦可直接以 <button> 书写（2026-09-06 polish）
+  button:not(.rdp) {
+    font-family: inherit;
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,

@@ -88,7 +88,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
         setLinkedMemos([]);
         setMemo(nextMemo);
       } else {
-        new Notice('MEMO Not Found');
+        new Notice(t('No memo found'));
         targetEl.classList.remove('memo-link-text');
       }
     }

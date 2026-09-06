@@ -90,3 +90,15 @@ theme.less 把 `.memo-theme-root()` mixin **同挂 `div[data-type='memos_view']`
 ## 检查提醒
 
 Obsidian 里每改必看：浅/深两主题 + 改强调色 accent 跟随 + reduced-motion。上一批（主屏）owner 已目视通过；次级界面 token 化后仍需逐文件目视。
+
+## 2026-09-06 /impeccable polish 全界面收口记录
+
+- **悬案定案（owner 拍板）**：① 侧栏行文字起点统一——查询/标签行 `.icon-text` 宽 16→**18 + text-align:center**（# 与导航图标同在 x25 中线）、`-text-container` 加 **gap:10**，文字起点与导航同列（x44）；行高 40 vs 38 不动。② 「阅读」双入口**保留**（点时间=打开阅读弹窗，owner 认可微博同款逻辑），不改。
+- **实底白字清零漏网补丁**（全改 12%→hover 22% 淡底公式 / 12% 淡底）：`.write-date-confirm`（写日期确认）、create-query `.save-btn`、search-bar `.type-item.selected`、query-list「+ 新建」hover、feed 正文 `.tag-span:hover`（改为 accent 18% 叠 surface-hover，不再实底白字）、date-picker `.current`（选中日圆点）。
+- **TagList 行激活补齐 12% 淡底 + accent 粗体**（与 QueryList 数据行选中同语汇）；`.tag-count` 补样式（12px muted，此前裸奔）。
+- **菜单族统一**：主列表/回收站/查询项的三点菜单同款（shadow-l、radius-m、min112、Q弹 pop-in）。回收站卡补 click-pin（DeletedMemo 与主列表同逻辑：外点/Esc 关）；`more-action-btn` 补 cursor/color。回收站卡 padding 12/18→**12/16** 与全库卡一致。
+- **世界律**：回收站恢复/整删出场动效去掉 scale（纯 translate + 淡出）。
+- **交互/a11y**：弹窗 Esc 由（不生效的）onKeyPress 改 **onKeyDown**；三点菜单/查询行操作/标签展开的 span → 真实 `<button>`（global `.btn` + theme button 规则兜底 box-sizing/padding/font，此后菜单项天然可 Tab/Enter/focus ring）。
+- **死代码删除**：home.less `Control-box/controlPanel/controlBtn/react-transform-wrapper/永不命中的 mobile body 规则/content-wrapper-padding-fix`；editor.less `cm-tooltip-autocomplete` 整块（自产联想退役 TODO 兑现）+ `.scroll` 规则；siderbar `.memos-sidebar-wrapper-display`；global.less DINPro ×2（空 src 零引用）；share 弹窗 chrome 字体 RobotoDraft 退役随宿主。
+- **i18n**：分页「上一页/下一页」硬编码中文→键；搜索占位、FILTER 标、标签引导、`MEMO Not Found` → t()；新键补五语言（en/zh-cn/fr/pt/pt-br），stub 语言走 en fallback（helper 既有行为）。
+- 检测器：既有 68 advisory 为注释在案的例外（Q弹曲线/字号档/默认色兜底/灯箱），无新引入问题。

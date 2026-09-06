@@ -79,8 +79,16 @@
           }
 
           &.save-btn {
-            background-color: var(--memo-accent);
-            color: var(--memo-on-accent);
+            // 主操作 = btn-accent 公式（实底白字清零补漏 2026-09-06 polish）
+            background-image: none;
+            background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+            border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+            color: var(--memo-accent);
+
+            &:hover {
+              opacity: 1;
+              background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
+            }
 
             &.requesting {
               cursor: wait;

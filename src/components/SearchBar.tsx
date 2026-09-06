@@ -92,7 +92,7 @@ const SearchBar: React.FC<Props> = () => {
           type="text"
           onMouseOver={mouseIn}
           onMouseOut={mouseOut}
-          placeholder={isSearchBarShow ? 'Type Here' : ''}
+          placeholder={isSearchBarShow ? t('Type Here') : ''}
           onChange={handleTextQueryInput}
         />
       </div>

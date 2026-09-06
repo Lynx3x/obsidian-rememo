@@ -60,7 +60,7 @@ div[data-type='memos_view'] .memo-trash-wrapper {
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
   .flex(column, flex-start, flex-start);
   width: 100%;
-  padding: 12px 18px;
+  padding: 12px 16px; // 与全库卡片内边距同（18 是历史偏差，2026-09-06 polish 拉平）
   background-color: var(--memo-bg);
   border-radius: var(--memo-radius-m);
   border: 1px solid transparent;
@@ -118,8 +118,11 @@ div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
           border-radius: var(--memo-radius-m);
           background-color: var(--memo-bg);
           border: 1px solid var(--memo-border);
-          box-shadow: var(--memo-shadow-s);
+          // 菜单族统一浮层影 + Q 弹（与主列表同款；2026-09-06 polish）
+          box-shadow: var(--memo-shadow-l);
           z-index: 1;
+          animation: memo-pop-in 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+          transform-origin: top right;
 
           > .btn {
             width: 100%;
@@ -156,16 +159,19 @@ div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
 
         &.more-action-btn {
           width: 28px;
-          cursor: unset;
+          cursor: pointer; // 点击钉住菜单（DeletedMemo 已实现 click-pin，与主列表一致）
           margin-right: -6px;
           opacity: 0.8;
+          color: var(--memo-text-muted);
 
           > .icon-img {
             width: 16px;
             height: 16px;
+            fill: currentColor;
           }
 
           &:hover {
+            color: var(--memo-text);
             background-color: unset;
 
             & + .more-action-btns-wrapper {

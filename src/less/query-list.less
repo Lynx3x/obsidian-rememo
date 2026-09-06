@@ -51,9 +51,10 @@ div[data-type='memos_view'] .queries-wrapper {
       color: var(--memo-accent);
       transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast);
 
+      // hover = 12% 淡底（实底白字清零补漏 2026-09-06 polish）
       &:hover {
-        background-color: var(--memo-accent);
-        color: var(--memo-on-accent);
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+        border-color: color-mix(in srgb, var(--memo-accent) 45%, transparent);
       }
     }
   }
@@ -103,6 +104,8 @@ div[data-type='memos_view'] .queries-wrapper {
 
       > .query-text-container {
         .flex(row, flex-start, center);
+        // 文字起点与导航行统一（16 内边 + 18 图标槽 + 10 间距 = x44；2026-09-06 polish 悬案收口）
+        gap: 10px;
         max-width: calc(100% - 24px);
         color: var(--memo-text);
         overflow: hidden;
@@ -112,7 +115,8 @@ div[data-type='memos_view'] .queries-wrapper {
 
         > .icon-text {
           display: block;
-          width: 16px;
+          width: 18px;
+          text-align: center; // # 字符在槽内居中（与导航图标同 x 中线）
           flex-shrink: 0;
         }
 
@@ -148,20 +152,23 @@ div[data-type='memos_view'] .queries-wrapper {
           z-index: 1;
 
           > .action-btns-container {
+            // 菜单观感与卡片三点菜单同族（2026-09-06 polish）：shadow-l、radius-m、Q 弹
             .flex(column, flex-start, flex-start);
-            width: 86px;
+            width: max-content;
+            min-width: 112px;
             height: auto;
             white-space: nowrap;
-            border-radius: var(--memo-radius-s);
+            border-radius: var(--memo-radius-m);
             padding: 4px;
             background-color: var(--memo-bg);
             border: 1px solid var(--memo-border);
-            box-shadow: var(--memo-shadow-s);
+            box-shadow: var(--memo-shadow-l);
+            animation: memo-pop-in 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-origin: top right;
 
             > .btn {
               width: 100%;
-              padding: 6px 0;
-              padding-left: 12px;
+              padding: 8px 0 8px 24px;
               border-radius: var(--memo-radius-s);
               font-size: 13px;
               height: unset;

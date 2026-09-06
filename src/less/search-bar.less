@@ -121,9 +121,11 @@ div[data-type='memos_view'] .search-bar-container {
                 background-color: var(--memo-surface-hover);
               }
 
+              // 选中 = 数据行同款 12% 淡底 + accent 粗体（无实底白字；语汇收口 2026-09-06 polish）
               &.selected {
-                background-color: var(--memo-accent);
-                color: var(--memo-on-accent);
+                background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+                color: var(--memo-accent);
+                font-weight: bold;
               }
             }
 

@@ -18,3 +18,8 @@ logo.svg
 
 .vscode/*
 data.json
+
+# impeccable-ignore-start
+# Impeccable 设计工作文件(文档快照/引擎缓存),不进版本库;DESIGN.md 本身照常跟踪
+.impeccable/
+# impeccable-ignore-end

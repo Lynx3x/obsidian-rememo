@@ -223,4 +223,11 @@ export default {
     '在 PC 上即使页面宽度小于 875px 时都展示左侧栏。默认为关闭',
   "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.":
     '你在 Periodic Notes 插件和日记插件都没设置日记的格式',
+
+  // 2026-09-06 polish：分页/搜索占位/标签引导 文案键
+  'Previous page': '上一页',
+  'Next page': '下一页',
+  'Type Here': '输入以过滤',
+  TagTipFirst: '输入 ',
+  TagTipSecond: '即可创建一个标签',
 };

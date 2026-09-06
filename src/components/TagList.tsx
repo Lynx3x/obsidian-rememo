@@ -81,7 +81,9 @@ const TagList: React.FC<Props> = () => {
         ))}
         <Only when={tags.length < 5 && memoService.initialized}>
           <p className="tag-tip-container">
-            Input<span className="code-text">#Tag </span>to create tag...
+            {t('TagTipFirst')}
+            <span className="code-text">#Tag </span>
+            {t('TagTipSecond')}
           </p>
         </Only>
       </div>
@@ -127,10 +129,14 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
         <div className="btns-container">
           <span className="tag-count">{tag.count}</span>
           {hasSubTags ? (
-            <span className={`action-btn toggle-btn ${showSubTags ? 'shown' : ''}`} onClick={handleToggleBtnClick}>
-              {/*<img className="icon-img" src={arrowRight} />*/}
+            <button
+              type="button"
+              className={`action-btn toggle-btn ${showSubTags ? 'shown' : ''}`}
+              onClick={handleToggleBtnClick}
+              aria-expanded={showSubTags}
+            >
               <ArrowRight className="icon-img" />
-            </span>
+            </button>
           ) : null}
         </div>
       </div>

@@ -112,15 +112,12 @@
           }
 
           .tag-span {
-            margin: 0;
-            padding: 0;
             font-size: 14px;
             color: var(--memo-link);
             background-color: unset;
-            padding-left: 4px;
-            padding-right: 6px;
+            padding: 0 6px 0 4px;
             margin-left: 4px;
-            cursor: unset;
+            cursor: unset; // 阅读态标签不可点：无 hover 反馈（与随机/日记浮窗一致）
           }
         }
 

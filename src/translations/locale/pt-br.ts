@@ -215,4 +215,11 @@ export default {
   "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.":
     "O Memos usa a configuração padrão do plugin seleccionado para obter memorandos diariamente. Padrão: 'Notas Diárias'.",
   Daily: 'Diário',
+
+  // 2026-09-06 polish：分页/搜索占位/标签引导 文案键
+  'Previous page': 'Página anterior',
+  'Next page': 'Próxima página',
+  'Type Here': 'Digite aqui',
+  TagTipFirst: 'Digite ',
+  TagTipSecond: 'para criar uma etiqueta...',
 };

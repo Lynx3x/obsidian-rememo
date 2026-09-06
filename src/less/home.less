@@ -27,58 +27,11 @@ div[data-type='memos_view'] #page-wrapper {
     width: 600px;
     height: 100%;
     gap: 8px;
-    // overflow-y: hidden;
-  }
-
-  > .content-wrapper-padding-fix {
-    .flex(column, flex-start, flex-start);
-    position: relative;
-    margin-top: 0px;
-    width: 600px;
-    height: 100%;
-    overflow-y: hidden;
-    padding-left: 34px;
-    gap: 8px;
   }
 }
 
-//@media only screen and (max-width: 875px) {
-//  div[data-type='memos_view'] body.mobile-show-sidebar {
-//    #page-wrapper {
-//      > .content-wrapper {
-//        transform: translateX(320px);
-//      }
-//    }
-//  }
-//
-//  div[data-type='memos_view'] #page-wrapper {
-//    .flex(column, flex-start, flex-start);
-//    width: 100%;
-//    height: 100%;
-//    padding: 0;
-//    transform: translateX(0);
-//    margin-top: -10px;
-//
-//    > .content-wrapper {
-//      width: 100%;
-//      height: 100%;
-//      margin-left: 0;
-//      padding-top: 0;
-//      transition: all 0.4s ease;
-//      transform: translateX(0);
-//      // overflow-y: hidden;
-//    }
-//  }
-//}
-
-div[data-type='memos_view'].mobile-view body.mobile-show-sidebar {
-  #page-wrapper {
-    > .content-wrapper {
-      transform: translateX(320px);
-    }
-  }
-}
-
+// 移动端（index.ts 按平台给 leaf 挂 .mobile-view）：抽屉开合由 siderbar.less 的
+// .mobile-show-sidebar 规则驱动；桌面宽度下的旧断点规则已清理（2026-09-06 polish 死码收口）
 div[data-type='memos_view'].mobile-view #page-wrapper {
   .flex(column, flex-start, flex-start);
   width: 100%;
@@ -94,62 +47,5 @@ div[data-type='memos_view'].mobile-view #page-wrapper {
     padding-top: 0;
     transition: all 0.4s ease;
     transform: translateX(0);
-    // overflow-y: hidden;
   }
-}
-
-
-.workspace-leaf-content[data-type="memos_view"] {
-  .react-transform-wrapper {
-    overflow: unset;
-  }
-}
-
-.Control-box {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  left: 50%;
-  //width: 100%;
-  //max-width: cal(100vw - 60px);
-  margin-bottom: 10px;
-  height: 40px;
-  z-index: 20;
-
-  .button {
-    margin-left: 10px;
-    width: 2em;
-  }
-}
-
-
-.controlPanel {
-  position: absolute;
-  z-index: 2;
-  transform: translate(10px, 10px);
-  max-width: calc(100% - 20px);
-}
-
-.controlBtn {
-  padding: 6px 12px;
-  background: white;
-  border: 1px solid grey;
-  border-radius: 5px;
-  margin-right: 10px;
-  font-size: 12px;
-  text-transform: uppercase;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.controlBtn:focus {
-  filter: brightness(90%);
-}
-
-.controlBtn:hover {
-  filter: brightness(120%);
-}
-
-.controlBtn:active {
-  opacity: 0.9;
 }

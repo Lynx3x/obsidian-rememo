@@ -41,15 +41,15 @@ const QueryList: React.FC<Props> = () => {
     <div className="queries-wrapper">
       <p className="title-text">
         <span className="normal-text">{t('QUERY')}</span>
-        <span className="btn" onClick={() => showCreateQueryDialog()}>
+        <button type="button" className="btn" onClick={() => showCreateQueryDialog()}>
           +
-        </span>
+        </button>
       </p>
       <Only when={loadingState.isSucceed && sortedQueries.length === 0}>
         <div className="create-query-btn-container">
-          <span className="btn" onClick={() => showCreateQueryDialog()}>
+          <button type="button" className="btn" onClick={() => showCreateQueryDialog()}>
             {t('CREATE FILTER')}
-          </span>
+          </button>
         </div>
       </Only>
       <div className="queries-container">
@@ -144,28 +144,28 @@ const QueryItemContainer: React.FC<QueryItemContainerProps> = (props: QueryItemC
           <span className="query-text">{query.title}</span>
         </div>
         <div className="btns-container">
-          <span className="action-btn toggle-btn" onClick={handleShowActionBtnClick}>
-            {/*<img className="icon-img" src={isActive ? moreWhite : more} />*/}
+          <button type="button" className="action-btn toggle-btn" onClick={handleShowActionBtnClick}>
             {isActive ? <MoreWhite /> : <More />}
-          </span>
+          </button>
           <div
             className={`action-btns-wrapper ${showActionBtns ? '' : 'hidden'}`}
             onMouseLeave={handleActionBtnContainerMouseLeave}
           >
             <div className="action-btns-container">
-              <span className="btn" onClick={handlePinQueryBtnClick}>
+              <button type="button" className="btn" onClick={handlePinQueryBtnClick}>
                 {query.pinnedAt ? t('UNPIN') : t('PIN')}
-              </span>
-              <span className="btn" onClick={handleEditQueryBtnClick}>
+              </button>
+              <button type="button" className="btn" onClick={handleEditQueryBtnClick}>
                 {t('EDIT')}
-              </span>
-              <span
+              </button>
+              <button
+                type="button"
                 className={`btn delete-btn ${showConfirmDeleteBtn ? 'final-confirm' : ''}`}
                 onClick={handleDeleteMemoClick}
                 onMouseLeave={handleDeleteBtnMouseLeave}
               >
                 {showConfirmDeleteBtn ? t('CONFIRM！') : t('DELETE')}
-              </span>
+              </button>
             </div>
           </div>
         </div>

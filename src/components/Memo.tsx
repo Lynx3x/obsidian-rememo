@@ -263,7 +263,7 @@ const Memo: React.FC<Props> = (props: Props) => {
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
       } else {
-        new Notice('MEMO Not Found');
+        new Notice(t('No memo found'));
         targetEl.classList.remove('memo-link-text');
       }
     } else if (targetEl.className === 'todo-block') {
@@ -315,32 +315,39 @@ const Memo: React.FC<Props> = (props: Props) => {
             <Reply className="icon-img" />
           </span>
           <div className="btns-container">
-            <span className="btn more-action-btn" onClick={handleMoreMenuClick}>
+            <button
+              type="button"
+              className="btn more-action-btn"
+              onClick={handleMoreMenuClick}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+            >
               <More className="icon-img" />
-            </span>
+            </button>
             <div className="more-action-btns-wrapper" onClick={handleMoreActionClick}>
               <div className="more-action-btns-container">
-                <span className="btn" onClick={handleShowMemoStoryDialog}>
+                <button type="button" className="btn" onClick={handleShowMemoStoryDialog}>
                   {t('READ')}
-                </span>
-                <span className="btn" onClick={handleGenMemoImageBtnClick}>
+                </button>
+                <button type="button" className="btn" onClick={handleGenMemoImageBtnClick}>
                   {t('SHARE')}
-                </span>
-                <span className="btn" onClick={handleEditMemoClick}>
+                </button>
+                <button type="button" className="btn" onClick={handleEditMemoClick}>
                   {t('EDIT')}
-                </span>
-                <span className="btn" onClick={handleToggleTaskTypeClick}>
+                </button>
+                <button type="button" className="btn" onClick={handleToggleTaskTypeClick}>
                   {isTaskCard ? t('TURN INTO MEMO') : t('TURN INTO TASK')}
-                </span>
-                <span className="btn" onClick={() => handleSourceMemoClick(propsMemo)}>
+                </button>
+                <button type="button" className="btn" onClick={() => handleSourceMemoClick(propsMemo)}>
                   {t('SOURCE')}
-                </span>
-                <span
+                </button>
+                <button
+                  type="button"
                   className={`btn delete-btn ${showConfirmDeleteBtn ? 'final-confirm' : ''}`}
                   onClick={handleDeleteMemoClick}
                 >
                   {showConfirmDeleteBtn ? t('CONFIRM！') : t('DELETE')}
-                </span>
+                </button>
               </div>
             </div>
           </div>

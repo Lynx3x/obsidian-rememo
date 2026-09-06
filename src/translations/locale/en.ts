@@ -247,4 +247,11 @@ export default {
     'Show left sidebar on PC even when the leaf width is less than 875px. False by default.',
   "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.":
     "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.",
+
+  // 2026-09-06 polish：分页/搜索占位/标签引导 文案键
+  'Previous page': 'Previous page',
+  'Next page': 'Next page',
+  'Type Here': 'Type Here',
+  TagTipFirst: 'Input ',
+  TagTipSecond: 'to create a tag...',
 };

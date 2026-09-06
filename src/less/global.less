@@ -3,25 +3,12 @@
 
 // ⚠️ This font is only free for personal use but not for commercial.
 @font-face {
-  font-family: 'DINPro';
-  // src: url('/fonts/DINPro-Regular.otf');
-  src: '';
-  font-weight: normal;
-}
-
-@font-face {
-  font-family: 'DINPro';
-  // src: url('/fonts/DINPro-Bold.otf');
-  src: '';
-  font-weight: bold;
-}
-
-@font-face {
   font-family: 'ubuntu-mono';
   // src: url('/fonts/UbuntuMono.ttf');
   src: '';
   font-style: normal;
 }
+// （DINPro 两条 font-face 为空 src 且零引用，随 memos 网页血统退役——2026-09-06 polish 死码收口）
 
 div[data-type='memos_view'] {
   margin: 0;
@@ -62,6 +49,11 @@ div[data-type='memos_view'] {
     border: unset;
     background-color: unset;
     font-size: unset;
+    // 按钮允许以真实 <button> 书写（2026-09-06 polish）：padding/盒模型归零或 border-box，
+    // 由各使用处的类规则重新声明（如菜单项 padding: 8px 0 8px 24px + width: 100%）
+    font-family: inherit;
+    box-sizing: border-box;
+    padding: 0;
     user-select: none;
     cursor: pointer;
     text-align: center;

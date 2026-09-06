@@ -166,4 +166,11 @@ export default {
   'Show tasks label near the time text. False by default':
     'Afficher les étiquettes des tâches à côté du texte horaire. Désactivé par défaut.',
   'Please Open Memos First': "Merci d'ouvrir les mémos en premier",
+
+  // 2026-09-06 polish：分页/搜索占位/标签引导 文案键
+  'Previous page': 'Page précédente',
+  'Next page': 'Page suivante',
+  'Type Here': 'Saisissez ici',
+  TagTipFirst: 'Saisissez ',
+  TagTipSecond: 'pour créer une étiquette...',
 };

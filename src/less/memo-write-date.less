@@ -142,18 +142,20 @@ div[data-type='memos_view'] {
       }
 
       .write-date-confirm {
+        // 主操作 = btn-accent 公式（accent 文字 + 12% 淡底 + 45% 描边；实底白字清零补漏 2026-09-06 polish）
         padding: 5px 12px;
-        border: none;
+        background-image: none;
         border-radius: var(--memo-radius-s);
-        background-color: var(--memo-accent);
-        color: var(--memo-on-accent);
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+        border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+        color: var(--memo-accent);
         font-size: 13px;
         line-height: 18px;
         cursor: pointer;
         transition: background-color var(--memo-transition-fast), transform var(--memo-transition-fast);
 
         &:hover {
-          background-color: var(--memo-accent-hover);
+          background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
         }
 
         &:active {

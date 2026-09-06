@@ -57,16 +57,12 @@
         }
       }
 
+      // 时间线只读态：标签无 hover 反馈（cursor unset，避免误导可点；2026-09-06 polish）
       .tag-span {
         cursor: unset;
         padding-left: 4px;
         padding-right: 6px;
         margin-left: 4px;
-
-        &:hover {
-          color: var(--memo-accent);
-          background-color: var(--memo-surface-hover);
-        }
       }
     }
 

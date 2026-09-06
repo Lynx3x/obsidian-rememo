@@ -1,5 +1,6 @@
 import React from 'react';
 import '../less/pagination.less';
+import { t } from '../translations/helper';
 
 interface Props {
   currentPage: number;
@@ -69,7 +70,7 @@ const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageChange }) 
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        上一页
+        {t('Previous page')}
       </button>
       <div className="page-numbers">{renderPageNumbers()}</div>
       <button
@@ -77,7 +78,7 @@ const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageChange }) 
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
-        下一页
+        {t('Next page')}
       </button>
     </div>
   );
