@@ -17,6 +17,14 @@
 - owner 主题 accent 偏浅，**accent 实底 + `--memo-on-accent` 白字会白成一片不可读**（实测两处）。主操作按钮统一走 `.btn-accent()` mixin（audit-page.less 顶部）：accent 色**文字** + accent 12% 淡底 + 45% 描边，hover 加深。新写按钮照此；若某处仍用实底白字且 owner 报看不清，同样处理。
 - theme.less 全局 `button` 规则已加 `background-image: none`——Obsidian 主题会给 button 挂渐变 background-image，会盖住我们设的 background-color（按钮"全白"常见根因之一）。
 
+## 间距标度与状态语汇（2026-09-06 /impeccable layout 收口）
+
+- **间距标度**（px 直写即可，不引 spacing 变量）：区块间 **8**、列表 gap **10**、纸内 **12/16**、侧栏行距 4、行高 38/40；统计行↔热力图分节 **12**（usage-heat-map-wrapper `margin-top: 12px`，窄屏 `--narrow` 内重置 margin-top 0）。
+- **主列左缘单轨**：content-wrapper `padding-left: 10`；memolist `padding-left: 0`（右 4px 让滚动条）——卡片左缘与编辑器/标题同线，勿再写 2px 内缩。
+- **列表尾**：状态行 `.status-text-container` 只在有话术时渲染（MemoList `statusText` 判空）；Pagination 仅 `totalPages > 1` 渲染——单页不出现禁用钮（margin 8/4，钮距 8）。
+- **激活/选中唯一轨，无 accent 实底白字**：页面导航 = accent 粗体无底；数据行选中（查询/标签）= accent **12% 淡底 + 粗体**（query-list 已改并去 `!important`）；页码/按钮 = `.btn-accent` 公式。**pagination.less 于本批补收口**——此前漏网：裸类名无作用域 + 直写宿主 var + 硬编码 `#fff`/`0.2s`，现挂 `div[data-type='memos_view']` 并全走 token（/audit 同作用域，共用不受影响）。
+- **悬案（owner 目视后定）**：侧栏行文字列 40（查询/标签）vs 52（导航）差 12px——icon 列同在 x24，差源于 # 字形窄 + svg 18px/gap10。若要对齐：（a）导航项 `padding-left: 4`（文字落 40，icon 中心左偏 ~7px）或（b）查询/标签 `.icon-text` 宽 16→28（文字落 52，#↔文字间隙过大）。未实施，别绕过 owner 自行决定。
+
 ## P1 行式渲染相关样式（memo-content.less）
 
 - 结构类（渲染器输出，勿手改 DOM）：`.memo-md-line`（列表/任务行，紧凑 margin，勿吃段落负 margin）、相邻普通段落 `> p:not(.memo-md-line) + …` 段距 8px（空行分段可见）、`pre`（代码块）、`.todo-block`/`.counter-block`、行内 `code`（theme.less 全局样式）。

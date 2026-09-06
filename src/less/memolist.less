@@ -15,7 +15,7 @@ div[data-type='memos_view'] {
     max-height: 100vh;
     overflow-y: scroll;
     gap: 10px;
-    padding: 8px 4px 32px 2px; // 预留滚动条空间 + 底部呼吸
+    padding: 8px 4px 32px 0; // 左 0：卡片左缘与上方编辑器卡/标题对齐（右侧 4px 留给滚动条）
 
     // 基础滚动条样式（跟随主题）
     &::-webkit-scrollbar {
@@ -44,15 +44,7 @@ div[data-type='memos_view'] {
       .flex(column, flex-start, center);
       width: 100%;
       margin-top: 16px;
-      margin-bottom: 16px;
-
-      &.completed {
-        margin-bottom: 64px;
-      }
-
-      &.invisible {
-        visibility: hidden;
-      }
+      margin-bottom: 8px; // 状态行只在上方留白：下方呼吸交给列表 padding/分页条
 
       > .status-text {
         font-size: 13px;

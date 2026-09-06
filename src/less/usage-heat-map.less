@@ -5,6 +5,7 @@
   height: 160px;
   padding: 8px 0 !important;
   padding-top: 12px !important;
+  margin-top: 0 !important; // 桌面版间距由 margin-top 承担，窄屏走内部 padding 一份
 
   > .day-tip-text-container {
     visibility: visible;
@@ -44,6 +45,7 @@ div[data-type='memos_view'] .usage-heat-map-wrapper {
   width: 100%;
   height: 122px;
   flex-wrap: wrap;
+  margin-top: 12px; // 与上方统计行分节距（2026-09-06 layout 收口；窄屏见 --narrow 重置）
   padding-right: 24px;
   padding-bottom: 12px;
 

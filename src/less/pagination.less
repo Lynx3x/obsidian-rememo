@@ -1,33 +1,45 @@
-.pagination-container {
+@import './mixin.less';
+@import './theme.less';
+
+// 分页控件（主页 memo 列表尾 + /audit 复用）。
+// 2026-09-06 layout 收口：此前裸类名无作用域、直写宿主变量 + 硬编码 #fff/0.2s，
+// 激活页 accent 实底白字违背全系统语汇。现挂 memos_view 作用域并全部走 token；
+// 页码激活 = .btn-accent 公式（accent 文字 + 12% 淡底 + 45% 描边，hover 加深），无实底白字。
+div[data-type='memos_view'] .pagination-container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 16px 0;
-  padding: 8px;
+  margin: 8px 0 4px;
+  padding: 4px 0;
   width: 100%;
   user-select: none;
+  flex-shrink: 0;
+
+  .nav-button,
+  .page-number {
+    font-size: 13px;
+    border-radius: var(--memo-radius-s);
+    transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast),
+      border-color var(--memo-transition-fast);
+  }
 
   .nav-button {
-    padding: 4px 12px;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-s, 4px);
+    padding: 6px 12px;
     background-color: transparent;
-    color: var(--text-muted);
+    border: 1px solid var(--memo-border);
+    color: var(--memo-text-muted);
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
     &:hover:not(:disabled) {
-      background-color: var(--interactive-accent);
-      border-color: var(--interactive-accent);
-      color: var(--text-on-accent, #ffffff);
+      background-color: var(--memo-surface-hover);
+      border-color: var(--memo-border-strong);
+      color: var(--memo-text);
     }
 
     &:disabled {
       opacity: 0.4;
       cursor: not-allowed;
-      border-color: var(--background-modifier-border);
     }
   }
 
@@ -39,31 +51,31 @@
     .page-number {
       min-width: 32px;
       height: 32px;
-      padding: 4px 8px;
-      border: 1px solid var(--background-modifier-border);
-      border-radius: var(--radius-s, 4px);
+      padding: 0 8px;
       background-color: transparent;
-      color: var(--text-normal);
+      border: 1px solid var(--memo-border);
+      color: var(--memo-text-muted);
       cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
       &:hover:not(.active) {
-        border-color: var(--interactive-accent);
-        color: var(--interactive-accent);
-        background-color: var(--background-modifier-hover);
+        background-color: var(--memo-surface-hover);
+        border-color: var(--memo-border-strong);
+        color: var(--memo-text);
       }
 
+      // 当前页 = 主状态：btn-accent 公式，不用 accent 实底
       &.active {
-        background-color: var(--interactive-accent);
-        color: var(--text-on-accent, #ffffff);
-        border-color: var(--interactive-accent);
+        color: var(--memo-accent);
+        font-weight: bold;
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+        border-color: color-mix(in srgb, var(--memo-accent) 45%, transparent);
+        cursor: default;
       }
     }
 
     .ellipsis {
-      padding: 4px 8px;
-      color: var(--text-muted);
+      padding: 0 4px;
+      color: var(--memo-text-faint);
       font-weight: bold;
     }
   }
@@ -71,22 +83,23 @@
 
 // 适配移动端
 @media screen and (max-width: 768px) {
-  .pagination-container {
+  div[data-type='memos_view'] .pagination-container {
     .page-numbers {
       .page-number {
         min-width: 28px;
         height: 28px;
-        padding: 2px 6px;
+        padding: 0 6px;
         font-size: 12px;
       }
 
       .ellipsis {
-        padding: 2px 6px;
+        padding: 0 4px;
+        font-size: 12px;
       }
     }
 
     .nav-button {
-      padding: 2px 8px;
+      padding: 5px 8px;
       font-size: 12px;
     }
   }

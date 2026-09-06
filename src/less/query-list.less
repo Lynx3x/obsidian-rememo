@@ -87,14 +87,16 @@ div[data-type='memos_view'] .queries-wrapper {
         }
       }
 
+      // 激活 = 数据行选中：accent 12% 淡底 + accent 粗体（与导航/标签同一套无实底语汇；
+      // owner accent 偏浅，实底+白字不可读——不再用 !important）
       &.active {
-        background-color: var(--memo-accent) !important;
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
 
         > .query-text-container {
           font-weight: bold;
 
           > * {
-            color: var(--memo-on-accent);
+            color: var(--memo-accent);
           }
         }
       }

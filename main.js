@@ -33606,19 +33606,20 @@ const MemoList = () => {
       }
     }
   }, []);
+  const statusText = isFetching ? t$2("Fetching data...") : shownMemos.length === 0 ? t$2("Noooop!") : showMemoFilter ? "" : currentPage === totalPages ? t$2("All Data is Loaded \u{1F389}") : "";
   return /* @__PURE__ */ jsxs("div", {
     className: `memolist-wrapper ${isFetching ? "" : "completed"}`,
     onClick: handleMemoListClick,
     ref: wrapperElement,
     children: [paginatedMemos.map((memo2) => /* @__PURE__ */ jsx(Memo, {
       memo: memo2
-    }, `${memo2.id}-${memo2.updatedAt}`)), /* @__PURE__ */ jsx("div", {
+    }, `${memo2.id}-${memo2.updatedAt}`)), statusText && /* @__PURE__ */ jsx("div", {
       className: "status-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: "status-text",
-        children: isFetching ? t$2("Fetching data...") : shownMemos.length === 0 ? t$2("Noooop!") : showMemoFilter ? "" : currentPage === totalPages ? t$2("All Data is Loaded \u{1F389}") : ""
+        children: statusText
       })
-    }), !isFetching && shownMemos.length > 0 && /* @__PURE__ */ jsx(Pagination, {
+    }), !isFetching && totalPages > 1 && /* @__PURE__ */ jsx(Pagination, {
       currentPage,
       totalPages,
       onPageChange: handlePageChange

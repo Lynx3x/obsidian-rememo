@@ -313,6 +313,17 @@ const MemoList: React.FC<Props> = () => {
     }
   }, []);
 
+  // 列表尾状态话术：仅在真有话可说时渲染（fetch/空/末页），空带不再常驻列表尾
+  const statusText = isFetching
+    ? t('Fetching data...')
+    : shownMemos.length === 0
+    ? t('Noooop!')
+    : showMemoFilter
+    ? ''
+    : currentPage === totalPages
+    ? t('All Data is Loaded 🎉')
+    : '';
+
   return (
     <div
       className={`memolist-wrapper ${isFetching ? '' : 'completed'}`}
@@ -322,20 +333,12 @@ const MemoList: React.FC<Props> = () => {
       {paginatedMemos.map((memo) => (
         <Memo key={`${memo.id}-${memo.updatedAt}`} memo={memo} />
       ))}
-      <div className="status-text-container">
-        <p className="status-text">
-          {isFetching
-            ? t('Fetching data...')
-            : shownMemos.length === 0
-            ? t('Noooop!')
-            : showMemoFilter
-            ? ''
-            : currentPage === totalPages
-            ? t('All Data is Loaded 🎉')
-            : ''}
-        </p>
-      </div>
-      {!isFetching && shownMemos.length > 0 && (
+      {statusText && (
+        <div className="status-text-container">
+          <p className="status-text">{statusText}</p>
+        </div>
+      )}
+      {!isFetching && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

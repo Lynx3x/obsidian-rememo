@@ -3255,13 +3255,13 @@ div[data-type='memos_view'] .queries-wrapper > .queries-container > .query-item-
   display: flex;
 }
 div[data-type='memos_view'] .queries-wrapper > .queries-container > .query-item-container.active {
-  background-color: var(--memo-accent) !important;
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
 }
 div[data-type='memos_view'] .queries-wrapper > .queries-container > .query-item-container.active > .query-text-container {
   font-weight: bold;
 }
 div[data-type='memos_view'] .queries-wrapper > .queries-container > .query-item-container.active > .query-text-container > * {
-  color: var(--memo-on-accent);
+  color: var(--memo-accent);
 }
 div[data-type='memos_view'] .queries-wrapper > .queries-container > .query-item-container > .query-text-container {
   display: flex;
@@ -3579,6 +3579,7 @@ div[data-type='memos_view'] .usage-heat-map-wrapper {
   width: 100%;
   height: 122px;
   flex-wrap: wrap;
+  margin-top: 12px;
   padding-right: 24px;
   padding-bottom: 12px;
 }
@@ -3673,6 +3674,7 @@ div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper {
   height: 160px;
   padding: 8px 0 !important;
   padding-top: 12px !important;
+  margin-top: 0 !important;
 }
 div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper > .day-tip-text-container {
   visibility: visible;
@@ -3705,6 +3707,7 @@ div[data-type='memos_view'].mobile-view .usage-heat-map-wrapper > .usage-detail-
     height: 160px;
     padding: 8px 0 !important;
     padding-top: 12px !important;
+    margin-top: 0 !important;
   }
   div[data-type='memos_view'] .usage-heat-map-wrapper > .day-tip-text-container {
     visibility: visible;
@@ -6213,7 +6216,7 @@ div[data-type='memos_view'] .memolist-wrapper {
   max-height: 100vh;
   overflow-y: scroll;
   gap: 10px;
-  padding: 8px 4px 32px 2px;
+  padding: 8px 4px 32px 0;
   scrollbar-width: thin;
   scrollbar-color: var(--memo-border) transparent;
 }
@@ -6238,13 +6241,7 @@ div[data-type='memos_view'] .memolist-wrapper > .status-text-container {
   align-items: center;
   width: 100%;
   margin-top: 16px;
-  margin-bottom: 16px;
-}
-div[data-type='memos_view'] .memolist-wrapper > .status-text-container.completed {
-  margin-bottom: 64px;
-}
-div[data-type='memos_view'] .memolist-wrapper > .status-text-container.invisible {
-  visibility: hidden;
+  margin-bottom: 8px;
 }
 div[data-type='memos_view'] .memolist-wrapper > .status-text-container > .status-text {
   font-size: 13px;
@@ -6256,80 +6253,274 @@ div[data-type='memos_view'] .memolist-wrapper.completed {
 div[data-type='memos_view'].mobile-view .memolist-wrapper {
   padding: 0 12px 24px;
 }
-.pagination-container {
+.mono-font-family {
+  font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+.hide-scroll-bar {
+  scrollbar-width: none;
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+.hide-scroll-bar::-webkit-scrollbar-thumb {
+  width: 0;
+  height: 0;
+  border-radius: 8px;
+  background-color: var(--memo-border, #d5d5d5);
+}
+.hide-scroll-bar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--memo-border-strong, #ccc);
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+div[data-type='memos_view'],
+.dialog-wrapper {
+  --memo-bg: var(--background-primary);
+  --memo-canvas: var(--background-secondary);
+  --memo-surface-hover: var(--background-modifier-hover);
+  --memo-border: var(--background-modifier-border);
+  --memo-border-strong: var(--background-modifier-border-hover, var(--background-modifier-border));
+  --memo-text: var(--text-normal);
+  --memo-text-muted: var(--text-muted);
+  --memo-text-faint: var(--text-faint);
+  --memo-accent: var(--interactive-accent);
+  --memo-accent-hover: var(--interactive-accent-hover, var(--interactive-accent));
+  --memo-on-accent: var(--text-on-accent, #ffffff);
+  --memo-danger: var(--text-error, #d05d5d);
+  --memo-link: var(--text-accent, var(--interactive-accent));
+  --memo-radius-s: var(--radius-s, 6px);
+  --memo-radius-m: var(--radius-m, 10px);
+  --memo-radius-l: var(--radius-l, 16px);
+  --memo-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --memo-shadow-card-hover: 0 3px 10px rgba(0, 0, 0, 0.07);
+  --memo-shadow-s: var(--shadow-s, 0 1px 3px rgba(0, 0, 0, 0.12));
+  --memo-shadow-l: var(--shadow-l, 0 8px 24px rgba(0, 0, 0, 0.12));
+  --memo-overlay: var(--background-modifier-cover, rgba(0, 0, 0, 0.5));
+  --memo-transition-fast: 120ms ease;
+  --memo-transition: 200ms cubic-bezier(0.2, 0, 0, 1);
+  color: var(--memo-text);
+}
+div[data-type='memos_view'] .memo-content-text,
+.dialog-wrapper .memo-content-text,
+div[data-type='memos_view'] .cm-editor,
+.dialog-wrapper .cm-editor,
+div[data-type='memos_view'] .search-bar-inputer > .text-input,
+.dialog-wrapper .search-bar-inputer > .text-input {
+  font-family: var(--font-text, var(--font-interface));
+}
+div[data-type='memos_view'] code,
+.dialog-wrapper code {
+  font-family: var(--font-monospace, 'ubuntu-mono', monospace);
+  padding: 1px 5px;
+  border-radius: var(--memo-radius-s);
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] pre,
+.dialog-wrapper pre {
+  font-family: var(--font-monospace, 'ubuntu-mono', monospace);
+}
+div[data-type='memos_view'] pre *,
+.dialog-wrapper pre * {
+  font-family: var(--font-monospace, 'ubuntu-mono', monospace);
+}
+div[data-type='memos_view'] label:not(.task-list-label),
+.dialog-wrapper label:not(.task-list-label),
+div[data-type='memos_view'] input:not([type='checkbox']),
+.dialog-wrapper input:not([type='checkbox']),
+div[data-type='memos_view'] button:not(.rdp),
+.dialog-wrapper button:not(.rdp),
+div[data-type='memos_view'] textarea,
+.dialog-wrapper textarea,
+div[data-type='memos_view'] img,
+.dialog-wrapper img {
+  background-color: transparent;
+  background-image: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  outline: none;
+}
+div[data-type='memos_view'] input:-webkit-autofill,
+.dialog-wrapper input:-webkit-autofill,
+div[data-type='memos_view'] input:-webkit-autofill:hover,
+.dialog-wrapper input:-webkit-autofill:hover,
+div[data-type='memos_view'] input:-webkit-autofill:focus,
+.dialog-wrapper input:-webkit-autofill:focus,
+div[data-type='memos_view'] input:-webkit-autofill:active,
+.dialog-wrapper input:-webkit-autofill:active {
+  box-shadow: 0 0 0 30px var(--memo-bg) inset !important;
+}
+div[data-type='memos_view'] li:not([class]),
+.dialog-wrapper li:not([class]) {
+  list-style-type: none;
+}
+div[data-type='memos_view'] li:not([class])::before,
+.dialog-wrapper li:not([class])::before {
+  content: '•';
+  font-weight: bold;
+  margin-right: 4px;
+}
+div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--memo-accent);
+  outline-offset: 1px;
+}
+.theme-light div[data-type='memos_view'],
+.theme-light .dialog-wrapper {
+  --memo-heat-1: #9be9a8;
+  --memo-heat-2: #40c463;
+  --memo-heat-3: #30a14e;
+  --memo-heat-4: #216e39;
+}
+.theme-dark div[data-type='memos_view'],
+.theme-dark .dialog-wrapper {
+  --memo-heat-1: #0e4429;
+  --memo-heat-2: #006d32;
+  --memo-heat-3: #26a641;
+  --memo-heat-4: #39d353;
+}
+:where(div[data-type='memos_view'] svg, .dialog-wrapper svg) {
+  fill: var(--memo-text-muted);
+}
+div[data-type='memos_view'] svg.icon-img,
+div[data-type='memos_view'] svg.action-btn,
+.dialog-wrapper svg.icon-img,
+.dialog-wrapper svg.action-btn {
+  fill: currentColor;
+}
+@keyframes memo-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes memo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes memo-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes memo-edit-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--memo-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  div[data-type='memos_view'] *,
+  div[data-type='memos_view'] *::before,
+  div[data-type='memos_view'] *::after,
+  .dialog-wrapper *,
+  .dialog-wrapper *::before,
+  .dialog-wrapper *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+div[data-type='memos_view'] .pagination-container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 16px 0;
-  padding: 8px;
+  margin: 8px 0 4px;
+  padding: 4px 0;
   width: 100%;
   user-select: none;
+  flex-shrink: 0;
 }
-.pagination-container .nav-button {
-  padding: 4px 12px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 4px);
+div[data-type='memos_view'] .pagination-container .nav-button,
+div[data-type='memos_view'] .pagination-container .page-number {
+  font-size: 13px;
+  border-radius: var(--memo-radius-s);
+  transition: background-color var(--memo-transition-fast), color var(--memo-transition-fast), border-color var(--memo-transition-fast);
+}
+div[data-type='memos_view'] .pagination-container .nav-button {
+  padding: 6px 12px;
   background-color: transparent;
-  color: var(--text-muted);
+  border: 1px solid var(--memo-border);
+  color: var(--memo-text-muted);
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.pagination-container .nav-button:hover:not(:disabled) {
-  background-color: var(--interactive-accent);
-  border-color: var(--interactive-accent);
-  color: var(--text-on-accent, #ffffff);
+div[data-type='memos_view'] .pagination-container .nav-button:hover:not(:disabled) {
+  background-color: var(--memo-surface-hover);
+  border-color: var(--memo-border-strong);
+  color: var(--memo-text);
 }
-.pagination-container .nav-button:disabled {
+div[data-type='memos_view'] .pagination-container .nav-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  border-color: var(--background-modifier-border);
 }
-.pagination-container .page-numbers {
+div[data-type='memos_view'] .pagination-container .page-numbers {
   display: flex;
   align-items: center;
   gap: 4px;
 }
-.pagination-container .page-numbers .page-number {
+div[data-type='memos_view'] .pagination-container .page-numbers .page-number {
   min-width: 32px;
   height: 32px;
-  padding: 4px 8px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 4px);
+  padding: 0 8px;
   background-color: transparent;
-  color: var(--text-normal);
+  border: 1px solid var(--memo-border);
+  color: var(--memo-text-muted);
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.pagination-container .page-numbers .page-number:hover:not(.active) {
-  border-color: var(--interactive-accent);
-  color: var(--interactive-accent);
-  background-color: var(--background-modifier-hover);
+div[data-type='memos_view'] .pagination-container .page-numbers .page-number:hover:not(.active) {
+  background-color: var(--memo-surface-hover);
+  border-color: var(--memo-border-strong);
+  color: var(--memo-text);
 }
-.pagination-container .page-numbers .page-number.active {
-  background-color: var(--interactive-accent);
-  color: var(--text-on-accent, #ffffff);
-  border-color: var(--interactive-accent);
+div[data-type='memos_view'] .pagination-container .page-numbers .page-number.active {
+  color: var(--memo-accent);
+  font-weight: bold;
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--memo-accent) 45%, transparent);
+  cursor: default;
 }
-.pagination-container .page-numbers .ellipsis {
-  padding: 4px 8px;
-  color: var(--text-muted);
+div[data-type='memos_view'] .pagination-container .page-numbers .ellipsis {
+  padding: 0 4px;
+  color: var(--memo-text-faint);
   font-weight: bold;
 }
 @media screen and (max-width: 768px) {
-  .pagination-container .page-numbers .page-number {
+  div[data-type='memos_view'] .pagination-container .page-numbers .page-number {
     min-width: 28px;
     height: 28px;
-    padding: 2px 6px;
+    padding: 0 6px;
     font-size: 12px;
   }
-  .pagination-container .page-numbers .ellipsis {
-    padding: 2px 6px;
+  div[data-type='memos_view'] .pagination-container .page-numbers .ellipsis {
+    padding: 0 4px;
+    font-size: 12px;
   }
-  .pagination-container .nav-button {
-    padding: 2px 8px;
+  div[data-type='memos_view'] .pagination-container .nav-button {
+    padding: 5px 8px;
     font-size: 12px;
   }
 }
