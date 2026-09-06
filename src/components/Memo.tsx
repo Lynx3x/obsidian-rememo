@@ -402,7 +402,8 @@ export function formatMemoContent(content: string, memoid?: string) {
     tags.sort((tag, tag2) => tag.index - tag2.index);
     content = content.replace(TAG_REG, '').replace(FIRST_TAG_REG, '');
 
-    let tagsComponent = `<p>`;
+    // 沉底标签行：class 'memo-tags' 供 memo-content.less 以 flex wrap + gap 排版（多标签换行不粘连）
+    let tagsComponent = `<p class='memo-tags'>`;
     const tagsOnTop = false;
     if (tags.length > 0) {
       for (const tag of tags) {

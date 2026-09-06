@@ -1503,13 +1503,20 @@ div[data-type='memos_view'] svg.action-btn,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
   margin-top: 8px;
 }
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > p.memo-tags,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > p.memo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text .tag-span,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text .tag-span {
   display: inline-block;
   width: auto;
   padding-left: 4px;
   padding-right: 6px;
-  margin-left: 4px;
   line-height: 24px;
   font-size: 13px;
   border: none;
@@ -1517,7 +1524,6 @@ div[data-type='memos_view'] svg.action-btn,
   color: var(--interactive-accent);
   background-color: var(--background-modifier-hover);
   cursor: pointer;
-  vertical-align: bottom;
   transition: background-color var(--memo-transition-fast, 120ms ease), color var(--memo-transition-fast, 120ms ease);
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text .tag-span:hover,

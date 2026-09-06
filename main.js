@@ -14326,7 +14326,7 @@ function formatMemoContent(content2, memoid) {
     tags2 = [...tags2, ...content22.matchAll(FIRST_TAG_REG)];
     tags2.sort((tag, tag2) => tag.index - tag2.index);
     content22 = content22.replace(TAG_REG, "").replace(FIRST_TAG_REG, "");
-    let tagsComponent = `<p>`;
+    let tagsComponent = `<p class='memo-tags'>`;
     if (tags2.length > 0) {
       for (const tag of tags2) {
         tagsComponent += `<span class='tag-span'>#${tag[tag.length - 1]}</span>`;
