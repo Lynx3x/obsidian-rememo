@@ -97,6 +97,29 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
   const [hasContent, setHasContent] = useState(() => initialContent.length > 0);
 
+  // delight「口袋笔苏醒」：内容从空→有字的一瞬，发送键轻弹一次（图标钮无文字，
+  // 不触文字缩放禁）。首帧 ref 即当前态 → 初始载入有缓存内容时不弹
+  const confirmBtnRef = useRef<HTMLButtonElement>(null);
+  const prevHasContentRef = useRef(hasContent);
+  useEffect(() => {
+    if (!prevHasContentRef.current && hasContent) {
+      const btn = confirmBtnRef.current;
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+      if (btn && !reduceMotion) {
+        const anim = btn.animate(
+          [
+            { transform: 'scale(0.85)', opacity: 0.6, offset: 0 },
+            { transform: 'scale(1.05)', opacity: 1, offset: 0.62 },
+            { transform: 'scale(1)', opacity: 1, offset: 1 },
+          ],
+          { duration: 160, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+        );
+        anim.onfinish = () => anim.cancel();
+      }
+    }
+    prevHasContentRef.current = hasContent;
+  }, [hasContent]);
+
   useEffect(() => {
     const parent = mountRef.current;
     if (!parent || parent.querySelector('.cm-editor')) {
@@ -444,6 +467,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           </Only>
           <Only when={showConfirmBtn}>
             <button
+              ref={confirmBtnRef}
               className="action-btn confirm-btn"
               disabled={!hasContent}
               onClick={handleCommonConfirmBtnClick}

@@ -30361,6 +30361,35 @@ const Editor = react.exports.forwardRef((props, ref) => {
   cbRef.current.change = handleContentChangeCallback;
   cbRef.current.enterToSend = enterToSend === true;
   const [hasContent2, setHasContent] = react.exports.useState(() => initialContent.length > 0);
+  const confirmBtnRef = react.exports.useRef(null);
+  const prevHasContentRef = react.exports.useRef(hasContent2);
+  react.exports.useEffect(() => {
+    var _a2, _b, _c;
+    if (!prevHasContentRef.current && hasContent2) {
+      const btn = confirmBtnRef.current;
+      const reduceMotion = (_c = (_b = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _b.matches) != null ? _c : false;
+      if (btn && !reduceMotion) {
+        const anim = btn.animate([{
+          transform: "scale(0.85)",
+          opacity: 0.6,
+          offset: 0
+        }, {
+          transform: "scale(1.05)",
+          opacity: 1,
+          offset: 0.62
+        }, {
+          transform: "scale(1)",
+          opacity: 1,
+          offset: 1
+        }], {
+          duration: 160,
+          easing: "cubic-bezier(0.34, 1.56, 0.64, 1)"
+        });
+        anim.onfinish = () => anim.cancel();
+      }
+    }
+    prevHasContentRef.current = hasContent2;
+  }, [hasContent2]);
   react.exports.useEffect(() => {
     var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     const parent = mountRef.current;
@@ -30708,6 +30737,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
         }), /* @__PURE__ */ jsx(Only, {
           when: showConfirmBtn,
           children: /* @__PURE__ */ jsx("button", {
+            ref: confirmBtnRef,
             className: "action-btn confirm-btn",
             disabled: !hasContent2,
             onClick: handleCommonConfirmBtnClick,
@@ -32792,6 +32822,9 @@ const MemoEditor = () => {
       globalStateService.setMarkMemoId("");
     }
     if (content2.trim() === "" && !refLine) {
+      if (!editMemoId) {
+        return;
+      }
       new require$$0.Notice(t$2("Content cannot be empty"));
       return;
     }

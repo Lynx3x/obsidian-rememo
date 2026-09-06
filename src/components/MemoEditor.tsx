@@ -352,6 +352,10 @@ const MemoEditor: React.FC<Props> = () => {
       globalStateService.setMarkMemoId('');
     }
     if (content.trim() === '' && !refLine) {
+      // 新建态空发静默：发送键禁用即说明，不再弹提示打断；编辑态清空保存仍需提醒
+      if (!editMemoId) {
+        return;
+      }
       new Notice(t('Content cannot be empty'));
       return;
     }

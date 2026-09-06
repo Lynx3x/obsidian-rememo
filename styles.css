@@ -4564,21 +4564,23 @@ div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .bt
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container > .confirm-btn {
   cursor: pointer;
   padding: 0 12px;
-  background-color: var(--memo-accent);
-  color: var(--memo-on-accent);
+  background-image: none;
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+  color: var(--memo-accent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container > .confirm-btn:hover:not(:disabled) {
-  background-color: var(--memo-accent-hover);
+  background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container > .confirm-btn:active:not(:disabled) {
   transform: scale(0.96);
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container > .confirm-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container > .confirm-btn > .icon-img {
   width: 16px;

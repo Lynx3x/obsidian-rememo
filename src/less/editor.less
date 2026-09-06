@@ -203,16 +203,20 @@ div[data-type='memos_view'] .common-editor-wrapper {
       }
 
       > .confirm-btn {
+        // 2026-09-06 delight 收口：实心 accent 块 → 全系统 btn-accent 公式（accent 图标 + 12% 淡底 + 45% 描边）。
+        // 发送键是此前全库最后的 accent 实底，浅强调色主题下白图标发虚、且与各弹窗/分页主操作不同族。
         cursor: pointer;
         padding: 0 12px;
-        background-color: var(--memo-accent);
-        color: var(--memo-on-accent);
+        background-image: none;
+        background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+        border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+        color: var(--memo-accent);
         display: inline-flex;
         align-items: center;
         justify-content: center;
 
         &:hover:not(:disabled) {
-          background-color: var(--memo-accent-hover);
+          background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
         }
 
         &:active:not(:disabled) {
@@ -221,7 +225,7 @@ div[data-type='memos_view'] .common-editor-wrapper {
 
         &:disabled {
           cursor: not-allowed;
-          opacity: 0.6;
+          opacity: 0.5;
         }
 
         > .icon-img {
