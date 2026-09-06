@@ -125,6 +125,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -146,8 +147,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -370,6 +376,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -391,8 +398,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -1281,6 +1293,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -1302,8 +1315,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -2638,6 +2656,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -2659,8 +2678,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -4034,6 +4058,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -4055,8 +4080,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -4281,6 +4311,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -4302,8 +4333,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -4652,6 +4688,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -4673,8 +4710,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -4891,6 +4933,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -4912,8 +4955,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -5242,6 +5290,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -5263,8 +5312,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -5583,6 +5637,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -5604,8 +5659,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -5857,6 +5917,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -5878,8 +5939,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -6120,6 +6186,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -6141,8 +6208,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -6375,6 +6447,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -6396,8 +6469,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }
@@ -6653,6 +6731,7 @@ div[data-type='memos_view'] button:not(.rdp),
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: none;
 }
 div[data-type='memos_view'] input:-webkit-autofill,
 .dialog-wrapper input:-webkit-autofill,
@@ -6674,8 +6753,13 @@ div[data-type='memos_view'] li:not([class])::before,
   font-weight: bold;
   margin-right: 4px;
 }
-div[data-type='memos_view'] :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible,
-.dialog-wrapper :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+div[data-type='memos_view'] :where(button, [role='button'], [tabindex]):focus-visible,
+.dialog-wrapper :where(button, [role='button'], [tabindex]):focus-visible {
+  outline: none;
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] :where(input, textarea, select):focus-visible,
+.dialog-wrapper :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--memo-accent);
   outline-offset: 1px;
 }

@@ -89,13 +89,18 @@
   }
 
   // 插件自己的按钮一律随父字体；span 时代的 .btn 亦可直接以 <button> 书写（2026-09-06 polish）。
-  // 真 <button> 需清 UA 皮肤与内边距（不加 appearance:none 时 Chromium 会给透明底按钮
-  // 画默认皮肤框——2026-09-06 owner 目视发现菜单项/chevron「按钮框」即此因）
+  // 真 <button> 需清三件 UA/主题残留，否则透明底按钮仍会「画出框」：
+  //  1) appearance: none —— Chromium UA 按钮皮肤（灰渐变框）
+  //  2) padding: 0 —— UA 内边距撑宽热区
+  //  3) box-shadow: none —— Obsidian 主题常给 button 挂内框线/浮雕阴影
+  //     （span 时代选择器不命中 button，故主题规则从未被触发；2026-09-06 owner
+  //     重启后仍见框，即此因）
   button:not(.rdp) {
     font-family: inherit;
     padding: 0;
     appearance: none;
     -webkit-appearance: none;
+    box-shadow: none;
   }
 
   input:-webkit-autofill,
@@ -117,8 +122,15 @@
     }
   }
 
-  // 无障碍：可聚焦控件统一 accent focus ring
-  :where(button, [role='button'], input, textarea, select, [tabindex]):focus-visible {
+  // 无障碍：焦点可见。按钮/图标钮的焦点反馈走淡底（与 hover 同语汇、不画外圈——
+  // 2026-09-06 polish 按钮化后外圈随 :focus-visible 点亮，观感 = 每个钮带框；
+  // span 时代不可聚焦故从未触发）；文本输入类控件保留 accent 外圈便于定位。
+  :where(button, [role='button'], [tabindex]):focus-visible {
+    outline: none;
+    background-color: var(--memo-surface-hover);
+  }
+
+  :where(input, textarea, select):focus-visible {
     outline: 2px solid var(--memo-accent);
     outline-offset: 1px;
   }
