@@ -123,7 +123,7 @@ export default {
   RESTORE: 'RESTAURAR',
   'DELETE AT': 'ELIMINADO EM',
   'Noooop!': 'Noooop!',
-  'All Data is Loaded 🎉': 'Todos os Dados foram Carregados 🎉',
+  'All Data is Loaded 🎉': 'É só isso 🎉',
   'Quick filter': 'Filtro rápido',
   TYPE: 'TIPO',
   LINKED: 'LINKED',

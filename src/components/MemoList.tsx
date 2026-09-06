@@ -239,8 +239,9 @@ const MemoList: React.FC<Props> = () => {
       //    弹性全部由 translateY（+≤1.5° 微旋）承担，不加 scale：
       //    文字多的卡片禁缩放（世界律动效 = 位移+淡入）
       const first = cards[0];
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
       if (first) {
-        if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false) {
+        if (reduceMotion) {
           // reduced-motion：最短淡入
           const anim = first.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140, easing: 'ease-out' });
           anim.onfinish = () => anim.cancel();
@@ -257,6 +258,28 @@ const MemoList: React.FC<Props> = () => {
             { duration: 260, easing: 'cubic-bezier(0.25, 0.7, 0.3, 1)' },
           );
           anim.onfinish = () => anim.cancel();
+        }
+
+        // 3) 「余温」色条（colorize）：刚落位的新卡左缘 3px accent 细条亮起后 ~1s 淡出，
+        //    让「这条是刚写的」有一瞬颜色可认，之后零痕迹。WAAPI 驱动真实元素再移除
+        //    （伪元素无法用 WAAPI）；reduced-motion 与上同 gate，不注入。
+        if (!reduceMotion) {
+          const flash = document.createElement('span');
+          flash.className = 'memo-new-flash';
+          flash.setAttribute('aria-hidden', 'true');
+          first.appendChild(flash);
+          const flashAnim = flash.animate(
+            [
+              { opacity: 0, offset: 0 },
+              { opacity: 1, offset: 0.12 },
+              { opacity: 0, offset: 1 },
+            ],
+            { duration: 900, delay: 140, easing: 'ease-out' },
+          );
+          flashAnim.onfinish = () => {
+            flashAnim.cancel();
+            flash.remove();
+          };
         }
       }
     }
@@ -323,14 +346,23 @@ const MemoList: React.FC<Props> = () => {
     }
   }, []);
 
-  // 列表尾状态话术：仅在真有话可说时渲染（fetch/空/末页），空带不再常驻列表尾
-  const statusText = isFetching
-    ? t('Fetching data...')
+  // 列表尾状态话术：仅在真有话可说时渲染（fetch/空/末页），空带不再常驻列表尾。
+  // 分语义挂 is-fetching / is-empty / is-end 类（颜色见 memolist.less）：加载中 faint、
+  // 空与到底 accent——灰字看不清的状态行交给颜色说话
+  const statusKind = isFetching
+    ? 'is-fetching'
     : shownMemos.length === 0
-    ? t('Noooop!')
+    ? 'is-empty'
     : showMemoFilter
     ? ''
     : currentPage === totalPages
+    ? 'is-end'
+    : '';
+  const statusText = statusKind === 'is-fetching'
+    ? t('Fetching data...')
+    : statusKind === 'is-empty'
+    ? t('Noooop!')
+    : statusKind === 'is-end'
     ? t('All Data is Loaded 🎉')
     : '';
 
@@ -345,7 +377,7 @@ const MemoList: React.FC<Props> = () => {
       ))}
       {statusText && (
         <div className="status-text-container">
-          <p className="status-text">{statusText}</p>
+          <p className={`status-text ${statusKind}`}>{statusText}</p>
         </div>
       )}
       {!isFetching && totalPages > 1 && (

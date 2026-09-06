@@ -40,6 +40,22 @@ div[data-type='memos_view'] .memo-wrapper {
     }
   }
 
+  // 新卡入场"余温"细条（MemoList isTopInsert 注入、动画完自删）：刚写入那刻在卡片
+  // 左缘亮一条 3px accent 再淡出——只有此刻刚落位的卡才有，常态零痕迹；
+  // pointer-events 关不挡点击；reduced-motion 下 JS 不注入，此规则不生效。
+  > .memo-new-flash {
+    position: absolute;
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+    width: 3px;
+    border-radius: 2px;
+    background-color: var(--memo-accent);
+    opacity: 0; // 兜底：动画未运行时不可见
+    pointer-events: none;
+    z-index: 1;
+  }
+
   // 三点菜单被“钉住”（点击打开）时保持显示
   &.menu-open .more-action-btns-wrapper {
     display: flex;

@@ -49,6 +49,14 @@ div[data-type='memos_view'] {
       > .status-text {
         font-size: 13px;
         color: var(--memo-text-faint);
+
+        // 状态语义上色（MemoList 按话术种类挂 is-* 类）：
+        // 空 = 「这里没有，可从这儿开始」、到底 = 「看完了」——两处皆 accent 小彩；
+        // 加载中保持 faint 不打扰
+        &.is-empty,
+        &.is-end {
+          color: var(--memo-accent);
+        }
       }
     }
 

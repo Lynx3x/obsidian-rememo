@@ -122,7 +122,7 @@ export default {
   'TURN INTO MEMO': '取消任务卡',
   'DELETE AT': '删除于',
   'Noooop!': '啥都没有！',
-  'All Data is Loaded 🎉': '所有数据都加载好啦 🎉',
+  'All Data is Loaded 🎉': '就这些啦 🎉',
   'Quick filter': '快速筛选',
   TYPE: '类型',
   LINKED: '链接',

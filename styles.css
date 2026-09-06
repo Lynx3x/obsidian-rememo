@@ -1776,6 +1776,18 @@ div[data-type='memos_view'] .memo-wrapper > .memo-task-corner {
 div[data-type='memos_view'] .memo-wrapper > .memo-task-corner.done {
   background-color: color-mix(in srgb, var(--memo-text) 14%, transparent);
 }
+div[data-type='memos_view'] .memo-wrapper > .memo-new-flash {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 2px;
+  background-color: var(--memo-accent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
 div[data-type='memos_view'] .memo-wrapper.menu-open .more-action-btns-wrapper {
   display: flex;
 }
@@ -6269,6 +6281,10 @@ div[data-type='memos_view'] .memolist-wrapper > .status-text-container {
 div[data-type='memos_view'] .memolist-wrapper > .status-text-container > .status-text {
   font-size: 13px;
   color: var(--memo-text-faint);
+}
+div[data-type='memos_view'] .memolist-wrapper > .status-text-container > .status-text.is-empty,
+div[data-type='memos_view'] .memolist-wrapper > .status-text-container > .status-text.is-end {
+  color: var(--memo-accent);
 }
 div[data-type='memos_view'] .memolist-wrapper.completed {
   padding-bottom: 48px;

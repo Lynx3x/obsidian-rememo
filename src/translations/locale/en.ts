@@ -143,7 +143,7 @@ export default {
   'TURN INTO MEMO': 'TURN INTO MEMO',
   'DELETE AT': 'DELETE AT',
   'Noooop!': 'Noooop!',
-  'All Data is Loaded 🎉': 'All Data is Loaded 🎉',
+  'All Data is Loaded 🎉': 'All caught up 🎉',
   'Quick filter': 'Quick filter',
   TYPE: 'TYPE',
   LINKED: 'LINKED',

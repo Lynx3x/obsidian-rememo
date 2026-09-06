@@ -7860,7 +7860,7 @@ var en = {
   "TURN INTO MEMO": "TURN INTO MEMO",
   "DELETE AT": "DELETE AT",
   "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "All Data is Loaded \u{1F389}",
+  "All Data is Loaded \u{1F389}": "All caught up \u{1F389}",
   "Quick filter": "Quick filter",
   TYPE: "TYPE",
   LINKED: "LINKED",
@@ -8054,7 +8054,7 @@ var fr = {
   RESTORE: "RESTAURER",
   "DELETE AT": "SUPPRIMER",
   "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "Toutes les donn\xE9es sont charg\xE9es \u{1F389}",
+  "All Data is Loaded \u{1F389}": "C\u2019est tout \u{1F389}",
   "Quick filter": "Filtre rapide",
   TYPE: "TYPE",
   LINKED: "LIEN",
@@ -8205,7 +8205,7 @@ var pt = {
   RESTORE: "RESTAURAR",
   "DELETE AT": "ELIMINADO EM",
   "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "Todos os Dados foram Carregados \u{1F389}",
+  "All Data is Loaded \u{1F389}": "\xC9 s\xF3 isso \u{1F389}",
   "Quick filter": "Filtro r\xE1pido",
   TYPE: "TIPO",
   LINKED: "LINKED",
@@ -8386,7 +8386,7 @@ var ptBR = {
   RESTORE: "RESTAURAR",
   "DELETE AT": "ELIMINADO EM",
   "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "Todos os Dados foram Carregados \u{1F389}",
+  "All Data is Loaded \u{1F389}": "\xC9 s\xF3 isso \u{1F389}",
   "Quick filter": "Filtro r\xE1pido",
   TYPE: "TIPO",
   LINKED: "LINKED",
@@ -8577,7 +8577,7 @@ var zhCN = {
   "TURN INTO MEMO": "\u53D6\u6D88\u4EFB\u52A1\u5361",
   "DELETE AT": "\u5220\u9664\u4E8E",
   "Noooop!": "\u5565\u90FD\u6CA1\u6709\uFF01",
-  "All Data is Loaded \u{1F389}": "\u6240\u6709\u6570\u636E\u90FD\u52A0\u8F7D\u597D\u5566 \u{1F389}",
+  "All Data is Loaded \u{1F389}": "\u5C31\u8FD9\u4E9B\u5566 \u{1F389}",
   "Quick filter": "\u5FEB\u901F\u7B5B\u9009",
   TYPE: "\u7C7B\u578B",
   LINKED: "\u94FE\u63A5",
@@ -33550,8 +33550,9 @@ const MemoList = () => {
         }
       });
       const first = cards[0];
+      const reduceMotion = (_c = (_b = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _b.matches) != null ? _c : false;
       if (first) {
-        if ((_c = (_b = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _b.matches) != null ? _c : false) {
+        if (reduceMotion) {
           const anim = first.animate([{
             opacity: 0
           }, {
@@ -33587,6 +33588,30 @@ const MemoList = () => {
             easing: "cubic-bezier(0.25, 0.7, 0.3, 1)"
           });
           anim.onfinish = () => anim.cancel();
+        }
+        if (!reduceMotion) {
+          const flash = document.createElement("span");
+          flash.className = "memo-new-flash";
+          flash.setAttribute("aria-hidden", "true");
+          first.appendChild(flash);
+          const flashAnim = flash.animate([{
+            opacity: 0,
+            offset: 0
+          }, {
+            opacity: 1,
+            offset: 0.12
+          }, {
+            opacity: 0,
+            offset: 1
+          }], {
+            duration: 900,
+            delay: 140,
+            easing: "ease-out"
+          });
+          flashAnim.onfinish = () => {
+            flashAnim.cancel();
+            flash.remove();
+          };
         }
       }
     }
@@ -33656,7 +33681,8 @@ const MemoList = () => {
       }
     }
   }, []);
-  const statusText = isFetching ? t$2("Fetching data...") : shownMemos.length === 0 ? t$2("Noooop!") : showMemoFilter ? "" : currentPage === totalPages ? t$2("All Data is Loaded \u{1F389}") : "";
+  const statusKind = isFetching ? "is-fetching" : shownMemos.length === 0 ? "is-empty" : showMemoFilter ? "" : currentPage === totalPages ? "is-end" : "";
+  const statusText = statusKind === "is-fetching" ? t$2("Fetching data...") : statusKind === "is-empty" ? t$2("Noooop!") : statusKind === "is-end" ? t$2("All Data is Loaded \u{1F389}") : "";
   return /* @__PURE__ */ jsxs("div", {
     className: `memolist-wrapper ${isFetching ? "" : "completed"}`,
     onClick: handleMemoListClick,
@@ -33666,7 +33692,7 @@ const MemoList = () => {
     }, `${memo2.id}-${memo2.updatedAt}`)), statusText && /* @__PURE__ */ jsx("div", {
       className: "status-text-container",
       children: /* @__PURE__ */ jsx("p", {
-        className: "status-text",
+        className: `status-text ${statusKind}`,
         children: statusText
       })
     }), !isFetching && totalPages > 1 && /* @__PURE__ */ jsx(Pagination, {

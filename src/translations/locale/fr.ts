@@ -121,7 +121,7 @@ export default {
   RESTORE: 'RESTAURER',
   'DELETE AT': 'SUPPRIMER',
   'Noooop!': 'Noooop!',
-  'All Data is Loaded 🎉': 'Toutes les données sont chargées 🎉',
+  'All Data is Loaded 🎉': 'C’est tout 🎉',
   'Quick filter': 'Filtre rapide',
   TYPE: 'TYPE',
   LINKED: 'LIEN',
