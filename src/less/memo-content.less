@@ -97,6 +97,11 @@
     word-wrap: break-word;
     word-break: break-word;
     /* 不加 pre-wrap：段落换行交给渲染出的块结构（与浮窗正文一致），避免文本内残留换行被双倍显示 */
+
+    // 条目内多段正文：段落节奏同 8px 律（D1 弹窗段距收口）
+    > p:not(.memo-md-line) + p:not(.memo-md-line) {
+      margin-top: 8px;
+    }
   }
 }
 

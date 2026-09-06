@@ -22,7 +22,7 @@
     width: 420px;
 
     > .dialog-header-container {
-      margin-bottom: 4px;
+      margin-bottom: 8px;
 
       > .title-text {
         .flex(row, center, center);
@@ -50,7 +50,7 @@
         .flex(column, flex-start, flex-start);
         width: 100%;
         max-height: 44vh;
-        margin-top: 4px;
+        margin-top: 8px;
         overflow-y: auto;
         .pretty-scroll-bar(0, 6px);
 
@@ -61,6 +61,11 @@
           color: var(--memo-text);
           word-wrap: break-word;
           word-break: break-all;
+
+          // 段落节奏同主列表 8px 律（弹窗正文多段不挤）
+          > p:not(.memo-md-line) + p:not(.memo-md-line) {
+            margin-top: 8px;
+          }
 
           .tag-span {
             margin: 0;

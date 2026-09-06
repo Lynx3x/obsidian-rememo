@@ -75,12 +75,17 @@
                 fill: var(--memo-danger);
               }
 
+              // 二次确认 = danger 淡底 + danger 图标（与菜单删除项同语汇；实底禁令收尾 2026-09-06）
               &.confirm {
-                background-color: var(--memo-danger);
+                background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
                 border-radius: var(--memo-radius-s);
 
+                &:hover {
+                  background-color: color-mix(in srgb, var(--memo-danger) 22%, transparent);
+                }
+
                 > .icon-img {
-                  fill: var(--memo-on-accent, #fff);
+                  fill: var(--memo-danger);
                 }
               }
             }
@@ -100,6 +105,11 @@
           word-wrap: break-word;
           word-break: break-all;
           padding-top: 4px;
+
+          // 段落节奏与主列表同款：空行分段拉开 8px；列表/任务等 md 行不加距（阅读语境多段正文不挤）
+          > p:not(.memo-md-line) + p:not(.memo-md-line) {
+            margin-top: 8px;
+          }
 
           .tag-span {
             margin: 0;
@@ -235,6 +245,11 @@
         margin: 0 0 6px;
         font-weight: 600;
       }
+    }
+
+    // LINKED/REFS 双面板并存：板块间 8px（同板块距律，不贴死成双框线）
+    > .linked-memos-wrapper.ref-comment-list + .linked-memos-wrapper.ref-comment-list {
+      margin-top: 8px;
     }
   }
 }

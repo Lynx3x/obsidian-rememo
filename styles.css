@@ -711,11 +711,14 @@ div[data-type='memos_view'] svg.action-btn,
   fill: var(--memo-danger);
 }
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn.confirm {
-  background-color: var(--memo-danger);
+  background-color: color-mix(in srgb, var(--memo-danger) 12%, transparent);
   border-radius: var(--memo-radius-s);
 }
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn.confirm:hover {
+  background-color: color-mix(in srgb, var(--memo-danger) 22%, transparent);
+}
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .header-container > .btns-container > .btn.delete-btn.confirm > .icon-img {
-  fill: var(--memo-on-accent, #fff);
+  fill: var(--memo-danger);
 }
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container {
   display: flex;
@@ -732,6 +735,9 @@ div[data-type='memos_view'] svg.action-btn,
   word-wrap: break-word;
   word-break: break-all;
   padding-top: 4px;
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
+  margin-top: 8px;
 }
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text .tag-span {
   margin: 0;
@@ -884,6 +890,9 @@ div[data-type='memos_view'] svg.action-btn,
 .dialog-wrapper.memo-card-dialog > .dialog-container > .linked-memos-wrapper.ref-comment-list > .normal-text {
   margin: 0 0 6px;
   font-weight: 600;
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .linked-memos-wrapper.ref-comment-list + .linked-memos-wrapper.ref-comment-list {
+  margin-top: 8px;
 }
 @media only screen and (max-width: 875px) {
   .dialog-wrapper.memo-card-dialog {
@@ -1452,6 +1461,9 @@ div[data-type='memos_view'] svg.action-btn,
   word-wrap: break-word;
   word-break: break-word;
   /* 不加 pre-wrap：段落换行交给渲染出的块结构（与浮窗正文一致），避免文本内残留换行被双倍显示 */
+}
+.dialog-wrapper .ref-comment-item > .ref-comment-content > p:not(.memo-md-line) + p:not(.memo-md-line) {
+  margin-top: 8px;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text {
@@ -2708,7 +2720,7 @@ div[data-type='memos_view'] svg.action-btn,
   width: 420px;
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-header-container {
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-header-container > .title-text {
   display: flex;
@@ -2737,7 +2749,7 @@ div[data-type='memos_view'] svg.action-btn,
   align-items: flex-start;
   width: 100%;
   max-height: 44vh;
-  margin-top: 4px;
+  margin-top: 8px;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -2762,6 +2774,9 @@ div[data-type='memos_view'] svg.action-btn,
   color: var(--memo-text);
   word-wrap: break-word;
   word-break: break-all;
+}
+.dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
+  margin-top: 8px;
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text .tag-span {
   margin: 0;
