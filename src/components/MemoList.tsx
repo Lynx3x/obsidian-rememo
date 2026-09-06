@@ -235,19 +235,98 @@ const MemoList: React.FC<Props> = () => {
         }
       });
 
-      // 2) 新卡片：像从输入框底下“发射”出来——纯位移+淡入（不加 scale，避免文字缩放抖动）
+      // 2) 新卡入场：桌面默认升级为「纸片入列」——空白纸片从编辑器中心弹出、长大落入卡位，
+      //    真卡在落点淡入与纸片交接（纸片无文字可安全缩放；世界动效律只禁文字缩放）。
+      //    回退链：prefers-reduced-motion → 纯淡入；移动端/编辑器不可测距(滚远) → 旧发射位移入场。
       const first = cards[0];
       if (first) {
-        const anim = first.animate(
-          [
-            { transform: 'translateY(-150px)', opacity: 0, offset: 0 },
-            { transform: 'translateY(12px)', opacity: 1, offset: 0.55 },
-            { transform: 'translateY(-2px)', opacity: 1, offset: 0.82 },
-            { transform: 'none', opacity: 1, offset: 1 },
-          ],
-          { duration: 160, easing: 'cubic-bezier(0.12, 0.8, 0.2, 1)' },
-        );
-        anim.onfinish = () => anim.cancel();
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+
+        let slipEligible = false;
+        let host: HTMLElement | null = null;
+        let originX = 0;
+        let originY = 0;
+        if (!reduceMotion && !Platform.isMobile && first.offsetWidth > 0) {
+          const editorHost = container.parentElement;
+          const editor = editorHost?.querySelector<HTMLElement>('.memo-editor-wrapper');
+          if (editorHost && editor) {
+            const editorRect = editor.getBoundingClientRect();
+            const slotRect = first.getBoundingClientRect();
+            const hostRect = editorHost.getBoundingClientRect();
+            if (hostRect.width > 0 && slotRect.width > 0) {
+              // 纸片飞行原点 = 编辑器卡片中心（相对落点卡位中心的位移）
+              originX = editorRect.left + editorRect.width / 2 - (slotRect.left + slotRect.width / 2);
+              originY = editorRect.top + editorRect.height / 2 - (slotRect.top + slotRect.height / 2);
+              // 原点在上方且距离合理（未滚远）才做飞行；滚远时纸片在可视区外无意义
+              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -12;
+              host = editorHost;
+            }
+          }
+        }
+
+        if (reduceMotion) {
+          // reduced-motion：最短淡入
+          const anim = first.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140, easing: 'ease-out' });
+          anim.onfinish = () => anim.cancel();
+        } else if (slipEligible && host) {
+          // —— 「纸片入列」choreography ——
+          const slip = document.createElement('div');
+          slip.className = 'memo-slip-paper';
+          const hostRect = host.getBoundingClientRect();
+          const slotRect = first.getBoundingClientRect();
+          const slipH = 46;
+          slip.style.cssText =
+            `width:${first.offsetWidth}px;height:${slipH}px;` +
+            `left:${slotRect.left - hostRect.left}px;` +
+            `top:${slotRect.top - hostRect.top + (slotRect.height - slipH) / 2}px;`;
+          host.appendChild(slip);
+
+          // 飞行：原点 0.2 弹出 → 空中长到全尺寸微旋 → 落位定住；末段融出与真卡交接
+          const flyAnim = slip.animate(
+            [
+              {
+                transform: `translate(${originX}px, ${originY}px) scale(0.2) rotate(-2.5deg)`,
+                opacity: 0,
+                offset: 0,
+              },
+              {
+                transform: `translate(${originX * 0.45}px, ${originY * 0.45}px) scale(0.55) rotate(-1.2deg)`,
+                opacity: 1,
+                offset: 0.38,
+              },
+              { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 1, offset: 0.82 },
+              { transform: 'translate(0px, 0px) scale(1) rotate(0deg)', opacity: 0, offset: 1 },
+            ],
+            { duration: 220, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)' },
+          );
+          flyAnim.onfinish = () => {
+            flyAnim.cancel();
+            slip.remove();
+          };
+
+          // 真卡在纸片落位窗口淡入（4px 轻上浮），完成“纸片→卡片”交接
+          const cardAnim = first.animate(
+            [
+              { opacity: 0, transform: 'translateY(4px)', offset: 0 },
+              { opacity: 0, transform: 'translateY(0px)', offset: 0.5 },
+              { opacity: 1, transform: 'none', offset: 1 },
+            ],
+            { duration: 180, delay: 90, easing: 'ease-out' },
+          );
+          cardAnim.onfinish = () => cardAnim.cancel();
+        } else {
+          // 旧「从输入框底下发射」入场：纯位移+淡入（不加 scale，避免文字缩放抖动）
+          const anim = first.animate(
+            [
+              { transform: 'translateY(-150px)', opacity: 0, offset: 0 },
+              { transform: 'translateY(12px)', opacity: 1, offset: 0.55 },
+              { transform: 'translateY(-2px)', opacity: 1, offset: 0.82 },
+              { transform: 'none', opacity: 1, offset: 1 },
+            ],
+            { duration: 160, easing: 'cubic-bezier(0.12, 0.8, 0.2, 1)' },
+          );
+          anim.onfinish = () => anim.cancel();
+        }
       }
     }
 

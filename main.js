@@ -33478,14 +33478,15 @@ const MemoList = () => {
     });
   }, [query]);
   react.exports.useLayoutEffect(() => {
+    var _a2, _b, _c;
     const container = wrapperElement.current;
     if (!container) {
       return;
     }
     const cards = Array.from(container.querySelectorAll(".memo-wrapper"));
     const getMemoId = (el) => {
-      var _a2, _b;
-      return (_b = (_a2 = /(?:^|\s)memos-([^\s]+)/.exec(el.className)) == null ? void 0 : _a2[1]) != null ? _b : "";
+      var _a3, _b2;
+      return (_b2 = (_a3 = /(?:^|\s)memos-([^\s]+)/.exec(el.className)) == null ? void 0 : _a3[1]) != null ? _b2 : "";
     };
     const keys = cards.map(getMemoId);
     const prev = layoutSnapRef.current;
@@ -33498,11 +33499,11 @@ const MemoList = () => {
     if (isTopInsert) {
       lastInsertAnimRef.current = Date.now();
       cards.forEach((card, idx) => {
-        var _a2;
+        var _a3;
         if (idx === 0) {
           return;
         }
-        const delta = ((_a2 = prev.tops[idx - 1]) != null ? _a2 : 0) - tops[idx];
+        const delta = ((_a3 = prev.tops[idx - 1]) != null ? _a3 : 0) - tops[idx];
         if (Math.abs(delta) > 1) {
           const anim = card.animate([{
             transform: `translateY(${delta}px)`
@@ -33517,27 +33518,109 @@ const MemoList = () => {
       });
       const first = cards[0];
       if (first) {
-        const anim = first.animate([{
-          transform: "translateY(-150px)",
-          opacity: 0,
-          offset: 0
-        }, {
-          transform: "translateY(12px)",
-          opacity: 1,
-          offset: 0.55
-        }, {
-          transform: "translateY(-2px)",
-          opacity: 1,
-          offset: 0.82
-        }, {
-          transform: "none",
-          opacity: 1,
-          offset: 1
-        }], {
-          duration: 160,
-          easing: "cubic-bezier(0.12, 0.8, 0.2, 1)"
-        });
-        anim.onfinish = () => anim.cancel();
+        const reduceMotion = (_c = (_b = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)")) == null ? void 0 : _b.matches) != null ? _c : false;
+        let slipEligible = false;
+        let host = null;
+        let originX = 0;
+        let originY = 0;
+        if (!reduceMotion && !require$$0.Platform.isMobile && first.offsetWidth > 0) {
+          const editorHost = container.parentElement;
+          const editor2 = editorHost == null ? void 0 : editorHost.querySelector(".memo-editor-wrapper");
+          if (editorHost && editor2) {
+            const editorRect = editor2.getBoundingClientRect();
+            const slotRect = first.getBoundingClientRect();
+            const hostRect = editorHost.getBoundingClientRect();
+            if (hostRect.width > 0 && slotRect.width > 0) {
+              originX = editorRect.left + editorRect.width / 2 - (slotRect.left + slotRect.width / 2);
+              originY = editorRect.top + editorRect.height / 2 - (slotRect.top + slotRect.height / 2);
+              slipEligible = Math.abs(originX) < 80 && originY > -340 && originY < -12;
+              host = editorHost;
+            }
+          }
+        }
+        if (reduceMotion) {
+          const anim = first.animate([{
+            opacity: 0
+          }, {
+            opacity: 1
+          }], {
+            duration: 140,
+            easing: "ease-out"
+          });
+          anim.onfinish = () => anim.cancel();
+        } else if (slipEligible && host) {
+          const slip = document.createElement("div");
+          slip.className = "memo-slip-paper";
+          const hostRect = host.getBoundingClientRect();
+          const slotRect = first.getBoundingClientRect();
+          const slipH = 46;
+          slip.style.cssText = `width:${first.offsetWidth}px;height:${slipH}px;left:${slotRect.left - hostRect.left}px;top:${slotRect.top - hostRect.top + (slotRect.height - slipH) / 2}px;`;
+          host.appendChild(slip);
+          const flyAnim = slip.animate([{
+            transform: `translate(${originX}px, ${originY}px) scale(0.2) rotate(-2.5deg)`,
+            opacity: 0,
+            offset: 0
+          }, {
+            transform: `translate(${originX * 0.45}px, ${originY * 0.45}px) scale(0.55) rotate(-1.2deg)`,
+            opacity: 1,
+            offset: 0.38
+          }, {
+            transform: "translate(0px, 0px) scale(1) rotate(0deg)",
+            opacity: 1,
+            offset: 0.82
+          }, {
+            transform: "translate(0px, 0px) scale(1) rotate(0deg)",
+            opacity: 0,
+            offset: 1
+          }], {
+            duration: 220,
+            easing: "cubic-bezier(0.2, 0.9, 0.3, 1)"
+          });
+          flyAnim.onfinish = () => {
+            flyAnim.cancel();
+            slip.remove();
+          };
+          const cardAnim = first.animate([{
+            opacity: 0,
+            transform: "translateY(4px)",
+            offset: 0
+          }, {
+            opacity: 0,
+            transform: "translateY(0px)",
+            offset: 0.5
+          }, {
+            opacity: 1,
+            transform: "none",
+            offset: 1
+          }], {
+            duration: 180,
+            delay: 90,
+            easing: "ease-out"
+          });
+          cardAnim.onfinish = () => cardAnim.cancel();
+        } else {
+          const anim = first.animate([{
+            transform: "translateY(-150px)",
+            opacity: 0,
+            offset: 0
+          }, {
+            transform: "translateY(12px)",
+            opacity: 1,
+            offset: 0.55
+          }, {
+            transform: "translateY(-2px)",
+            opacity: 1,
+            offset: 0.82
+          }, {
+            transform: "none",
+            opacity: 1,
+            offset: 1
+          }], {
+            duration: 160,
+            easing: "cubic-bezier(0.12, 0.8, 0.2, 1)"
+          });
+          anim.onfinish = () => anim.cancel();
+        }
       }
     }
     let removalAt = -1;
@@ -33561,9 +33644,9 @@ const MemoList = () => {
     }
     if (removalAt >= 0) {
       cards.forEach((card, idx) => {
-        var _a2;
+        var _a3;
         const prevIdx = idx < removalAt ? idx : idx + 1;
-        const delta = ((_a2 = prev.tops[prevIdx]) != null ? _a2 : 0) - tops[idx];
+        const delta = ((_a3 = prev.tops[prevIdx]) != null ? _a3 : 0) - tops[idx];
         if (Math.abs(delta) > 1) {
           const anim = card.animate([{
             transform: `translateY(${delta}px)`
