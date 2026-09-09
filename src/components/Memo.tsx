@@ -222,7 +222,12 @@ const Memo: React.FC<Props> = (props: Props) => {
     // 碎纸开始后立即真正删除 → 下方卡片 FLIP 上移填充与碎纸条并行，无“空槽停顿”
     const shredDone = animateShred();
     try {
-      await memoService.hideMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
+      // 回收站总开关：关 = 删除直接永久删（两段确认保留，第二段按钮文字同步切换见渲染处）
+      if (settings.EnableRecycleBin) {
+        await memoService.hideMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
+      } else {
+        await memoService.deleteMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
+      }
     } catch (error: any) {
       new Notice(error.message);
     }
@@ -346,7 +351,11 @@ const Memo: React.FC<Props> = (props: Props) => {
                   className={`btn delete-btn ${showConfirmDeleteBtn ? 'final-confirm' : ''}`}
                   onClick={handleDeleteMemoClick}
                 >
-                  {showConfirmDeleteBtn ? t('CONFIRM！') : t('DELETE')}
+                  {showConfirmDeleteBtn
+                    ? settings.EnableRecycleBin
+                      ? t('CONFIRM！')
+                      : t('DELETE FOREVER?')
+                    : t('DELETE')}
                 </button>
               </div>
             </div>

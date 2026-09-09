@@ -22,6 +22,8 @@ export interface MemosSettings {
   HideDoneTasks: boolean;
   /** 主列表不显示引用卡（P3 引用模型；搜索/过滤时仍可见）。默认 true = 隐藏 */
   HideRefMemosInList: boolean;
+  /** 删除路径总开关（2026-09-09 实施）：true = 删除进回收站（软删可恢复，默认）；false = 删除直接永久删，且侧栏回收站入口隐藏（旧软删数据保留，重开恢复） */
+  EnableRecycleBin: boolean;
   /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
   EnterToSend: boolean;
   OpenMemosAutomatically: boolean;
@@ -56,6 +58,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
   HideRefMemosInList: true,
+  EnableRecycleBin: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
   // EditorMaxHeight: '250',
@@ -217,6 +220,20 @@ export class MemosSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
           this.plugin.settings.HideRefMemosInList = value;
+          this.applySettingsUpdate();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('Enable Recycle Bin'))
+      .setDesc(
+        t(
+          'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.',
+        ),
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
+          this.plugin.settings.EnableRecycleBin = value;
           this.applySettingsUpdate();
         }),
       );

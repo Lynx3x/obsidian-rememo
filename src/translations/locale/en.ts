@@ -126,6 +126,10 @@ export default {
   'CREATE FILTER': 'CREATE FILTER',
   Settings: 'Settings',
   'Recycle bin': 'Recycle bin',
+  'Enable Recycle Bin': 'Enable Recycle Bin',
+  'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
+    'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.',
+  'DELETE FOREVER?': 'DELETE FOREVER?',
   'Audit data': 'Audit data',
   'About Me': 'About Me',
   'Fetching data...': 'Fetching data...',

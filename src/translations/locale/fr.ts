@@ -109,6 +109,10 @@ export default {
   'CREATE FILTER': 'CRÉER FILTRE',
   Settings: 'Paramètres',
   'Recycle bin': 'Corbeille',
+  'Enable Recycle Bin': 'Activer la corbeille',
+  'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
+    'Lorsque cette option est désactivée, supprimer un mémo le retire définitivement au lieu de le déplacer dans la corbeille. Les mémos déjà dans la corbeille sont conservés et réapparaissent lorsque cette option est réactivée.',
+  'DELETE FOREVER?': 'SUPPRIMER DÉFINITIVEMENT ?',
   'About Me': 'À propos de moi',
   'Fetching data...': 'Récupération des données...',
   'Here is No Zettels.': "Il n'y a pas de Zettels.",

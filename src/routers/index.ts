@@ -1,8 +1,8 @@
 import appRouter from './appRouter';
-import homeRouter from './homeRouter';
+import { getHomeRouter } from './homeRouter';
 
 // just like React-Router
-interface Router {
+export interface Router {
   [key: string]: JSX.Element | null;
   '*': JSX.Element | null;
 }
@@ -19,4 +19,5 @@ const routerSwitch = (router: Router) => {
 };
 
 export const appRouterSwitch = routerSwitch(appRouter);
-export const homeRouterSwitch = routerSwitch(homeRouter);
+/** 主视图路由按回收站开关动态构建（关闭 = 不含 '/recycle'，直达/残留路径落入 '*' 主页） */
+export const homeRouterSwitch = (enableRecycleBin: boolean) => routerSwitch(getHomeRouter(enableRecycleBin));

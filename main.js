@@ -7843,6 +7843,9 @@ var en = {
   "CREATE FILTER": "CREATE FILTER",
   Settings: "Settings",
   "Recycle bin": "Recycle bin",
+  "Enable Recycle Bin": "Enable Recycle Bin",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.",
+  "DELETE FOREVER?": "DELETE FOREVER?",
   "Audit data": "Audit data",
   "About Me": "About Me",
   "Fetching data...": "Fetching data...",
@@ -8047,6 +8050,9 @@ var fr = {
   "CREATE FILTER": "CR\xC9ER FILTRE",
   Settings: "Param\xE8tres",
   "Recycle bin": "Corbeille",
+  "Enable Recycle Bin": "Activer la corbeille",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Lorsque cette option est d\xE9sactiv\xE9e, supprimer un m\xE9mo le retire d\xE9finitivement au lieu de le d\xE9placer dans la corbeille. Les m\xE9mos d\xE9j\xE0 dans la corbeille sont conserv\xE9s et r\xE9apparaissent lorsque cette option est r\xE9activ\xE9e.",
+  "DELETE FOREVER?": "SUPPRIMER D\xC9FINITIVEMENT ?",
   "About Me": "\xC0 propos de moi",
   "Fetching data...": "R\xE9cup\xE9ration des donn\xE9es...",
   "Here is No Zettels.": "Il n'y a pas de Zettels.",
@@ -8203,6 +8209,9 @@ var pt = {
   "CREATE FILTER": "CRIAR FILTRO",
   Settings: "Defini\xE7\xF5es",
   "Recycle bin": "Reciclagem",
+  "Enable Recycle Bin": "Ativar a lixeira",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
+  "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
   "About Me": "Acerca de mim",
   "Fetching data...": "A obter dados...",
   "Here is No Zettels.": "N\xE3o existem Zettels.",
@@ -8389,6 +8398,9 @@ var ptBR = {
   "CREATE FILTER": "CRIAR FILTRO",
   Settings: "Defini\xE7\xF5es",
   "Recycle bin": "Reciclagem",
+  "Enable Recycle Bin": "Ativar a lixeira",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
+  "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
   "About Me": "Acerca de mim",
   "Fetching data...": "A obter dados...",
   "Here is No Zettels.": "N\xE3o existem Zettels.",
@@ -8580,6 +8592,9 @@ var zhCN = {
   "CREATE FILTER": "\u521B\u5EFA\u68C0\u7D22\u5F0F",
   Settings: "\u8BBE\u7F6E",
   "Recycle bin": "\u56DE\u6536\u7AD9",
+  "Enable Recycle Bin": "\u542F\u7528\u56DE\u6536\u7AD9",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "\u5173\u95ED\u540E\uFF0C\u5220\u9664\u95EA\u5FF5\u4F1A\u76F4\u63A5\u6C38\u4E45\u79FB\u9664\uFF0C\u4E0D\u518D\u79FB\u5165\u56DE\u6536\u7AD9\u3002\u5DF2\u5728\u56DE\u6536\u7AD9\u4E2D\u7684\u95EA\u5FF5\u4F1A\u4FDD\u7559\uFF0C\u91CD\u65B0\u6253\u5F00\u6B64\u5F00\u5173\u540E\u6062\u590D\u3002",
+  "DELETE FOREVER?": "\u6C38\u4E45\u5220\u9664?",
   "Audit data": "\u6570\u636E\u4F53\u68C0",
   "About Me": "\u5173\u4E8E",
   "Fetching data...": "\u83B7\u53D6\u6570\u636E\u4E2D...",
@@ -13524,7 +13539,11 @@ const MemoCardDialog = (props) => {
       return;
     }
     try {
-      await memoService.hideMemoById(memo2.id, memo2.hasId, memo2.path);
+      if (appStore.getState().settingsState.settings.EnableRecycleBin) {
+        await memoService.hideMemoById(memo2.id, memo2.hasId, memo2.path);
+      } else {
+        await memoService.deleteMemoById(memo2.id, memo2.hasId, memo2.path);
+      }
       if (globalStateService.getState().editMemoId === memo2.id) {
         globalStateService.setEditMemoId("");
       }
@@ -13545,7 +13564,7 @@ const MemoCardDialog = (props) => {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("button", {
             className: `btn delete-btn ${showConfirmDelete ? "confirm" : ""}`,
-            title: showConfirmDelete ? t$2("CONFIRM\uFF01") : t$2("DELETE"),
+            title: showConfirmDelete ? appStore.getState().settingsState.settings.EnableRecycleBin ? t$2("CONFIRM\uFF01") : t$2("DELETE FOREVER?") : t$2("DELETE"),
             onClick: handleDeleteMemoClick,
             children: /* @__PURE__ */ jsx(SvgDelete, {
               className: "icon-img"
@@ -14182,7 +14201,11 @@ const Memo = (props) => {
     setMenuOpen(false);
     const shredDone = animateShred();
     try {
-      await memoService.hideMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
+      if (settings.EnableRecycleBin) {
+        await memoService.hideMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
+      } else {
+        await memoService.deleteMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
+      }
     } catch (error) {
       new require$$0.Notice(error.message);
     }
@@ -14305,7 +14328,7 @@ const Memo = (props) => {
                 type: "button",
                 className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
                 onClick: handleDeleteMemoClick,
-                children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
+                children: showConfirmDeleteBtn ? settings.EnableRecycleBin ? t$2("CONFIRM\uFF01") : t$2("DELETE FOREVER?") : t$2("DELETE")
               })]
             })
           })]
@@ -14970,6 +14993,9 @@ const SidebarNav = () => {
   const {
     locationState: {
       pathname
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
   const onHome = pathname === "/" || pathname === "/homeboard";
@@ -15003,7 +15029,7 @@ const SidebarNav = () => {
         className: "nav-text",
         children: t$2("Home")
       })]
-    }), /* @__PURE__ */ jsxs("div", {
+    }), settings.EnableRecycleBin && /* @__PURE__ */ jsxs("div", {
       className: `memos-nav-item${onRecycle ? " active" : ""}`,
       onClick: handleRecycleClick,
       title: t$2("Recycle bin"),
@@ -16142,6 +16168,9 @@ function Home() {
   const {
     locationState: {
       pathname
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
   const loadingState = useLoading();
@@ -16153,7 +16182,7 @@ function Home() {
       id: "page-wrapper",
       children: [/* @__PURE__ */ jsx(Sidebar, {}), /* @__PURE__ */ jsx("main", {
         className: "content-wrapper",
-        children: homeRouterSwitch(pathname)
+        children: homeRouterSwitch(settings.EnableRecycleBin)(pathname)
       })]
     })
   });
@@ -35162,10 +35191,15 @@ const AuditPage = () => {
     })
   });
 };
-const homeRouter = {
-  "/recycle": /* @__PURE__ */ jsx(MemoTrash, {}),
-  "/audit": /* @__PURE__ */ jsx(AuditPage, {}),
-  "*": /* @__PURE__ */ jsx(Memos$1, {})
+const getHomeRouter = (enableRecycleBin) => {
+  const router = {
+    "/audit": /* @__PURE__ */ jsx(AuditPage, {}),
+    "*": /* @__PURE__ */ jsx(Memos$1, {})
+  };
+  if (enableRecycleBin) {
+    router["/recycle"] = /* @__PURE__ */ jsx(MemoTrash, {});
+  }
+  return router;
 };
 const routerSwitch = (router) => {
   return (pathname) => {
@@ -35178,7 +35212,7 @@ const routerSwitch = (router) => {
   };
 };
 const appRouterSwitch = routerSwitch(appRouter);
-const homeRouterSwitch = routerSwitch(homeRouter);
+const homeRouterSwitch = (enableRecycleBin) => routerSwitch(getHomeRouter(enableRecycleBin));
 function StrictApp() {
   return /* @__PURE__ */ jsx(Provider, {
     store: appStore,
@@ -35334,6 +35368,7 @@ const DEFAULT_SETTINGS = {
   OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
   HideRefMemosInList: true,
+  EnableRecycleBin: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
   ShowTime: true,
@@ -35438,6 +35473,16 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     ).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
         this.plugin.settings.HideRefMemosInList = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$2("Enable Recycle Bin")).setDesc(
+      t$2(
+        "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled."
+      )
+    ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
+        this.plugin.settings.EnableRecycleBin = value;
         this.applySettingsUpdate();
       })
     );

@@ -116,7 +116,12 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
       return;
     }
     try {
-      await memoService.hideMemoById(memo.id, memo.hasId, memo.path);
+      // 回收站总开关：关 = 删除直接永久删（title 提示文字同步切换，见渲染处）
+      if (appStore.getState().settingsState.settings.EnableRecycleBin) {
+        await memoService.hideMemoById(memo.id, memo.hasId, memo.path);
+      } else {
+        await memoService.deleteMemoById(memo.id, memo.hasId, memo.path);
+      }
       if (globalStateService.getState().editMemoId === memo.id) {
         globalStateService.setEditMemoId('');
       }
@@ -135,7 +140,13 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
           <div className="btns-container">
             <button
               className={`btn delete-btn ${showConfirmDelete ? 'confirm' : ''}`}
-              title={showConfirmDelete ? t('CONFIRM！') : t('DELETE')}
+              title={
+                showConfirmDelete
+                  ? appStore.getState().settingsState.settings.EnableRecycleBin
+                    ? t('CONFIRM！')
+                    : t('DELETE FOREVER?')
+                  : t('DELETE')
+              }
               onClick={handleDeleteMemoClick}
             >
               <DeleteIcon className="icon-img" />

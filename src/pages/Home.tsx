@@ -9,6 +9,7 @@ import '../less/home.less';
 function Home() {
   const {
     locationState: { pathname },
+    settingsState: { settings },
   } = useContext(appContext);
   // const { app } = dailyNotesService.getState();
   const loadingState = useLoading();
@@ -40,7 +41,7 @@ function Home() {
       {/* {loadingState.isLoading ? null : ( */}
       <section id="page-wrapper">
         <Sidebar />
-        <main className="content-wrapper">{homeRouterSwitch(pathname)}</main>
+        <main className="content-wrapper">{homeRouterSwitch(settings.EnableRecycleBin)(pathname)}</main>
       </section>
       {/* )} */}
     </>

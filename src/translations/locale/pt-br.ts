@@ -111,6 +111,10 @@ export default {
   'CREATE FILTER': 'CRIAR FILTRO',
   Settings: 'Definições',
   'Recycle bin': 'Reciclagem',
+  'Enable Recycle Bin': 'Ativar a lixeira',
+  'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
+    'Quando desativada, excluir um memo o remove permanentemente em vez de movê-lo para a lixeira. Os memos já na lixeira são mantidos e voltam quando esta opção é reativada.',
+  'DELETE FOREVER?': 'EXCLUIR PERMANENTEMENTE?',
   'About Me': 'Acerca de mim',
   'Fetching data...': 'A obter dados...',
   'Here is No Zettels.': 'Não existem Zettels.',

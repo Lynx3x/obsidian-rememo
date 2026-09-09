@@ -13,6 +13,7 @@ import { t } from '../translations/helper';
 const SidebarNav: React.FC = () => {
   const {
     locationState: { pathname },
+    settingsState: { settings },
   } = useContext(appContext);
 
   const onHome = pathname === '/' || pathname === '/homeboard';
@@ -49,14 +50,17 @@ const SidebarNav: React.FC = () => {
         <Home className="icon-img" />
         <span className="nav-text">{t('Home')}</span>
       </div>
-      <div
-        className={`memos-nav-item${onRecycle ? ' active' : ''}`}
-        onClick={handleRecycleClick}
-        title={t('Recycle bin')}
-      >
-        <Trash className="icon-img" />
-        <span className="nav-text">{t('Recycle bin')}</span>
-      </div>
+      {/* 回收站总开关：关闭时隐藏回收站入口（旧软删数据保留，重开恢复） */}
+      {settings.EnableRecycleBin && (
+        <div
+          className={`memos-nav-item${onRecycle ? ' active' : ''}`}
+          onClick={handleRecycleClick}
+          title={t('Recycle bin')}
+        >
+          <Trash className="icon-img" />
+          <span className="nav-text">{t('Recycle bin')}</span>
+        </div>
+      )}
       <div className="memos-nav-item" onClick={handleSettingsClick} title={t('Settings')}>
         <Settings className="icon-img" />
         <span className="nav-text">{t('Settings')}</span>
