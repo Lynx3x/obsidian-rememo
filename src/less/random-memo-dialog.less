@@ -67,6 +67,29 @@
             margin-top: 8px;
           }
 
+          // Pending #1 blockquote（> 引用）：观感对齐 Obsidian 原生（竖线 + 淡底主题变量），字号继承本容器
+          > blockquote {
+            width: 100%;
+            box-sizing: border-box;
+            margin: 4px 0 8px;
+            padding: 4px 10px 6px;
+            border-left: 3px solid var(--blockquote-border-color);
+            background-color: var(--blockquote-background-color);
+            border-radius: 0 6px 6px 0;
+
+            > p {
+              margin: 0;
+            }
+
+            > blockquote {
+              width: 100%;
+              box-sizing: border-box;
+              margin: 2px 0 0;
+              padding: 2px 10px 2px;
+              border-radius: 0;
+            }
+          }
+
           .tag-span {
             margin: 0;
             padding: 0 4px;

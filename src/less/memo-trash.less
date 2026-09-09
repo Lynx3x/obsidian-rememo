@@ -51,6 +51,29 @@ div[data-type='memos_view'] .memo-trash-wrapper {
           margin-bottom: 4px;
           margin-top: -2px;
         }
+
+        // Pending #1 blockquote（> 引用）：观感对齐 Obsidian 原生（竖线 + 淡底主题变量）
+        > blockquote {
+          width: 100%;
+          box-sizing: border-box;
+          margin: 2px 0 6px;
+          padding: 4px 10px 6px;
+          border-left: 3px solid var(--blockquote-border-color);
+          background-color: var(--blockquote-background-color);
+          border-radius: 0 6px 6px 0;
+
+          > p {
+            margin: 0;
+          }
+
+          > blockquote {
+            width: 100%;
+            box-sizing: border-box;
+            margin: 2px 0 0;
+            padding: 2px 10px 2px;
+            border-radius: 0;
+          }
+        }
       }
     }
   }
@@ -185,6 +208,29 @@ div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
 
   > .memo-content-text {
     width: 100%;
+  }
+
+  // Pending #1 blockquote（> 引用）：回收站卡正文观感对齐 Obsidian 原生（竖线 + 淡底主题变量）
+  > .memo-content-text > blockquote {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 2px 0 6px;
+    padding: 4px 10px 6px;
+    border-left: 3px solid var(--blockquote-border-color);
+    background-color: var(--blockquote-background-color);
+    border-radius: 0 6px 6px 0;
+
+    > p {
+      margin: 0;
+    }
+
+    > blockquote {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 2px 0 0;
+      padding: 2px 10px 2px;
+      border-radius: 0;
+    }
   }
 
   > .images-wrapper {

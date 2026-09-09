@@ -758,6 +758,25 @@ div[data-type='memos_view'] svg.action-btn,
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
   margin-top: 8px;
 }
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 8px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > blockquote > p {
+  margin: 0;
+}
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
+}
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text .tag-span {
   font-size: 14px;
   color: var(--memo-link);
@@ -1081,6 +1100,25 @@ div[data-type='memos_view'] .image-container > img {
   word-wrap: break-word;
   font-size: 15px;
   background-color: var(--memo-bg);
+}
+.dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 8px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+.dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote > p {
+  margin: 0;
+}
+.dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
 }
 .dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .images-container {
   display: flex;
@@ -1603,6 +1641,31 @@ div[data-type='memos_view'] svg.action-btn,
   background-color: var(--background-modifier-hover);
   white-space: pre-wrap;
 }
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 6px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote > p,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote > p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+  white-space: pre-wrap;
+}
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote > blockquote,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
+}
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text {
   width: 400px;
 }
@@ -1611,6 +1674,9 @@ div[data-type='memos_view'] svg.action-btn,
   line-height: 26px;
   min-height: 26px;
   white-space: pre-wrap;
+}
+[data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text > blockquote > p {
+  line-height: 26px;
 }
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text .tag-span {
   line-height: 26px;
@@ -2115,6 +2181,25 @@ div[data-type='memos_view'].mobile-view .memo-wrapper > .btns-container > .more-
 }
 .daily-memo-wrapper > .memo-content-container > .memo-content-text {
   margin-top: -14px;
+}
+.daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 8px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+.daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote > p {
+  margin: 0;
+}
+.daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
 }
 .daily-memo-wrapper > .memo-content-container > .memo-content-text p > a {
   width: 20em;
@@ -2825,6 +2910,25 @@ div[data-type='memos_view'] svg.action-btn,
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
   margin-top: 8px;
+}
+.dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 8px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+.dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > blockquote > p {
+  margin: 0;
+}
+.dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text .tag-span {
   margin: 0;
@@ -7004,6 +7108,25 @@ div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .me
   margin-bottom: 4px;
   margin-top: -2px;
 }
+div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 6px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > blockquote > p {
+  margin: 0;
+}
+div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
+}
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
   display: flex;
   flex-direction: column;
@@ -7129,6 +7252,25 @@ div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-top-wrappe
 }
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text {
   width: 100%;
+}
+div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 6px;
+  padding: 4px 10px 6px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
+  border-radius: 0 6px 6px 0;
+}
+div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text > blockquote > p {
+  margin: 0;
+}
+div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text > blockquote > blockquote {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 2px 0 0;
+  padding: 2px 10px 2px;
+  border-radius: 0;
 }
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .images-wrapper {
   display: flex;

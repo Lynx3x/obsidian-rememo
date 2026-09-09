@@ -13217,24 +13217,85 @@ function renderMemoContentLines(src) {
       para = [];
     }
   };
+  let quoteRows = [];
+  const buildQuoteHtml = (rows) => {
+    let html = "";
+    let depth = 0;
+    let inP = false;
+    const closeP = () => {
+      if (inP) {
+        html += "</p>";
+        inP = false;
+      }
+    };
+    for (const row of rows) {
+      if (row.text === "") {
+        closeP();
+        continue;
+      }
+      while (depth < row.depth) {
+        closeP();
+        html += "<blockquote>";
+        depth++;
+      }
+      while (depth > row.depth) {
+        closeP();
+        html += "</blockquote>";
+        depth--;
+      }
+      if (!inP) {
+        html += "<p>";
+        inP = true;
+      } else {
+        html += "<br>";
+      }
+      html += encodeHtml(row.text);
+    }
+    closeP();
+    while (depth > 0) {
+      html += "</blockquote>";
+      depth--;
+    }
+    return html;
+  };
+  const flushQuote = () => {
+    if (quoteRows.length > 0) {
+      out.push(buildQuoteHtml(quoteRows));
+      quoteRows = [];
+    }
+  };
   const indentWidth = (line) => line.length - line.trimStart().length;
   for (const line of masked.split("\n")) {
     const codeIdx = /^ CODE(\d+) $/.exec(line);
     if (codeIdx) {
       flushPara();
+      flushQuote();
       out.push(codeBlocks[+codeIdx[1]]);
       continue;
     }
     if (line.trim() === "") {
       flushPara();
+      flushQuote();
       continue;
     }
     const t2 = line.trim();
     const pad = indentWidth(line);
+    if (t2.startsWith(">")) {
+      flushPara();
+      let rest = t2;
+      let depth = 0;
+      while (rest.startsWith(">")) {
+        depth++;
+        rest = rest.slice(1).trimStart();
+      }
+      quoteRows.push({ depth, text: rest });
+      continue;
+    }
     const task = /^[-*]\s\[(.)\]\s+/.exec(t2);
     const bullet = /^[-*]\s+/.exec(t2);
     const num = /^(\d+)[.)]\s+/.exec(t2);
     if (task || bullet || num) {
+      flushQuote();
       flushPara();
       let prefix;
       let body;
@@ -13252,9 +13313,11 @@ function renderMemoContentLines(src) {
       out.push(`<p class='memo-md-line' style='padding-left:${Math.min(pad * 9, 63)}px'>${prefix} ${encodeHtml(body)}</p>`);
       continue;
     }
+    flushQuote();
     para.push(t2);
   }
   flushPara();
+  flushQuote();
   return out.join("\n");
 }
 const parseMarkedToHtml = (htmlStr, memoid) => {
