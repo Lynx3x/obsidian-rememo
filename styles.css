@@ -770,11 +770,16 @@ div[data-type='memos_view'] svg.action-btn,
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > blockquote > p {
   margin: 0;
 }
+.dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text .tag-span {
@@ -1113,11 +1118,16 @@ div[data-type='memos_view'] .image-container > img {
 .dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote > p {
   margin: 0;
 }
+.dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 .dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 .dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .images-container {
@@ -1658,12 +1668,18 @@ div[data-type='memos_view'] svg.action-btn,
   line-height: 24px;
   white-space: pre-wrap;
 }
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote p + p,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote > blockquote,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text {
@@ -2194,11 +2210,16 @@ div[data-type='memos_view'].mobile-view .memo-wrapper > .btns-container > .more-
 .daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote > p {
   margin: 0;
 }
+.daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 .daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 .daily-memo-wrapper > .memo-content-container > .memo-content-text p > a {
@@ -2923,11 +2944,16 @@ div[data-type='memos_view'] svg.action-btn,
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > blockquote > p {
   margin: 0;
 }
+.dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text .tag-span {
@@ -7120,11 +7146,16 @@ div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .me
 div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > blockquote > p {
   margin: 0;
 }
+div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper {
@@ -7265,11 +7296,16 @@ div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-te
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text > blockquote > p {
   margin: 0;
 }
+div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text > blockquote p + p {
+  margin-top: 8px;
+}
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .memo-content-text > blockquote > blockquote {
   width: 100%;
   box-sizing: border-box;
   margin: 2px 0 0;
   padding: 2px 10px 2px;
+  border-left: 3px solid var(--blockquote-border-color);
+  background-color: var(--blockquote-background-color);
   border-radius: 0;
 }
 div[data-type='memos_view'] .memo-trash-wrapper .memo-wrapper > .images-wrapper {

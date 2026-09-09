@@ -81,11 +81,19 @@
               margin: 0;
             }
 
+            // 引用内多段（裸 > 段分）：段距 8px 与正文段落同律
+            p + p {
+              margin-top: 8px;
+            }
+
+            // 嵌套引用：每层自己的竖线与淡底（原生观感，半透明底逐层加深）
             > blockquote {
               width: 100%;
               box-sizing: border-box;
               margin: 2px 0 0;
               padding: 2px 10px 2px;
+              border-left: 3px solid var(--blockquote-border-color);
+              background-color: var(--blockquote-background-color);
               border-radius: 0;
             }
           }
