@@ -9077,7 +9077,6 @@ var en = {
   "TITLE CANNOT BE NULL!": "TITLE CANNOT BE NULL!",
   "FILTER CANNOT BE NULL!": "FILTER CANNOT BE NULL!",
   "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "You should install Dataview Plugin ver 0.5.9 or later to use this feature.",
-  "Open Memos Successfully": "Open Memos Successfully",
   "Fetch Error": "\u{1F62D} Fetch Error",
   "Copied to clipboard Successfully": "Copied to clipboard Successfully",
   "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin",
@@ -9109,7 +9108,8 @@ var en = {
   "Next page": "Next page",
   "Type Here": "Type Here",
   TagTipFirst: "Input ",
-  TagTipSecond: "to create a tag..."
+  TagTipSecond: "to create a tag...",
+  "Failed to save: ": "Failed to save: "
 };
 var enGB = {};
 var es = {};
@@ -9273,7 +9273,8 @@ var fr = {
   "Next page": "Page suivante",
   "Type Here": "Saisissez ici",
   TagTipFirst: "Saisissez ",
-  TagTipSecond: "pour cr\xE9er une \xE9tiquette..."
+  TagTipSecond: "pour cr\xE9er une \xE9tiquette...",
+  "Failed to save: ": "\xC9chec de l'enregistrement : "
 };
 var hi = {};
 var id = {};
@@ -9452,7 +9453,6 @@ var pt = {
   "FILTER CANNOT BE NULL!": "O FILTRO N\xC3O PODE SER NULO!",
   "Comments In Original DailyNotes/Notes": "Coment\xE1rios nas Notas/Notas Di\xE1rias Originais",
   "You should install Dataview Plug-in ver 0.5.9 or later to use this feature.": "Deve instalar a vers\xE3o 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.",
-  "Open Memos Successfully": "Memos Iniciado com Sucesso",
   "Fetch Error": "\u{1F62D} Erro de Fetch",
   "Copied to clipboard Successfully": "Copiado para a \xE1rea de transfer\xEAncia com sucesso",
   "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Verifique se abriu o plugin de Notas Di\xE1rias ou de Notas Peri\xF3dicas",
@@ -9482,7 +9482,8 @@ var pt = {
   "Next page": "Pr\xF3xima p\xE1gina",
   "Type Here": "Digite aqui",
   TagTipFirst: "Digite ",
-  TagTipSecond: "para criar uma etiqueta..."
+  TagTipSecond: "para criar uma etiqueta...",
+  "Failed to save: ": "Falha ao salvar: "
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9653,7 +9654,6 @@ var ptBR = {
   "FILTER CANNOT BE NULL!": "O FILTRO N\xC3O PODE SER NULO!",
   "Comments In Original DailyNotes/Notes": "Coment\xE1rios nas Notas/Notas Di\xE1rias Originais",
   "You should install Dataview Plug-in ver 0.5.9 or later to use this feature.": "Deve instalar a vers\xE3o 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.",
-  "Open Memos Successfully": "Memos Iniciado com Sucesso",
   "Fetch Error": "\u{1F62D} Erro de Fetch",
   "Copied to clipboard Successfully": "Copiado para a \xE1rea de transfer\xEAncia com sucesso",
   "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Verifique se abriu o plugin de Notas Di\xE1rias ou de Notas Peri\xF3dicas",
@@ -9683,7 +9683,8 @@ var ptBR = {
   "Next page": "Pr\xF3xima p\xE1gina",
   "Type Here": "Digite aqui",
   TagTipFirst: "Digite ",
-  TagTipSecond: "para criar uma etiqueta..."
+  TagTipSecond: "para criar uma etiqueta...",
+  "Failed to save: ": "Falha ao salvar: "
 };
 var ro = {};
 var ru = {};
@@ -9873,7 +9874,6 @@ var zhCN = {
   "TITLE CANNOT BE NULL!": "\u6807\u9898\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
   "FILTER CANNOT BE NULL!": "\u7B5B\u9009\u5668\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
   "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "\u4F60\u9700\u8981\u5B89\u88C5 0.5.9 \u7248\u672C\u4EE5\u4E0A\u7684 Dataview \u63D2\u4EF6\u6765\u4F7F\u7528\u8BE5\u529F\u80FD",
-  "Open Memos Successfully": "\u6210\u529F\u6253\u5F00 Memos ",
   "Fetch Error": "\u{1F62D} Memos \u83B7\u53D6\u5931\u8D25",
   "Copied to clipboard Successfully": "\u590D\u5236\u6210\u529F",
   "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "\u8BF7\u68C0\u67E5\u4F60\u6709\u6CA1\u6709\u5F00\u542F\u65E5\u8BB0\u63D2\u4EF6\u6216\u8005 Periodic Notes \u63D2\u4EF6\u4E14\u542F\u7528\u4E86\u65E5\u8BB0\u6A21\u5F0F",
@@ -9905,7 +9905,8 @@ var zhCN = {
   "Next page": "\u4E0B\u4E00\u9875",
   "Type Here": "\u8F93\u5165\u4EE5\u8FC7\u6EE4",
   TagTipFirst: "\u8F93\u5165 ",
-  TagTipSecond: "\u5373\u53EF\u521B\u5EFA\u4E00\u4E2A\u6807\u7B7E"
+  TagTipSecond: "\u5373\u53EF\u521B\u5EFA\u4E00\u4E2A\u6807\u7B7E",
+  "Failed to save: ": "\u4FDD\u5B58\u5931\u8D25\uFF1A"
 };
 var zhTW = {};
 const localeMap = {
@@ -33140,7 +33141,7 @@ const MemoEditor = () => {
     };
   };
   const handleSaveBtnClick = react.exports.useCallback(async (content2) => {
-    var _a3, _b2;
+    var _a3, _b2, _c;
     const {
       editMemoId,
       markMemoIds
@@ -33174,7 +33175,6 @@ ${content2.trimStart()}`.trimEnd();
     };
     try {
       if (editMemoId) {
-        setEditorContentCache("");
         const prevMemo = memoService.getMemoById(editMemoId);
         if (prevMemo && prevMemo.content !== content2.replace(/\n+$/, "")) {
           const editedMemo = await memoService.updateMemo({
@@ -33210,7 +33210,7 @@ ${content2.trimStart()}`.trimEnd();
     } catch (error) {
       sendingRef.current = false;
       (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
-      new require$$0.Notice(error.message);
+      new require$$0.Notice(t$2("Failed to save: ") + ((_c = error == null ? void 0 : error.message) != null ? _c : String(error)), 8e3);
     }
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
@@ -35753,7 +35753,6 @@ class MemosPlugin extends require$$0.Plugin {
       this.registerMobileEvent();
     }
     this.addRibbonIcon("Memos", t$2("ribbonIconTitle"), () => {
-      new require$$0.Notice(t$2("Open Memos Successfully"));
       this.openMemos();
     });
     const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);

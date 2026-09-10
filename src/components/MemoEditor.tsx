@@ -376,8 +376,7 @@ const MemoEditor: React.FC<Props> = () => {
 
     try {
       if (editMemoId) {
-        // 编辑态：立即清空（无需蓄力动画）
-        setEditorContentCache('');
+        // 编辑态：无蓄力动画；清空统一等写盘成功后走 finishSend（失败时输入与草稿缓存原样保留）
         const prevMemo = memoService.getMemoById(editMemoId);
         // 编辑保存 = 正文原样写回；^id 留在头行由写入端定位，不拼进正文（防旧格式 ^id 重复累积）
         if (prevMemo && prevMemo.content !== content.replace(/\n+$/, '')) {
@@ -417,9 +416,10 @@ const MemoEditor: React.FC<Props> = () => {
         }, remaining);
       }
     } catch (error: any) {
+      // 失败兜底：输入框内容与草稿缓存一律保留（清空只发生在写盘成功后），可直接重按发送重试
       sendingRef.current = false;
       editorRef.current?.setEditable(true);
-      new Notice(error.message);
+      new Notice(t('Failed to save: ') + (error?.message ?? String(error)), 8000);
     }
   }, []);
 

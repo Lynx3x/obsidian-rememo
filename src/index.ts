@@ -107,7 +107,6 @@ export default class MemosPlugin extends Plugin {
         }
 
         this.addRibbonIcon('Memos', t('ribbonIconTitle'), () => {
-            new Notice(t('Open Memos Successfully'));
             this.openMemos();
         });
 

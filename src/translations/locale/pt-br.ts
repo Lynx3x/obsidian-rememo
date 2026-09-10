@@ -201,7 +201,6 @@ export default {
   'Comments In Original DailyNotes/Notes': 'Comentários nas Notas/Notas Diárias Originais',
   'You should install Dataview Plug-in ver 0.5.9 or later to use this feature.':
     'Deve instalar a versão 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.',
-  'Open Memos Successfully': 'Memos Iniciado com Sucesso',
   'Fetch Error': '😭 Erro de Fetch',
   'Copied to clipboard Successfully': 'Copiado para a área de transferência com sucesso',
   'Check if you opened Daily Notes Plugin Or Periodic Notes Plugin':
@@ -241,4 +240,7 @@ export default {
   'Type Here': 'Digite aqui',
   TagTipFirst: 'Digite ',
   TagTipSecond: 'para criar uma etiqueta...',
+
+  // 2026-09-10 发送失败兜底：保存失败提示
+  'Failed to save: ': 'Falha ao salvar: ',
 };

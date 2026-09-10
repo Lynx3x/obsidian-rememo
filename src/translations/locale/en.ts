@@ -230,7 +230,6 @@ export default {
   'FILTER CANNOT BE NULL!': 'FILTER CANNOT BE NULL!',
   'You should install Dataview Plugin ver 0.5.9 or later to use this feature.':
     'You should install Dataview Plugin ver 0.5.9 or later to use this feature.',
-  'Open Memos Successfully': 'Open Memos Successfully',
   'Fetch Error': '😭 Fetch Error',
   'Copied to clipboard Successfully': 'Copied to clipboard Successfully',
   'Check if you opened Daily Notes Plugin Or Periodic Notes Plugin':
@@ -273,4 +272,7 @@ export default {
   'Type Here': 'Type Here',
   TagTipFirst: 'Input ',
   TagTipSecond: 'to create a tag...',
+
+  // 2026-09-10 发送失败兜底：保存失败提示
+  'Failed to save: ': 'Failed to save: ',
 };

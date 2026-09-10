@@ -204,7 +204,6 @@ export default {
   'FILTER CANNOT BE NULL!': '筛选器不可以为空！',
   'You should install Dataview Plugin ver 0.5.9 or later to use this feature.':
     '你需要安装 0.5.9 版本以上的 Dataview 插件来使用该功能',
-  'Open Memos Successfully': '成功打开 Memos ',
   'Fetch Error': '😭 Memos 获取失败',
   'Copied to clipboard Successfully': '复制成功',
   'Check if you opened Daily Notes Plugin Or Periodic Notes Plugin':
@@ -247,4 +246,7 @@ export default {
   'Type Here': '输入以过滤',
   TagTipFirst: '输入 ',
   TagTipSecond: '即可创建一个标签',
+
+  // 2026-09-10 发送失败兜底：保存失败提示
+  'Failed to save: ': '保存失败：',
 };

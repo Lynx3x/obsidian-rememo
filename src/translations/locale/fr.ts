@@ -192,4 +192,7 @@ export default {
   'Type Here': 'Saisissez ici',
   TagTipFirst: 'Saisissez ',
   TagTipSecond: 'pour créer une étiquette...',
+
+  // 2026-09-10 发送失败兜底：保存失败提示
+  'Failed to save: ': "Échec de l'enregistrement : ",
 };
