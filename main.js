@@ -7851,6 +7851,8 @@ var en = {
   "Fetching data...": "Fetching data...",
   "Here is No Zettels.": "Here is No Zettels.",
   "Frequently Used Tags": "Frequently Used Tags",
+  "Flat view": "Flat view",
+  "Tree view": "Tree view",
   "What do you think now...": "What do you think now...",
   READ: "READ",
   MARK: "MARK",
@@ -8057,6 +8059,8 @@ var fr = {
   "Fetching data...": "R\xE9cup\xE9ration des donn\xE9es...",
   "Here is No Zettels.": "Il n'y a pas de Zettels.",
   "Frequently Used Tags": "Tags fr\xE9quemment utilis\xE9s",
+  "Flat view": "Vue \xE0 plat",
+  "Tree view": "Vue arborescente",
   "What do you think now...": "Que pensez-vous maintenant...",
   READ: "LU",
   MARK: "MARQUER",
@@ -8216,6 +8220,8 @@ var pt = {
   "Fetching data...": "A obter dados...",
   "Here is No Zettels.": "N\xE3o existem Zettels.",
   "Frequently Used Tags": "Tags Usadas Frequentemente",
+  "Flat view": "Vis\xE3o plana",
+  "Tree view": "Vis\xE3o em \xE1rvore",
   "What do you think now...": "Em que est\xE1 a pensar...",
   READ: "LER",
   MARK: "ASSINALAR",
@@ -8405,6 +8411,8 @@ var ptBR = {
   "Fetching data...": "A obter dados...",
   "Here is No Zettels.": "N\xE3o existem Zettels.",
   "Frequently Used Tags": "Tags Usadas Frequentemente",
+  "Flat view": "Vis\xE3o plana",
+  "Tree view": "Vis\xE3o em \xE1rvore",
   "What do you think now...": "Em que est\xE1 a pensar...",
   READ: "LER",
   MARK: "ASSINALAR",
@@ -8600,6 +8608,8 @@ var zhCN = {
   "Fetching data...": "\u83B7\u53D6\u6570\u636E\u4E2D...",
   "Here is No Zettels.": "\u6CA1\u6709\u627E\u5230 memo",
   "Frequently Used Tags": "\u5E38\u7528\u6807\u7B7E",
+  "Flat view": "\u5E73\u94FA\u89C6\u56FE",
+  "Tree view": "\u6811\u72B6\u89C6\u56FE",
   "What do you think now...": "\u4F60\u73B0\u5728\u5728\u60F3\u4EC0\u4E48\uFF1F",
   READ: "\u9605\u8BFB",
   MARK: "\u5F15\u7528",
@@ -10273,7 +10283,7 @@ class MemoService {
         tags2.add(match.replace(FIRST_TAG_REG, "$2").trim());
       }
     });
-    return Array.from(tags2);
+    return Array.from(tags2).filter((tag) => !tag.endsWith("/") && !tag.startsWith("/"));
   }
   updateMemoStore(memos) {
     appStore.dispatch({
@@ -15857,6 +15867,36 @@ const QueryItemContainer = (props) => {
   });
 };
 var tagList = "";
+function SvgViewList(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M3 5h2v2H3V5zm4 0h14v2H7V5zM3 11h2v2H3v-2zm4 0h14v2H7v-2zM3 17h2v2H3v-2zm4 0h14v2H7v-2z"
+  }));
+}
+function SvgTree(props) {
+  return /* @__PURE__ */ react.exports.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    height: "24px",
+    viewBox: "0 0 24 24",
+    width: "24px",
+    fill: "#37352f",
+    ...props
+  }, /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M0 0h24v24H0V0z",
+    fill: "none"
+  }), /* @__PURE__ */ react.exports.createElement("path", {
+    d: "M4 4h8v2H4V4zM7 6h2v6H7V6zM2 12h5v2H2v-2zM3 14h2v5H3v-5zM9 12h5v2H9v-2zM12 14h2v5h-2v-5z"
+  }));
+}
 const TagList = () => {
   const {
     locationState: {
@@ -15868,9 +15908,13 @@ const TagList = () => {
       tags: tagsText,
       tagsNum: tagsCount,
       memos
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
   const [tags2, setTags] = react.exports.useState([]);
+  const isFlat = settings.TagListView !== "tree";
   react.exports.useEffect(() => {
     memoService.updateTagsState();
   }, [memos]);
@@ -15911,14 +15955,60 @@ const TagList = () => {
     }
     setTags(root.subTags);
   }, [tagsText]);
+  const flatTags = Array.from(tagsText).sort().map((text) => ({
+    key: text,
+    text,
+    count: tagsCount[text],
+    subTags: []
+  }));
+  const handleViewSwitch = (view) => {
+    if (settings.TagListView === view) {
+      return;
+    }
+    const {
+      app: app2
+    } = dailyNotesService.getState();
+    const plugin = app2.plugins.plugins["rememo"];
+    if (plugin) {
+      plugin.settings.TagListView = view;
+      plugin.saveSettings();
+    }
+  };
   return /* @__PURE__ */ jsxs("div", {
     className: "tags-wrapper",
-    children: [/* @__PURE__ */ jsx("p", {
+    children: [/* @__PURE__ */ jsxs("p", {
       className: "title-text",
-      children: t$2("Frequently Used Tags")
+      children: [/* @__PURE__ */ jsx("span", {
+        children: t$2("Frequently Used Tags")
+      }), /* @__PURE__ */ jsxs("span", {
+        className: "view-switch",
+        children: [/* @__PURE__ */ jsx("button", {
+          type: "button",
+          className: `view-btn ${isFlat ? "active" : ""}`,
+          onClick: () => handleViewSwitch("flat"),
+          title: t$2("Flat view"),
+          "aria-pressed": isFlat,
+          children: /* @__PURE__ */ jsx(SvgViewList, {
+            className: "icon-img"
+          })
+        }), /* @__PURE__ */ jsx("button", {
+          type: "button",
+          className: `view-btn ${!isFlat ? "active" : ""}`,
+          onClick: () => handleViewSwitch("tree"),
+          title: t$2("Tree view"),
+          "aria-pressed": !isFlat,
+          children: /* @__PURE__ */ jsx(SvgTree, {
+            className: "icon-img"
+          })
+        })]
+      })]
     }), /* @__PURE__ */ jsxs("div", {
       className: "tags-container",
-      children: [tags2.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
+      children: [isFlat ? flatTags.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
+        tag: t2,
+        tagQuery,
+        flat: true
+      }, t2.text + "-" + idx)) : tags2.map((t2, idx) => /* @__PURE__ */ jsx(TagItemContainer, {
         tag: t2,
         tagQuery
       }, t2.text + "-" + idx)), /* @__PURE__ */ jsx(Only, {
@@ -15937,10 +16027,11 @@ const TagList = () => {
 const TagItemContainer = (props) => {
   const {
     tag,
-    tagQuery
+    tagQuery,
+    flat
   } = props;
   const isActive = tagQuery === tag.text;
-  const hasSubTags = tag.subTags.length > 0;
+  const hasSubTags = !flat && tag.subTags.length > 0;
   const [showSubTags, toggleSubTags] = useToggle(false);
   const handleTagClick = () => {
     if (isActive) {
@@ -15968,7 +16059,7 @@ const TagItemContainer = (props) => {
           children: "#"
         }), /* @__PURE__ */ jsx("span", {
           className: "tag-text",
-          children: tag.key
+          children: flat ? tag.text : tag.key
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
@@ -35432,6 +35523,7 @@ const DEFAULT_SETTINGS = {
   HideDoneTasks: false,
   HideRefMemosInList: true,
   EnableRecycleBin: true,
+  TagListView: "flat",
   EnterToSend: false,
   OpenMemosAutomatically: false,
   ShowTime: true,

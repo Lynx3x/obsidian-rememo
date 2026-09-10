@@ -12,12 +12,45 @@ div[data-type='memos_view'] .tags-wrapper {
   .hide-scroll-bar();
 
   > .title-text {
+    .flex(row, space-between, center);
     width: 100%;
     padding: 4px 16px;
     font-size: 12px;
     line-height: 24px;
     color: var(--memo-text-muted);
     margin-bottom: 4px;
+
+    // 平铺/树状切换（2026-09-10）：双态小图标钮，当前态 12% 淡底 + accent（全库选中语汇）
+    > .view-switch {
+      .flex(row, flex-end, center);
+      gap: 2px;
+
+      > .view-btn {
+        .flex(row, center, center);
+        width: 24px;
+        height: 24px;
+        border-radius: var(--memo-radius-s);
+        color: var(--memo-text-muted);
+        cursor: pointer;
+        transition:
+          background-color var(--memo-transition-fast),
+          color var(--memo-transition-fast);
+
+        &:hover {
+          background-color: var(--memo-surface-hover);
+        }
+
+        &.active {
+          background-color: color-mix(in srgb, var(--memo-accent) 12%, transparent);
+          color: var(--memo-accent);
+        }
+
+        > .icon-img {
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
   }
 
   > .tags-container {
@@ -93,7 +126,10 @@ div[data-type='memos_view'] .tags-wrapper {
         }
 
         > .tag-text {
-          flex-shrink: 0;
+          flex-shrink: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
 

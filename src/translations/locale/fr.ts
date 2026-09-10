@@ -117,6 +117,8 @@ export default {
   'Fetching data...': 'Récupération des données...',
   'Here is No Zettels.': "Il n'y a pas de Zettels.",
   'Frequently Used Tags': 'Tags fréquemment utilisés',
+  'Flat view': 'Vue à plat',
+  'Tree view': 'Vue arborescente',
   'What do you think now...': 'Que pensez-vous maintenant...',
   READ: 'LU',
   MARK: 'MARQUER',

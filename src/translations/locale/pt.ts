@@ -118,6 +118,8 @@ export default {
   'Fetching data...': 'A obter dados...',
   'Here is No Zettels.': 'Não existem Zettels.',
   'Frequently Used Tags': 'Tags Usadas Frequentemente',
+  'Flat view': 'Visão plana',
+  'Tree view': 'Visão em árvore',
   'What do you think now...': 'Em que está a pensar...',
   READ: 'LER',
   MARK: 'ASSINALAR',

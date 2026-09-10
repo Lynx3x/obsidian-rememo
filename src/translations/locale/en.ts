@@ -135,6 +135,8 @@ export default {
   'Fetching data...': 'Fetching data...',
   'Here is No Zettels.': 'Here is No Zettels.',
   'Frequently Used Tags': 'Frequently Used Tags',
+  'Flat view': 'Flat view',
+  'Tree view': 'Tree view',
   'What do you think now...': 'What do you think now...',
   READ: 'READ',
   MARK: 'MARK',

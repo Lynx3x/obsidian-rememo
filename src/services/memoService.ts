@@ -281,7 +281,7 @@ class MemoService {
             }
         });
 
-        return Array.from(tags);
+        return Array.from(tags).filter((tag) => !tag.endsWith('/') && !tag.startsWith('/'));
     }
 
     /**

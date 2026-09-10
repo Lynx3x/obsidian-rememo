@@ -24,6 +24,8 @@ export interface MemosSettings {
   HideRefMemosInList: boolean;
   /** 删除路径总开关（2026-09-09 实施）：true = 删除进回收站（软删可恢复，默认）；false = 删除直接永久删，且侧栏回收站入口隐藏（旧软删数据保留，重开恢复） */
   EnableRecycleBin: boolean;
+  /** 侧栏标签视图形态（2026-09-10）：'flat' = 平铺全名（默认）；'tree' = 层级折叠树 */
+  TagListView: 'flat' | 'tree';
   /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
   EnterToSend: boolean;
   OpenMemosAutomatically: boolean;
@@ -59,6 +61,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   HideDoneTasks: false,
   HideRefMemosInList: true,
   EnableRecycleBin: true,
+  TagListView: 'flat',
   EnterToSend: false,
   OpenMemosAutomatically: false,
   // EditorMaxHeight: '250',

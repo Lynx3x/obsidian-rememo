@@ -114,6 +114,8 @@ export default {
   'Fetching data...': '获取数据中...',
   'Here is No Zettels.': '没有找到 memo',
   'Frequently Used Tags': '常用标签',
+  'Flat view': '平铺视图',
+  'Tree view': '树状视图',
   'What do you think now...': '你现在在想什么？',
   READ: '阅读',
   MARK: '引用',
