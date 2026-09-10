@@ -3753,7 +3753,7 @@ div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container 
 }
 div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container > .btns-container > .tag-count {
   flex-shrink: 0;
-  margin-right: 4px;
+  margin-left: 4px;
   font-size: 12px;
   line-height: 20px;
   color: var(--memo-text-muted);
@@ -3768,7 +3768,6 @@ div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container 
   flex-shrink: 0;
   transition: all 0.1s linear;
   transform: rotate(0);
-  margin-right: -8px;
 }
 div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container > .btns-container > .action-btn > .icon-img {
   width: 18px;

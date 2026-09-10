@@ -75,6 +75,21 @@ const TagList: React.FC<Props> = () => {
         tempObj = obj;
       }
     }
+    // 父节点计数（2026-09-10 owner 需求）：自身直接计数 + 全部后代子标签计数合计；叶子保持自身计数
+    const fillAggregateCount = (nodes: Tag[]): void => {
+      for (const node of nodes) {
+        fillAggregateCount(node.subTags);
+        if (node.subTags.length > 0) {
+          const selfCount = typeof node.count === 'number' ? node.count : 0;
+          const subTotal = node.subTags.reduce(
+            (sum, sub) => sum + (typeof sub.count === 'number' ? sub.count : 0),
+            0,
+          );
+          node.count = selfCount + subTotal;
+        }
+      }
+    };
+    fillAggregateCount(root.subTags as Tag[]);
     setTags(root.subTags as Tag[]);
   }, [tagsText]);
 
@@ -176,7 +191,6 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
           <span className="tag-text">{flat ? tag.text : tag.key}</span>
         </div>
         <div className="btns-container">
-          <span className="tag-count">{tag.count}</span>
           {hasSubTags ? (
             <button
               type="button"
@@ -187,9 +201,10 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
               <ArrowRight className="icon-img" />
             </button>
           ) : !flat ? (
-            // 树状下无子行补隐形占位：有子行的箭头钮占 16px 净宽，缺占位会让两类行的数字列错开（2026-09-10 owner 反馈）
+            // 树状下无子行补隐形占位：保持箭头列与数字列纵向对齐（2026-09-10 owner 反馈）
             <span className="action-btn toggle-btn placeholder" aria-hidden="true" />
           ) : null}
+          <span className="tag-count">{tag.count}</span>
         </div>
       </div>
 

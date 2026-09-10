@@ -15953,6 +15953,17 @@ const TagList = () => {
         tempObj = obj;
       }
     }
+    const fillAggregateCount = (nodes) => {
+      for (const node of nodes) {
+        fillAggregateCount(node.subTags);
+        if (node.subTags.length > 0) {
+          const selfCount = typeof node.count === "number" ? node.count : 0;
+          const subTotal = node.subTags.reduce((sum, sub) => sum + (typeof sub.count === "number" ? sub.count : 0), 0);
+          node.count = selfCount + subTotal;
+        }
+      }
+    };
+    fillAggregateCount(root.subTags);
     setTags(root.subTags);
   }, [tagsText]);
   const flatTags = Array.from(tagsText).sort().map((text) => ({
@@ -16063,10 +16074,7 @@ const TagItemContainer = (props) => {
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "tag-count",
-          children: tag.count
-        }), hasSubTags ? /* @__PURE__ */ jsx("button", {
+        children: [hasSubTags ? /* @__PURE__ */ jsx("button", {
           type: "button",
           className: `action-btn toggle-btn ${showSubTags ? "shown" : ""}`,
           onClick: handleToggleBtnClick,
@@ -16077,7 +16085,10 @@ const TagItemContainer = (props) => {
         }) : !flat ? /* @__PURE__ */ jsx("span", {
           className: "action-btn toggle-btn placeholder",
           "aria-hidden": "true"
-        }) : null]
+        }) : null, /* @__PURE__ */ jsx("span", {
+          className: "tag-count",
+          children: tag.count
+        })]
       })]
     }), hasSubTags ? /* @__PURE__ */ jsx("div", {
       className: `subtags-container ${showSubTags ? "" : "hidden"}`,
