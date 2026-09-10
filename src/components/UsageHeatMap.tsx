@@ -58,8 +58,8 @@ const UsageHeatMap: React.FC<Props> = () => {
   const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + daysSinceWeekStart;
   const nullCell = new Array(6 - daysSinceWeekStart).fill(0);
 
-  // Remove Comment Memos
-  const newMemos = memos.filter((memo) => memo.linkId === '');
+  // 口径（2026-09-10 owner 拍板）：排除回收站已删与旧评论——与统计行一致
+  const newMemos = memos.filter((memo) => memo.linkId === '' && !memo.isDeleted);
   const [allStat, setAllStat] = useState<DailyUsageStat[]>(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
   const [popupStat, setPopupStat] = useState<DailyUsageStat | null>(null);
   const [currentStat, setCurrentStat] = useState<DailyUsageStat | null>(null);

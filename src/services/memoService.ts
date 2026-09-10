@@ -39,13 +39,20 @@ class MemoService {
      * 获取所有备忘录
      * 从API获取备忘录数据并更新到store
      */
-    public async fetchAllMemos(): Promise<Model.Memo[]> {
+    public async fetchAllMemos(options?: { silent?: boolean }): Promise<Model.Memo[]> {
         // 分批加载：按日期降序读文件，每批更新 store，让最新 memo 优先显示
+        // silent（视图重开且 store 已有数据）：读完全量一次性替换——避免分批中间态让统计行/热力图滚动跳动
         const accumulatedMemos: Model.Memo[] = [];
         await getMemos(async (batchMemos) => {
             accumulatedMemos.push(...batchMemos);
-            this.updateMemoStore(accumulatedMemos);
+            if (!options?.silent) {
+                this.updateMemoStore(accumulatedMemos);
+            }
         });
+
+        if (options?.silent) {
+            this.updateMemoStore(accumulatedMemos);
+        }
 
         if (!this.initialized) {
             this.initialized = true;

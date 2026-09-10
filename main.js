@@ -10164,12 +10164,17 @@ class MemoService {
   invalidate() {
     this.initialized = false;
   }
-  async fetchAllMemos() {
+  async fetchAllMemos(options) {
     const accumulatedMemos = [];
     await getMemos(async (batchMemos) => {
       accumulatedMemos.push(...batchMemos);
-      this.updateMemoStore(accumulatedMemos);
+      if (!(options == null ? void 0 : options.silent)) {
+        this.updateMemoStore(accumulatedMemos);
+      }
     });
+    if (options == null ? void 0 : options.silent) {
+      this.updateMemoStore(accumulatedMemos);
+    }
     if (!this.initialized) {
       this.initialized = true;
     }
@@ -13796,9 +13801,6 @@ const ShareMemoImageDialog = (props) => {
     destroy
   } = props;
   const {
-    memos
-  } = appStore.getState().memoState;
-  const {
     settings
   } = appStore.getState().settingsState;
   const {
@@ -13808,18 +13810,17 @@ const ShareMemoImageDialog = (props) => {
     ShareFooterEnd,
     ShareFooterStart
   } = settings;
-  let memosLength;
-  let createdDays;
-  if (memos.length) {
-    memosLength = memos.length - 1;
-    createdDays = memos ? Math.ceil((Date.now() - utils$1.getTimeStampByDate(memos[memosLength].createdAt)) / 1e3 / 3600 / 24) : 0;
+  const visibleMemos = appStore.getState().memoState.memos.filter((m2) => !m2.isDeleted && !m2.linkId);
+  let createdDays = 0;
+  if (visibleMemos.length) {
+    createdDays = Math.ceil((Date.now() - utils$1.getTimeStampByDate(visibleMemos[visibleMemos.length - 1].createdAt)) / 1e3 / 3600 / 24) + 1;
   }
   const memo2 = {
     ...propsMemo,
     createdAtStr: utils$1.getDateTimeString(propsMemo.createdAt)
   };
   const footerEnd = ShareFooterEnd.replace("{UserName}", "");
-  const footerStart = ShareFooterStart.replace("{MemosNum}", memos.length.toString()).replace("{UsedDay}", createdDays.toString());
+  const footerStart = ShareFooterStart.replace("{MemosNum}", visibleMemos.length.toString()).replace("{UsedDay}", createdDays.toString());
   const {
     app: app2
   } = appStore.getState().dailyNotesState;
@@ -14890,6 +14891,55 @@ function showDailyMemoDiaryDialog(datestamp = Date.now()) {
   });
 }
 var userBanner = "";
+const AnimatedNumber = ({
+  value
+}) => {
+  const [display, setDisplay] = react.exports.useState(0);
+  const prevRef = react.exports.useRef(0);
+  const spanRef = react.exports.useRef(null);
+  react.exports.useEffect(() => {
+    var _a2;
+    const from = prevRef.current;
+    const to = value;
+    prevRef.current = to;
+    if (from === to) {
+      return;
+    }
+    if ((_a2 = window.matchMedia) == null ? void 0 : _a2.call(window, "(prefers-reduced-motion: reduce)").matches) {
+      setDisplay(to);
+      return;
+    }
+    const duration = 420;
+    const start2 = performance.now();
+    let raf = 0;
+    const tick = (now) => {
+      const p2 = Math.min(1, (now - start2) / duration);
+      const eased = 1 - Math.pow(1 - p2, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (p2 < 1) {
+        raf = requestAnimationFrame(tick);
+      } else if (spanRef.current) {
+        spanRef.current.animate([{
+          transform: "translateY(0)"
+        }, {
+          transform: "translateY(-2px)"
+        }, {
+          transform: "translateY(0)"
+        }], {
+          duration: 160,
+          easing: "ease-out"
+        });
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return /* @__PURE__ */ jsx("span", {
+    className: "amount-text",
+    ref: spanRef,
+    children: display
+  });
+};
 const UserBanner = () => {
   const {
     memoState: {
@@ -14908,18 +14958,16 @@ const UserBanner = () => {
       className: "status-text-container",
       children: [/* @__PURE__ */ jsxs("div", {
         className: "status-text memos-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "amount-text",
-          children: visibleMemos.length
+        children: [/* @__PURE__ */ jsx(AnimatedNumber, {
+          value: visibleMemos.length
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
           children: t$2("MEMO")
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "status-text tags-text",
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "amount-text",
-          children: tags2.length
+        children: [/* @__PURE__ */ jsx(AnimatedNumber, {
+          value: tags2.length
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
           children: t$2("TAG")
@@ -14927,9 +14975,8 @@ const UserBanner = () => {
       }), /* @__PURE__ */ jsxs("div", {
         className: "status-text duration-text",
         onClick: () => showDailyMemoDiaryDialog(),
-        children: [/* @__PURE__ */ jsx("span", {
-          className: "amount-text",
-          children: createdDays != null ? createdDays : 0
+        children: [/* @__PURE__ */ jsx(AnimatedNumber, {
+          value: createdDays != null ? createdDays : 0
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
           children: t$2("DAY")
@@ -16163,7 +16210,7 @@ const UsageHeatMap = () => {
   const todayTimeStamp = parseInt(todayStart.format("x"));
   const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + daysSinceWeekStart;
   const nullCell = new Array(6 - daysSinceWeekStart).fill(0);
-  const newMemos = memos.filter((memo2) => memo2.linkId === "");
+  const newMemos = memos.filter((memo2) => memo2.linkId === "" && !memo2.isDeleted);
   const [allStat, setAllStat] = dist$1(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
   const [popupStat, setPopupStat] = dist$1(null);
   const [currentStat, setCurrentStat] = dist$1(null);
@@ -33758,7 +33805,10 @@ const MemoList = () => {
       setFetchStatus(false);
     } else {
       setTimeout(() => {
-        memoService.fetchAllMemos().then(() => {
+        const silent = memoService.getState().memos.length > 0;
+        memoService.fetchAllMemos({
+          silent
+        }).then(() => {
           setFetchStatus(false);
         }).catch(() => {
           new require$$0.Notice(t$2("Fetch Error"));

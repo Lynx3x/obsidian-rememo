@@ -166,8 +166,11 @@ const MemoList: React.FC<Props> = () => {
       setFetchStatus(false);
     } else {
       setTimeout(() => {
+        // 视图重开（store 已有数据）用静默重读：读完全量一次性替换，避免分批中间态让统计行/热力图滚动跳动；
+        // 首开（空 store）保持渐进加载（最新 memo 优先显示）
+        const silent = memoService.getState().memos.length > 0;
         memoService
-          .fetchAllMemos()
+          .fetchAllMemos({ silent })
           .then(() => {
             setFetchStatus(false);
           })

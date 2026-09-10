@@ -25,16 +25,15 @@ interface Props extends DialogProps {
 
 const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
   const { memo: propsMemo, destroy } = props;
-  const { memos } = appStore.getState().memoState;
   const { settings } = appStore.getState().settingsState;
   const { AutoSaveWhenOnMobile, DefaultDarkBackgroundImage, DefaultLightBackgroundImage, ShareFooterEnd, ShareFooterStart } = settings;
-  let memosLength;
-  let createdDays;
-  if (memos.length) {
-    memosLength = memos.length - 1;
-    createdDays = memos
-      ? Math.ceil((Date.now() - utils.getTimeStampByDate(memos[memosLength].createdAt)) / 1000 / 3600 / 24)
-      : 0;
+  // 口径（2026-09-10 owner 拍板）：与统计行一致——排除回收站已删与旧评论；天数公式 +1 同统计行
+  const visibleMemos = appStore.getState().memoState.memos.filter((m) => !m.isDeleted && !m.linkId);
+  let createdDays = 0;
+  if (visibleMemos.length) {
+    createdDays =
+      Math.ceil((Date.now() - utils.getTimeStampByDate(visibleMemos[visibleMemos.length - 1].createdAt)) / 1000 / 3600 / 24) +
+      1;
   }
   // const { user: userinfo } = userService.getState();
   const memo: FormattedMemo = {
@@ -46,7 +45,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
 
   // UserName 已随 ADR-0004 连根拔：旧模板里 {UserName} 占位渲染为空串
   const footerEnd = ShareFooterEnd.replace('{UserName}', '');
-  const footerStart = ShareFooterStart.replace('{MemosNum}', memos.length.toString()).replace(
+  const footerStart = ShareFooterStart.replace('{MemosNum}', visibleMemos.length.toString()).replace(
     '{UsedDay}',
     createdDays.toString(),
   );
