@@ -3837,7 +3837,7 @@ div[data-type='memos_view'] .usage-heat-map-wrapper {
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  height: 136px;
+  height: 132px;
   flex-wrap: wrap;
   margin-top: 12px;
   padding-right: 24px;
@@ -3867,7 +3867,7 @@ div[data-type='memos_view'] .usage-heat-map-wrapper > .day-tip-text-container > 
   font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
 }
 div[data-type='memos_view'] .usage-heat-map-wrapper > .usage-heat-map {
-  width: 204px;
+  width: 192px;
   height: 100%;
   flex-wrap: wrap;
   display: grid;

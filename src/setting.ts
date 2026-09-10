@@ -7,7 +7,6 @@ import { t } from './translations/helper';
 import { getDailyNotePath } from './helpers/utils';
 
 export interface MemosSettings {
-  StartDate: string;
   InsertAfter: string;
   ProcessEntriesBelow: string;
   Language: string;
@@ -50,7 +49,6 @@ export interface MemosSettings {
 }
 
 export const DEFAULT_SETTINGS: MemosSettings = {
-  StartDate: 'Sunday',
   InsertAfter: '# Journal',
   ProcessEntriesBelow: '',
   Language: 'en',

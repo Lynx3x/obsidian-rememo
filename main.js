@@ -35536,7 +35536,6 @@ function addIcons() {
   });
 }
 const DEFAULT_SETTINGS = {
-  StartDate: "Sunday",
   InsertAfter: "# Journal",
   ProcessEntriesBelow: "",
   Language: "en",
