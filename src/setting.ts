@@ -6,6 +6,10 @@ import locationService from './services/locationService';
 import { t } from './translations/helper';
 import { playSendSound, attachAudioPathSuggest } from './helpers/sendSound';
 
+/** 捐赠链接（2026-09-11 上架准备）：拿到自己的链接后填这里（空串 = 该渠道不显示；两个都空则「捐赠」行隐藏） */
+const DONATE_AFDIAN_URL = '';
+const DONATE_KOFI_URL = '';
+
 export interface MemosSettings {
   /** Memo 区标题（2026-09-10 合并旧「插入标题/解析标题」两键）：默认 '## Memo'；写入其下、只读其下；缺失时写入端自动创建 */
   MemoHeading: string;
@@ -469,12 +473,21 @@ export class MemosSettingTab extends PluginSettingTab {
     // ===== 关于 =====
     new Setting(containerEl).setName(t('Say Thank You')).setHeading();
 
-    new Setting(containerEl)
-      .setName(t('Donate'))
-      .setDesc(t('If you like this plugin, consider donating to support continued development:'))
-      // .setClass("AT-extra")
-      .addButton((bt) => {
-        bt.buttonEl.outerHTML = `<a href="https://www.buymeacoffee.com/boninall"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=boninall&button_colour=6495ED&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>`;
-      });
+    // 捐赠渠道（2026-09-11 上架准备）：爱发电（国内）/ Ko-fi（海外）。
+    // 拿到自己的链接后填到两个常量里；空串 = 该渠道不显示，两个都空 = 「捐赠」行整体隐藏。
+    const donateLinks = (
+      [
+        [t('Afdian'), DONATE_AFDIAN_URL],
+        ['Ko-fi', DONATE_KOFI_URL],
+      ] as Array<[string, string]>
+    ).filter(([, url]) => url !== '');
+    if (donateLinks.length > 0) {
+      const donateSetting = new Setting(containerEl)
+        .setName(t('Donate'))
+        .setDesc(t('If you like this plugin, consider donating to support continued development:'));
+      for (const [label, url] of donateLinks) {
+        donateSetting.addButton((bt) => bt.setButtonText(label).onClick(() => window.open(url, '_blank')));
+      }
+    }
   }
 }

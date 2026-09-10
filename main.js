@@ -9140,7 +9140,8 @@ var en = {
   "Tag position": "Tag position",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Show tags at the bottom of the card, or keep them where they appear in the text.",
   "In place": "In place",
-  "What needs doing...": "What needs doing..."
+  "What needs doing...": "What needs doing...",
+  Afdian: "Afdian"
 };
 var enGB = {};
 var es = {};
@@ -9326,7 +9327,8 @@ var fr = {
   "Tag position": "Position des \xE9tiquettes",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Affiche les \xE9tiquettes en bas de la carte ou \xE0 leur emplacement d'origine dans le texte.",
   "In place": "Sur place",
-  "What needs doing...": "Qu'y a-t-il \xE0 faire..."
+  "What needs doing...": "Qu'y a-t-il \xE0 faire...",
+  Afdian: "Afdian"
 };
 var hi = {};
 var id = {};
@@ -9556,7 +9558,8 @@ var pt = {
   "Tag position": "Posi\xE7\xE3o das etiquetas",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as etiquetas no fim do cart\xE3o ou no local original no texto.",
   "In place": "No local",
-  "What needs doing...": "O que h\xE1 para fazer..."
+  "What needs doing...": "O que h\xE1 para fazer...",
+  Afdian: "Afdian"
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9778,7 +9781,8 @@ var ptBR = {
   "Tag position": "Posi\xE7\xE3o das tags",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as tags no fim do cart\xE3o ou no local original no texto.",
   "In place": "No local",
-  "What needs doing...": "O que h\xE1 para fazer..."
+  "What needs doing...": "O que h\xE1 para fazer...",
+  Afdian: "Afdian"
 };
 var ro = {};
 var ru = {};
@@ -10021,7 +10025,8 @@ var zhCN = {
   "Tag position": "\u6807\u7B7E\u4F4D\u7F6E",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "\u6807\u7B7E\u62BD\u5230\u5361\u7247\u6B63\u6587\u672B\u5C3E\uFF0C\u8FD8\u662F\u4FDD\u7559\u5728\u53E5\u5B50\u91CC\u539F\u6765\u7684\u4F4D\u7F6E\u3002",
   "In place": "\u539F\u4F4D",
-  "What needs doing...": "\u8981\u505A\u4EC0\u4E48\uFF1F\u5199\u4E0B\u6765\u2026"
+  "What needs doing...": "\u8981\u505A\u4EC0\u4E48\uFF1F\u5199\u4E0B\u6765\u2026",
+  Afdian: "\u7231\u53D1\u7535"
 };
 var zhTW = {};
 const localeMap = {
@@ -35798,6 +35803,8 @@ function addIcons() {
     require$$0.addIcon(key, icons[key]);
   });
 }
+const DONATE_AFDIAN_URL = "";
+const DONATE_KOFI_URL = "";
 const DEFAULT_SETTINGS = {
   MemoHeading: "## Memo",
   ShareFooterStart: "{MemosNum} Memos {UsedDay} Day",
@@ -36069,9 +36076,16 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       })
     );
     new require$$0.Setting(containerEl).setName(t$2("Say Thank You")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Donate")).setDesc(t$2("If you like this plugin, consider donating to support continued development:")).addButton((bt) => {
-      bt.buttonEl.outerHTML = `<a href="https://www.buymeacoffee.com/boninall"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=boninall&button_colour=6495ED&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>`;
-    });
+    const donateLinks = [
+      [t$2("Afdian"), DONATE_AFDIAN_URL],
+      ["Ko-fi", DONATE_KOFI_URL]
+    ].filter(([, url]) => url !== "");
+    if (donateLinks.length > 0) {
+      const donateSetting = new require$$0.Setting(containerEl).setName(t$2("Donate")).setDesc(t$2("If you like this plugin, consider donating to support continued development:"));
+      for (const [label2, url] of donateLinks) {
+        donateSetting.addButton((bt) => bt.setButtonText(label2).onClick(() => window.open(url, "_blank")));
+      }
+    }
   }
 }
 class MemosPlugin extends require$$0.Plugin {

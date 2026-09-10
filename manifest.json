@@ -3,8 +3,8 @@
     "name": "Rememo",
     "description": "Capture fleeting thoughts into your daily notes with a lively memo feed.",
     "version": "1.0.0",
-    "author": "Larynx",
+    "author": "Lynx3x",
     "authorUrl": "https://github.com/Lynx3x",
     "isDesktopOnly": false,
-    "minAppVersion": "0.14.0"
+    "minAppVersion": "1.5.0"
 }

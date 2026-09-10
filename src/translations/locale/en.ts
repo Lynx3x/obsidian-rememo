@@ -307,4 +307,7 @@ export default {
 
   // 2026-09-11 任务钮样式：任务模式占位符
   'What needs doing...': 'What needs doing...',
+
+  // 2026-09-11 上架准备：捐赠渠道
+  Afdian: 'Afdian',
 };
