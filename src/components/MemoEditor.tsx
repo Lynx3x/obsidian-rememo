@@ -4,6 +4,7 @@ import appStore from '../stores/appStore';
 import { dailyNotesService, globalStateService, locationService, memoService, resourceService } from '../services';
 import utils from '../helpers/utils';
 import { storage } from '../helpers/storage';
+import { playSendSound } from '../helpers/sendSound';
 import Editor, { EditorRefActions } from './Editor/Editor';
 import '../less/memo-editor.less';
 import '../less/memo-write-date.less';
@@ -34,6 +35,8 @@ let isEditorGo = false as boolean;
 // 压缩到低点并保持到 SQUASH_LAUNCH_MS，随后瞬间回弹；此刻 pushMemo 触发卡片发射。
 const SQUASH_TOTAL_MS = 130;
 const SQUASH_LAUNCH_MS = 90;
+/** 发送音效相对"发射"时刻的提前量（ms）：音频解码/启动有固有延迟，听感要略早于画面才"对得上"（2026-09-10 owner 定） */
+const SEND_SOUND_LEAD_MS = 30;
 
 const MemoEditor: React.FC<Props> = () => {
   const { globalState } = useContext(appContext);
@@ -404,6 +407,10 @@ const MemoEditor: React.FC<Props> = () => {
         squashEditor();
         const newMemo = await memoService.createMemo(sendContent, isList, target ?? undefined);
         const remaining = Math.max(0, SQUASH_LAUNCH_MS - (Date.now() - squashStart));
+        // 发送音效：比"发射"提前 SEND_SOUND_LEAD_MS 起播（连同预加载一起，听感才与卡片飞出对齐）
+        window.setTimeout(() => {
+          void playSendSound(appStore.getState().settingsState.settings);
+        }, Math.max(0, remaining - SEND_SOUND_LEAD_MS));
         window.setTimeout(() => {
           finishSend();
           memoService.pushMemo(newMemo);

@@ -260,4 +260,16 @@ export default {
   '90 days': '90 天',
   '180 days': '180 天',
   'Auto-cleaned {N} expired memos from the recycle bin': '回收站自动清理：已永久删除 {N} 条过期卡',
+
+  // 2026-09-10/11 发送音效：来源三选一（内置/自定义/不播放）+ 失败提示
+  'Send sound': '发送音效',
+  'Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.':
+    '发出一条新闪念时播放音效。可选插件自带的发牌声，或你自己的音频文件。',
+  'Built-in (card deal)': '内置·发牌声',
+  'Custom path': '自定义路径',
+  'Not played': '不播放',
+  'Sound file path': '音效文件路径',
+  'Enter a vault-relative path (e.g. assets/send.mp3).': '填库内相对路径（如 assets/send.mp3）。',
+  Preview: '试听',
+  'Failed to play the sound: ': '音效播放失败：',
 };

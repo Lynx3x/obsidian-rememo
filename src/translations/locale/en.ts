@@ -286,4 +286,16 @@ export default {
   '90 days': '90 days',
   '180 days': '180 days',
   'Auto-cleaned {N} expired memos from the recycle bin': 'Auto-cleaned {N} expired memos from the recycle bin',
+
+  // 2026-09-10/11 发送音效：来源三选一（内置/自定义/不播放）+ 失败提示
+  'Send sound': 'Send sound',
+  'Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.':
+    'Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.',
+  'Built-in (card deal)': 'Built-in (card deal)',
+  'Custom path': 'Custom path',
+  'Not played': 'Not played',
+  'Sound file path': 'Sound file path',
+  'Enter a vault-relative path (e.g. assets/send.mp3).': 'Enter a vault-relative path (e.g. assets/send.mp3).',
+  Preview: 'Preview',
+  'Failed to play the sound: ': 'Failed to play the sound: ',
 };

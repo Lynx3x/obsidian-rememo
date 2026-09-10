@@ -33,6 +33,11 @@ export default class MemosPlugin extends Plugin {
         if (!loaded.MemoHeading && typeof loaded.InsertAfter === 'string' && loaded.InsertAfter.trim() !== '') {
             this.settings.MemoHeading = loaded.InsertAfter;
         }
+        // 历史键迁移（2026-09-10/11 发送音效·内置）：旧数据只有 SendSoundPath（空 = 静音）
+        // → 填了路径的迁成「自定义」保留原选择；没填过路径的吃新默认「内置」
+        if (!loaded.SendSoundSource && typeof loaded.SendSoundPath === 'string' && loaded.SendSoundPath.trim() !== '') {
+            this.settings.SendSoundSource = 'custom';
+        }
     }
 
     async saveSettings() {

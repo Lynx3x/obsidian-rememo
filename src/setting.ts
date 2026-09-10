@@ -4,6 +4,7 @@ import { MEMOS_VIEW_TYPE } from './constants';
 import memoService from './services/memoService';
 import locationService from './services/locationService';
 import { t } from './translations/helper';
+import { playSendSound, attachAudioPathSuggest } from './helpers/sendSound';
 
 export interface MemosSettings {
   /** Memo 区标题（2026-09-10 合并旧「插入标题/解析标题」两键）：默认 '## Memo'；写入其下、只读其下；缺失时写入端自动创建 */
@@ -29,6 +30,12 @@ export interface MemosSettings {
   ShowHeatMap: boolean;
   /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
   EnterToSend: boolean;
+  /** 发送音效来源（2026-09-10/11）：'builtin'（默认，插件内置发牌声）| 'custom'（用 SendSoundPath）| 'none'（静音） */
+  SendSoundSource: 'builtin' | 'custom' | 'none';
+  /** 发送音效·自定义：库内相对路径（如 assets/send.mp3）；来源为 custom 且为空时等同静音 */
+  SendSoundPath: string;
+  /** 发送音效音量（2026-09-10/11）：0-100，默认 25（owner 目视定：小一点不打扰）；只影响播放响度 */
+  SendSoundVolume: number;
   OpenMemosAutomatically: boolean;
   AutoSaveWhenOnMobile: boolean;
   DefaultLightBackgroundImage: string;
@@ -54,6 +61,9 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   HeatMapStartDay: 'sunday',
   ShowHeatMap: true,
   EnterToSend: false,
+  SendSoundSource: 'builtin',
+  SendSoundPath: '',
+  SendSoundVolume: 25,
   OpenMemosAutomatically: false,
   AutoSaveWhenOnMobile: false,
   DefaultLightBackgroundImage: '',
@@ -143,6 +153,64 @@ export class MemosSettingTab extends PluginSettingTab {
           this.applySettingsUpdate();
         }),
       );
+
+    const sendSoundRow = new Setting(containerEl)
+      .setName(t('Send sound'))
+      .setDesc(t('Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.'))
+      .addDropdown((d: DropdownComponent) => {
+        d.addOption('builtin', t('Built-in (card deal)'));
+        d.addOption('custom', t('Custom path'));
+        d.addOption('none', t('Not played'));
+        d.setValue(this.plugin.settings.SendSoundSource).onChange(
+          async (value: MemosSettings['SendSoundSource']) => {
+            this.plugin.settings.SendSoundSource = value;
+            // 直接落盘再重渲染：路径/试听/音量行跟随来源显隐（display 会 loadSettings 回读，不能走防抖保存）
+            await this.plugin.saveSettings();
+            this.display();
+          },
+        );
+      });
+    if (this.plugin.settings.SendSoundSource !== 'none') {
+      sendSoundRow.addSlider((slider) =>
+        slider
+          .setLimits(0, 100, 5)
+          .setValue(this.plugin.settings.SendSoundVolume)
+          .setDynamicTooltip()
+          .onChange(async (value) => {
+            this.plugin.settings.SendSoundVolume = value;
+            this.applySettingsUpdate();
+          }),
+      );
+    }
+    if (this.plugin.settings.SendSoundSource === 'custom') {
+      new Setting(containerEl)
+        .setName(t('Sound file path'))
+        .setDesc(t('Enter a vault-relative path (e.g. assets/send.mp3).'))
+        .addText((text) => {
+          text
+            .setPlaceholder('assets/send.mp3')
+            .setValue(this.plugin.settings.SendSoundPath)
+            .onChange(async (value) => {
+              this.plugin.settings.SendSoundPath = value;
+              this.applySettingsUpdate();
+            });
+          // 库内路径自动补全（只列音频文件；老 Obsidian 无此 API 时自动降级为纯手填）
+          attachAudioPathSuggest(this.app, text.inputEl, (picked) => {
+            text.setValue(picked);
+            this.plugin.settings.SendSoundPath = picked;
+            this.applySettingsUpdate();
+          });
+        })
+        .addExtraButton((button) =>
+          button
+            .setIcon('play')
+            .setTooltip(t('Preview'))
+            .onClick(async () => {
+              // 试听：每次都反馈（manual）+ 用滑块当前音量
+              await playSendSound(this.plugin.settings, { manual: true });
+            }),
+        );
+    }
 
     new Setting(containerEl)
       .setName(t('Focus on editor when open memos'))

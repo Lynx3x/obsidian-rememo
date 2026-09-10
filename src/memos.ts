@@ -7,6 +7,7 @@ import type MemosPlugin from './index';
 import { dailyNotesService, globalStateService, memoService } from './services';
 import { getDateFromFile } from 'obsidian-daily-notes-interface';
 import appStore from './stores/appStore';
+import { preloadSendSound } from './helpers/sendSound';
 
 export class Memos extends ItemView {
   plugin: MemosPlugin;
@@ -113,6 +114,9 @@ export class Memos extends ItemView {
 
     // 把设置注入响应式 store（组件经 context 订阅，实现响应式）
     appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.plugin.settings } });
+
+    // 发送音效预读+预解码：发送那刻起播没有"读盘+解码"延迟（2026-09-10）
+    preloadSendSound(this.plugin.settings);
 
     MemoHeading = this.plugin.settings.MemoHeading;
     DefaultPrefix = this.plugin.settings.DefaultPrefix;

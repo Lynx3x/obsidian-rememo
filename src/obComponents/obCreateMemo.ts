@@ -67,8 +67,8 @@ async function writeBlockToDailyNote(date: moment.Moment, blockText: string, mem
 /**
  * 把卡片块插入日记（2026-09-10 与读取端成对）：
  * - 标题存在：插到「Memo 区标题」小节尾部（下一个同级或更高级标题前；无边界则文件尾）
- * - 标题不存在：自动创建该标题（frontmatter 之后，无 frontmatter 则文件头）再写入——
- *   修复"模板没配标题 → 写入文件尾但读取读不到"的旧 bug（读写语义自此成对）
+ * - 标题不存在：自动创建该标题并**追加到文件末尾**，新卡插其下——原有旧内容留在标题外，
+ *   不会被新标题"收编"进处理区（2026-09-10 owner 定：同日日记里文件头补标题曾把旧卡卷入）
  * 返回整文件新文本 + 头行 0-based 行号。
  */
 function insertMemoBlock(targetString: string, blockText: string, fileContent: string): { content: string; headerIdx: number } {
@@ -110,23 +110,12 @@ function insertMemoBlock(targetString: string, blockText: string, fileContent: s
     return appendAtEnd(lines, blockLines);
 }
 
-/** 标题不存在时自动创建（frontmatter 之后；无 frontmatter 则文件头），保证写入立即可读 */
+/** 标题不存在时自动创建：追加到**文件末尾**（新卡插标题下；原有内容留在标题外，不进处理区） */
 function insertWithNewHeading(lines: string[], blockLines: string[], title: string): { content: string; headerIdx: number } {
-    let fmEnd = -1;
-    if (lines[0]?.trim() === '---') {
-        for (let i = 1; i < lines.length; i++) {
-            if (lines[i].trim() === '---') {
-                fmEnd = i;
-                break;
-            }
-        }
-    }
-    if (fmEnd === -1) {
-        const out = [title, ...blockLines, '', ...lines];
-        return { content: out.join('\n'), headerIdx: 1 };
-    }
-    const out = [...lines.slice(0, fmEnd + 1), '', title, ...blockLines, ...lines.slice(fmEnd + 1)];
-    return { content: out.join('\n'), headerIdx: fmEnd + 3 };
+    let end = lines.length;
+    while (end > 0 && lines[end - 1].trim() === '') end--;
+    const out = [...lines.slice(0, end), '', title, ...blockLines, ''];
+    return { content: out.join('\n'), headerIdx: end + 1 };
 }
 
 /** 文件尾追加（保留尾换行/无尾换行两种形态；headerIdx = 追加前行数） */

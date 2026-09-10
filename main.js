@@ -3,7 +3,28 @@ var require$$0 = require("obsidian");
 function _interopDefaultLegacy(e) {
   return e && typeof e === "object" && "default" in e ? e : { "default": e };
 }
+function _interopNamespace(e) {
+  if (e && e.__esModule)
+    return e;
+  var n2 = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+  if (e) {
+    Object.keys(e).forEach(function(k) {
+      if (k !== "default") {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n2, k, d.get ? d : {
+          enumerable: true,
+          get: function() {
+            return e[k];
+          }
+        });
+      }
+    });
+  }
+  n2["default"] = e;
+  return Object.freeze(n2);
+}
 var require$$0__default = /* @__PURE__ */ _interopDefaultLegacy(require$$0);
+var require$$0__namespace = /* @__PURE__ */ _interopNamespace(require$$0);
 const MEMOS_VIEW_TYPE = "memos_view";
 var react = { exports: {} };
 var react_production_min = {};
@@ -8701,22 +8722,11 @@ function insertMemoBlock(targetString, blockText, fileContent) {
   return appendAtEnd(lines, blockLines);
 }
 function insertWithNewHeading(lines, blockLines, title) {
-  var _a2;
-  let fmEnd = -1;
-  if (((_a2 = lines[0]) == null ? void 0 : _a2.trim()) === "---") {
-    for (let i2 = 1; i2 < lines.length; i2++) {
-      if (lines[i2].trim() === "---") {
-        fmEnd = i2;
-        break;
-      }
-    }
-  }
-  if (fmEnd === -1) {
-    const out2 = [title, ...blockLines, "", ...lines];
-    return { content: out2.join("\n"), headerIdx: 1 };
-  }
-  const out = [...lines.slice(0, fmEnd + 1), "", title, ...blockLines, ...lines.slice(fmEnd + 1)];
-  return { content: out.join("\n"), headerIdx: fmEnd + 3 };
+  let end2 = lines.length;
+  while (end2 > 0 && lines[end2 - 1].trim() === "")
+    end2--;
+  const out = [...lines.slice(0, end2), "", title, ...blockLines, ""];
+  return { content: out.join("\n"), headerIdx: end2 + 1 };
 }
 function appendAtEnd(lines, blockLines) {
   const last2 = lines.length - 1;
@@ -9117,7 +9127,16 @@ var en = {
   "30 days": "30 days",
   "90 days": "90 days",
   "180 days": "180 days",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Auto-cleaned {N} expired memos from the recycle bin"
+  "Auto-cleaned {N} expired memos from the recycle bin": "Auto-cleaned {N} expired memos from the recycle bin",
+  "Send sound": "Send sound",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.",
+  "Built-in (card deal)": "Built-in (card deal)",
+  "Custom path": "Custom path",
+  "Not played": "Not played",
+  "Sound file path": "Sound file path",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Enter a vault-relative path (e.g. assets/send.mp3).",
+  Preview: "Preview",
+  "Failed to play the sound: ": "Failed to play the sound: "
 };
 var enGB = {};
 var es = {};
@@ -9290,7 +9309,16 @@ var fr = {
   "30 days": "30 jours",
   "90 days": "90 jours",
   "180 days": "180 jours",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Corbeille : {N} m\xE9mos expir\xE9s supprim\xE9s d\xE9finitivement"
+  "Auto-cleaned {N} expired memos from the recycle bin": "Corbeille : {N} m\xE9mos expir\xE9s supprim\xE9s d\xE9finitivement",
+  "Send sound": "Son d'envoi",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Joue un son lorsqu'un nouveau m\xE9mo est envoy\xE9. Choisissez le son int\xE9gr\xE9 ou votre propre fichier audio.",
+  "Built-in (card deal)": "Int\xE9gr\xE9 (carte distribu\xE9e)",
+  "Custom path": "Chemin personnalis\xE9",
+  "Not played": "Aucun son",
+  "Sound file path": "Chemin du fichier son",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indiquez un chemin relatif au coffre (ex. : assets/send.mp3).",
+  Preview: "\xC9couter",
+  "Failed to play the sound: ": "Impossible de lire le son : "
 };
 var hi = {};
 var id = {};
@@ -9507,7 +9535,16 @@ var pt = {
   "30 days": "30 dias",
   "90 days": "90 dias",
   "180 days": "180 dias",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente"
+  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente",
+  "Send sound": "Som de envio",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Toca um som quando um novo memorando \xE9 enviado. Escolha o som integrado ou o seu pr\xF3prio ficheiro de \xE1udio.",
+  "Built-in (card deal)": "Integrado (cartas)",
+  "Custom path": "Caminho personalizado",
+  "Not played": "N\xE3o tocar",
+  "Sound file path": "Caminho do ficheiro de som",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
+  Preview: "Ouvir",
+  "Failed to play the sound: ": "Falha ao reproduzir o som: "
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9716,7 +9753,16 @@ var ptBR = {
   "30 days": "30 dias",
   "90 days": "90 dias",
   "180 days": "180 dias",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente"
+  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente",
+  "Send sound": "Som de envio",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Toca um som quando um novo memorando \xE9 enviado. Escolha o som integrado ou o seu pr\xF3prio arquivo de \xE1udio.",
+  "Built-in (card deal)": "Integrado (cartas)",
+  "Custom path": "Caminho personalizado",
+  "Not played": "N\xE3o tocar",
+  "Sound file path": "Caminho do arquivo de som",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
+  Preview: "Ouvir",
+  "Failed to play the sound: ": "Falha ao reproduzir o som: "
 };
 var ro = {};
 var ru = {};
@@ -9946,7 +9992,16 @@ var zhCN = {
   "30 days": "30 \u5929",
   "90 days": "90 \u5929",
   "180 days": "180 \u5929",
-  "Auto-cleaned {N} expired memos from the recycle bin": "\u56DE\u6536\u7AD9\u81EA\u52A8\u6E05\u7406\uFF1A\u5DF2\u6C38\u4E45\u5220\u9664 {N} \u6761\u8FC7\u671F\u5361"
+  "Auto-cleaned {N} expired memos from the recycle bin": "\u56DE\u6536\u7AD9\u81EA\u52A8\u6E05\u7406\uFF1A\u5DF2\u6C38\u4E45\u5220\u9664 {N} \u6761\u8FC7\u671F\u5361",
+  "Send sound": "\u53D1\u9001\u97F3\u6548",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "\u53D1\u51FA\u4E00\u6761\u65B0\u95EA\u5FF5\u65F6\u64AD\u653E\u97F3\u6548\u3002\u53EF\u9009\u63D2\u4EF6\u81EA\u5E26\u7684\u53D1\u724C\u58F0\uFF0C\u6216\u4F60\u81EA\u5DF1\u7684\u97F3\u9891\u6587\u4EF6\u3002",
+  "Built-in (card deal)": "\u5185\u7F6E\xB7\u53D1\u724C\u58F0",
+  "Custom path": "\u81EA\u5B9A\u4E49\u8DEF\u5F84",
+  "Not played": "\u4E0D\u64AD\u653E",
+  "Sound file path": "\u97F3\u6548\u6587\u4EF6\u8DEF\u5F84",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "\u586B\u5E93\u5185\u76F8\u5BF9\u8DEF\u5F84\uFF08\u5982 assets/send.mp3\uFF09\u3002",
+  Preview: "\u8BD5\u542C",
+  "Failed to play the sound: ": "\u97F3\u6548\u64AD\u653E\u5931\u8D25\uFF1A"
 };
 var zhTW = {};
 const localeMap = {
@@ -16548,6 +16603,115 @@ function Home() {
 const appRouter = {
   "*": /* @__PURE__ */ jsx(Home, {})
 };
+const BUILTIN_SEND_SOUND_URI = "data:audio/wav;base64,UklGRjQrAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YRArAABc/w8JsfOz45kQjv+MBOMvQdb13Ik5Xv8l4Jj93g18EX7de/0qC8vxsgNeDyL8sgCIDejyn+tvD1gSkvKv9a8IFgMU+LwOl/st9scNkviP+kYJ4vvh97cG7QjE8owCYgor9m8GGgR99OMEAgZl+NEAHgM7/p0CfP7N/wACff4C/88BgAIJALD/TP1H/1UC4Pyw/zUD6v5f/kP/7/+k/wwA3/4N/+oANP9w/9YAmACg/yQA7ABdAMP+7v2q/kf/z/6O/gL/hP/E/7z/yv8cAEoALAAAADMAkwBvAOv/df8t/2H/CADCANQAxv/v/mr/UwC5AHcAJQAuACEAAwDl/yYAVQFxAcr/Nv8WAPMAHQFgAKgAKgJwAi0BUP8V/7gAMgAF/1QAnABt/z3/4P8eAasA//6h/2UAFwD0/3H/rwCUAcP+8v1xAEUBBgB7/isATAMqAYX+BQEJA3kBHv+r/38CsAGB/6ABhwNUAb/9y/xwAN0CW/+C/Pz+rgFWAOj9l/6/AKkAPf/q/qH/7QCoAff/iv5WAJoBhABY/xr+nP4eAYkBaQCI/wL/d//t/uz+twAO/+j8wf62/0f/wf5A/sX/a/9q/kgB8QDt/Vz/HAG5AGf/tv7+ALQAdv5mAPgA0P9zABv/d/80AtkAsf4S/9wAHAILAIT/DwEf/9r+3gBT/4H9mv0j/+AAQP8A/qz/cgABALH++P68ATEBwf6r/qz/jwFdAVH/3P8zAJgAjQJrAT3/YP9XARoENwKm/uv/LAHWASkCyP4n/zUEUgTU/xr9NwA9A1X/R/67AfX/FP4i/xT/4f+P/4T+nf8j/+j+j/8R/kT/EQH1/n3+mf93AIABIf9E/kgCfwKD/6f/pwBFACr/6v4NAIX/Bf4p/zIB+wDh/ub93/9bAUYA3P+y/2T+DP/K/0r+7P4YAL7+8P5kAJEBSAHh/C39FgMjAPT6yv7JAboAAwCz/9MA5ADJALoBpf8wAMICgf/Z/vgAaP+QAekCCACoAncDS//BAHQDqQIuAb7/6AC6AQsBPwJFAKX9kQB3Aav/UwDe/zH+wv7uAXIDsf95/usBYAE9AJ0BBgBL/q/+IgBrBNkCIfWN7wwBgQo57/bZKvIFEV8MZPg78Hv6mgvZCn3+3wAUCPgBYfwNAVYDZ//l/cP+iv0c/pEC9QMRAf8ApgOYBM4EyQN4Ad4CKAUtApsAvQSABWsBRgHNA8sCzgGnAhAB9//JAYgBEAAEAI//qQDtAT3/L//RA74DHQAlAHIBXwH9AIgAEAGRAWQAf/82/+z+Xf+y//AA3QHv/pT+lwJnAaf/kQKx/8T6CP1K/kf99f05+wL5vPpk+3D/6QLa+/n3bP3R/5kBkgCw97H5IgQwAQL9k//M+zL8kQR/AiD8O/67AAEAT/8d/6sAfgEFAIr/4wB3A+MDzf9s/8wDggJc/w0BuwBg/zsBNgCD/tj/Xf7e/bMACv+V/osCUgD5/Lz/TABw/xgB5v/8/qUBmwDp/HX+CAIjADL8df06AbMBH/8G/OL7Rf8fAY7/tf3d/lQCpAHr/f3+EwE6AK4AGABF/joAWQG8/2QAYQCi/k3/LQC/AEsCGQA5/egAGATdAfwA1gDs/+kBOgEU/iYBngKb/ZL9LwGWAKX+L/41AM8BXP+1/lYAJACJARgBO/6MAXQDtv7j/lEBqv9cAIEBMwC8AEQAmP6sAPUBzP+I/10AEwAzAd0B2QD+Aa0CgACeAJsBmQATAQcBHQCbAez/e/xl/4YC7QDe/gr99/0nAbX/9fxV/tz/1f9M/03+7P42ABr/MP4jAMwAtf4B/6wA4f/s/4MAYv8NAJsADP8IADYBlv8t/0wARAHwAAT/oP9tASAAe/+hAJoAAABB//H/egEjAFP/uwANAKr/qACU/0v/oAAmAFD/dv8WABEBJgCS/sz/7f+Q/ef+wQAq/lP/cwIA/tv8vgO/Ayz/Yv9IAPQB1wKc/6H/YgGj/3EASQHy/9sC+AJb/d/95QHlABr/a//h/zUANwCe/9z+aP+uAPr/2P6U/0MA9v/e/ygAPAAEAPf/0//W/4YAcwDG/wUAGQDb/94ADwI7AEb9NgB0BEUAhvw/AN4B5QAOAA/9U//qBCIC6v12/x0BkAEcACX+VgDZABf9T/1kAOP/wP32/cb/8f/S/tL+Kf+9/40A2v+S/ygBpgGRAEQAVQHvAZwAuP+ZAfYCQQB5/bP/qAIsAjgBpP/w/QIA7wHsAKQAeQD5/3T/t/44AZwBNvxW/UoCAf/+/PT/rf6p/eb/5v9K/2b/J/8yAAoBGAAk/+b+ef+pAJQAC//O/xMDYAIL/rv9SgBiAJX/3f+P/5T+mf/xAMT9N/sF/xwB6/3x/Ef/YgH8AZIAPv8PAIIBVQEvAJ0AEgEvAMkAdgGlANz/9f2z/hAD7wGp/nsA6gAZACYBGABEALAB1/9zAF0Ckv/u/ZX/QgEJAlD/1/0nAdcA5f5vAbAA7/2SABoAw/vB/iEC+f3F/Dv/lv5yALYC9f48/cX+4P6RASYCpP0j/QD+M/4uA7MDvP0s/mACGAKm/iv9TALGBPz9D/2lA90D1wCo/67+9f+nAGz/gv8D/08AZANfAO39ugJpAo38sf7iBMoD/P6Y/pgAhADGAJ8Ai/wu/AAC4AAl+83+aAKE/IL7WwE8AeH+Gv8v/ikA+gJp/7H9bQGhAT0AlQGzAcwAIQHwAZoCEgKAAOT+W/9XA6gDif4q/2wCMf+G/sEBRQBk/53/Ff3R/wMDqf7n/sUCj/8T/rP/oP3S/pMB3/9r/xn+evyAAXYCKP1z/zgCSP7V/rwBFADF/04AQ/4A/5YBWf+//Hn/cQAf/cf99wDxACoAxf4i/iYBSACf+7z+pwQvArD9//5QAcv/3v0O//QAigCW/if+PQAxAiECcf+n/M//fwT8AST+mf5HAEkCugG6/50BqwFY/60BJgIy/wYBHgI//k/9lwDCAiQB4/zt+jL+WAKTApkBSAAj/bb/DQUVAUL+fQGx/Wj8sgOrAy7/0v1c/VgBWALo/Pf++gOHAQX+l/2xAO0CnP+U/mL/fP1KAFMDgwArAMYAOP8mAWcDrQHA/sH9JAC0AmoClf9a/XgADwK7/U7/2AIZ/1YASQRv/qX7cQJHBFz/jv6OAjwCQv5kAO4Dsv/c+1f/IgLK/5n+FADV/lL9Xv/Q/xX/agEpAWD8SfzoAr8DDfxf/OICov73+08DZwBR+VP/cgIa/j0BCwMl/V7+RQNw/+X9vANIA63+0P4v/20APwKc/qr+owSIAcv67f3MAYP/FQAuA63+cvlU/94DQQBoAlMDBvu9/AkFGgGW/fYAGf5q/FYCQQMaALf/Z/36+wUAwAIKAbP8Jfps/6ADXf+B/mYBD/+e/VcAYgIBAk7/v/56APQAuAHp/r78dQPeAwz9Uf93AAT/YAOt/5z7CwIgAF39RQSpAAn7hQJqA5b8NQBqBW//xvvAAr8D+/wv/jkC0gH7AX4ANv9SAccBxADA/fP87QLlAJ76oAApA2z+gf8n/Sr8PATYAjH7Cf0lAfQBTAFqAOz/wf1g/rkBkwBu/sX94/9rBfMBRPuEAKgDBwC///r8mvz2As0BAv6iABYAwf0CAdIDav9S+qUAvggzAjn7NQBhAnH+/f8LBB8A4fkb/5YGhACx+6oCaAMK/jQByAMS//r9LAAs/7X+WwG6AhP/1vvk/ywDSwBy/4X+V/zZAHYCOv39/moBb/78AK8CWP67/iMBPgAR/2H9SP64ASEBXP56/Q7/HAI8ATP9Q/3OAJoB6v5x/+sCpACV/fkAigHw/KL8LQEHAxn/hv2oAfMAnf3/ABoDBAEmAm4BFfzT/G0DUwNs/rD+cf8N/lIArAGiAMIAMf3R+z4CVwMO/mT9xgEQBXv/mvjp/kgGhgJk/QD9MwGtA0//+/7SAc39Pf2oARr/t/w+AUgCk/0G/hUEGQS7/mL9vf9rAmQBoPyy/Y0C7wHb/xL/PP7v/ygDdAMO/sr6RACJAYv+LgPCAlL7u/zgACsBZgA3/5UBkf9G+jABUgQC/aYBIgYU/nb72/2tAOAEpQAv/IoBLAKU+5X8vwQSBWf+pv97AXn8S//sART7Vf/9BuH93fjxAnIGV/4v+r79XAAnA6YFeP5k+20FLARP+8b/BwOqATUE0f7P/N0G5AJJ+8kEPQP69mr+5AYe/xn9fQGZ/24AoQSgAMv6TP40BCgDiv0Q+1UAkAIT+wb+pAe3/sT4aAEC/uX9hAfq/qX6QQM6/F382gezAHz6Dv5d/2MGOgPE9z7+cgMEAKcBTv0t/IYBqv3A/00CvfhV/e0FKP6b/KsBaQIUAv38Vf6rBNn+I/5NA/L82v5cBcf7HvvSBt0Dnf3i/9v/jgEaBbgCXQHt/xT8CwF2A5b7eQADCO/9NPvMAg3/9/v6AMcDXAHu+o7+3gZN/HP29QWkCGP8kvks/pgC5AFN/vP/cAGiAD4Aff5eADkBU/1DAQ8EJvxi/bUF/gBK+u8A3AU8/Vv6gQPkAtn8YQALATb9uP7J/yr/OAHVA64BC/sM/oEHgAOG+xv7GP2ZBToIEvws+l8C/wK6Ab/9Lvx2BPkAhPfRAFkG9vyP/MIBlgEo/7z7CAIWC5MAGPfL/7kA/fu5AtMEpf2h+Av5mQIYCXIC0/3o/C78EQJ0BBABu//4+y39DAL8/DD+OQciA2n9K/8aAfUEagGb+a3/iwTL/bn9DQPNAb/9bP70A2wDE/ss+2ED/AOaANwBuQA//LT77v79A7kBuPnQAxcM+PeI9dkGuvuk+BwLzgCa9R4CeQMcAewAAvoe/q0Bb/39AyQFUvyq+rH9QQYLCLP9+v9jApz5HP4+BL8C8gQF/On14QUCCSv6TvujBeECkfxW/+j/8f7xB+oFkviZ/icF4PvY+yoA0f6+/p38zgDPA633Wvl3Bm4C/wCmA9j7Ov92BYr+xwA/BHv7yPxDA/7/gv/K/2/8dgAeBNMAcgCi/0L+TQJjAez+7QOLAHT4rf39AQ78DPkL/VEEmweoBNkAb/p0+CwBHQXMAtoA+flA+74GOwQ9+8L+HQQGAp/9Yv57A9ABgPx0/i0BYP9hAYwHBAQ597/4CQdwBgr+EwE4Abv6l/4+BRcDbABc/f36cALTBGj7H/zRAGD9nv/w/wP8qwNfBMn7wABtAm38dAGoAyX+bf3V/q4AAgFAAb4A6feT+z4LAQIV91QE/gV6+2X8FQJrBygD5Pcv/OEGEgZD/CvzjPz7CnkBu/ZkACUF3/pa+zoKpQbX+I0EwArr+B/7/Qax/zT7bvoU+RQBLQLs/Tr/Tvlv+3kMGgi+9Uv8KAq2ADf4NgM5BJr5nf6kBYgAS/1y/ToBDAZNAK38dgNjAw/9yf4QBv4D6fmL/OkD5PyG+9MEagCb9zf+uAgRBnn8yfywAXoC8gSf/0v3+gFYCF37MfpeAnoBQgI4A4H+K/26/wMD6QOhATgCUf3j85H+Ewxy+7nvewMhC+D7aPwvCHwFFP5PAGkGSwUN/Nj2f/yTA9z/HvgE//QI5v9y95j/ZQTU/278nfxM/1MBUwH0/E34vgFYC3oA7Pac/7AKPghz/NP+UAes/YH9pQiN+xD1egayBqP8T/xB+mP7zQFIBhoFA/rN+C8GYwZ3//D9mfks/S4F6gCG/isDhAJA/4f7G/wqByoI4/aX9FIE0QRxAOQGOwGr+nsCdf5M+/oGygHF91z9Wv/xAVsE8fxG/O37//q5CP8IIPqn+9sA+QM/CHf9WPb7/vYAwv/b/9P7hv/MBewAaPtWAeMJNQNh9xz71gDn/00BSwA/Ai4HHf4r9mj/0giBB3v8FffPBPYKqv4U/L3/efxIAWUHzP5b+Uv/hv+O/Hz/iwCf/2P98vZQ+/YFAf/9+LUDrANx+10C8QVG+yL96goKB/P47Pt5BjwGxgDt/BD+hwMhAwX/WwCsAND7+/sPBEIFg/ka9bcBHgk3/8L4LgEDAqn5JASHDWf8lPbyAWf/0wE1CTH9kPrFB+4EwP30/SH6nftaA2EDU/9s/BH6J/xYATAESAIV+mX1HwJBD1YGHftv/owAe/9jBDYIBwDe8QP4uQxWCj/+UwC9/Sf9IwYHAQv5Iv1aAZcFdQJP+Tr9sAFGAKYD5v6a9xb8EgBaAsMCgP/YA24C5/iQAGYIJf/S+/H+df64AKgBC/70+9oAzAtsCYX2qPKoAuQIPACJ+v78VgAp/m/6hv9KBwwDdPpc+Zn9EwYCB3v4QvQ3AoQJjAZE/lD04vrqCFQF2fyV/nQAoP/UAO8BYQCK/iH/f/6y/McAWAbeA/z9ev74A3wDj/yl/NIC0AKH/03+5/zD/cb/gP7X/i0Bj/55+yX+wgCC/zr+If+xAcYCEv/z+k39+APeBskCev0E/ukBcQKMAFwAhwHuAdkAIQATAn0D8P9h+3j81AF/BA0BdPwB/pwDkwTP/2z8DP79AHkB/QDsAdgCjQEG/2T+pQB2ApkA6vxA/L3/lwJmAbP/hAA9ASQAKP/T/xABOgC7/VX+JgMyBjkDpv18+/v91wBsAIb+lf5bAHsBeAGDAX0B5v+L/a39kAD/AUr/afto+7D/6wIrAZj9cP1xAD4CwQBw/oz+XQCZANz+5P3v/kgAVQDs/6MAHAKHAjMBd//K/tT+Y/6U/cr9Vv92ANH/mf7S/oIAQQFx/yj9nv2OAHICDAEs/j79I/+NAQsC4QAKAHgAZAHHAaoBTwFXAE3/mv8kAR8CVwHm/9v/RgFnAtsBFADl/jj/WgAqARIBbwCR/+v+i//XAA4BGQAm/1f/SQBUAHz/Ff+c/4UABQFTAbwBUwHh/6z+3f4WABQBTgFaAL3+av4B/9D+Y/6r/l7/u//d/1gAWADC/87/CwBf/+/9OP0Y/gz/GgDgAc4Bxf/g/jr/Bv88/kX+J/8KAF4BpQJ1An4AYf4O/9wATQFuAuEBPv68/ff/xv9d/gv/kgHDAX3/Wv9sAIwAIACp/18A8P/H/h4A5P98/qz/GAGTA4AELQAL/RT9wP5cAUEBfAGoAUv/uQHIBHsC7gHNAHn9y/5KAez/QP3I/a8BHgRIBNkC9ABb/gb5IfzLBUUCP/wT/pT8Jf6hAHr8yv5fAgIAwgDo/mb77/4VAxwDkv3p9/j7KwK3AXP9r/vNAPoEyQEf/Hz6VwH9B0YFgP4N+rD+0QMK/X37yQAk/60A2v8y+SP+kgPyA1QHcf6W8yz86QW6BHABRP9V/m39cP0/ADADHgEc+279FAWaA9n/4f1m+8YAuQWIApYAPv7D/G8BLQYbBxQBPftr/rP+9/7UBOT/svoeArsDX//8/34ClAIR/RH8kAOGAXb6GAAUBmb8bfQxA7QO0v5k9NL8zv8bAq8I9AWc/QL5NfuAAaYEvwRBARX6T/ktA6gKCQNM+uT94//YAsUM3Amh/iH5+PVd/EgDJfsI9kP9qwORAE76KwARBjX+8/80D70POfs76SrydgkYDtr9PPWI//gHSQWOAND5+/wnCIUBO/s/A8n/kfc/9N/vbfUnAXcNQhOf+1zfue2oF18qYQ0N6zny+vx666vtnxT0HPPw1dZm5Wv7Yhd9FXfuJOvwBpIFKPrkBGQUrwkV8xj3Hf+Z/aoOXhXv/RvuY/ZDDZAXrgGr7wX/IBU5EYf7a/Y0B+YSKAgW/M0PSx07Arn3pwtcCdr5AfrpB6sL3/Qh6r/42wDTBooC/e5J9w0Lpf+b9vkDQgMC9db7xQWa+Z74uwP8/vYA1gj9AI3/EAhEB5ACxQeECl73GPvMHccNDO/KAkMHlQF/DXz2Hu+9F9oXHfdc9gUJVAc1+KIEUhMUA8D67PYQ8p4Fuwho/JIF+//j8qD8FQIw/eT8PwV9A9j0CwFtCSf4NQQxB6TzRAVTBLHvqQRmA13r9vcFBp4C7PbV8qMBzf5q/lwLJPVh9XgXaQE05+z+0AgS/137IPu9/kr8Xvqw/VT8CAN2CBr7JvWN/qH9GPi1BNcKCvY69TsI5PtX9C0J/ARk9zoHww7T+UfvxQAmCn/+UQEKCycB1/le+Zz1wQJND/b+Y/qVDBoAE+gc9v4HugetBff5RPb4ALj9bf0GAoD7d/7I/XH6fwjKA976RAQE/BMALQ4P+UT2tQOl+M4FExTP+/jywP+HAh358vNvBU0Fp+36+qINq/qt7in6m/7a70D2fBah/QfZ0xS+Ozj2zNMBESoZy+mODmExCt/ly3cx3UOgJaobOM1UxJJEpkNYvkPs63H7J6+VUtq8NDr5HvZPK4Pmkqr61uv5agu+LMQpWxDnCgMQ9v5R71YKOy+AI7QEAP8G96bYp9hf82vwWuRaBiwlyRRc9OPQAMgS7YAN3uYoz+gDjit5Cp/hE+S6/SP7lt3N90ZBYzlJDisgLSkB3pbFvfYUAqf4BRHcCVDlm+GC5hfduN0R64IDNSGGId4N0w1gEs4EMRAdJiQXuRc2MB8ZKfvfGjUpChJnGXoiog6yDBQGVtop29QE4fLoxUrbbPYZ0sO5Wc5F2ojP7NoX7PLKBqqfvqPikt0S3IoDQQkb7XD9ERrIDQwEABEeF9EZPxbGB9cQOB1y/Gzo/wjpEaoGDCIJJT74RfUDGOMOAv6fB/oFcgp0IRwYiAGBEGEc7BBZGoYkdRPeDfYRP/rh6lL8LQI7+OH+ighMAGz1uvpTCWEC7eV/56QGGgWN6ZDtd/1i9v/10gnnEFUDBvjm/gMMRQR69ksGhBUUAm71IQGq/rD1GPi97ljqpwKjCb3z1PWfAJfyffDd+7vyOfI7Ak/18Obp/i4J3vOp91sJ+gG/ABYPYwnP/KD/Uf6w+aYAKgRaAuMJgwsuAXMFVBHJBz780whzFY8MXgI4CrEURhEzDXwPWArbAwsJqAkx/9UBJhIgFIoJUAdrCWUHQgasBJECMAVwCPYIDgryCCUCK/9+BisK2gNPAHEC4AX/CCgFO/3w/fgF/QdUAIb7MP9pAaP+kPr1+cv/3AKA/TX5Gf7iBp8E2PqN++EDVQmbBfj5s/ofBz8JkgEc+qD+7wvsCAr9VvsS/owFEgjd/FT4GP4MAsoAPfnb9mT8gf4G/qP9/P7k/uT4VfpVA5MEQf+Y+Hn3Wv1LACT/rvrK+mgF5gbh/an55vYc9WD1X/1kClAADvB0+/MHmQCK8rby9QbHA1Tnqe8ZCzkDafG79sv8hvXZ+GEI0wnn/8j66/6CBGr3WuXa75sNTx2ZDo/vY+Hs9/sR4vFXxP7n9in5I5ACLPZK9VPvI+Wr+I8Z+Ax39Mn78Q2OEvgHfwMICbYGzwYgDesNFAoQAoX/wwVgCS8Hzfs29gYCrAWQ/aP86QQYCYv9EP94EOsGA/3mCCoFhvhO7qvsNgPOCRn5n/s6BLoIjweP+Yz7aQIR9sTyb/d6+Bf/yP9K/KQA7gawBnr6APQt/Lb+cwEBCNsDMgHYAFf3+/Mn+mn5hfU5//4HU/sY9Y/7E/Im8ZgBEwCh+Sf5xPJb+A0At/gX+icElQbLA0H/7/44/pX65v8zBaQEvgRu/p392QbzAiH92AE2AVIAngHW/uMATwB0+vr/eQYbAMf5F/0YBeAGMwG8/5cDRwReAbIBhQa1Bev/ZgE/BEoApP6cAfYAlf0H/1gBHvyN+bf/0v9o+r76sPw0/n3/zf34/hoCrv9Z/D/+iQPuAzT8hPpgAzAIQgXX/zz+/gO8BLn+JP8RANf9FAHdA9UCwgHC/X37Ov8WA10DXQDNAOIFygQp/0T90/9UBY0EZv/bAgAFlv9I/48C+QPUAuX9Jf26AAICYAJ2/6z9DwE5//H91gJqAav+AQBn/0gCUwRnAAAB3wKsAX0BYP4i/i8F7gYgAHP5R/3kBkkC3vtaB18LpvyI9jH/mAM4/Wv8CAj6CT7/fP0EAr0AjP6hAEIDtwDA/kkC1gDn/UEDQQXWAE7+0/zB/jwBDP2/+u//dASiAAb5OfwlA5T97Po2A7QDuvyw+70AWwK3+xn7EAShA679kf8UAaj/UACTAMH+Rv0eAfUEcQBh/ksBqf4F/sMBSwDf/qQBowI7/8z7n//8Agz+Pf4WA/H+nfpo/zUE5gAh/JAAugSo/vr7kADGAQYAY/7c/q0A7P4F/pX/8f4AAP8BvAE9AVn9bvu5AIgAXfuC/RwCXgFa/Sr98QDs/rT8UgNvBQT/of1bAsMDXv6P+3kAcAGg/jcAbP9r/bQAagPkAkL/wPtY/ov/kf0ZAMIAJ/44/pD94P3j//f/awIHBN//8/xr/WL/GQFdAMgAFgAW/cv/mQKZ/6X+tf9PAEkAVP8fA3oEIf36/DUCE//D/MP/SQG1AGf+7/7nAX0ARAAIA3AB0v6f/z4CowNzAYb/Ev71+2z+AAFcAOUB+AAX/6oBp/87/Dj/KgGGAl8D9/5p/Zz+yfzb/fb/7P4k/zUAVgB9/5T+zP+8AH4BmQG6/XD9OAHkAIMBxQFP/r//7ACm/qgAoP+5/LMABALT/1cAK/9q/o//ev+BAHMBNwEzAXoA6P+E/iH/aAMgAjf/gwCZ/Z79fgM2AyIDQQN//RX++wB2/1YDZwRj/0QA3gDR/ZH+HwHnAdwAUAEcAmj+sP3DAJIAuQHdAIb9XgHVAZ383P4SAbIAHAP8ALD+IgF9AOf+qf5X/vsAvwFL/nn9G//4/ygBywLeAS3+if3H/wgBAwPfAeP9FQCLAUz+t/8u/kX6wgKkCIMCDQKCAkv8Rvw1AfgC7gDl/Ev+7AHI/9z7hfn6/V4FUAIb/sv9LPySAvoDaPrQ/jgF6QB6AXD///zI/yD9XAP7CG38tPsQATr8jwPpBhf+jf+6/rn9GgStAHr+bADW/GT/WgAt/igA/frB/SIH4P7p+rz/v/10AiIDQPyyABoCXf4//x/90v8gAzv9yftu/uICLAbp/CD6pAP1An//hwH9AboB5/8VAQACFfwa/wwGGQEH/8YAnvxb/BoAIQJXA7cAJP4gAToBuPs8/TQDvQCx/zwCJPwH+/YCIAKM/Kr7TABLAzn8gPzxAkf8AP6MB6MAr/wK/9H70QANBoIDIwBB+NP5FQTDAVr/BgC1+hv9MwG2/00BN/+G/30ELv3O+R8EaAVqAAkARAEUA87+NfvHAj8Fzf7J/UEBqQQvA2j9xP96BK4BQwJlBF3+Y/zGAxMEHvz2/CsEzQN5ACf/Gf1x/zsD1f/L/Q8DlgSL/iD62/v/ArgIjwAo+MgBpgPe9/n9QAes/7D7Cf1V/0EGAgNA+bf89AJC+9v2igXRB+722fuuA035ogEXBlX1dAFHEHv8t/VZAwYFqf9E/P391gBe/NX7DAKeAN/6nfzDAAsAQADpAMX+KALbBDr+T/zVA/gHOwD4+ZUFRAmO/IEAhwTO+jkBnwZc/ur+f/4PADoGS/sN+dgFkP2i+KYFHgFW+OQAagQB/7T+tv8N/2IA5QDfAAUCBv8n/On/1ANlA9z9/vyRBg0C/vb3Ao8GHvfu+oAEDQCD/Wv/iwIe/g73hgPeCf758vkWBXkAE/uA//4CkP+x/rsDov/c+tsBCwN3/wgAnvuF+5kEewRH/Aj93AKC/yL+XQZLAhP6HgJEA5/7CQG+A679gv9eAMH7XgG6B7r/pPxwA/kA1ACUBRX9RPsrBA8A9/5CBBr+A/5+BbMB5/wTAGwEzwP//Z792wFIAIn/8QEU/qf7fALtA778Vv04A1oC7P5P/gMANwCp/Tf+av4k/UwBEAHr+6z9Z/6A/+0Evf+p+Z4AHgR8AFQAewBP/p3+twBY/yL+ZgBnABYALABs/vQBGgNJ/af/yQEM/QkAGgLD/vMAsQC2/T//MQCbAcwCsQAz/z3+IwAqAzcBPwBq/7j9dAKaAgT9XABJA7X/Kv8sAeECDAAN/CQBjwS//4b+gACFAA7+sPxMAWgCvf7a/mT9lP8iBZr+I/vzAAv+dP4hBNr+NPxDAe8CEAIW/ZH6NQGTBAYB0Pz/+wMAcAAi/mf//v7J/wICCf99/ukAgQFEA8IAl/1yAdsC/gHbAdz++gB5Ayn+p/6AA70BZwA3AFn+UABCAvj+cv2tAfQC0P2k/WoDQgL8+wX8nAI2BnUAS/s//0IB7/4XAF/+LPxbAh8D0/vp/AkA+P0BAcED0/3v+lUBbgQK/tH7vQFTAmP/iP8I/rP+cAP0Ak77VvfeAVAK1P3D9R4AHAQQ/9D/kARyAcT2Svq9Bz8DFvpKAOwGSAIy+QH76gQ8A1L/jQS4AQT5ZP4xCpgFGvpWAPYFvPw+/+wFHP7l/N8AWfxf/vIEUQEM/DH+AwKOAYT+jf7RAcL/b/pCACEGPvyH+coDxgBq+oUBFQQrAWgD/PsO9B0Eyw0o/fD5OgTQ/uf5SP91A9wDOf7O/m0IxwBN78r48BGrC8vxDvgXCU/+xvkZBmMDWfZ095gI7AkV9Vj4aQuyAzT45QD+CWoEXvyBAEkAXvxuBigEMPc6AN4GYPr290sFVgaT9GH5ARG7BJzvI/7/C2MEB/tA+Tz/EgWaBGr9AfgG/i0B6v2jAqgHGwT++hb4zgXxC/37ovaSCOQLKPSr8+0PIArp7gj20QnxBm732/hLCg4GQvad/r8ID/5C+WEKmwpe87z74gn59l7/KxG4+cLv1P60BcwGlPtS9CcClg0CAgPt2P1mF37+xPIuA6X53QLDEFj4GvTxApABjwAO/w0Hrwll7gHyhxiUB0zd4QNPKdLg29K1MNcgFsAf8S9ClQYJxmn58TT4FITiMPSCE48D2vSO9pv20P77/XTtg/FwBTsD7uzl71gO8QoM68P4aBJTBWv5sfrmBr0Rnfeb7PoNBhFB+OX5GgzQB3v7Cw2pB7rtuA0cFq30zgIrB3D8cRDvBa763wYyC/0SMPnh64kWQRFH/6r8+e4oFAMSuuhwIcIidNAw4K9C+js08PG2QeKNOQDwG83I50gfqhZD727+D94K3forriQd+Pjv4dt97n4wAhgn7L7iU/2vExYELQVA8rTlfxACBTnuzBCQ+Invjg3q+YIBmgpA66DyVwi7EQoB3eeCAC8AfPO6GgwKQuSZ+3oHQhAICbzk1/oVFugAXv4E/qP3sALiA0T5svqvDYYHKuq9/WUTIvwN/3UF2vXN/q8DMAA5CNH8OPIF/24M8Ar69bnvXgVTBu3+IAka+ODmdAV2HpQDhOyL9uIAKQzZDOD6mPFp/K0J1QpC+gLx4gBBDcQCBPaf9k7+MQhRClb7dvCV/sAMWgPl9VD8hgZY/3n9qASN/9sABAUs+SH8lAhRApX+9v66+z4DqQeqAQz9c/g1/pAMTwe99qL5jwibBHT2a/2+Cp4CCfhw/3QH3v85+KsAGggkAb366/xVA3MFV/0E+yYC5AAeALwEwP4O+6oBPgAw/vsCdwBH/eUA+P+2/SkC6QRq/3/5VP01BRUFh/9b/Er9uQBkA5wC9/0M+4MA2QUDAeT6W/15AooBz/4bAKH+5PyUArECFvzS/lgCcf8SAYQBx/xW/pUCigE3ACoAzf6v/mEBwgK0ADf/N/+O/gUABQNpAZz9i/5RAY0AUv9OAIYAl/8d/xP/OABIAUUA6v58/nH/pgFWAd3+3v73/yEAvQB5AHP/DgA9ABr/wv9NAc0Adf8Q/2L//f+JAKMA8P/9/kH/NgB5AIAAHgBb/7n/VQAxAKIA3gDz/6j/SwCpALUAmgA4AMj/7/9/AJgAeAAtAGD/UP83AKIAWgC3/yj/a/8OAEYAGgC+/3P/g//d//r/9/9NABIARf9s/x8AeQCGAOj/Uf+B/+n/bwCcAOr/R/9P/+f/cQA6AMz/aP8V/7r/pgB/AM3/e/+r//P/KQB+AG8A5f+l/wAAtADDABYA6/8TAAcARAB9AGsALwDl//7/IQADAC4AXAAkALT/gP/4/18ANgANALH/Uv/R/5IAagCz/4X/zv8GAFMAQwDA/9H/+f/M/x0AOgC0/6H/4P/b/+7/IQD9/6L/mf/Q//7/HgD3/9r/IAAPAKv/4v9JADMAFwDs/6P/HQCZAPb/uv8iAOH/+P9nAPv/xP8YABwA8P/T/woALwDM/9P/IgALAAcA8P/G/+z/JAAvAO3/7P85AOT/5/9wAAwAz/8UANP/FQB7APf/rf/i/x0AQADg/6r/OQBoAMT/j/8VAE8APwAMAKP/9/92APn/yP8mACQABQDi/wEAUAAWAND/3/8CADQADgDj/wAA7v8CABYAFAAbAJz/sv9xABMAx/8eANf/7f9LAAgA2P/Z/x0ARADR/+z/OwDw//r/AgDk/yEA9P/d/yoA3P+o/woANQAQAMj/wP8SAA8Axv/K/xEAIADa/8L/7v8JAAoA6P/E/9X/AQAeAP3/zf/r/xEABAD1//b/CAAMAPn/+P8FAA0ABAANACsAAADh/xQAEgAQACwA+P/t/yQAGAALABAAAAACAAYADwAUAPH/8f8TAAwA+f/6/wIA+f/o/wIAGgD9/+v/8/8DABIA+P/j//v/BAD8/wYA/P/s//n/BAAAAAEA+v/0//3/BgAEAAAA+//8/wQABgAHAPv/8v8BAAkAAQD8//3/AwAEAPf/+v8IAAEA+f/+//7/AAACAP3/+/8AAP7//f8AAP7/+//+/wAA/v/9//7/AAAAAP3/AQABAPz//v8CAAAA/f8AAAAAAAAAAP7/AAAAAAAAAAAAAAAA/v/+/wAAAAAAAP7//v8AAAAA/v8AAA==";
+const AUDIO_MIME = {
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  m4a: "audio/mp4",
+  aac: "audio/aac",
+  flac: "audio/flac",
+  webm: "audio/webm"
+};
+const AUDIO_EXT = new Set(Object.keys(AUDIO_MIME));
+const isAudioPath = (p2) => {
+  var _a2, _b;
+  return AUDIO_EXT.has((_b = (_a2 = p2.split(".").pop()) == null ? void 0 : _a2.toLowerCase()) != null ? _b : "");
+};
+const AbstractInputSuggest = require$$0__namespace.AbstractInputSuggest;
+function attachAudioPathSuggest(app2, inputEl, onPick) {
+  if (!AbstractInputSuggest)
+    return;
+  class AudioPathSuggest extends AbstractInputSuggest {
+    constructor() {
+      super(app2, inputEl);
+    }
+    getSuggestions(query) {
+      const q2 = (query != null ? query : "").trim().toLowerCase();
+      const files = app2.vault.getFiles().filter((f2) => isAudioPath(f2.path));
+      const matched = q2 ? files.filter((f2) => f2.path.toLowerCase().includes(q2)) : files;
+      return matched.sort((a, b) => a.path.localeCompare(b.path)).slice(0, 50);
+    }
+    renderSuggestion(file, el) {
+      el.setText(file.path);
+    }
+    selectSuggestion(file) {
+      onPick(file.path);
+      this.close();
+    }
+  }
+  new AudioPathSuggest();
+}
+function targetOf(settings) {
+  var _a2;
+  if (settings.SendSoundSource === "builtin") {
+    return { key: "__builtin__", uri: BUILTIN_SEND_SOUND_URI };
+  }
+  if (settings.SendSoundSource === "custom") {
+    const path = ((_a2 = settings.SendSoundPath) != null ? _a2 : "").trim();
+    return path ? { key: path, vaultPath: path } : null;
+  }
+  return null;
+}
+let cachedKey = "";
+let cachedBlobUrl = "";
+let cachedAudio = null;
+let warnedKey = "";
+async function ensureAudio(target) {
+  var _a2, _b, _c;
+  if (cachedKey === target.key && cachedAudio)
+    return cachedAudio;
+  let url = (_a2 = target.uri) != null ? _a2 : "";
+  if (!url && target.vaultPath) {
+    const { app: app2 } = dailyNotesService.getState();
+    const buffer = await app2.vault.adapter.readBinary(target.vaultPath);
+    const ext = (_c = (_b = target.vaultPath.split(".").pop()) == null ? void 0 : _b.toLowerCase()) != null ? _c : "";
+    const mime = AUDIO_MIME[ext];
+    if (cachedBlobUrl)
+      URL.revokeObjectURL(cachedBlobUrl);
+    cachedBlobUrl = URL.createObjectURL(
+      new Blob([new Uint8Array(buffer)], mime ? { type: mime } : void 0)
+    );
+    url = cachedBlobUrl;
+  }
+  const audio = new Audio(url);
+  audio.preload = "auto";
+  audio.load();
+  cachedKey = target.key;
+  cachedAudio = audio;
+  return audio;
+}
+function preloadSendSound(settings) {
+  const target = targetOf(settings);
+  if (!target)
+    return;
+  void ensureAudio(target).catch((error) => {
+    console.error("[rememo] send sound preload failed:", target.key, error);
+  });
+}
+async function playSendSound(settings, options) {
+  var _a2;
+  const target = targetOf(settings);
+  if (!target)
+    return false;
+  try {
+    const audio = await ensureAudio(target);
+    const volume = settings.SendSoundVolume;
+    audio.volume = Math.max(0, Math.min(1, (typeof volume === "number" ? volume : 100) / 100));
+    if (audio.readyState > 0)
+      audio.currentTime = 0;
+    await audio.play();
+    return true;
+  } catch (error) {
+    if ((options == null ? void 0 : options.manual) || warnedKey !== target.key) {
+      new require$$0.Notice(t$2("Failed to play the sound: ") + ((_a2 = error == null ? void 0 : error.message) != null ? _a2 : String(error)), 8e3);
+      warnedKey = target.key;
+    }
+    console.error("[rememo] send sound failed:", target.key, error);
+    return false;
+  }
+}
 let rangeFrom = [], rangeTo = [];
 (() => {
   let numbers = "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,1n,9,16,o,,x,1i,3,,i,,7,a,2,t,3,1k,,,7,2,2,2,3,9,,a,2,q,,2,3,1k,,,5,4,2,2,3,3,,u,2,3,,b,3,1k,,,8,,3,,3,k,2,m,6,,3,1k,,,7,2,2,2,3,7,3,a,2,u,,1n,5,3,3,,4,9,,14,5,1j,,,7,,3,,4,7,2,b,2,t,3,1k,,,7,,3,,4,7,2,b,2,f,,c,4,1j,2,,7,,3,,4,9,,a,2,t,3,1y,,4,6,,,,8,i,2,1p,,,8,c,8,2q,,,a,b,7,21,2,r,,,,,,4,2,1d,k,,2,5,b,,10,9,,2u,b,,6,n,4,4,3,g,4,d,,,3,6,,f,,jj,3,qa,4,s,3,t,2,u,2,1s,w,9,,19,3,,,39,2,y,,3a,c,4,c,63,5,1l,a,,,,,2,o,2,,1c,1a,2,c,k,5,1b,h,12,9,c,3,u,d,1k,e,1c,k,48,3,,l,4,,6,,2,3,5i,1s,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,n,5,4,,2b,2,1e,i,q,i,d,,12,8,p,d,18,4,1b,e,10,,1v,e,c,,8,2,1a,,1f,,,3,2,2,5,2,,,15,5,5,2,6k,8,,2,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,1t,5,8t,2,25,6,1y,b,1d,4,3e,3,1h,f,15,,2,2,a,4,19,b,7,,1p,3,10,e,g,2,18,,c,3,1c,e,8,4,,2,2k,c,6,,2,,4d,c,l,4,1j,2,,7,2,2,2,3,9,,a,2,2,7,3,5,1v,9,,,2,,,4,,5,,,e,2,2a,i,n,,29,k,6j,7,2,9,r,2,2a,h,2y,d,2t,3,2,a,74,f,6t,6,,2,2,4,,,,2,3x,7,2,7,3,,s,a,14,7,,4,8,,9,b,1a,g,5i,8,5j,8,,8,2a,m,,e,3e,6,3,,,2,,7,,,1u,5,,2,,5,9n,4,9,2,,,1c,7,3,5,n,,44l,,6,f,8ug,i,1xc,5,1n,7,t4,,,1j,7,4,29,,b,2,f57,2,3mp,1a,2,n,f2,5,3,6,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,2s,,4g,7,af,,1p,4,e4,4,72,2,6r,,2,,7,2,5,,d6,7,31,7,240,5".split(",").map((s) => s ? parseInt(s, 36) : 1);
@@ -32965,6 +33129,7 @@ let isEditor = false;
 let isEditorGo = false;
 const SQUASH_TOTAL_MS = 130;
 const SQUASH_LAUNCH_MS = 90;
+const SEND_SOUND_LEAD_MS = 30;
 const MemoEditor = () => {
   var _a2, _b;
   const {
@@ -33296,6 +33461,9 @@ ${content2.trimStart()}`.trimEnd();
         squashEditor();
         const newMemo = await memoService.createMemo(sendContent, isList, target != null ? target : void 0);
         const remaining = Math.max(0, SQUASH_LAUNCH_MS - (Date.now() - squashStart));
+        window.setTimeout(() => {
+          void playSendSound(appStore.getState().settingsState.settings);
+        }, Math.max(0, remaining - SEND_SOUND_LEAD_MS));
         window.setTimeout(() => {
           finishSend();
           memoService.pushMemo(newMemo);
@@ -35542,6 +35710,7 @@ class Memos extends require$$0.ItemView {
     dailyNotesService.getApp(this.app);
     memoService.invalidate();
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.plugin.settings } });
+    preloadSendSound(this.plugin.settings);
     MemoHeading = this.plugin.settings.MemoHeading;
     this.plugin.settings.DefaultPrefix;
     this.plugin.settings.DefaultEditorLocation;
@@ -35586,6 +35755,9 @@ const DEFAULT_SETTINGS = {
   HeatMapStartDay: "sunday",
   ShowHeatMap: true,
   EnterToSend: false,
+  SendSoundSource: "builtin",
+  SendSoundPath: "",
+  SendSoundVolume: 25,
   OpenMemosAutomatically: false,
   AutoSaveWhenOnMobile: false,
   DefaultLightBackgroundImage: "",
@@ -35646,6 +35818,43 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
+    const sendSoundRow = new require$$0.Setting(containerEl).setName(t$2("Send sound")).setDesc(t$2("Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.")).addDropdown((d) => {
+      d.addOption("builtin", t$2("Built-in (card deal)"));
+      d.addOption("custom", t$2("Custom path"));
+      d.addOption("none", t$2("Not played"));
+      d.setValue(this.plugin.settings.SendSoundSource).onChange(
+        async (value) => {
+          this.plugin.settings.SendSoundSource = value;
+          await this.plugin.saveSettings();
+          this.display();
+        }
+      );
+    });
+    if (this.plugin.settings.SendSoundSource !== "none") {
+      sendSoundRow.addSlider(
+        (slider) => slider.setLimits(0, 100, 5).setValue(this.plugin.settings.SendSoundVolume).setDynamicTooltip().onChange(async (value) => {
+          this.plugin.settings.SendSoundVolume = value;
+          this.applySettingsUpdate();
+        })
+      );
+    }
+    if (this.plugin.settings.SendSoundSource === "custom") {
+      new require$$0.Setting(containerEl).setName(t$2("Sound file path")).setDesc(t$2("Enter a vault-relative path (e.g. assets/send.mp3).")).addText((text) => {
+        text.setPlaceholder("assets/send.mp3").setValue(this.plugin.settings.SendSoundPath).onChange(async (value) => {
+          this.plugin.settings.SendSoundPath = value;
+          this.applySettingsUpdate();
+        });
+        attachAudioPathSuggest(this.app, text.inputEl, (picked) => {
+          text.setValue(picked);
+          this.plugin.settings.SendSoundPath = picked;
+          this.applySettingsUpdate();
+        });
+      }).addExtraButton(
+        (button) => button.setIcon("play").setTooltip(t$2("Preview")).onClick(async () => {
+          await playSendSound(this.plugin.settings, { manual: true });
+        })
+      );
+    }
     new require$$0.Setting(containerEl).setName(t$2("Focus on editor when open memos")).setDesc(t$2("Focus on editor when open memos. Focus by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.FocusOnEditor).onChange(async (value) => {
         this.plugin.settings.FocusOnEditor = value;
@@ -35814,6 +36023,9 @@ class MemosPlugin extends require$$0.Plugin {
     }
     if (!loaded.MemoHeading && typeof loaded.InsertAfter === "string" && loaded.InsertAfter.trim() !== "") {
       this.settings.MemoHeading = loaded.InsertAfter;
+    }
+    if (!loaded.SendSoundSource && typeof loaded.SendSoundPath === "string" && loaded.SendSoundPath.trim() !== "") {
+      this.settings.SendSoundSource = "custom";
     }
   }
   async saveSettings() {
