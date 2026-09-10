@@ -4,20 +4,16 @@ import { MEMOS_VIEW_TYPE } from './constants';
 import memoService from './services/memoService';
 import locationService from './services/locationService';
 import { t } from './translations/helper';
-import { getDailyNotePath } from './helpers/utils';
 
 export interface MemosSettings {
-  InsertAfter: string;
-  ProcessEntriesBelow: string;
-  Language: string;
+  /** Memo 区标题（2026-09-10 合并旧「插入标题/解析标题」两键）：默认 '## Memo'；写入其下、只读其下；缺失时写入端自动创建 */
+  MemoHeading: string;
   ShareFooterStart: string;
   ShareFooterEnd: string;
-  UseDailyOrPeriodic: string;
   DefaultPrefix: string;
   DefaultEditorLocation: string;
   UseButtonToShowEditor: boolean;
   FocusOnEditor: boolean;
-  OpenDailyMemosWithMemos: boolean;
   HideDoneTasks: boolean;
   /** 主列表不显示引用卡（P3 引用模型；搜索/过滤时仍可见）。默认 true = 隐藏 */
   HideRefMemosInList: boolean;
@@ -32,34 +28,22 @@ export interface MemosSettings {
   /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
   EnterToSend: boolean;
   OpenMemosAutomatically: boolean;
-  // EditorMaxHeight: string;
-  ShowTime: boolean;
-  ShowDate: boolean;
-  AddBlankLineWhenDate: boolean;
   AutoSaveWhenOnMobile: boolean;
-  DeleteFileName: string;
-  QueryFileName: string;
-  UseVaultTags: boolean;
   DefaultLightBackgroundImage: string;
   DefaultDarkBackgroundImage: string;
-  DefaultMemoComposition: string;
   ShowLeftSideBar: boolean;
-  /** 界面时间显示格式：'HH:mm:ss'（带秒，默认）| 'HH:mm'（不带秒）。只影响渲染，不改文件数据 */
+  /** 界面时间显示格式：'HH:mm'（不带秒，默认）| 'HH:mm:ss'（带秒）。只影响渲染，不改文件数据 */
   TimeFormat: 'HH:mm:ss' | 'HH:mm';
 }
 
 export const DEFAULT_SETTINGS: MemosSettings = {
-  InsertAfter: '# Journal',
-  ProcessEntriesBelow: '',
-  Language: 'en',
+  MemoHeading: '## Memo',
   ShareFooterStart: '{MemosNum} Memos {UsedDay} Day',
   ShareFooterEnd: '✍️ Rememo',
   DefaultPrefix: 'List',
-  UseDailyOrPeriodic: 'Daily',
   DefaultEditorLocation: 'Top',
   UseButtonToShowEditor: false,
   FocusOnEditor: true,
-  OpenDailyMemosWithMemos: true,
   HideDoneTasks: false,
   HideRefMemosInList: true,
   EnableRecycleBin: true,
@@ -68,17 +52,9 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   ShowHeatMap: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
-  // EditorMaxHeight: '250',
-  ShowTime: true,
-  ShowDate: true,
-  AddBlankLineWhenDate: false,
   AutoSaveWhenOnMobile: false,
-  DeleteFileName: 'delete',
-  QueryFileName: 'query',
-  UseVaultTags: false,
   DefaultLightBackgroundImage: '',
   DefaultDarkBackgroundImage: '',
-  DefaultMemoComposition: '{TIME} {CONTENT}',
   ShowLeftSideBar: false,
   TimeFormat: 'HH:mm',
 };
@@ -102,15 +78,6 @@ export class MemosSettingTab extends PluginSettingTab {
     memoService.updateTagsState();
   }
 
-  async changeFileName(originalFileName: string, fileName: string) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + '/' + originalFileName + '.md';
-    const newFilePath = filePath + '/' + fileName + '.md';
-    const getFile = this.app.vault.getAbstractFileByPath(absolutePath);
-    // const deleteFile = this.app.metadataCache.getFirstLinkpathDest('', absolutePath);
-    await this.app.fileManager.renameFile(getFile, newFilePath);
-  }
-
   //eslint-disable-next-line
   async hide() {}
 
@@ -120,82 +87,49 @@ export class MemosSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     this.containerEl.empty();
 
-    this.containerEl.createEl('h1', { text: t('Basic Options') });
-    // containerEl.createDiv("", (el) => {
-    //   el.innerHTML = "Basic Options";
-    // });
+    // ===== 记录（写入 / 输入）=====
+    new Setting(containerEl).setName(t('Memo')).setHeading();
 
     new Setting(containerEl)
-      .setName(t('Insert after heading'))
-      .setDesc(
-        t('You should set the same heading below if you want to insert and process memos below the same heading.'),
-      )
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.InsertAfter)
-          .setValue(this.plugin.settings.InsertAfter)
-          .onChange(async (value) => {
-            this.plugin.settings.InsertAfter = value;
-            this.applySettingsUpdate();
-          }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Process Memos below'))
+      .setName(t('Memo heading'))
       .setDesc(
         t(
-          'Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.',
+          'New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo',
         ),
       )
       .addText((text) =>
         text
-          .setPlaceholder(DEFAULT_SETTINGS.ProcessEntriesBelow)
-          .setValue(this.plugin.settings.ProcessEntriesBelow)
+          .setPlaceholder(DEFAULT_SETTINGS.MemoHeading)
+          .setValue(this.plugin.settings.MemoHeading)
           .onChange(async (value) => {
-            this.plugin.settings.ProcessEntriesBelow = value;
+            this.plugin.settings.MemoHeading = value;
             this.applySettingsUpdate();
           }),
       );
 
     new Setting(containerEl)
-      .setName(t('Focus on editor when open memos'))
-      .setDesc(t('Focus on editor when open memos. Focus by default.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.FocusOnEditor).onChange(async (value) => {
-          this.plugin.settings.FocusOnEditor = value;
+      .setName(t('Default prefix'))
+      .setDesc(t("Set the default prefix when create memo, 'List' by default."))
+      .addDropdown(async (d: DropdownComponent) => {
+        d.addOption('List', t('List'));
+        d.addOption('Task', t('Task'));
+        d.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
+          this.plugin.settings.DefaultPrefix = value;
           this.applySettingsUpdate();
-        }),
-      );
+        });
+      });
 
     new Setting(containerEl)
-      .setName(t('Open daily memos with open memos'))
-      .setDesc(t('Open daily memos with open memos. Open by default.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.OpenDailyMemosWithMemos).onChange(async (value) => {
-          this.plugin.settings.OpenDailyMemosWithMemos = value;
+      .setName(t('Time display format'))
+      .setDesc(t('Time display format description'))
+      .addDropdown(async (d: DropdownComponent) => {
+        d.addOption('HH:mm', 'HH:mm');
+        d.addOption('HH:mm:ss', 'HH:mm:ss');
+        d.setValue(this.plugin.settings.TimeFormat).onChange(async (value: 'HH:mm:ss' | 'HH:mm') => {
+          this.plugin.settings.TimeFormat = value;
           this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Open Memos when obsidian opens'))
-      .setDesc(t('When enable this, Memos will open when Obsidian opens. False by default.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.OpenMemosAutomatically).onChange(async (value) => {
-          this.plugin.settings.OpenMemosAutomatically = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Hide done tasks in Memo list'))
-      .setDesc(t('Hide all done tasks in Memo list. Show done tasks by default.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
-          this.plugin.settings.HideDoneTasks = value;
-          this.applySettingsUpdate();
-        }),
-      );
+        });
+      });
 
     new Setting(containerEl)
       .setName(t('Send memo by Enter key'))
@@ -208,11 +142,24 @@ export class MemosSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName(t('Use Tags In Vault'))
-      .setDesc(t('Use tags in vault rather than only in Memos. False by default.'))
+      .setName(t('Focus on editor when open memos'))
+      .setDesc(t('Focus on editor when open memos. Focus by default.'))
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.UseVaultTags).onChange(async (value) => {
-          this.plugin.settings.UseVaultTags = value;
+        toggle.setValue(this.plugin.settings.FocusOnEditor).onChange(async (value) => {
+          this.plugin.settings.FocusOnEditor = value;
+          this.applySettingsUpdate();
+        }),
+      );
+
+    // ===== 列表与侧栏 =====
+    new Setting(containerEl).setName(t('List & Sidebar')).setHeading();
+
+    new Setting(containerEl)
+      .setName(t('Hide done tasks in Memo list'))
+      .setDesc(t('Hide all done tasks in Memo list. Show done tasks by default.'))
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
+          this.plugin.settings.HideDoneTasks = value;
           this.applySettingsUpdate();
         }),
       );
@@ -227,20 +174,6 @@ export class MemosSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
           this.plugin.settings.HideRefMemosInList = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('Enable Recycle Bin'))
-      .setDesc(
-        t(
-          'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.',
-        ),
-      )
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
-          this.plugin.settings.EnableRecycleBin = value;
           this.applySettingsUpdate();
         }),
       );
@@ -277,148 +210,38 @@ export class MemosSettingTab extends PluginSettingTab {
         }),
       );
 
-    this.containerEl.createEl('h1', { text: t('Advanced Options') });
-
-    // new Setting(containerEl)
-    //   .setName('Set The Max-Height for Editor')
-    //   .setDesc("Set the max height for editor in Memos. '250' By default")
-    //   .addText((text) =>
-    //     text
-    //       .setPlaceholder(DEFAULT_SETTINGS.EditorMaxHeight)
-    //       .setValue(this.plugin.settings.EditorMaxHeight)
-    //       .onChange(async (value) => {
-    //         this.plugin.settings.EditorMaxHeight = value;
-    //         this.applySettingsUpdate();
-    //       }),
-    //   );
-
-    let dropdown: DropdownComponent;
-
-    // new Setting(containerEl)
-    //   .setName(t('UI language for date'))
-    //   .setDesc(t("Translates the date UI language. Only 'en' and 'zh' are available."))
-    //   .addDropdown(async (d: DropdownComponent) => {
-    //     dropdown = d;
-    //     dropdown.addOption('zh', '中文');
-    //     dropdown.addOption('en', 'English');
-    //     dropdown.setValue(this.plugin.settings.Language).onChange(async (value) => {
-    //       this.plugin.settings.Language = value;
-    //       this.applySettingsUpdate();
-    //     });
-    //   });
+    // ===== 回收站 =====
+    new Setting(containerEl).setName(t('Recycle bin')).setHeading();
 
     new Setting(containerEl)
-      .setName(t('Default prefix'))
-      .setDesc(t("Set the default prefix when create memo, 'List' by default."))
-      .addDropdown(async (d: DropdownComponent) => {
-        dropdown = d;
-        dropdown.addOption('List', t('List'));
-        dropdown.addOption('Task', t('Task'));
-        dropdown.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
-          this.plugin.settings.DefaultPrefix = value;
-          this.applySettingsUpdate();
-        });
-      });
-
-    new Setting(containerEl)
-      .setName(t('Time display format'))
-      .setDesc(t('Time display format description'))
-      .addDropdown(async (d: DropdownComponent) => {
-        dropdown = d;
-        dropdown.addOption('HH:mm', 'HH:mm');
-        dropdown.addOption('HH:mm:ss', 'HH:mm:ss');
-        dropdown.setValue(this.plugin.settings.TimeFormat).onChange(async (value: 'HH:mm:ss' | 'HH:mm') => {
-          this.plugin.settings.TimeFormat = value;
-          this.applySettingsUpdate();
-        });
-      });
-
-    new Setting(containerEl)
-      .setName(t('Show Time When Copy Results'))
-      .setDesc(t('Show time when you copy results, like 12:00. Copy time by default.'))
+      .setName(t('Enable Recycle Bin'))
+      .setDesc(
+        t(
+          'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.',
+        ),
+      )
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.ShowTime).onChange(async (value) => {
-          this.plugin.settings.ShowTime = value;
+        toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
+          this.plugin.settings.EnableRecycleBin = value;
           this.applySettingsUpdate();
         }),
       );
 
+    // ===== 启动与打开 =====
+    new Setting(containerEl).setName(t('Startup & Opening')).setHeading();
+
     new Setting(containerEl)
-      .setName(t('Show Date When Copy Results'))
-      .setDesc(t('Show date when you copy results, like [[2022-01-01]]. Copy date by default.'))
+      .setName(t('Open Memos when obsidian opens'))
+      .setDesc(t('When enable this, Memos will open when Obsidian opens. False by default.'))
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.ShowDate).onChange(async (value) => {
-          this.plugin.settings.ShowDate = value;
+        toggle.setValue(this.plugin.settings.OpenMemosAutomatically).onChange(async (value) => {
+          this.plugin.settings.OpenMemosAutomatically = value;
           this.applySettingsUpdate();
         }),
       );
 
-    new Setting(containerEl)
-      .setName(t('Add Blank Line Between Different Date'))
-      .setDesc(t('Add blank line when copy result with date. No blank line by default.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.AddBlankLineWhenDate).onChange(async (value) => {
-          this.plugin.settings.AddBlankLineWhenDate = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('File Name of Recycle Bin'))
-      .setDesc(t("Set the filename for recycle bin. 'delete' By default"))
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.DeleteFileName)
-          .setValue(this.plugin.settings.DeleteFileName)
-          .onChange(async (value) => {
-            await this.changeFileName(this.plugin.settings.DeleteFileName, value);
-            this.plugin.settings.DeleteFileName = value;
-
-            this.applySettingsUpdate();
-          }),
-      );
-
-    new Setting(containerEl)
-      .setName(t('File Name of Query File'))
-      .setDesc(t("Set the filename for query file. 'query' By default"))
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.QueryFileName)
-          .setValue(this.plugin.settings.QueryFileName)
-          .onChange(async (value) => {
-            await this.changeFileName(this.plugin.settings.QueryFileName, value);
-            this.plugin.settings.QueryFileName = value;
-
-            this.applySettingsUpdate();
-          }),
-      );
-
-    this.containerEl.createEl('h1', { text: t('Mobile Options') });
-
-    new Setting(containerEl)
-      .setName(t('Default editor position on mobile'))
-      .setDesc(t("Set the default editor position on Mobile, 'Top' by default."))
-      .addDropdown(async (d: DropdownComponent) => {
-        dropdown = d;
-        dropdown.addOption('Top', t('Top'));
-        dropdown.addOption('Bottom', t('Bottom'));
-        dropdown.setValue(this.plugin.settings.DefaultEditorLocation).onChange(async (value) => {
-          this.plugin.settings.DefaultEditorLocation = value;
-          this.applySettingsUpdate();
-        });
-      });
-
-    new Setting(containerEl)
-      .setName(t('Use button to show editor on mobile'))
-      .setDesc(t('Set a float button to call editor on mobile. Only when editor located at the bottom works.'))
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.UseButtonToShowEditor).onChange(async (value) => {
-          this.plugin.settings.UseButtonToShowEditor = value;
-          this.applySettingsUpdate();
-        }),
-      );
-
-    this.containerEl.createEl('h1', { text: t('Share Options') });
+    // ===== 分享与导出 =====
+    new Setting(containerEl).setName(t('Share Options')).setHeading();
 
     new Setting(containerEl)
       .setName(t('Share Memos Image Footer Start'))
@@ -476,6 +299,31 @@ export class MemosSettingTab extends PluginSettingTab {
           }),
       );
 
+    // ===== 移动端 =====
+    new Setting(containerEl).setName(t('Mobile Options')).setHeading();
+
+    new Setting(containerEl)
+      .setName(t('Default editor position on mobile'))
+      .setDesc(t("Set the default editor position on Mobile, 'Top' by default."))
+      .addDropdown(async (d: DropdownComponent) => {
+        d.addOption('Top', t('Top'));
+        d.addOption('Bottom', t('Bottom'));
+        d.setValue(this.plugin.settings.DefaultEditorLocation).onChange(async (value) => {
+          this.plugin.settings.DefaultEditorLocation = value;
+          this.applySettingsUpdate();
+        });
+      });
+
+    new Setting(containerEl)
+      .setName(t('Use button to show editor on mobile'))
+      .setDesc(t('Set a float button to call editor on mobile. Only when editor located at the bottom works.'))
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.UseButtonToShowEditor).onChange(async (value) => {
+          this.plugin.settings.UseButtonToShowEditor = value;
+          this.applySettingsUpdate();
+        }),
+      );
+
     new Setting(containerEl)
       .setName(t('Save Shared Image To Folder For Mobile'))
       .setDesc(t('Save image to folder for mobile. False by Default'))
@@ -486,40 +334,8 @@ export class MemosSettingTab extends PluginSettingTab {
         }),
       );
 
-    this.containerEl.createEl('h1', { text: t('Experimental Options') });
-
-    new Setting(containerEl)
-      .setName(t("Use Which Plugin's Default Configuration"))
-      .setDesc(t("Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default."))
-      .addDropdown(async (d: DropdownComponent) => {
-        dropdown = d;
-        dropdown.addOption('Daily', t('Daily'));
-        dropdown.addOption('Periodic', 'Periodic');
-        dropdown.setValue(this.plugin.settings.UseDailyOrPeriodic).onChange(async (value) => {
-          this.plugin.settings.UseDailyOrPeriodic = value;
-          this.applySettingsUpdate();
-        });
-      });
-
-    new Setting(containerEl)
-      .setName(t('Default Memo Composition'))
-      .setDesc(
-        t(
-          'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default',
-        ),
-      )
-      .addText((text) =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.DefaultMemoComposition)
-          .setValue(this.plugin.settings.DefaultMemoComposition)
-          .onChange(async (value) => {
-            this.plugin.settings.DefaultMemoComposition = value;
-            this.applySettingsUpdate();
-          }),
-      );
-
-    // 数据工具（ADR-0004：审计入口从小菜单下沉到设置面板）
-    this.containerEl.createEl('h1', { text: t('Data tools') });
+    // ===== 数据与兼容（ADR-0004：审计入口从小菜单下沉到设置面板）=====
+    new Setting(containerEl).setName(t('Data tools')).setHeading();
 
     new Setting(containerEl)
       .setName(t('Data Audit'))
@@ -537,7 +353,8 @@ export class MemosSettingTab extends PluginSettingTab {
         }),
       );
 
-    this.containerEl.createEl('h1', { text: t('Say Thank You') });
+    // ===== 关于 =====
+    new Setting(containerEl).setName(t('Say Thank You')).setHeading();
 
     new Setting(containerEl)
       .setName(t('Donate'))

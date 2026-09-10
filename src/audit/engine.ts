@@ -6,30 +6,10 @@ import { getAllDailyNotes } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
 import { rules } from './rules';
 import { AuditResult, Issue } from './types';
+import { computeScope } from '../helpers/memoSection';
 
 function readLines(file: TFile): Promise<string[]> {
   return file.vault.cachedRead(file).then((content) => content.split('\n'));
-}
-
-/**
- * memo 处理区标记（复制读取器语义，见 obGetMemos.parseMemosFromNote）：
- * - ProcessEntriesBelow 为空：从文件头开始处理，遇到第一个标题（/^#{1,} /）后退出
- * - 非空：从匹配 token 的行开始，遇到下一个标题退出
- */
-export function computeScope(lines: string[], processBelow: string): boolean[] {
-  const inScope = new Array<boolean>(lines.length).fill(false);
-  const tokenRe = processBelow ? new RegExp(processBelow.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1')) : null;
-  let active = !tokenRe;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (tokenRe && !active && tokenRe.test(line)) {
-      active = true;
-      continue; // 与读取器一致：token 行只开门、不入区（否则标题型 token 如 "## Memo" 会被下方标题判定当场熄灭，处理区恒空）
-    }
-    if (active && /^#{1,} /.test(line)) active = false;
-    if (active) inScope[i] = true;
-  }
-  return inScope;
 }
 
 export async function runAudit(
@@ -54,7 +34,7 @@ export async function runAudit(
     } catch {
       continue; // 读取失败（文件被删等）跳过
     }
-    const ctx = { path: file.path, lines, inScope: computeScope(lines, appStore.getState().settingsState.settings.ProcessEntriesBelow ?? '') };
+    const ctx = { path: file.path, lines, inScope: computeScope(lines, appStore.getState().settingsState.settings.MemoHeading ?? '') };
     for (const rule of rules) {
       issues.push(...rule.detect(ctx));
     }

@@ -114,27 +114,16 @@ export class Memos extends ItemView {
     // 把设置注入响应式 store（组件经 context 订阅，实现响应式）
     appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.plugin.settings } });
 
-    InsertAfter = this.plugin.settings.InsertAfter;
-    ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;
+    MemoHeading = this.plugin.settings.MemoHeading;
     DefaultPrefix = this.plugin.settings.DefaultPrefix;
     DefaultEditorLocation = this.plugin.settings.DefaultEditorLocation;
     UseButtonToShowEditor = this.plugin.settings.UseButtonToShowEditor;
     FocusOnEditor = this.plugin.settings.FocusOnEditor;
-    OpenDailyMemosWithMemos = this.plugin.settings.OpenDailyMemosWithMemos;
     HideDoneTasks = this.plugin.settings.HideDoneTasks;
     OpenMemosAutomatically = this.plugin.settings.OpenMemosAutomatically;
-    // EditorMaxHeight = this.plugin.settings.EditorMaxHeight;
-    ShowTime = this.plugin.settings.ShowTime;
-    ShowDate = this.plugin.settings.ShowDate;
-    AddBlankLineWhenDate = this.plugin.settings.AddBlankLineWhenDate;
     AutoSaveWhenOnMobile = this.plugin.settings.AutoSaveWhenOnMobile;
-    QueryFileName = this.plugin.settings.QueryFileName;
-    DeleteFileName = this.plugin.settings.DeleteFileName;
-    UseVaultTags = this.plugin.settings.UseVaultTags;
     DefaultDarkBackgroundImage = this.plugin.settings.DefaultDarkBackgroundImage;
     DefaultLightBackgroundImage = this.plugin.settings.DefaultLightBackgroundImage;
-    DefaultMemoComposition = this.plugin.settings.DefaultMemoComposition;
-    UseDailyOrPeriodic = this.plugin.settings.UseDailyOrPeriodic;
     ShowLeftSideBar = this.plugin.settings.ShowLeftSideBar;
 
     this.memosComponent = React.createElement(App);
@@ -148,25 +137,15 @@ export class Memos extends ItemView {
   }
 }
 
-export let InsertAfter: string;
-export let ProcessEntriesBelow: string;
+/** Memo 区标题（2026-09-10 合并旧「插入标题/解析标题」两键）：写入其下、只读其下，缺失自动创建 */
+export let MemoHeading: string;
 export let DefaultPrefix: string;
 export let DefaultEditorLocation: string;
 export let UseButtonToShowEditor: boolean;
 export let FocusOnEditor: boolean;
-export let OpenDailyMemosWithMemos: boolean;
 export let HideDoneTasks: boolean;
 export let OpenMemosAutomatically: boolean;
-// export let EditorMaxHeight: string;
-export let ShowTime: boolean;
-export let ShowDate: boolean;
-export let AddBlankLineWhenDate: boolean;
 export let AutoSaveWhenOnMobile: boolean;
-export let QueryFileName: string;
-export let DeleteFileName: string;
-export let UseVaultTags: boolean;
 export let DefaultDarkBackgroundImage: string;
 export let DefaultLightBackgroundImage: string;
-export let DefaultMemoComposition: string;
-export let UseDailyOrPeriodic: string;
 export let ShowLeftSideBar: boolean;

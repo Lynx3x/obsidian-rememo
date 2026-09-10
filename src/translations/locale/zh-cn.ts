@@ -107,6 +107,12 @@ export default {
   Settings: '设置',
   'Recycle bin': '回收站',
   'Enable Recycle Bin': '启用回收站',
+  'Memo': 'Memo 记录',
+  'List & Sidebar': '列表与侧栏',
+  'Startup & Opening': '启动与打开',
+  'Memo heading': 'Memo 区标题',
+  'New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo':
+    '新闪念写入该标题下，且只读取该标题下的内容；标题不存在时会自动创建。默认：## Memo',
   'Show Heat Map': '显示热力图',
   'Whether to show the usage heat map in the sidebar. True by default.': '是否在侧栏显示活跃热力图。默认开启。',
   'Start day of week': '周起始日',

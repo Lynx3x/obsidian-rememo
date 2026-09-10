@@ -6259,19 +6259,6 @@ div[data-type='memos_view'] .filter-query-container > .filter-query > .filter-it
   text-decoration: line-through;
   background-color: var(--memo-border);
 }
-div[data-type='memos_view'] .filter-query-container > .copy-memo {
-  padding-right: 6px;
-  cursor: pointer;
-}
-div[data-type='memos_view'] .filter-query-container > .copy-memo > .icon-img {
-  width: 18px;
-  height: auto;
-  fill: var(--memo-text-muted);
-  transition: color var(--memo-transition-fast);
-}
-div[data-type='memos_view'] .filter-query-container > .copy-memo:hover > .icon-img {
-  fill: var(--memo-accent);
-}
 div[data-type='memos_view'].mobile-view .filter-query-container {
   padding-left: 20px;
 }

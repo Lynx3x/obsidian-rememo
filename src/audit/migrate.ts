@@ -20,7 +20,7 @@
 import { TFile, normalizePath, moment } from 'obsidian';
 import appStore from '../stores/appStore';
 import { classifyMemoRow, extractDeletedAt, extractMemoTime, unindentContentLine } from '../helpers/memoLine';
-import { computeScope } from './engine';
+import { computeScope } from '../helpers/memoSection';
 
 export interface MigrateReport {
   /** 实际写盘的文件数 */
@@ -158,8 +158,8 @@ function convertLegacyUnit(
 }
 
 /** 把一组卡片块插入到 lines 处理区末尾（区尾=最后一个 inScope 行之后；无区返回 null） */
-function insertAtScopeEnd(lines: string[], blocks: string[][], processBelow: string): string[] | null {
-  const scope = computeScope(lines, processBelow);
+function insertAtScopeEnd(lines: string[], blocks: string[][], memoHeading: string): string[] | null {
+  const scope = computeScope(lines, memoHeading);
   const idx = scope.lastIndexOf(true);
   if (idx < 0) return null;
   let insertAt = idx + 1;
@@ -187,7 +187,7 @@ function insertAtScopeEnd(lines: string[], blocks: string[][], processBelow: str
  */
 export async function migrateFiles(files: TFile[]): Promise<MigrateReport> {
   const app = appStore.getState().dailyNotesState.app;
-  const processBelow = appStore.getState().settingsState.settings.ProcessEntriesBelow ?? '';
+  const memoHeading = appStore.getState().settingsState.settings.MemoHeading ?? '';
   const report: MigrateReport = { files: 0, converted: 0, skipped: 0, droppedComments: 0, crossMoved: 0, failed: [] };
   if (files.length === 0) return report;
 
@@ -196,7 +196,7 @@ export async function migrateFiles(files: TFile[]): Promise<MigrateReport> {
   for (const file of files) {
     try {
       const lines = (await file.vault.cachedRead(file)).split(/\r?\n/);
-      const inScope = computeScope(lines, processBelow);
+      const inScope = computeScope(lines, memoHeading);
       const fd = FILE_DATE_REG.exec(file.name);
       const fileDate = fd ? `${fd[1]}-${fd[2]}-${fd[3]}` : '';
       const out: string[] = [];
@@ -275,7 +275,7 @@ export async function migrateFiles(files: TFile[]): Promise<MigrateReport> {
         continue;
       }
       const tLines = (await t.vault.cachedRead(t)).split(/\r?\n/);
-      const scope = computeScope(tLines, processBelow);
+      const scope = computeScope(tLines, memoHeading);
       if (scope.lastIndexOf(true) < 0) {
         fallback.push(...blocks);
         continue;
@@ -283,7 +283,7 @@ export async function migrateFiles(files: TFile[]): Promise<MigrateReport> {
       const p = planByPath.get(tPath);
       if (p) {
         // 目标文件本批也要迁移：合并进它的 plan.out（区尾）
-        const merged = insertAtScopeEnd(p.out, blocks, processBelow);
+        const merged = insertAtScopeEnd(p.out, blocks, memoHeading);
         if (merged) p.out = merged;
         else fallback.push(...blocks);
       } else {
@@ -295,7 +295,7 @@ export async function migrateFiles(files: TFile[]): Promise<MigrateReport> {
     }
     if (fallback.length > 0) {
       // 回退：追加到父 plan.out 区尾
-      const merged = insertAtScopeEnd(plan.out, fallback, processBelow);
+      const merged = insertAtScopeEnd(plan.out, fallback, memoHeading);
       if (merged) plan.out = merged;
     }
   }
@@ -314,7 +314,7 @@ export async function migrateFiles(files: TFile[]): Promise<MigrateReport> {
     const f = fileByName.get(tPath.split('/').pop() ?? '');
     if (!(f instanceof TFile) || f.path !== tPath) continue;
     const original = (await f.vault.cachedRead(f)).split(/\r?\n/);
-    const merged = insertAtScopeEnd(original, blocks, processBelow);
+    const merged = insertAtScopeEnd(original, blocks, memoHeading);
     if (merged) {
       seen.add(tPath);
       writeTasks.push({ file: f, lines: merged });

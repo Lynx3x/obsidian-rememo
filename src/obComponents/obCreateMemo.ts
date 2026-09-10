@@ -2,8 +2,9 @@ import { moment } from 'obsidian';
 import type { TFile } from 'obsidian';
 import { getAllDailyNotes, getDailyNote } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
-import { InsertAfter } from '../memos';
+import { MemoHeading } from '../memos';
 import utils from '../helpers/utils';
+import { getMemoSectionRule, isMemoHeadingLine, isMemoSectionBoundary } from '../helpers/memoSection';
 import { contentToBodyLines } from './locateMemo';
 
 /**
@@ -48,13 +49,13 @@ async function writeBlockToDailyNote(date: moment.Moment, blockText: string, mem
     if (!existingFile) {
         const file = await utils.createDailyNoteCheck(date);
         const fileContents = (await vault.read(file as unknown as TFile)) || '';
-        const inserted = insertMemoBlock(InsertAfter || '', blockText, fileContents);
+        const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
         await vault.modify(file as unknown as TFile, inserted.content);
         headerIdx = inserted.headerIdx;
         memo.path = file.path;
     } else {
         const fileContents = (await vault.read(existingFile as unknown as TFile)) || '';
-        const inserted = insertMemoBlock(InsertAfter || '', blockText, fileContents);
+        const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
         await vault.modify(existingFile as unknown as TFile, inserted.content);
         headerIdx = inserted.headerIdx;
         memo.path = existingFile.path;
@@ -64,46 +65,68 @@ async function writeBlockToDailyNote(date: moment.Moment, blockText: string, mem
 }
 
 /**
- * 把卡片块插入日记：memo 区语义沿用 InsertAfter（在其后的首个标题前插入，节尾追加）。
+ * 把卡片块插入日记（2026-09-10 与读取端成对）：
+ * - 标题存在：插到「Memo 区标题」小节尾部（下一个同级或更高级标题前；无边界则文件尾）
+ * - 标题不存在：自动创建该标题（frontmatter 之后，无 frontmatter 则文件头）再写入——
+ *   修复"模板没配标题 → 写入文件尾但读取读不到"的旧 bug（读写语义自此成对）
  * 返回整文件新文本 + 头行 0-based 行号。
  */
 function insertMemoBlock(targetString: string, blockText: string, fileContent: string): { content: string; headerIdx: number } {
     const lines = fileContent.split(/\r?\n/);
     const blockLines = blockText.split('\n');
+    const rule = getMemoSectionRule(targetString);
 
-    // 空文件：直接落块，无前导空行
+    // 空文件：先建标题再落块（空日记也保证「Memo 区标题」存在，读写一致；2026-09-10 owner 验收修复）
     if (lines.length === 1 && lines[0].trim() === '') {
-        return { content: blockText, headerIdx: 0 };
+        const out = [rule.title, ...blockLines];
+        return { content: out.join('\n'), headerIdx: 1 };
     }
 
-    if (targetString !== '') {
-        const targetRe = new RegExp('\\s*' + targetString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*');
-        const targetIdx = lines.findIndex((line) => targetRe.test(line));
-        if (targetIdx !== -1) {
-            // 找 target 之后的下一标题（原语义 /^#+ |---/）
-            let nextHeading = -1;
-            for (let i = targetIdx + 1; i < lines.length; i++) {
-                if (/^#{1,} |^---/.test(lines[i])) {
-                    nextHeading = i;
-                    break;
-                }
-            }
-            if (nextHeading !== -1) {
-                // 从标题向上跳过空行，插到该节最后一条非空行后；节内全空则插在 target 行后
-                let anchor = targetIdx;
-                for (let i = nextHeading - 1; i > targetIdx; i--) {
-                    if (lines[i].trim() !== '') {
-                        anchor = i;
-                        break;
-                    }
-                }
-                const out = [...lines.slice(0, anchor + 1), ...blockLines, ...lines.slice(anchor + 1)];
-                return { content: out.join('\n'), headerIdx: anchor + 1 };
-            }
-            return appendAtEnd(lines, blockLines);
+    const targetIdx = lines.findIndex((line) => isMemoHeadingLine(line, rule));
+    if (targetIdx === -1) {
+        return insertWithNewHeading(lines, blockLines, rule.title);
+    }
+
+    // 节尾 = 目标之后的下一同级或更高级标题（更深的子标题仍属本区）
+    let nextHeading = -1;
+    for (let i = targetIdx + 1; i < lines.length; i++) {
+        if (isMemoSectionBoundary(lines[i], rule)) {
+            nextHeading = i;
+            break;
         }
     }
+    if (nextHeading !== -1) {
+        // 从标题向上跳过空行，插到该节最后一条非空行后；节内全空则插在 target 行后
+        let anchor = targetIdx;
+        for (let i = nextHeading - 1; i > targetIdx; i--) {
+            if (lines[i].trim() !== '') {
+                anchor = i;
+                break;
+            }
+        }
+        const out = [...lines.slice(0, anchor + 1), ...blockLines, ...lines.slice(anchor + 1)];
+        return { content: out.join('\n'), headerIdx: anchor + 1 };
+    }
     return appendAtEnd(lines, blockLines);
+}
+
+/** 标题不存在时自动创建（frontmatter 之后；无 frontmatter 则文件头），保证写入立即可读 */
+function insertWithNewHeading(lines: string[], blockLines: string[], title: string): { content: string; headerIdx: number } {
+    let fmEnd = -1;
+    if (lines[0]?.trim() === '---') {
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim() === '---') {
+                fmEnd = i;
+                break;
+            }
+        }
+    }
+    if (fmEnd === -1) {
+        const out = [title, ...blockLines, '', ...lines];
+        return { content: out.join('\n'), headerIdx: 1 };
+    }
+    const out = [...lines.slice(0, fmEnd + 1), '', title, ...blockLines, ...lines.slice(fmEnd + 1)];
+    return { content: out.join('\n'), headerIdx: fmEnd + 3 };
 }
 
 /** 文件尾追加（保留尾换行/无尾换行两种形态；headerIdx = 追加前行数） */

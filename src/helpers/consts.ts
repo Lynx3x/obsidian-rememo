@@ -10,6 +10,9 @@ export const TOAST_ANIMATION_DURATION = 400;
 // 一天的毫秒数
 export const DAILY_TIMESTAMP = 3600 * 24 * 1000;
 
+// 检索（query）文件名——2026-09-10 设置项删除后写死（旧 QueryFileName 设置已移除）
+export const QUERY_FILE_NAME = 'query';
+
 // 格式化时间
 
 // 标签 正则

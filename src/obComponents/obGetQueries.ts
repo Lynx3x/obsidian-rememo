@@ -1,6 +1,6 @@
 import { moment, TFile } from 'obsidian';
 import appStore from '../stores/appStore';
-import { QueryFileName } from '../memos';
+import { QUERY_FILE_NAME } from '../helpers/consts';
 import { getDailyNotePath } from '../helpers/utils';
 
 export const findQuery = async (): Promise<any[]> => {
@@ -9,7 +9,7 @@ export const findQuery = async (): Promise<any[]> => {
   const queryList = [];
 
   const filePath = getDailyNotePath();
-  const absolutePath = filePath + '/' + QueryFileName + '.md';
+  const absolutePath = filePath + '/' + QUERY_FILE_NAME + '.md';
 
   const queryFile = metadataCache.getFirstLinkpathDest('', absolutePath);
   if (queryFile instanceof TFile) {

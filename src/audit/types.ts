@@ -7,7 +7,7 @@ export type RuleSeverity = 'error' | 'warning' | 'info';
 export interface DetectContext {
   path: string;
   lines: string[]; // 每行原文（不含行尾换行符）
-  /** 每行是否在 memo 处理区内（与读取器 ProcessEntriesBelow 语义一致，engine 预计算） */
+  /** 每行是否在 memo 处理区内（与读取器语义一致，helpers/memoSection.computeScope 预计算） */
   inScope: boolean[];
 }
 

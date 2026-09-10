@@ -1,13 +1,13 @@
 import { moment, Notice, TFile } from 'obsidian';
 import appStore from '../stores/appStore';
-import { QueryFileName } from '../memos';
+import { QUERY_FILE_NAME } from '../helpers/consts';
 import { getDailyNotePath } from '../helpers/utils';
 
 export const pinQueryInFile = async (queryID: string): Promise<any> => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
   if (/\d{14,}/.test(queryID)) {
     const filePath = getDailyNotePath();
-    const absolutePath = filePath + '/' + QueryFileName + '.md';
+    const absolutePath = filePath + '/' + QUERY_FILE_NAME + '.md';
 
     const queryFile = metadataCache.getFirstLinkpathDest('', absolutePath);
 
@@ -42,7 +42,7 @@ export const unpinQueryInFile = async (queryID: string): Promise<any> => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
 
   const filePath = getDailyNotePath();
-  const absolutePath = filePath + '/' + QueryFileName + '.md';
+  const absolutePath = filePath + '/' + QUERY_FILE_NAME + '.md';
 
   const queryFile = metadataCache.getFirstLinkpathDest('', absolutePath);
 

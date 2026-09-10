@@ -128,6 +128,12 @@ export default {
   Settings: 'Settings',
   'Recycle bin': 'Recycle bin',
   'Enable Recycle Bin': 'Enable Recycle Bin',
+  'Memo': 'Memo',
+  'List & Sidebar': 'List & Sidebar',
+  'Startup & Opening': 'Startup & Opening',
+  'Memo heading': 'Memo heading',
+  'New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo':
+    'New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo',
   'Show Heat Map': 'Show Heat Map',
   'Whether to show the usage heat map in the sidebar. True by default.':
     'Whether to show the usage heat map in the sidebar. True by default.',

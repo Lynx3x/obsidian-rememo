@@ -111,6 +111,12 @@ export default {
   Settings: 'Paramètres',
   'Recycle bin': 'Corbeille',
   'Enable Recycle Bin': 'Activer la corbeille',
+  'Memo': 'Mémo',
+  'List & Sidebar': 'Liste et barre latérale',
+  'Startup & Opening': 'Démarrage et ouverture',
+  'Memo heading': 'Titre de la section Mémo',
+  'New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo':
+    "Les nouveaux mémos sont écrits sous ce titre, et seuls les éléments sous celui-ci sont lus. S'il est absent, il sera créé automatiquement. Par défaut : ## Memo",
   'Show Heat Map': 'Afficher la carte de chaleur',
   'Whether to show the usage heat map in the sidebar. True by default.':
     "Afficher la carte de chaleur d'utilisation dans la barre latérale. Activé par défaut.",

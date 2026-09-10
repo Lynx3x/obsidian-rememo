@@ -112,6 +112,12 @@ export default {
   Settings: 'Definições',
   'Recycle bin': 'Reciclagem',
   'Enable Recycle Bin': 'Ativar a lixeira',
+  'Memo': 'Memo',
+  'List & Sidebar': 'Lista e barra lateral',
+  'Startup & Opening': 'Inicialização e abertura',
+  'Memo heading': 'Título da seção de memos',
+  'New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo':
+    'Novos memos são gravados abaixo deste título, e apenas os itens abaixo dele são lidos. Se estiver ausente, será criado automaticamente. Padrão: ## Memo',
   'Show Heat Map': 'Mostrar mapa de calor',
   'Whether to show the usage heat map in the sidebar. True by default.':
     'Mostrar o mapa de calor de uso na barra lateral. Ativado por padrão.',

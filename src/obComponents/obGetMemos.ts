@@ -1,9 +1,10 @@
 import { moment, normalizePath, Notice, TFile, TFolder } from 'obsidian';
 import { getAllDailyNotes, getDateFromFile } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
-import { ProcessEntriesBelow } from '../memos';
+import { MemoHeading } from '../memos';
 import { t } from '../translations/helper';
 import { getDailyNotePath } from '../helpers/utils';
+import { getMemoSectionRule, isMemoHeadingLine, isMemoSectionBoundary } from '../helpers/memoSection';
 import {
     classifyMemoRow,
     extractDeletedAt,
@@ -55,7 +56,7 @@ interface PendingBlock {
 
 /**
  * 新卡片块格式解析（行级，P1b）：
- * 处理区语义照旧（ProcessEntriesBelow token 激活 / 标题退出），区内：
+ * 处理区语义见 helpers/memoSection（Memo 区标题小节；整文件无该标题时宽容读全文件），区内：
  *  - pure-header → 新卡（头字段：任务标记/时间/HH:mm(:ss) 或 14 位/deletedAt/^id）
  *  - old-top-row → 关闭当前块并跳过（旧数据，不渲染）
  *  - 缩进 ≥4 非空行 → 正文（空行押后计数：内容间空行保留、块尾空行丢弃）
@@ -67,10 +68,10 @@ function parseMemosFromNote(
     allMemos: Model.Memo[],
     baseDate: string,
 ): void {
-    const tokenRe = ProcessEntriesBelow
-        ? new RegExp(ProcessEntriesBelow.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'))
-        : null;
-    let active = !tokenRe;
+    // 处理区语义（唯一来源 helpers/memoSection）：严格模式——只有 Memo 区标题小节内的行才处理；
+    // 整文件没有该标题 → 不读（写入端保证标题存在，缺失时自动创建）
+    const rule = getMemoSectionRule(MemoHeading);
+    let active = false;
     let current: PendingBlock | null = null;
     let pendingBlanks = 0;
 
@@ -143,11 +144,12 @@ function parseMemosFromNote(
 
     for (let i = 0; i < fileLines.length; i++) {
         const line = fileLines[i];
-        if (tokenRe && !active && tokenRe.test(line)) {
-            active = true;
+        if (isMemoHeadingLine(line, rule)) {
+            flush();
+            active = true; // 标题行只开门、不入区（否则会被自身级别判定当场熄灭）
             continue;
         }
-        if (active && /^#{1,} /.test(line)) {
+        if (active && isMemoSectionBoundary(line, rule)) {
             active = false;
             flush();
             continue;

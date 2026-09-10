@@ -1,9 +1,8 @@
 import { Notice, Platform, Plugin, TFile } from 'obsidian';
-import { FocusOnEditor, Memos, OpenDailyMemosWithMemos } from './memos';
+import { FocusOnEditor, Memos } from './memos';
 import { MEMOS_VIEW_TYPE } from './constants';
 import addIcons from './obComponents/customIcons';
 import { DEFAULT_SETTINGS, MemosSettings, MemosSettingTab } from './setting';
-import showDailyMemoDiaryDialog from './components/DailyMemoDiaryDialog';
 import { t } from './translations/helper';
 import { memoService } from './services';
 import appStore from './stores/appStore';
@@ -22,7 +21,18 @@ export default class MemosPlugin extends Plugin {
     }
 
     public async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const loaded = (await this.loadData()) ?? {};
+        // 仅保留 schema 内键：清历史孤儿键（下次保存时自然从 data.json 消失）
+        this.settings = Object.assign({}, DEFAULT_SETTINGS);
+        for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof typeof DEFAULT_SETTINGS>) {
+            if (loaded[key] !== undefined) {
+                (this.settings as Record<string, unknown>)[key] = loaded[key];
+            }
+        }
+        // 历史键迁移（2026-09-10 合并「插入标题/解析标题」）：InsertAfter → MemoHeading
+        if (!loaded.MemoHeading && typeof loaded.InsertAfter === 'string' && loaded.InsertAfter.trim() !== '') {
+            this.settings.MemoHeading = loaded.InsertAfter;
+        }
     }
 
     async saveSettings() {
@@ -92,48 +102,6 @@ export default class MemosPlugin extends Plugin {
             hotkeys: [],
         });
 
-        this.addCommand({
-            id: 'focus-on-memos-editor',
-            name: 'Focus On Memos Editor',
-            callback: () => this.focusOnEditor(),
-            hotkeys: [],
-        });
-
-        this.addCommand({
-            id: 'show-daily-memo',
-            name: 'Show Daily Memo',
-            callback: () => this.openDailyMemo(),
-            hotkeys: [],
-        });
-
-        this.addCommand({
-            id: 'note-it',
-            name: 'Note It',
-            callback: () => this.noteIt(),
-            hotkeys: [],
-        });
-
-        this.addCommand({
-            id: 'focus-on-search-bar',
-            name: 'Search It',
-            callback: () => this.searchIt(),
-            hotkeys: [],
-        });
-
-        this.addCommand({
-            id: 'change-status',
-            name: 'Change Status Between Task Or List',
-            callback: () => this.changeStatus(),
-            hotkeys: [],
-        });
-
-        this.addCommand({
-            id: 'show-memos-in-popover',
-            name: 'Show Memos in Popover',
-            callback: () => this.showInPopover(),
-            hotkeys: [],
-        });
-
         if (Platform.isMobile) {
             this.registerMobileEvent();
         }
@@ -158,95 +126,22 @@ export default class MemosPlugin extends Plugin {
         this.openMemos();
     }
 
-    openDailyMemo() {
-        const workspaceLeaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-        if (OpenDailyMemosWithMemos && workspaceLeaves.length === 0) {
-            this.openMemos();
-        }
-        showDailyMemoDiaryDialog();
-    }
-
     async openMemos() {
         const workspace = this.app.workspace;
-        workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
-        // const leaf = workspace.getLeaf(
-        //   !Platform.isMobile && workspace.activeLeaf && workspace.activeLeaf.view instanceof FileView,
-        // );
+        // 已有视图：只激活不重建（2026-09-10 命令盘查：消除 detach 重建闪烁）
+        const existing = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
+        if (existing.length > 0) {
+            workspace.setActiveLeaf(existing[0]);
+            workspace.revealLeaf(existing[0]);
+            if (FocusOnEditor) {
+                (existing[0].view.containerEl.querySelector('.cm-content') as HTMLElement | null)?.focus();
+            }
+            return;
+        }
         const leaf = workspace.getLeaf(true);
         await leaf.setViewState({ type: MEMOS_VIEW_TYPE });
         workspace.revealLeaf(leaf);
 
-        if (!FocusOnEditor) {
-            return;
-        }
-
-        (leaf.view.containerEl.querySelector('.cm-content') as HTMLElement | null)?.focus();
-    }
-
-    searchIt() {
-        const workspace = this.app.workspace;
-        const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-        if (!(leaves.length > 0)) {
-            this.openMemos();
-            return;
-            // this.openMemos();
-        }
-
-        const leaf = leaves[0];
-        workspace.setActiveLeaf(leaf);
-        (leaf.view.containerEl.querySelector('.search-bar-inputer .text-input') as HTMLElement).focus();
-    }
-
-    focusOnEditor() {
-        const workspace = this.app.workspace;
-        const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-        if (!(leaves.length > 0)) {
-            this.openMemos();
-            return;
-            // this.openMemos();
-        }
-
-        const leaf = leaves[0];
-        workspace.setActiveLeaf(leaf);
-        (leaf.view.containerEl.querySelector('.cm-content') as HTMLElement | null)?.focus();
-    }
-
-    noteIt() {
-        const workspace = this.app.workspace;
-        const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-        if (!(leaves.length > 0)) {
-            new Notice(t('Please Open Memos First'));
-            return;
-            // this.openMemos();
-        }
-
-        const leaf = leaves[0];
-        workspace.setActiveLeaf(leaf);
-        leaf.view.containerEl.querySelector('.memo-editor .confirm-btn').click();
-    }
-
-    changeStatus() {
-        const workspace = this.app.workspace;
-        const leaves = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-        if (!(leaves.length > 0)) {
-            new Notice(t('Please Open Memos First'));
-            return;
-            // this.openMemos();
-        }
-
-        const leaf = leaves[0];
-        workspace.setActiveLeaf(leaf);
-        leaf.view.containerEl.querySelector('.list-or-task').click();
-    }
-
-    async showInPopover() {
-        const workspace = this.app.workspace;
-        workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
-        const leaf = await window.app.plugins.getPlugin('obsidian-hover-editor')?.spawnPopover();
-
-        await leaf.setViewState({ type: MEMOS_VIEW_TYPE });
-        workspace.revealLeaf(leaf);
-        leaf.view.containerEl.classList.add('mobile-view');
         if (!FocusOnEditor) {
             return;
         }

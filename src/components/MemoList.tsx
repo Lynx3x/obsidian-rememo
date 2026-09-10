@@ -15,8 +15,6 @@ import Pagination from './Pagination';
 
 interface Props {}
 
-export let copyShownMemos: Model.Memo[];
-
 const ITEMS_PER_PAGE = 10; // 每页显示10条记录
 
 const MemoList: React.FC<Props> = () => {
@@ -141,8 +139,6 @@ const MemoList: React.FC<Props> = () => {
             !(settings.HideRefMemosInList && hasMemoReferences(memo.content))
           );
         });
-
-  copyShownMemos = shownMemos;
 
   // 分页计算
   const totalPages = Math.ceil(shownMemos.length / ITEMS_PER_PAGE);
