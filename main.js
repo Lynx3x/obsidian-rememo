@@ -7833,6 +7833,7 @@ var en = {
   Top: "Top",
   Bottom: "Bottom",
   TAG: "TAG",
+  MEMO: "MEMO",
   DAY: "DAY",
   QUERY: "QUERY",
   EDIT: "EDIT",
@@ -8046,6 +8047,7 @@ var fr = {
   Top: "Haut",
   Bottom: "Bas",
   TAG: "TAG",
+  MEMO: "MEMO",
   DAY: "JOUR",
   QUERY: "RECHERCHE",
   EDIT: "EDITER",
@@ -8211,6 +8213,7 @@ var pt = {
   Top: "Topo",
   Bottom: "Fundo",
   TAG: "TAG",
+  MEMO: "MEMO",
   DAY: "DIA",
   QUERY: "QUERY",
   EDIT: "EDITAR",
@@ -8406,6 +8409,7 @@ var ptBR = {
   Top: "Topo",
   Bottom: "Fundo",
   TAG: "TAG",
+  MEMO: "MEMO",
   DAY: "DIA",
   QUERY: "QUERY",
   EDIT: "EDITAR",
@@ -8606,6 +8610,7 @@ var zhCN = {
   Top: "\u9876\u90E8",
   Bottom: "\u5E95\u90E8",
   TAG: "\u6807\u7B7E",
+  MEMO: "MEMO",
   DAY: "\u5929",
   QUERY: "\u68C0\u7D22\u5F0F",
   EDIT: "\u7F16\u8F91",
@@ -10153,6 +10158,12 @@ class MemoService {
   getState() {
     return appStore.getState().memoState;
   }
+  get isInitialized() {
+    return this.initialized;
+  }
+  invalidate() {
+    this.initialized = false;
+  }
   async fetchAllMemos() {
     const accumulatedMemos = [];
     await getMemos(async (batchMemos) => {
@@ -10243,7 +10254,7 @@ class MemoService {
     const { memos } = this.getState();
     const uniqueTags = /* @__PURE__ */ new Set();
     const tagCounts = {};
-    memos.forEach((memo2) => {
+    memos.filter((memo2) => !memo2.isDeleted).forEach((memo2) => {
       const tags2 = this.extractTagsFromContent(memo2.content);
       tags2.forEach((tag) => {
         uniqueTags.add(tag);
@@ -14886,9 +14897,10 @@ const UserBanner = () => {
       tags: tags2
     }
   } = react.exports.useContext(appContext);
+  const visibleMemos = memos.filter((m2) => !m2.isDeleted && !m2.linkId);
   let createdDays;
-  if (memos.length) {
-    createdDays = Math.ceil((Date.now() - utils$1.getTimeStampByDate(memos[memos.length - 1].createdAt)) / 1e3 / 3600 / 24) + 1;
+  if (visibleMemos.length) {
+    createdDays = Math.ceil((Date.now() - utils$1.getTimeStampByDate(visibleMemos[visibleMemos.length - 1].createdAt)) / 1e3 / 3600 / 24) + 1;
   }
   return /* @__PURE__ */ jsx("div", {
     className: "user-banner-container",
@@ -14898,10 +14910,10 @@ const UserBanner = () => {
         className: "status-text memos-text",
         children: [/* @__PURE__ */ jsx("span", {
           className: "amount-text",
-          children: memos.length
+          children: visibleMemos.length
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
-          children: "MEMO"
+          children: t$2("MEMO")
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "status-text tags-text",
@@ -33742,13 +33754,17 @@ const MemoList = () => {
     setCurrentPage(1);
   }, [query, shownMemos.length]);
   react.exports.useEffect(() => {
-    setTimeout(() => {
-      memoService.fetchAllMemos().then(() => {
-        setFetchStatus(false);
-      }).catch(() => {
-        new require$$0.Notice(t$2("Fetch Error"));
-      });
-    }, 400);
+    if (memoService.isInitialized) {
+      setFetchStatus(false);
+    } else {
+      setTimeout(() => {
+        memoService.fetchAllMemos().then(() => {
+          setFetchStatus(false);
+        }).catch(() => {
+          new require$$0.Notice(t$2("Fetch Error"));
+        });
+      }, 400);
+    }
     dailyNotesService.getMyAllDailyNotes().then(() => {
       setFetchStatus(false);
     }).catch(() => {
@@ -34379,7 +34395,9 @@ const MemoTrash = () => {
     return shouldShow;
   }) : deletedMemos;
   react.exports.useEffect(() => {
-    memoService.fetchAllMemos();
+    if (!memoService.isInitialized) {
+      memoService.fetchAllMemos();
+    }
     memoService.fetchDeletedMemos().then((result) => {
       if (result.length !== 0) {
         setDeletedMemos(result);
@@ -35488,6 +35506,7 @@ class Memos extends require$$0.ItemView {
       })
     );
     dailyNotesService.getApp(this.app);
+    memoService.invalidate();
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.plugin.settings } });
     InsertAfter = this.plugin.settings.InsertAfter;
     ProcessEntriesBelow = this.plugin.settings.ProcessEntriesBelow;

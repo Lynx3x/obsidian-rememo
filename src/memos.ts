@@ -107,6 +107,10 @@ export class Memos extends ItemView {
 
     dailyNotesService.getApp(this.app);
 
+    // 视图重开：关闭期间 vault 监听已随 registerEvent 解绑，标记数据过期 → 页面挂载走一次全量重读
+    // （视图打开频率低，不影响"切页不重读"的跳动修复；2026-09-10）
+    memoService.invalidate();
+
     // 把设置注入响应式 store（组件经 context 订阅，实现响应式）
     appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.plugin.settings } });
 

@@ -99,6 +99,7 @@ export default {
   Top: 'Haut',
   Bottom: 'Bas',
   TAG: 'TAG',
+  MEMO: 'MEMO',
   DAY: 'JOUR',
   QUERY: 'RECHERCHE',
   EDIT: 'EDITER',

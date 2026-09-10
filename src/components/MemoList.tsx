@@ -160,16 +160,22 @@ const MemoList: React.FC<Props> = () => {
   }, [query, shownMemos.length]);
 
   useEffect(() => {
-    setTimeout(() => {
-      memoService
-        .fetchAllMemos()
-        .then(() => {
-          setFetchStatus(false);
-        })
-        .catch(() => {
-          new Notice(t('Fetch Error'));
-        });
-    }, 400);
+    // 数据已初始化则复用（切页不再重复全量重读——曾致统计行/热力图/标签随分批加载跳动，2026-09-10）；
+    // 首开、手动刷新（点标题）、文件变更增量刷新（fetchMemosFromFile）路径不变
+    if (memoService.isInitialized) {
+      setFetchStatus(false);
+    } else {
+      setTimeout(() => {
+        memoService
+          .fetchAllMemos()
+          .then(() => {
+            setFetchStatus(false);
+          })
+          .catch(() => {
+            new Notice(t('Fetch Error'));
+          });
+      }, 400);
+    }
     dailyNotesService
       .getMyAllDailyNotes()
       .then(() => {

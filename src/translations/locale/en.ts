@@ -116,6 +116,7 @@ export default {
   Top: 'Top',
   Bottom: 'Bottom',
   TAG: 'TAG',
+  MEMO: 'MEMO',
   DAY: 'DAY',
   QUERY: 'QUERY',
   EDIT: 'EDIT',

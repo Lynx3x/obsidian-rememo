@@ -100,6 +100,7 @@ export default {
   Top: 'Topo',
   Bottom: 'Fundo',
   TAG: 'TAG',
+  MEMO: 'MEMO',
   DAY: 'DIA',
   QUERY: 'QUERY',
   EDIT: 'EDITAR',

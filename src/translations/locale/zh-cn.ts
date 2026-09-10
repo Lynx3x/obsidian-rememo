@@ -95,6 +95,7 @@ export default {
   Top: '顶部',
   Bottom: '底部',
   TAG: '标签',
+  MEMO: 'MEMO',
   DAY: '天',
   QUERY: '检索式',
   EDIT: '编辑',

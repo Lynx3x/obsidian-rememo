@@ -25,6 +25,16 @@ class MemoService {
         return appStore.getState().memoState;
     }
 
+    /** 是否已完成首次全量加载（页面挂载据此跳过重复拉取，2026-09-10） */
+    public get isInitialized(): boolean {
+        return this.initialized;
+    }
+
+    /** 标记数据需重读（视图重开时调用——视图关闭期间 vault 监听随 registerEvent 解绑，改动会漏；2026-09-10） */
+    public invalidate(): void {
+        this.initialized = false;
+    }
+
     /**
      * 获取所有备忘录
      * 从API获取备忘录数据并更新到store
@@ -183,14 +193,16 @@ class MemoService {
         const uniqueTags = new Set<string>();
         const tagCounts: { [key: string]: number; } = {};
 
-        // 遍历所有备忘录收集标签
-        memos.forEach((memo: Model.Memo) => {
-            const tags = this.extractTagsFromContent(memo.content);
-            tags.forEach(tag => {
-                uniqueTags.add(tag);
-                tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        // 遍历所有备忘录收集标签（排除回收站已删——与主列表可见口径一致，2026-09-10 owner 拍板）
+        memos
+            .filter((memo: Model.Memo) => !memo.isDeleted)
+            .forEach((memo: Model.Memo) => {
+                const tags = this.extractTagsFromContent(memo.content);
+                tags.forEach(tag => {
+                    uniqueTags.add(tag);
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
             });
-        });
 
         // 更新store中的标签数据
         appStore.dispatch({
