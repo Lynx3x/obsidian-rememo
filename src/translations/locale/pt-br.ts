@@ -112,6 +112,12 @@ export default {
   Settings: 'Definições',
   'Recycle bin': 'Reciclagem',
   'Enable Recycle Bin': 'Ativar a lixeira',
+  'Show Heat Map': 'Mostrar mapa de calor',
+  'Whether to show the usage heat map in the sidebar. True by default.':
+    'Mostrar o mapa de calor de uso na barra lateral. Ativado por padrão.',
+  'Start day of week': 'Primeiro dia da semana',
+  'The first day of each column in the heat map. Sunday by default.':
+    'Primeiro dia de cada coluna do mapa de calor. Domingo por padrão.',
   'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
     'Quando desativada, excluir um memo o remove permanentemente em vez de movê-lo para a lixeira. Os memos já na lixeira são mantidos e voltam quando esta opção é reativada.',
   'DELETE FOREVER?': 'EXCLUIR PERMANENTEMENTE?',

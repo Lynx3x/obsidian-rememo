@@ -16,6 +16,7 @@ const Sidebar: React.FC<Props> = () => {
   const {
     locationState,
     globalState: { isMobileView, showSiderbarInMobileView },
+    settingsState: { settings },
   } = useContext(appContext);
   const wrapperElRef = useRef<HTMLElement>(null);
 
@@ -67,7 +68,7 @@ const Sidebar: React.FC<Props> = () => {
   return (
     <aside className="memos-sidebar-wrapper" ref={wrapperElRef}>
       <UserBanner />
-      <UsageHeatMap />
+      {settings.ShowHeatMap ? <UsageHeatMap /> : null}
       <SidebarNav />
       <QueryList />
       <TagList />

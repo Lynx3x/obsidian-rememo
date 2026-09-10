@@ -110,6 +110,12 @@ export default {
   Settings: 'Paramètres',
   'Recycle bin': 'Corbeille',
   'Enable Recycle Bin': 'Activer la corbeille',
+  'Show Heat Map': 'Afficher la carte de chaleur',
+  'Whether to show the usage heat map in the sidebar. True by default.':
+    "Afficher la carte de chaleur d'utilisation dans la barre latérale. Activé par défaut.",
+  'Start day of week': 'Premier jour de la semaine',
+  'The first day of each column in the heat map. Sunday by default.':
+    'Premier jour de chaque colonne de la carte de chaleur. Dimanche par défaut.',
   'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
     'Lorsque cette option est désactivée, supprimer un mémo le retire définitivement au lieu de le déplacer dans la corbeille. Les mémos déjà dans la corbeille sont conservés et réapparaissent lorsque cette option est réactivée.',
   'DELETE FOREVER?': 'SUPPRIMER DÉFINITIVEMENT ?',

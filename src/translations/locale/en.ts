@@ -127,6 +127,12 @@ export default {
   Settings: 'Settings',
   'Recycle bin': 'Recycle bin',
   'Enable Recycle Bin': 'Enable Recycle Bin',
+  'Show Heat Map': 'Show Heat Map',
+  'Whether to show the usage heat map in the sidebar. True by default.':
+    'Whether to show the usage heat map in the sidebar. True by default.',
+  'Start day of week': 'Start day of week',
+  'The first day of each column in the heat map. Sunday by default.':
+    'The first day of each column in the heat map. Sunday by default.',
   'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
     'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.',
   'DELETE FOREVER?': 'DELETE FOREVER?',

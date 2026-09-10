@@ -39,18 +39,25 @@ interface Props {}
 // let FromTo: string = '';
 
 const UsageHeatMap: React.FC<Props> = () => {
-  // const todayTimeStamp = utils.getDateStampByDate(moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'));
-  const todayTimeStamp = parseInt(moment().endOf('day').format('x'));
-  const todayDay = new Date(todayTimeStamp).getDay() || 7;
-  const nullCell = new Array(7 - todayDay).fill(0);
-  const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + todayDay;
-  // const beginDayTimestamp = utils.getDateStampByDate(todayTimeStamp - usedDaysAmount * DAILY_TIMESTAMP);
-  const beginDayTimestamp = parseInt(moment().startOf('day').subtract(usedDaysAmount, 'days').format('x'));
-  const startDate = moment().startOf('day').subtract(usedDaysAmount, 'days');
-
   const {
     memoState: { memos },
+    settingsState: { settings },
   } = useContext(appContext);
+
+  // 周起点（2026-09-10 设置项）：'sunday'（默认）| 'monday'；列 = 周，行 0 = 周起点
+  const weekStartDay = settings.HeatMapStartDay === 'monday' ? 1 : 0; // moment day(): 周日 0 … 周六 6
+  const todayStart = moment().startOf('day');
+  const daysSinceWeekStart = (todayStart.day() - weekStartDay + 7) % 7;
+  // 窗口 = 本周周首往前 11 周起共 12 周；今天 = 最后一列本周内，其后（未来）格补 null
+  const startDate = todayStart
+    .clone()
+    .subtract(daysSinceWeekStart, 'days')
+    .subtract((tableConfig.width - 1) * tableConfig.height, 'days');
+  const beginDayTimestamp = parseInt(startDate.format('x'));
+  const todayTimeStamp = parseInt(todayStart.format('x'));
+  const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + daysSinceWeekStart;
+  const nullCell = new Array(6 - daysSinceWeekStart).fill(0);
+
   // Remove Comment Memos
   const newMemos = memos.filter((memo) => memo.linkId === '');
   const [allStat, setAllStat] = useState<DailyUsageStat[]>(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
@@ -76,7 +83,7 @@ const UsageHeatMap: React.FC<Props> = () => {
       }
     }
     setAllStat([...newStat]);
-  }, [memos]);
+  }, [memos, daysSinceWeekStart]);
 
   const handleUsageStatItemMouseEnter = useCallback((event: React.MouseEvent, item: DailyUsageStat) => {
     setPopupStat(item);
@@ -204,16 +211,17 @@ const UsageHeatMap: React.FC<Props> = () => {
     }
   }, []);
 
+  // 级差基准：窗口内有值日的最大值（相对分位；无数据时全空）
+  const maxCount = allStat.reduce((max, s) => (s.count > max ? s.count : max), 0);
+
   return (
     <div className="usage-heat-map-wrapper" ref={containerElRef}>
       <div className="day-tip-text-container">
-        <span className="tip-text">{t('weekDaysShort')[0]}</span>
-        <span className="tip-text"></span>
-        <span className="tip-text">{t('weekDaysShort')[2]}</span>
-        <span className="tip-text"></span>
-        <span className="tip-text">{t('weekDaysShort')[4]}</span>
-        <span className="tip-text"></span>
-        <span className="tip-text">{t('weekDaysShort')[6]}</span>
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+          <span className="tip-text" key={i}>
+            {i % 2 === 0 ? t('weekDaysShort')[(weekStartDay + i) % 7] : ''}
+          </span>
+        ))}
       </div>
 
       {/* popup */}
@@ -225,22 +233,17 @@ const UsageHeatMap: React.FC<Props> = () => {
       <div className="usage-heat-map">
         {allStat.map((v, i) => {
           const count = v.count;
+          // 相对分位分级（2026-09-10）：按窗口内最大值折算 4 档——高密度日不再直接顶格（原绝对阈值 1/2/4/5+）
           const colorLevel =
-            count <= 0
+            count <= 0 || maxCount <= 0
               ? ''
-              : count <= 1
-              ? 'stat-day-L1-bg'
-              : count <= 2
-              ? 'stat-day-L2-bg'
-              : count <= 4
-              ? 'stat-day-L3-bg'
-              : 'stat-day-L4-bg';
+              : `stat-day-L${Math.min(4, Math.ceil((count / maxCount) * 4))}-bg`;
 
           return (
             <span
-              className={`stat-container ${colorLevel} ${currentStat === v ? 'current' : ''} ${
-                todayTimeStamp === v.timestamp ? 'today' : ''
-              }`}
+              className={`stat-container ${colorLevel} ${count > 0 ? 'has-memos' : ''} ${
+                currentStat?.timestamp === v.timestamp ? 'current' : ''
+              } ${todayTimeStamp === v.timestamp ? 'today' : ''}`}
               key={i}
               onMouseEnter={(e) => handleUsageStatItemMouseEnter(e, v)}
               onMouseLeave={handleUsageStatItemMouseLeave}

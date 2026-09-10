@@ -106,6 +106,10 @@ export default {
   Settings: '设置',
   'Recycle bin': '回收站',
   'Enable Recycle Bin': '启用回收站',
+  'Show Heat Map': '显示热力图',
+  'Whether to show the usage heat map in the sidebar. True by default.': '是否在侧栏显示活跃热力图。默认开启。',
+  'Start day of week': '周起始日',
+  'The first day of each column in the heat map. Sunday by default.': '热力图每列以周几开始。默认周日。',
   'When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.':
     '关闭后，删除闪念会直接永久移除，不再移入回收站。已在回收站中的闪念会保留，重新打开此开关后恢复。',
   'DELETE FOREVER?': '永久删除?',

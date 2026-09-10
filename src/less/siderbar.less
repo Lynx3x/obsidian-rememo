@@ -23,6 +23,10 @@
   top: 0;
   width: calc(100% - 16px);
   margin: 0 8px;
+  // 热力图隐藏时补分节距（热力图在时由 `.usage-heat-map-wrapper` margin-top 12 提供；2026-09-10）
+  &.no-heatmap {
+    margin-top: 12px;
+  }
   padding: 4px 0 8px;
   // 白色卡片底（--memo-bg）：既是滚动遮底也是视觉容器
   background-color: var(--memo-bg);

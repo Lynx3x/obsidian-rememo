@@ -41,7 +41,7 @@ const SidebarNav: React.FC = () => {
   }, []);
 
   return (
-    <div className="memos-sidebar-nav">
+    <div className={`memos-sidebar-nav${settings.ShowHeatMap ? '' : ' no-heatmap'}`}>
       <div
         className={`memos-nav-item${onHome ? ' active' : ''}`}
         onClick={handleHomeClick}

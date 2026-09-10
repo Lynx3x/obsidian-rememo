@@ -26,6 +26,10 @@ export interface MemosSettings {
   EnableRecycleBin: boolean;
   /** 侧栏标签视图形态（2026-09-10）：'flat' = 平铺全名（默认）；'tree' = 层级折叠树 */
   TagListView: 'flat' | 'tree';
+  /** 热力图周起点（2026-09-10）：'sunday'（默认）| 'monday' —— 渲染排布用 */
+  HeatMapStartDay: 'sunday' | 'monday';
+  /** 是否显示侧栏热力图（2026-09-10）：默认 true；关闭时隐藏区块，导航随之上浮 */
+  ShowHeatMap: boolean;
   /** 按 Enter 直接发送（Ctrl+Enter 换行）；默认 false = Enter 换行、Ctrl+Enter 发送 */
   EnterToSend: boolean;
   OpenMemosAutomatically: boolean;
@@ -62,6 +66,8 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   HideRefMemosInList: true,
   EnableRecycleBin: true,
   TagListView: 'flat',
+  HeatMapStartDay: 'sunday',
+  ShowHeatMap: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
   // EditorMaxHeight: '250',
@@ -240,6 +246,28 @@ export class MemosSettingTab extends PluginSettingTab {
           this.applySettingsUpdate();
         }),
       );
+
+    new Setting(containerEl)
+      .setName(t('Show Heat Map'))
+      .setDesc(t('Whether to show the usage heat map in the sidebar. True by default.'))
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.ShowHeatMap).onChange(async (value) => {
+          this.plugin.settings.ShowHeatMap = value;
+          this.applySettingsUpdate();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('Start day of week'))
+      .setDesc(t('The first day of each column in the heat map. Sunday by default.'))
+      .addDropdown(async (d: DropdownComponent) => {
+        d.addOption('sunday', t('weekDays')[0]);
+        d.addOption('monday', t('weekDays')[1]);
+        d.setValue(this.plugin.settings.HeatMapStartDay).onChange(async (value: 'sunday' | 'monday') => {
+          this.plugin.settings.HeatMapStartDay = value;
+          this.applySettingsUpdate();
+        });
+      });
 
     new Setting(containerEl)
       .setName(t('Always Show Leaf Sidebar on PC'))

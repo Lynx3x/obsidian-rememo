@@ -7844,6 +7844,10 @@ var en = {
   Settings: "Settings",
   "Recycle bin": "Recycle bin",
   "Enable Recycle Bin": "Enable Recycle Bin",
+  "Show Heat Map": "Show Heat Map",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Whether to show the usage heat map in the sidebar. True by default.",
+  "Start day of week": "Start day of week",
+  "The first day of each column in the heat map. Sunday by default.": "The first day of each column in the heat map. Sunday by default.",
   "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.",
   "DELETE FOREVER?": "DELETE FOREVER?",
   "Audit data": "Audit data",
@@ -8053,6 +8057,10 @@ var fr = {
   Settings: "Param\xE8tres",
   "Recycle bin": "Corbeille",
   "Enable Recycle Bin": "Activer la corbeille",
+  "Show Heat Map": "Afficher la carte de chaleur",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Afficher la carte de chaleur d'utilisation dans la barre lat\xE9rale. Activ\xE9 par d\xE9faut.",
+  "Start day of week": "Premier jour de la semaine",
+  "The first day of each column in the heat map. Sunday by default.": "Premier jour de chaque colonne de la carte de chaleur. Dimanche par d\xE9faut.",
   "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Lorsque cette option est d\xE9sactiv\xE9e, supprimer un m\xE9mo le retire d\xE9finitivement au lieu de le d\xE9placer dans la corbeille. Les m\xE9mos d\xE9j\xE0 dans la corbeille sont conserv\xE9s et r\xE9apparaissent lorsque cette option est r\xE9activ\xE9e.",
   "DELETE FOREVER?": "SUPPRIMER D\xC9FINITIVEMENT ?",
   "About Me": "\xC0 propos de moi",
@@ -8214,6 +8222,10 @@ var pt = {
   Settings: "Defini\xE7\xF5es",
   "Recycle bin": "Reciclagem",
   "Enable Recycle Bin": "Ativar a lixeira",
+  "Show Heat Map": "Mostrar mapa de calor",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Mostrar o mapa de calor de uso na barra lateral. Ativado por padr\xE3o.",
+  "Start day of week": "Primeiro dia da semana",
+  "The first day of each column in the heat map. Sunday by default.": "Primeiro dia de cada coluna do mapa de calor. Domingo por padr\xE3o.",
   "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
   "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
   "About Me": "Acerca de mim",
@@ -8405,6 +8417,10 @@ var ptBR = {
   Settings: "Defini\xE7\xF5es",
   "Recycle bin": "Reciclagem",
   "Enable Recycle Bin": "Ativar a lixeira",
+  "Show Heat Map": "Mostrar mapa de calor",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Mostrar o mapa de calor de uso na barra lateral. Ativado por padr\xE3o.",
+  "Start day of week": "Primeiro dia da semana",
+  "The first day of each column in the heat map. Sunday by default.": "Primeiro dia de cada coluna do mapa de calor. Domingo por padr\xE3o.",
   "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
   "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
   "About Me": "Acerca de mim",
@@ -8601,6 +8617,10 @@ var zhCN = {
   Settings: "\u8BBE\u7F6E",
   "Recycle bin": "\u56DE\u6536\u7AD9",
   "Enable Recycle Bin": "\u542F\u7528\u56DE\u6536\u7AD9",
+  "Show Heat Map": "\u663E\u793A\u70ED\u529B\u56FE",
+  "Whether to show the usage heat map in the sidebar. True by default.": "\u662F\u5426\u5728\u4FA7\u680F\u663E\u793A\u6D3B\u8DC3\u70ED\u529B\u56FE\u3002\u9ED8\u8BA4\u5F00\u542F\u3002",
+  "Start day of week": "\u5468\u8D77\u59CB\u65E5",
+  "The first day of each column in the heat map. Sunday by default.": "\u70ED\u529B\u56FE\u6BCF\u5217\u4EE5\u5468\u51E0\u5F00\u59CB\u3002\u9ED8\u8BA4\u5468\u65E5\u3002",
   "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "\u5173\u95ED\u540E\uFF0C\u5220\u9664\u95EA\u5FF5\u4F1A\u76F4\u63A5\u6C38\u4E45\u79FB\u9664\uFF0C\u4E0D\u518D\u79FB\u5165\u56DE\u6536\u7AD9\u3002\u5DF2\u5728\u56DE\u6536\u7AD9\u4E2D\u7684\u95EA\u5FF5\u4F1A\u4FDD\u7559\uFF0C\u91CD\u65B0\u6253\u5F00\u6B64\u5F00\u5173\u540E\u6062\u590D\u3002",
   "DELETE FOREVER?": "\u6C38\u4E45\u5220\u9664?",
   "Audit data": "\u6570\u636E\u4F53\u68C0",
@@ -15091,7 +15111,7 @@ const SidebarNav = () => {
     showRandomMemoDialog();
   }, []);
   return /* @__PURE__ */ jsxs("div", {
-    className: "memos-sidebar-nav",
+    className: `memos-sidebar-nav${settings.ShowHeatMap ? "" : " no-heatmap"}`,
     children: [/* @__PURE__ */ jsxs("div", {
       className: `memos-nav-item${onHome ? " active" : ""}`,
       onClick: handleHomeClick,
@@ -16115,17 +16135,22 @@ const getInitialUsageStat = (usedDaysAmount, beginDayTimestamp) => {
   return initialUsageStat;
 };
 const UsageHeatMap = () => {
-  const todayTimeStamp = parseInt(require$$0.moment().endOf("day").format("x"));
-  const todayDay = new Date(todayTimeStamp).getDay() || 7;
-  const nullCell = new Array(7 - todayDay).fill(0);
-  const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + todayDay;
-  const beginDayTimestamp = parseInt(require$$0.moment().startOf("day").subtract(usedDaysAmount, "days").format("x"));
-  const startDate = require$$0.moment().startOf("day").subtract(usedDaysAmount, "days");
   const {
     memoState: {
       memos
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
+  const weekStartDay = settings.HeatMapStartDay === "monday" ? 1 : 0;
+  const todayStart = require$$0.moment().startOf("day");
+  const daysSinceWeekStart = (todayStart.day() - weekStartDay + 7) % 7;
+  const startDate = todayStart.clone().subtract(daysSinceWeekStart, "days").subtract((tableConfig.width - 1) * tableConfig.height, "days");
+  const beginDayTimestamp = parseInt(startDate.format("x"));
+  const todayTimeStamp = parseInt(todayStart.format("x"));
+  const usedDaysAmount = (tableConfig.width - 1) * tableConfig.height + daysSinceWeekStart;
+  const nullCell = new Array(6 - daysSinceWeekStart).fill(0);
   const newMemos = memos.filter((memo2) => memo2.linkId === "");
   const [allStat, setAllStat] = dist$1(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
   const [popupStat, setPopupStat] = dist$1(null);
@@ -16143,7 +16168,7 @@ const UsageHeatMap = () => {
       }
     }
     setAllStat([...newStat]);
-  }, [memos]);
+  }, [memos, daysSinceWeekStart]);
   const handleUsageStatItemMouseEnter = react.exports.useCallback((event, item) => {
     var _a2, _b;
     setPopupStat(item);
@@ -16227,30 +16252,16 @@ const UsageHeatMap = () => {
       setCurrentStat(item);
     }
   }, []);
+  const maxCount = allStat.reduce((max2, s) => s.count > max2 ? s.count : max2, 0);
   return /* @__PURE__ */ jsxs("div", {
     className: "usage-heat-map-wrapper",
     ref: containerElRef,
-    children: [/* @__PURE__ */ jsxs("div", {
+    children: [/* @__PURE__ */ jsx("div", {
       className: "day-tip-text-container",
-      children: [/* @__PURE__ */ jsx("span", {
+      children: [0, 1, 2, 3, 4, 5, 6].map((i2) => /* @__PURE__ */ jsx("span", {
         className: "tip-text",
-        children: t$2("weekDaysShort")[0]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text"
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$2("weekDaysShort")[2]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text"
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$2("weekDaysShort")[4]
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text"
-      }), /* @__PURE__ */ jsx("span", {
-        className: "tip-text",
-        children: t$2("weekDaysShort")[6]
-      })]
+        children: i2 % 2 === 0 ? t$2("weekDaysShort")[(weekStartDay + i2) % 7] : ""
+      }, i2))
     }), /* @__PURE__ */ jsxs("div", {
       ref: popupRef,
       className: "usage-detail-container pop-up " + (popupStat ? "" : "hidden"),
@@ -16262,9 +16273,9 @@ const UsageHeatMap = () => {
       className: "usage-heat-map",
       children: [allStat.map((v2, i2) => {
         const count = v2.count;
-        const colorLevel = count <= 0 ? "" : count <= 1 ? "stat-day-L1-bg" : count <= 2 ? "stat-day-L2-bg" : count <= 4 ? "stat-day-L3-bg" : "stat-day-L4-bg";
+        const colorLevel = count <= 0 || maxCount <= 0 ? "" : `stat-day-L${Math.min(4, Math.ceil(count / maxCount * 4))}-bg`;
         return /* @__PURE__ */ jsx("span", {
-          className: `stat-container ${colorLevel} ${currentStat === v2 ? "current" : ""} ${todayTimeStamp === v2.timestamp ? "today" : ""}`,
+          className: `stat-container ${colorLevel} ${count > 0 ? "has-memos" : ""} ${(currentStat == null ? void 0 : currentStat.timestamp) === v2.timestamp ? "current" : ""} ${todayTimeStamp === v2.timestamp ? "today" : ""}`,
           onMouseEnter: (e) => handleUsageStatItemMouseEnter(e, v2),
           onMouseLeave: handleUsageStatItemMouseLeave,
           onClick: (e) => handleUsageStatItemClick(e, v2)
@@ -16282,6 +16293,9 @@ const Sidebar = () => {
     globalState: {
       isMobileView,
       showSiderbarInMobileView
+    },
+    settingsState: {
+      settings
     }
   } = react.exports.useContext(appContext);
   const wrapperElRef = react.exports.useRef(null);
@@ -16328,7 +16342,7 @@ const Sidebar = () => {
   return /* @__PURE__ */ jsxs("aside", {
     className: "memos-sidebar-wrapper",
     ref: wrapperElRef,
-    children: [/* @__PURE__ */ jsx(UserBanner, {}), /* @__PURE__ */ jsx(UsageHeatMap, {}), /* @__PURE__ */ jsx(SidebarNav, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
+    children: [/* @__PURE__ */ jsx(UserBanner, {}), settings.ShowHeatMap ? /* @__PURE__ */ jsx(UsageHeatMap, {}) : null, /* @__PURE__ */ jsx(SidebarNav, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
   });
 };
 var home = "";
@@ -35538,6 +35552,8 @@ const DEFAULT_SETTINGS = {
   HideRefMemosInList: true,
   EnableRecycleBin: true,
   TagListView: "flat",
+  HeatMapStartDay: "sunday",
+  ShowHeatMap: true,
   EnterToSend: false,
   OpenMemosAutomatically: false,
   ShowTime: true,
@@ -35655,6 +35671,20 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         this.applySettingsUpdate();
       })
     );
+    new require$$0.Setting(containerEl).setName(t$2("Show Heat Map")).setDesc(t$2("Whether to show the usage heat map in the sidebar. True by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.ShowHeatMap).onChange(async (value) => {
+        this.plugin.settings.ShowHeatMap = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$2("Start day of week")).setDesc(t$2("The first day of each column in the heat map. Sunday by default.")).addDropdown(async (d) => {
+      d.addOption("sunday", t$2("weekDays")[0]);
+      d.addOption("monday", t$2("weekDays")[1]);
+      d.setValue(this.plugin.settings.HeatMapStartDay).onChange(async (value) => {
+        this.plugin.settings.HeatMapStartDay = value;
+        this.applySettingsUpdate();
+      });
+    });
     new require$$0.Setting(containerEl).setName(t$2("Always Show Leaf Sidebar on PC")).setDesc(t$2("Show left sidebar on PC even when the leaf width is less than 875px. False by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.ShowLeftSideBar).onChange(async (value) => {
         this.plugin.settings.ShowLeftSideBar = value;

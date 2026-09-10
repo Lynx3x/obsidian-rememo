@@ -43,7 +43,7 @@
 div[data-type='memos_view'] .usage-heat-map-wrapper {
   .flex(row, flex-start, center);
   width: 100%;
-  height: 122px;
+  height: 136px;
   flex-wrap: wrap;
   margin-top: 12px; // 与上方统计行分节距（2026-09-06 layout 收口；窄屏见 --narrow 重置）
   padding-right: 24px;
@@ -64,7 +64,7 @@ div[data-type='memos_view'] .usage-heat-map-wrapper {
     visibility: hidden;
 
     > .tip-text {
-      font-size: 10px;
+      font-size: 11px;
       line-height: 16px;
       padding-right: 2px;
       width: 100%;
@@ -75,7 +75,7 @@ div[data-type='memos_view'] .usage-heat-map-wrapper {
   }
 
   > .usage-heat-map {
-    width: 192px;
+    width: 204px;
     height: 100%;
     flex-wrap: wrap;
     display: grid;
@@ -85,11 +85,29 @@ div[data-type='memos_view'] .usage-heat-map-wrapper {
 
     > .stat-container {
       display: block;
-      width: 13px;
-      height: 13px;
+      width: 15px;
+      height: 15px;
       background-color: var(--memo-surface-hover);
-      border-radius: 2px;
+      border-radius: 3px;
       margin-bottom: 2px;
+
+      // 状态反馈（2026-09-10）：可点格 hover 细环 / 今天描边 / 选中日粗环（box-shadow 不影响布局）
+      &.has-memos {
+        cursor: pointer;
+      }
+
+      &.has-memos:not(.current):hover {
+        box-shadow: 0 0 0 1px var(--memo-border);
+      }
+
+      &.today {
+        outline: 1.5px solid var(--memo-accent);
+        outline-offset: 0;
+      }
+
+      &.current {
+        box-shadow: 0 0 0 2px var(--memo-accent);
+      }
 
       &.null {
         background-color: transparent;
