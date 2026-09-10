@@ -1,69 +1,86 @@
 # Rememo
 
-> 把闪念写进你的日记。所见即文件：每条 memo 就是日记文件里的一张卡片块。
+> Capture fleeting thoughts straight into your daily notes. Every memo is a card block in your own note files — no private database.
 
-Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) 的增强重写（曾用名 Memos Plus）。所有 memo 都存储在**你的日记文件**里，不做私有数据库——Obsidian 文件归你，随时可读、可改、可迁移。
+**English** | [中文](README.zh.md)
 
-## 特性
+Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten fork of [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) (previously named “Memos Plus”). All memos live inside **your daily notes** — plain Markdown, readable and editable at any time, yours to keep.
 
-- **原生编辑体验的输入框**：基于 Obsidian 内核编辑器的输入体验——打字/换行/中文输入、`==高亮==` 实时渲染、`#tag` 与 `[[链接]]` 联想、撤销，Enter 或 Ctrl+Enter 发送
-- **卡片流浏览**：日记里的 memo 以卡片列表呈现，分页加载、按文本/标签/查询/日期过滤
-- **任务卡**：`- [ ]` 输入即任务，卡片上的勾选框直接完成
-- **侧栏**：热力图（按天分布）、查询列表、标签列表一键筛选
-- **回收站**：删除是**软删**——memo 留在原日记、带 `deletedAt` 标记，可在回收站恢复或永久删除
-- **分享成图片**：单张卡片或整日日记一键生成图片（可配页脚/背景）
-- **数据体检**：内置修复工具，扫描异常数据、把旧版单行格式整文件迁移为卡片块（自动备份）
-- **移动端可用**，支持接收文本/文件「存为 memo」
+## Screenshots
 
-## 快速开始
+![Main view](assets/screenshots/01-main.png)
+![Editor in task mode](assets/screenshots/02-editor.png)
+![Tags](assets/screenshots/03-tags.png)
+![Recycle bin](assets/screenshots/04-recycle.png)
 
-1. 启用 Obsidian 核心插件「日记」（或 Periodic Notes）
-2. 在 Rememo 设置中确认两个标题都指向你的日记标题（都设为 `# Journal` 或同一标题即可；见下方「两个标题」提醒）
-3. 点击左侧栏的灯泡图标（或命令面板执行 "Open Memos"）打开 Rememo
-4. 输入一条闪念，发送——打开今天的日记，就能看到它变成一张卡片块
+## Features
 
-## 你的日记文件长什么样
+- **Native-feeling editor** — built on Obsidian's own editor kernel: typing, IME, undo, live rendering of `==highlights==`, `#tag` and `[[wikilink]]` autocomplete. Press `Enter` or `Ctrl/Cmd+Enter` to send.
+- **Card feed** — memos from your daily notes rendered as a paginated card list; filter by text, tag, saved query or date; heat map and tag tree in the sidebar.
+- **Task cards** — start a line with `- [ ]` to create a task; tick the checkbox on the card to complete it. A two-segment slider next to the send button switches between plain memos and tasks — and follows the card's type when you edit it.
+- **Tags** — tag chips gathered at the bottom of the card, or kept inline where they appear (a setting); click any tag to filter.
+- **Recycle bin** — deleting is a *soft* delete: the card stays in your note with a `deletedAt` marker, and can be restored or permanently removed from the recycle bin; optional auto-clean purges entries older than the retention period.
+- **Send sound** — an optional card-deal “whoosh” when a memo is sent: choose the built-in sound or your own audio file, with a volume slider.
+- **Share as image** — export a single card or a whole day as an image (configurable footer and background).
+- **Data health check** — a built-in audit that repairs anomalies and migrates the old single-line format into card blocks, with automatic backups.
+- **Mobile support** — works on phones and tablets; accepts text and files via “Insert as memo”.
+
+## Installation
+
+**From the community plugin directory** — search for “Rememo” in Settings → Community plugins → Browse. *(Available once the directory review is done.)*
+
+**Manually** — copy `main.js`, `styles.css` and `manifest.json` into `<your vault>/.obsidian/plugins/rememo/`, then enable **Rememo** in Settings → Community plugins.
+
+Requires Obsidian **1.5.0** or newer.
+
+## Quick start
+
+1. Enable the core **Daily notes** plugin — Rememo reads and writes your daily notes.
+2. Open Rememo's settings and confirm **“Memo heading”** matches your daily-note template (`## Memo` by default). New memos are written under this heading; if the file doesn't have it yet, Rememo creates it.
+3. Click the Rememo icon in the ribbon (or run the **Open Memos** command from the command palette).
+4. Type a thought and send it — open today's daily note and you'll find it as a card block.
+
+## What your notes look like
 
 ```markdown
-## Journal
+## Memo
 
 - 14:32:15 ^a1b2c3
-    闪念正文，支持 **粗体**、`代码`、#tag、[[双链]]、![[图片]]，
-    空行分段；列表、代码块等块级格式都行
+    Plain text with **bold**, `code`, #tag, [[wikilink]] or ![[image]] —
+    blank lines start new paragraphs, full Markdown works
 
 - [x] 14:40:00 ^d4e5f6
-    任务卡：勾选会写回头行
+    A task card — ticking the box writes back to the heading line
 
 - 14:45:00 deletedAt: 2026-09-05 14:45:00 ^g7h8i9
-    已删除的卡（留在原处，回收站里可恢复或永久删除）
+    A deleted card — still in place, restorable from the recycle bin
 ```
 
-格式约定：头行 = `- [ ]? HH:mm:ss [deletedAt: …] ^id`（纯标识，正文从下一行 4 空格缩进开始，支持完整 Markdown）；`^id` 由 Obsidian 维护。旧版单行格式（正文写在头行里）不渲染，用「数据体检 → 整文件迁移」转成新格式。
+A card block is a heading line `- [ ]? HH:mm:ss [deletedAt: …] ^id` with the body indented by 4 spaces below it; the `^id` is maintained by Obsidian itself. The old single-line format (body on the heading line) is no longer rendered — use **Data health check → migrate whole file** to convert it (backups are made automatically).
 
-## 设置要点
+## Settings highlights
 
-- **两个标题设置最好设成同一个**：「Insert after heading」（新 memo 写到哪里）与「Process Memos below」（从哪里开始读）默认分别为 `# Journal` 与空——空表示从文件头读到第一个标题为止；如果日记模板把 `# Journal` 放在文件头而写入也插到它下面，新写的 memo 不会被读回。建议把两者都设成你的日记标题
-- **Send memo by Enter key**：关（默认）= Enter 换行、Ctrl+Enter 发送；开 = 反过来
-- **Time display format**：只影响显示，落盘始终 `HH:mm:ss`
-- **日记来源**：Daily Notes 或 Periodic Notes 二选一
-- 界面语言跟随 Obsidian 界面语言
+- **Memo heading** — one setting for both reading and writing: Rememo only reads below this heading, and writes new memos at the end of that section (creating the heading if it's missing). Default: `## Memo`.
+- **Send memo by Enter key** — off (default): `Enter` inserts a newline, `Ctrl/Cmd+Enter` sends. On: reversed.
+- **Tag position** — tags gathered at the card bottom (default) or kept inline in the text.
+- **Send sound** — the built-in card-deal sound, your own audio file, or none; with a volume slider.
+- **Recycle bin** — enable/disable soft delete; auto-clean retention (never / 7 / 30 / 90 / 180 days).
+- **Heat map** — show or hide, week start day.
+- **Time display format** — display only; files always store `HH:mm:ss`.
 
-## 安装
-
-手动安装：将 `main.js`、`styles.css`、`manifest.json` 放入
-`你的库/.obsidian/plugins/obsidian-rememo/`，然后在 Obsidian 的第三方插件列表里启用。
-
-（从 Obsidian 插件市场/BRAT 安装：上架后可用，当前请走手动。）
-
-## 从命令行构建
+## Building
 
 ```bash
 pnpm install
-pnpm build      # 产出 main.js + styles.css（随提交附）
+pnpm build   # produces main.js + styles.css
 ```
 
-调试：把产物复制到上面的插件目录，在 Obsidian 里重载插件（若改动未生效，完整重启 Obsidian）。
+Copy the artifacts into your vault's plugin folder and reload the plugin in Obsidian (do a full restart if changes don't show up).
 
-## 致谢
+## Credits
 
-本项目基于 [Boninall (Quorafind)](https://github.com/Quorafind/) 开发的 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) 开发；设计灵感来自 [memos](https://github.com/justmemos/memos) 与 [flomo](https://flomoapp.com/)。MIT 许可证，详见 [LICENSE](LICENSE)。
+Built on top of [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) by [Boninall (Quorafind)](https://github.com/Quorafind/), with design inspiration from [memos](https://github.com/justmemos/memos) and [flomo](https://flomoapp.com/).
+
+## License
+
+[MIT](LICENSE)
