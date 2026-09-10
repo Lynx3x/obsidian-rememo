@@ -14709,6 +14709,7 @@ function formatMemoContent(content2, options) {
     return content22;
   };
   content2 = tagsCollect(content2);
+  content2 = content2.replace(/(?:<br\s*\/?>){2,}/g, "<br>").replace(/<p>(?:\s*<br\s*\/?>)+/g, "<p>").replace(/(?:<br\s*\/?>)+\s*<\/p>/g, "</p>");
   const tempDivContainer = document.createElement("div");
   tempDivContainer.innerHTML = content2;
   for (let i2 = 0; i2 < tempDivContainer.children.length; i2++) {

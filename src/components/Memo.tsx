@@ -453,6 +453,14 @@ export function formatMemoContent(content: string, options?: { memoid?: string; 
 
   content = tagsCollect(content);
 
+  // 图片/标签被剥除后留下的"空槽"：连续行同处一个 <p>，行间 <br> 分隔符会连成空行。
+  // 实例：2023-01-12 ^che0b4（文本后 7 行连图，隐藏图片 markdown 后文本与图片预览间空一大块）——
+  // 折叠连续 <br>、去掉段首/段尾的孤立 <br>（空行分段场景不会产生段内连续 <br>，折叠安全）
+  content = content
+    .replace(/(?:<br\s*\/?>){2,}/g, '<br>')
+    .replace(/<p>(?:\s*<br\s*\/?>)+/g, '<p>')
+    .replace(/(?:<br\s*\/?>)+\s*<\/p>/g, '</p>');
+
   const tempDivContainer = document.createElement('div');
   tempDivContainer.innerHTML = content;
   for (let i = 0; i < tempDivContainer.children.length; i++) {
