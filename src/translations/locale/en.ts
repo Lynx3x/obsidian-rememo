@@ -275,4 +275,15 @@ export default {
 
   // 2026-09-10 发送失败兜底：保存失败提示
   'Failed to save: ': 'Failed to save: ',
+
+  // 2026-09-10 回收站自动清理：设置与提示
+  'Auto-clean Recycle Bin': 'Auto-clean Recycle Bin',
+  'Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.':
+    'Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.',
+  'Never delete': 'Never delete',
+  '7 days': '7 days',
+  '30 days': '30 days',
+  '90 days': '90 days',
+  '180 days': '180 days',
+  'Auto-cleaned {N} expired memos from the recycle bin': 'Auto-cleaned {N} expired memos from the recycle bin',
 };

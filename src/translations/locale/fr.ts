@@ -195,4 +195,15 @@ export default {
 
   // 2026-09-10 发送失败兜底：保存失败提示
   'Failed to save: ': "Échec de l'enregistrement : ",
+
+  // 2026-09-10 回收站自动清理：设置与提示
+  'Auto-clean Recycle Bin': 'Nettoyage auto de la corbeille',
+  'Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.':
+    'Supprime définitivement les mémos présents dans la corbeille au-delà de la période de conservation. Action irréversible.',
+  'Never delete': 'Ne jamais supprimer',
+  '7 days': '7 jours',
+  '30 days': '30 jours',
+  '90 days': '90 jours',
+  '180 days': '180 jours',
+  'Auto-cleaned {N} expired memos from the recycle bin': 'Corbeille : {N} mémos expirés supprimés définitivement',
 };

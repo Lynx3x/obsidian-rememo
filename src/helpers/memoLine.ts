@@ -32,6 +32,27 @@ export function extractDeletedAt(content: string): { isDeleted: boolean; deleted
     return { isDeleted: false, deletedAt: '', rest: content };
 }
 
+/**
+ * 删除标记值 → 毫秒时间戳（回收站自动清理的保留期计算用）。
+ * 双兼容与 extractDeletedAt 同源：旧 14 位 YYYYMMDDHHmmss / 可读 `YYYY-MM-DD HH:mm:ss`；
+ * 形状对但语义畸形（月/日/时分秒越界）返回 null——调用方一律跳过，宁可不清理。
+ */
+export function parseDeletedAtMs(value: string): number | null {
+    const m =
+        /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(value) ||
+        /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
+    if (!m) return null;
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    const h = Number(m[4]);
+    const mi = Number(m[5]);
+    const s = Number(m[6]);
+    if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59 || s > 59) return null;
+    const t = new Date(y, mo - 1, d, h, mi, s).getTime();
+    return Number.isNaN(t) ? null : t;
+}
+
 /** 提取任务标记（`- [x] …` 中括号内字符；无任务返回空串） */
 export function extractMemoTaskTypeFromLine(line: string): string {
     const match = /^[\s-*]*\[(.{1})\]/.exec(line);

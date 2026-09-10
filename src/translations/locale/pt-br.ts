@@ -243,4 +243,15 @@ export default {
 
   // 2026-09-10 发送失败兜底：保存失败提示
   'Failed to save: ': 'Falha ao salvar: ',
+
+  // 2026-09-10 回收站自动清理：设置与提示
+  'Auto-clean Recycle Bin': 'Limpeza automática da reciclagem',
+  'Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.':
+    'Elimina permanentemente os memorandos que estão na reciclagem há mais tempo do que o período de retenção. Não pode ser anulado.',
+  'Never delete': 'Nunca eliminar',
+  '7 days': '7 dias',
+  '30 days': '30 dias',
+  '90 days': '90 dias',
+  '180 days': '180 dias',
+  'Auto-cleaned {N} expired memos from the recycle bin': 'Reciclagem: {N} memorandos expirados eliminados permanentemente',
 };

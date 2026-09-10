@@ -9109,7 +9109,15 @@ var en = {
   "Type Here": "Type Here",
   TagTipFirst: "Input ",
   TagTipSecond: "to create a tag...",
-  "Failed to save: ": "Failed to save: "
+  "Failed to save: ": "Failed to save: ",
+  "Auto-clean Recycle Bin": "Auto-clean Recycle Bin",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.",
+  "Never delete": "Never delete",
+  "7 days": "7 days",
+  "30 days": "30 days",
+  "90 days": "90 days",
+  "180 days": "180 days",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Auto-cleaned {N} expired memos from the recycle bin"
 };
 var enGB = {};
 var es = {};
@@ -9274,7 +9282,15 @@ var fr = {
   "Type Here": "Saisissez ici",
   TagTipFirst: "Saisissez ",
   TagTipSecond: "pour cr\xE9er une \xE9tiquette...",
-  "Failed to save: ": "\xC9chec de l'enregistrement : "
+  "Failed to save: ": "\xC9chec de l'enregistrement : ",
+  "Auto-clean Recycle Bin": "Nettoyage auto de la corbeille",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Supprime d\xE9finitivement les m\xE9mos pr\xE9sents dans la corbeille au-del\xE0 de la p\xE9riode de conservation. Action irr\xE9versible.",
+  "Never delete": "Ne jamais supprimer",
+  "7 days": "7 jours",
+  "30 days": "30 jours",
+  "90 days": "90 jours",
+  "180 days": "180 jours",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Corbeille : {N} m\xE9mos expir\xE9s supprim\xE9s d\xE9finitivement"
 };
 var hi = {};
 var id = {};
@@ -9483,7 +9499,15 @@ var pt = {
   "Type Here": "Digite aqui",
   TagTipFirst: "Digite ",
   TagTipSecond: "para criar uma etiqueta...",
-  "Failed to save: ": "Falha ao salvar: "
+  "Failed to save: ": "Falha ao salvar: ",
+  "Auto-clean Recycle Bin": "Limpeza autom\xE1tica da reciclagem",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Elimina permanentemente os memorandos que est\xE3o na reciclagem h\xE1 mais tempo do que o per\xEDodo de reten\xE7\xE3o. N\xE3o pode ser anulado.",
+  "Never delete": "Nunca eliminar",
+  "7 days": "7 dias",
+  "30 days": "30 dias",
+  "90 days": "90 dias",
+  "180 days": "180 dias",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente"
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9684,7 +9708,15 @@ var ptBR = {
   "Type Here": "Digite aqui",
   TagTipFirst: "Digite ",
   TagTipSecond: "para criar uma etiqueta...",
-  "Failed to save: ": "Falha ao salvar: "
+  "Failed to save: ": "Falha ao salvar: ",
+  "Auto-clean Recycle Bin": "Limpeza autom\xE1tica da reciclagem",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Elimina permanentemente os memorandos que est\xE3o na reciclagem h\xE1 mais tempo do que o per\xEDodo de reten\xE7\xE3o. N\xE3o pode ser anulado.",
+  "Never delete": "Nunca eliminar",
+  "7 days": "7 dias",
+  "30 days": "30 dias",
+  "90 days": "90 dias",
+  "180 days": "180 dias",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente"
 };
 var ro = {};
 var ru = {};
@@ -9906,7 +9938,15 @@ var zhCN = {
   "Type Here": "\u8F93\u5165\u4EE5\u8FC7\u6EE4",
   TagTipFirst: "\u8F93\u5165 ",
   TagTipSecond: "\u5373\u53EF\u521B\u5EFA\u4E00\u4E2A\u6807\u7B7E",
-  "Failed to save: ": "\u4FDD\u5B58\u5931\u8D25\uFF1A"
+  "Failed to save: ": "\u4FDD\u5B58\u5931\u8D25\uFF1A",
+  "Auto-clean Recycle Bin": "\u81EA\u52A8\u6E05\u7406\u56DE\u6536\u7AD9",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "\u8D85\u8FC7\u4FDD\u7559\u671F\u7684\u5DF2\u5220\u5361\u4F1A\u88AB\u6574\u5757\u6C38\u4E45\u5220\u9664\uFF0C\u4E0D\u53EF\u6062\u590D\u3002",
+  "Never delete": "\u6C38\u4E0D\u5220\u9664",
+  "7 days": "7 \u5929",
+  "30 days": "30 \u5929",
+  "90 days": "90 \u5929",
+  "180 days": "180 \u5929",
+  "Auto-cleaned {N} expired memos from the recycle bin": "\u56DE\u6536\u7AD9\u81EA\u52A8\u6E05\u7406\uFF1A\u5DF2\u6C38\u4E45\u5220\u9664 {N} \u6761\u8FC7\u671F\u5361"
 };
 var zhTW = {};
 const localeMap = {
@@ -9951,6 +9991,21 @@ function extractDeletedAt(content2) {
     }
   }
   return { isDeleted: false, deletedAt: "", rest: content2 };
+}
+function parseDeletedAtMs(value) {
+  const m2 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(value) || /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
+  if (!m2)
+    return null;
+  const y2 = Number(m2[1]);
+  const mo = Number(m2[2]);
+  const d = Number(m2[3]);
+  const h2 = Number(m2[4]);
+  const mi2 = Number(m2[5]);
+  const s = Number(m2[6]);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h2 > 23 || mi2 > 59 || s > 59)
+    return null;
+  const t2 = new Date(y2, mo - 1, d, h2, mi2, s).getTime();
+  return Number.isNaN(t2) ? null : t2;
 }
 function extractMemoTaskTypeFromLine(line) {
   const match = /^[\s-*]*\[(.{1})\]/.exec(line);
@@ -10173,6 +10228,7 @@ const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
 class MemoService {
   constructor() {
     this.initialized = false;
+    this.autoCleaning = false;
   }
   getState() {
     return appStore.getState().memoState;
@@ -10197,6 +10253,7 @@ class MemoService {
     if (!this.initialized) {
       this.initialized = true;
     }
+    await this.autoCleanRecycleBin();
     return accumulatedMemos;
   }
   async fetchMemosFromFile(file) {
@@ -10211,6 +10268,47 @@ class MemoService {
     return deletedMemos.sort(
       (a, b) => new Date(b.deletedAt || "").getTime() - new Date(a.deletedAt || "").getTime()
     );
+  }
+  async autoCleanRecycleBin() {
+    if (this.autoCleaning)
+      return;
+    this.autoCleaning = true;
+    try {
+      const { settings } = appStore.getState().settingsState;
+      if (!settings.EnableRecycleBin || settings.RecycleBinRetention === "never")
+        return;
+      const days = Number(settings.RecycleBinRetention);
+      if (!Number.isFinite(days) || days <= 0)
+        return;
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1e3;
+      const expired = this.getState().memos.filter((m2) => {
+        if (!m2.isDeleted)
+          return false;
+        const deletedAtMs = parseDeletedAtMs(m2.deletedAt);
+        return deletedAtMs !== null && deletedAtMs <= cutoff;
+      });
+      if (expired.length === 0)
+        return;
+      let cleaned = 0;
+      for (const memo2 of expired) {
+        try {
+          await this.deleteMemoById(memo2.id, memo2.hasId, memo2.path);
+          cleaned += 1;
+        } catch (error) {
+          console.error("[rememo] auto-clean failed:", memo2.id, error);
+        }
+      }
+      if (cleaned > 0) {
+        new require$$0.Notice(
+          t$2("Auto-cleaned {N} expired memos from the recycle bin").replace("{N}", String(cleaned)),
+          8e3
+        );
+      }
+    } catch (error) {
+      console.error("[rememo] auto-clean error:", error);
+    } finally {
+      this.autoCleaning = false;
+    }
   }
   pushMemo(memo2) {
     appStore.dispatch({
@@ -35483,6 +35581,7 @@ const DEFAULT_SETTINGS = {
   HideDoneTasks: false,
   HideRefMemosInList: true,
   EnableRecycleBin: true,
+  RecycleBinRetention: "never",
   TagListView: "flat",
   HeatMapStartDay: "sunday",
   ShowHeatMap: true,
@@ -35598,9 +35697,29 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     ).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
         this.plugin.settings.EnableRecycleBin = value;
-        this.applySettingsUpdate();
+        await this.plugin.saveSettings();
+        this.display();
       })
     );
+    if (this.plugin.settings.EnableRecycleBin) {
+      new require$$0.Setting(containerEl).setName(t$2("Auto-clean Recycle Bin")).setDesc(
+        t$2(
+          "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone."
+        )
+      ).addDropdown(async (d) => {
+        d.addOption("never", t$2("Never delete"));
+        d.addOption("7", t$2("7 days"));
+        d.addOption("30", t$2("30 days"));
+        d.addOption("90", t$2("90 days"));
+        d.addOption("180", t$2("180 days"));
+        d.setValue(this.plugin.settings.RecycleBinRetention).onChange(
+          async (value) => {
+            this.plugin.settings.RecycleBinRetention = value;
+            this.applySettingsUpdate();
+          }
+        );
+      });
+    }
     new require$$0.Setting(containerEl).setName(t$2("Startup & Opening")).setHeading();
     new require$$0.Setting(containerEl).setName(t$2("Open Memos when obsidian opens")).setDesc(t$2("When enable this, Memos will open when Obsidian opens. False by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.OpenMemosAutomatically).onChange(async (value) => {

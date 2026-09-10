@@ -19,6 +19,8 @@ export interface MemosSettings {
   HideRefMemosInList: boolean;
   /** 删除路径总开关（2026-09-09 实施）：true = 删除进回收站（软删可恢复，默认）；false = 删除直接永久删，且侧栏回收站入口隐藏（旧软删数据保留，重开恢复） */
   EnableRecycleBin: boolean;
+  /** 回收站自动清理保留期（2026-09-10）：'never'（默认，永不删）| '7' | '30' | '90' | '180'（天）；超期已删卡在全量加载后整块永久删 */
+  RecycleBinRetention: 'never' | '7' | '30' | '90' | '180';
   /** 侧栏标签视图形态（2026-09-10）：'flat' = 平铺全名（默认）；'tree' = 层级折叠树 */
   TagListView: 'flat' | 'tree';
   /** 热力图周起点（2026-09-10）：'sunday'（默认）| 'monday' —— 渲染排布用 */
@@ -47,6 +49,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   HideDoneTasks: false,
   HideRefMemosInList: true,
   EnableRecycleBin: true,
+  RecycleBinRetention: 'never',
   TagListView: 'flat',
   HeatMapStartDay: 'sunday',
   ShowHeatMap: true,
@@ -223,9 +226,34 @@ export class MemosSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
           this.plugin.settings.EnableRecycleBin = value;
-          this.applySettingsUpdate();
+          // 直接落盘再重渲染：让「自动清理」行即时跟随显隐（display 会 loadSettings 回读，不能走防抖保存）
+          await this.plugin.saveSettings();
+          this.display();
         }),
       );
+
+    if (this.plugin.settings.EnableRecycleBin) {
+      new Setting(containerEl)
+        .setName(t('Auto-clean Recycle Bin'))
+        .setDesc(
+          t(
+            'Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.',
+          ),
+        )
+        .addDropdown(async (d: DropdownComponent) => {
+          d.addOption('never', t('Never delete'));
+          d.addOption('7', t('7 days'));
+          d.addOption('30', t('30 days'));
+          d.addOption('90', t('90 days'));
+          d.addOption('180', t('180 days'));
+          d.setValue(this.plugin.settings.RecycleBinRetention).onChange(
+            async (value: MemosSettings['RecycleBinRetention']) => {
+              this.plugin.settings.RecycleBinRetention = value;
+              this.applySettingsUpdate();
+            },
+          );
+        });
+    }
 
     // ===== 启动与打开 =====
     new Setting(containerEl).setName(t('Startup & Opening')).setHeading();

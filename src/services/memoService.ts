@@ -5,11 +5,13 @@ import { changeMemo } from '../obComponents/obUpdateMemo';
 import { deleteMemo, obHideMemo, restoreMemo } from '../obComponents/obHideMemo';
 import { toggleMemoTask, toggleMemoTaskType } from '../obComponents/obToggleMemoTask';
 import { getMemos, getMemosFromDailyNote } from '../obComponents/obGetMemos';
+import { parseDeletedAtMs } from '../helpers/memoLine';
 import appStore from '../stores/appStore';
 import { State as MemoStoreState } from '../stores/memoStore';
 import type { UpdateMemoParams } from '../types/memo';
-import { moment } from 'obsidian';
+import { moment, Notice } from 'obsidian';
 import type { TFile } from 'obsidian';
+import { t } from '../translations/helper';
 
 /**
  * 备忘录服务类 - 处理所有与备忘录相关的操作
@@ -17,6 +19,9 @@ import type { TFile } from 'obsidian';
 class MemoService {
     /** 初始化状态标志 */
     private initialized = false;
+
+    /** 回收站自动清理防重入（并发全量加载时不重复跑，2026-09-10） */
+    private autoCleaning = false;
 
     /**
      * 获取当前备忘录状态
@@ -58,6 +63,9 @@ class MemoService {
             this.initialized = true;
         }
 
+        // 全量加载完成 → 回收站自动清理（超保留期的已删卡整块永久删；内部吞错，绝不打断加载）
+        await this.autoCleanRecycleBin();
+
         return accumulatedMemos;
     }
 
@@ -83,6 +91,51 @@ class MemoService {
         return deletedMemos.sort((a, b) =>
             new Date(b.deletedAt || '').getTime() - new Date(a.deletedAt || '').getTime()
         );
+    }
+
+    /**
+     * 回收站自动清理（2026-09-10）：把超过保留期的已删卡整块永久删除。
+     * 触发点 = fetchAllMemos 全量加载完成后（视图打开/刷新/文件删除后回读）——只用内存数据，不额外读库。
+     * 条件：总开关开 + 保留期非 never + isDeleted + deletedAt 可解析 + 满 N×24h；
+     * 解析失败一律跳过；真删了 ≥1 条才弹提示。内部吞错，绝不打断加载。
+     */
+    public async autoCleanRecycleBin(): Promise<void> {
+        if (this.autoCleaning) return;
+        this.autoCleaning = true;
+        try {
+            const { settings } = appStore.getState().settingsState;
+            if (!settings.EnableRecycleBin || settings.RecycleBinRetention === 'never') return;
+            const days = Number(settings.RecycleBinRetention);
+            if (!Number.isFinite(days) || days <= 0) return;
+
+            const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+            const expired = this.getState().memos.filter((m) => {
+                if (!m.isDeleted) return false;
+                const deletedAtMs = parseDeletedAtMs(m.deletedAt);
+                return deletedAtMs !== null && deletedAtMs <= cutoff;
+            });
+            if (expired.length === 0) return;
+
+            let cleaned = 0;
+            for (const memo of expired) {
+                try {
+                    await this.deleteMemoById(memo.id, memo.hasId, memo.path);
+                    cleaned += 1;
+                } catch (error) {
+                    console.error('[rememo] auto-clean failed:', memo.id, error);
+                }
+            }
+            if (cleaned > 0) {
+                new Notice(
+                    t('Auto-cleaned {N} expired memos from the recycle bin').replace('{N}', String(cleaned)),
+                    8000,
+                );
+            }
+        } catch (error) {
+            console.error('[rememo] auto-clean error:', error);
+        } finally {
+            this.autoCleaning = false;
+        }
     }
 
     /**
