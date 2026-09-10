@@ -23,6 +23,27 @@ div[data-type='memos_view'] .memo-editor-wrapper {
     animation: memo-edit-pulse 360ms ease-out;
   }
 
+  // 任务模式（2026-09-11）：左上"短斜带"——复刻任务卡角标（.memo-task-corner）的视觉语言，
+  // 一眼认出"正在写一张任务卡"；常驻元素只切透明度，切换有 120ms 淡入淡出；纯展示不挡点击
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 46px;
+    height: 12px;
+    background-color: color-mix(in srgb, var(--memo-accent) 32%, transparent);
+    border-top-left-radius: var(--memo-radius-m);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    opacity: 0;
+    transition: opacity var(--memo-transition-fast);
+    pointer-events: none;
+  }
+
+  &.task-mode::before {
+    opacity: 1;
+  }
+
   > .tip-text {
     font-size: 12px;
     line-height: 20px;

@@ -271,4 +271,7 @@ export default {
   'Show tags at the bottom of the card, or keep them where they appear in the text.':
     'Mostra as etiquetas no fim do cartão ou no local original no texto.',
   'In place': 'No local',
+
+  // 2026-09-11 任务钮样式：任务模式占位符
+  'What needs doing...': 'O que há para fazer...',
 };

@@ -57,6 +57,8 @@ interface EditorProps {
   showConfirmBtn: boolean;
   showCancelBtn: boolean;
   tools?: React.ReactNode;
+  /** 右侧按钮区顶部插槽（发送/取消键左边；MemoEditor 用来放 普通/任务 滑块） */
+  btns?: React.ReactNode;
   onConfirmBtnClick: (content: string) => void;
   onCancelBtnClick: () => void;
   onContentChange: (content: string) => void;
@@ -460,6 +462,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
           <Only when={props.tools !== undefined}>{props.tools}</Only>
         </div>
         <div className="btns-container">
+          <Only when={props.btns !== undefined}>{props.btns}</Only>
           <Only when={showCancelBtn}>
             <button className="action-btn cancel-btn" onClick={handleCommonCancelBtnClick}>
               {t('CANCEL EDIT')}

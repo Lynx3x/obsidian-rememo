@@ -304,4 +304,7 @@ export default {
   'Show tags at the bottom of the card, or keep them where they appear in the text.':
     'Show tags at the bottom of the card, or keep them where they appear in the text.',
   'In place': 'In place',
+
+  // 2026-09-11 任务钮样式：任务模式占位符
+  'What needs doing...': 'What needs doing...',
 };

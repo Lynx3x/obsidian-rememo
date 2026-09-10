@@ -224,4 +224,7 @@ export default {
   'Show tags at the bottom of the card, or keep them where they appear in the text.':
     "Affiche les étiquettes en bas de la carte ou à leur emplacement d'origine dans le texte.",
   'In place': 'Sur place',
+
+  // 2026-09-11 任务钮样式：任务模式占位符
+  'What needs doing...': "Qu'y a-t-il à faire...",
 };

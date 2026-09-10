@@ -9139,7 +9139,8 @@ var en = {
   "Failed to play the sound: ": "Failed to play the sound: ",
   "Tag position": "Tag position",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Show tags at the bottom of the card, or keep them where they appear in the text.",
-  "In place": "In place"
+  "In place": "In place",
+  "What needs doing...": "What needs doing..."
 };
 var enGB = {};
 var es = {};
@@ -9324,7 +9325,8 @@ var fr = {
   "Failed to play the sound: ": "Impossible de lire le son : ",
   "Tag position": "Position des \xE9tiquettes",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Affiche les \xE9tiquettes en bas de la carte ou \xE0 leur emplacement d'origine dans le texte.",
-  "In place": "Sur place"
+  "In place": "Sur place",
+  "What needs doing...": "Qu'y a-t-il \xE0 faire..."
 };
 var hi = {};
 var id = {};
@@ -9553,7 +9555,8 @@ var pt = {
   "Failed to play the sound: ": "Falha ao reproduzir o som: ",
   "Tag position": "Posi\xE7\xE3o das etiquetas",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as etiquetas no fim do cart\xE3o ou no local original no texto.",
-  "In place": "No local"
+  "In place": "No local",
+  "What needs doing...": "O que h\xE1 para fazer..."
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9774,7 +9777,8 @@ var ptBR = {
   "Failed to play the sound: ": "Falha ao reproduzir o som: ",
   "Tag position": "Posi\xE7\xE3o das tags",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as tags no fim do cart\xE3o ou no local original no texto.",
-  "In place": "No local"
+  "In place": "No local",
+  "What needs doing...": "O que h\xE1 para fazer..."
 };
 var ro = {};
 var ru = {};
@@ -10016,7 +10020,8 @@ var zhCN = {
   "Failed to play the sound: ": "\u97F3\u6548\u64AD\u653E\u5931\u8D25\uFF1A",
   "Tag position": "\u6807\u7B7E\u4F4D\u7F6E",
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "\u6807\u7B7E\u62BD\u5230\u5361\u7247\u6B63\u6587\u672B\u5C3E\uFF0C\u8FD8\u662F\u4FDD\u7559\u5728\u53E5\u5B50\u91CC\u539F\u6765\u7684\u4F4D\u7F6E\u3002",
-  "In place": "\u539F\u4F4D"
+  "In place": "\u539F\u4F4D",
+  "What needs doing...": "\u8981\u505A\u4EC0\u4E48\uFF1F\u5199\u4E0B\u6765\u2026"
 };
 var zhTW = {};
 const localeMap = {
@@ -31357,6 +31362,9 @@ const Editor = react.exports.forwardRef((props, ref) => {
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
         children: [/* @__PURE__ */ jsx(Only, {
+          when: props.btns !== void 0,
+          children: props.btns
+        }), /* @__PURE__ */ jsx(Only, {
           when: showCancelBtn,
           children: /* @__PURE__ */ jsx("button", {
             className: "action-btn cancel-btn",
@@ -33350,6 +33358,11 @@ const MemoEditor = () => {
       if (editMemo) {
         (_b2 = editorRef.current) == null ? void 0 : _b2.setContent((_a3 = editMemo.content) != null ? _a3 : "");
         (_c = editorRef.current) == null ? void 0 : _c.focus();
+        const taskCard = editMemo.memoType.startsWith("TASK");
+        if (isList !== taskCard) {
+          isList = taskCard;
+          toggleList(taskCard);
+        }
       }
     }
     prevGlobalStateRef.current = globalState;
@@ -33486,6 +33499,9 @@ ${content2.trimStart()}`.trimEnd();
           editedMemo.updatedAt = utils$1.getDateTimeString(Date.now());
           memoService.editMemo(editedMemo);
         }
+        if (prevMemo && prevMemo.memoType.startsWith("TASK") !== isList) {
+          await memoService.toggleMemoTaskType(prevMemo);
+        }
         globalStateService.setEditMemoId("");
         finishSend();
       } else {
@@ -33546,13 +33562,8 @@ ${content2.trimStart()}`.trimEnd();
     if (!editorRef.current) {
       return;
     }
-    if (isList) {
-      isList = false;
-      toggleList(false);
-    } else {
-      isList = true;
-      toggleList(true);
-    }
+    isList = !isList;
+    toggleList(isList);
   };
   const handleShowEditor = (flag) => {
     if (!editorRef.current) {
@@ -33600,7 +33611,7 @@ ${content2.trimStart()}`.trimEnd();
   const editorConfig = react.exports.useMemo(() => ({
     className: "memo-editor",
     initialContent: getEditorContentCache(),
-    placeholder: t$2("What do you think now..."),
+    placeholder: isListShown ? t$2("What needs doing...") : t$2("What do you think now..."),
     showConfirmBtn: true,
     showCancelBtn: showEditStatus,
     showTools: true,
@@ -33608,10 +33619,10 @@ ${content2.trimStart()}`.trimEnd();
     onConfirmBtnClick: handleSaveBtnClick,
     onCancelBtnClick: handleCancelBtnClick,
     onContentChange: handleContentChange
-  }), [showEditStatus, EnterToSend]);
+  }), [showEditStatus, EnterToSend, isListShown]);
   return /* @__PURE__ */ jsxs("div", {
     ref: editorWrapperRef,
-    className: `memo-editor-wrapper ${showEditStatus ? "edit-ing" : ""} ${isEditorShown ? "hidden" : ""}`,
+    className: `memo-editor-wrapper ${showEditStatus ? "edit-ing" : ""} ${isListShown ? "task-mode" : ""} ${isEditorShown ? "hidden" : ""}`,
     children: [/* @__PURE__ */ jsx("p", {
       className: `tip-text ${showEditStatus ? "" : "hidden"}`,
       children: "Modifying..."
@@ -33647,12 +33658,21 @@ ${content2.trimStart()}`.trimEnd();
         }), /* @__PURE__ */ jsx(SvgImage, {
           className: "action-btn file-upload",
           onClick: handleUploadFileBtnClick
-        }), !isListShown ? /* @__PURE__ */ jsx(SvgJournal, {
-          className: "action-btn list-or-task",
-          onClick: handleChangeStatus
-        }) : /* @__PURE__ */ jsx(SvgCheckboxActive, {
-          className: "action-btn list-or-task",
-          onClick: handleChangeStatus
+        })]
+      }),
+      btns: /* @__PURE__ */ jsxs("span", {
+        className: "list-or-task-slider",
+        title: isListShown ? t$2("Task") : t$2("List"),
+        children: [/* @__PURE__ */ jsx("span", {
+          className: `list-or-task-thumb ${isListShown ? "to-task" : ""}`
+        }), /* @__PURE__ */ jsx("span", {
+          className: `list-or-task-seg ${isListShown ? "" : "active"}`,
+          onClick: () => handleChangeStatus(),
+          children: /* @__PURE__ */ jsx(SvgJournal, {})
+        }), /* @__PURE__ */ jsx("span", {
+          className: `list-or-task-seg ${isListShown ? "active" : ""}`,
+          onClick: () => handleChangeStatus(),
+          children: /* @__PURE__ */ jsx(SvgCheckboxActive, {})
         })]
       })
     }), markMemos.length > 0 && /* @__PURE__ */ jsxs("div", {

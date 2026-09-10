@@ -4720,6 +4720,53 @@ div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .co
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .common-tools-container > svg.action-btn:active {
   transform: scale(0.85);
 }
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 14px;
+  padding: 2px;
+  border-radius: var(--memo-radius-s);
+  background-color: var(--memo-surface-hover);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider > .list-or-task-seg {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: calc(var(--memo-radius-s) - 1px);
+  color: var(--memo-text-muted);
+  cursor: pointer;
+  transition: color var(--memo-transition-fast);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider > .list-or-task-seg > svg {
+  width: 18px;
+  height: 18px;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider > .list-or-task-seg:hover:not(.active) {
+  color: var(--memo-text);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider > .list-or-task-seg.active {
+  color: var(--memo-accent);
+}
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider > .list-or-task-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: calc(var(--memo-radius-s) - 1px);
+  background-color: color-mix(in srgb, var(--memo-accent) 16%, transparent);
+  transition: transform var(--memo-transition-fast);
+  pointer-events: none;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper .list-or-task-slider > .list-or-task-thumb.to-task {
+  transform: translateX(26px);
+}
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper > .btns-container {
   display: flex;
   flex-direction: row;
@@ -5012,6 +5059,23 @@ div[data-type='memos_view'] .memo-editor-wrapper:focus-within {
 div[data-type='memos_view'] .memo-editor-wrapper.edit-ing {
   border-color: var(--memo-accent);
   animation: memo-edit-pulse 360ms ease-out;
+}
+div[data-type='memos_view'] .memo-editor-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 46px;
+  height: 12px;
+  background-color: color-mix(in srgb, var(--memo-accent) 32%, transparent);
+  border-top-left-radius: var(--memo-radius-m);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  opacity: 0;
+  transition: opacity var(--memo-transition-fast);
+  pointer-events: none;
+}
+div[data-type='memos_view'] .memo-editor-wrapper.task-mode::before {
+  opacity: 1;
 }
 div[data-type='memos_view'] .memo-editor-wrapper > .tip-text {
   font-size: 12px;

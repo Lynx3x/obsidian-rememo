@@ -126,6 +126,61 @@ div[data-type='memos_view'] .common-editor-wrapper {
       }
     }
 
+    // 普通/任务 双段滑块（2026-09-11）：轨道 + 滑动高亮块；点哪格选哪格（位置在发送键左边）
+    .list-or-task-slider {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-right: 14px; // 与发送键拉开，防误触（2026-09-11 owner 目视）
+      padding: 2px;
+      border-radius: var(--memo-radius-s);
+      background-color: var(--memo-surface-hover);
+
+      > .list-or-task-seg {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: calc(var(--memo-radius-s) - 1px);
+        color: var(--memo-text-muted);
+        cursor: pointer;
+        transition: color var(--memo-transition-fast);
+
+        > svg {
+          width: 18px; // 与左侧工具栏图标本体一致（owner 目视：滑块偏小）
+          height: 18px;
+        }
+
+        &:hover:not(.active) {
+          color: var(--memo-text);
+        }
+
+        &.active {
+          color: var(--memo-accent);
+        }
+      }
+
+      > .list-or-task-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 24px;
+        height: 24px;
+        border-radius: calc(var(--memo-radius-s) - 1px);
+        background-color: color-mix(in srgb, var(--memo-accent) 16%, transparent);
+        transition: transform var(--memo-transition-fast);
+        pointer-events: none;
+
+        &.to-task {
+          transform: translateX(26px); // 24px 段宽 + 2px 间距
+        }
+      }
+    }
+
     > .btns-container {
       .flex(row, flex-end, center);
       flex-grow: 0;

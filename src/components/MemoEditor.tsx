@@ -253,6 +253,12 @@ const MemoEditor: React.FC<Props> = () => {
         // 新格式正文即真实换行文本（旧 <br> 编码仅存量数据，渲染端解码；此处直用）
         editorRef.current?.setContent(editMemo.content ?? '');
         editorRef.current?.focus();
+        // 滑块同步到被编辑卡的类型：任务卡 → 任务格、普通卡 → 普通格（2026-09-11）
+        const taskCard = editMemo.memoType.startsWith('TASK');
+        if (isList !== taskCard) {
+          isList = taskCard;
+          toggleList(taskCard);
+        }
       }
     }
 
@@ -393,6 +399,10 @@ const MemoEditor: React.FC<Props> = () => {
           editedMemo.updatedAt = utils.getDateTimeString(Date.now());
           memoService.editMemo(editedMemo);
         }
+        // 滑块在编辑态改了类型（普通⇄任务）→ 保存时一并生效：走现成的整卡类型切换（头行 [ ] 标记，写后回读）
+        if (prevMemo && prevMemo.memoType.startsWith('TASK') !== isList) {
+          await memoService.toggleMemoTaskType(prevMemo);
+        }
         globalStateService.setEditMemoId('');
         finishSend();
       } else {
@@ -461,19 +471,13 @@ const MemoEditor: React.FC<Props> = () => {
     });
   }, []);
 
-  // Toggle List OR TASK
+  // Toggle List OR TASK（滑块两格都是"切换"：点哪格都翻转；位置即当前模式）
   const handleChangeStatus = () => {
     if (!editorRef.current) {
       return;
     }
-
-    if (isList) {
-      isList = false;
-      toggleList(false);
-    } else {
-      isList = true;
-      toggleList(true);
-    }
+    isList = !isList;
+    toggleList(isList);
   };
 
   const handleShowEditor = (flag?: boolean) => {
@@ -531,7 +535,7 @@ const MemoEditor: React.FC<Props> = () => {
     () => ({
       className: 'memo-editor',
       initialContent: getEditorContentCache(),
-      placeholder: t('What do you think now...'),
+      placeholder: isListShown ? t('What needs doing...') : t('What do you think now...'),
       showConfirmBtn: true,
       showCancelBtn: showEditStatus,
       showTools: true,
@@ -540,13 +544,13 @@ const MemoEditor: React.FC<Props> = () => {
       onCancelBtnClick: handleCancelBtnClick,
       onContentChange: handleContentChange,
     }),
-    [showEditStatus, EnterToSend],
+    [showEditStatus, EnterToSend, isListShown],
   );
 
   return (
     <div
       ref={editorWrapperRef}
-      className={`memo-editor-wrapper ${showEditStatus ? 'edit-ing' : ''} ${isEditorShown ? 'hidden' : ''}`}
+      className={`memo-editor-wrapper ${showEditStatus ? 'edit-ing' : ''} ${isListShown ? 'task-mode' : ''} ${isEditorShown ? 'hidden' : ''}`}
     >
       <p className={`tip-text ${showEditStatus ? '' : 'hidden'}`}>Modifying...</p>
       <Editor
@@ -589,13 +593,27 @@ const MemoEditor: React.FC<Props> = () => {
             {/*  src={`${!isListShown ? journalSvg : taskSvg}`}*/}
             {/*  onClick={handleChangeStatus}*/}
             {/*/>*/}
-            {!isListShown ? (
-              <JournalSvg className="action-btn list-or-task" onClick={handleChangeStatus} />
-            ) : (
-              <TaskSvg className="action-btn list-or-task" onClick={handleChangeStatus} />
-            )}
+            {/* 普通/任务 切换已移到右侧（发送键左边）的双段滑块，见下方 btns */}
             {/* <img className={`action-btn ${isListShown ? "" : "hidden"}`} src={taskSvg} onClick={handleChangeStatus} /> */}
           </>
+        }
+        btns={
+          // 普通/任务 双段滑块（2026-09-11）：两格都是"切换"（点哪格都翻转，位置即当前模式）；放发送键左边
+          <span className="list-or-task-slider" title={isListShown ? t('Task') : t('List')}>
+            <span className={`list-or-task-thumb ${isListShown ? 'to-task' : ''}`} />
+            <span
+              className={`list-or-task-seg ${isListShown ? '' : 'active'}`}
+              onClick={() => handleChangeStatus()}
+            >
+              <JournalSvg />
+            </span>
+            <span
+              className={`list-or-task-seg ${isListShown ? 'active' : ''}`}
+              onClick={() => handleChangeStatus()}
+            >
+              <TaskSvg />
+            </span>
+          </span>
         }
       />
       {markMemos.length > 0 && (

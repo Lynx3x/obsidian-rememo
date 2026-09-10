@@ -278,4 +278,7 @@ export default {
   'Show tags at the bottom of the card, or keep them where they appear in the text.':
     '标签抽到卡片正文末尾，还是保留在句子里原来的位置。',
   'In place': '原位',
+
+  // 2026-09-11 任务钮样式：任务模式占位符
+  'What needs doing...': '要做什么？写下来…',
 };
