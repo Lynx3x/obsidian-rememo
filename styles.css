@@ -3778,6 +3778,9 @@ div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container 
 div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container > .btns-container > .action-btn.shown {
   transform: rotate(90deg);
 }
+div[data-type='memos_view'] .tags-wrapper > .tags-container .tag-item-container > .btns-container > .action-btn.placeholder {
+  visibility: hidden;
+}
 div[data-type='memos_view'] .tags-wrapper > .tags-container > .tag-tip-container {
   width: 100%;
   margin-top: 8px;

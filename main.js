@@ -15894,7 +15894,7 @@ function SvgTree(props) {
     d: "M0 0h24v24H0V0z",
     fill: "none"
   }), /* @__PURE__ */ react.exports.createElement("path", {
-    d: "M4 4h8v2H4V4zM7 6h2v6H7V6zM2 12h5v2H2v-2zM3 14h2v5H3v-5zM9 12h5v2H9v-2zM12 14h2v5h-2v-5z"
+    d: "M8 4h8v2H8V4zM11 6h2v6h-2V6zM5 12h6v2H5v-2zM7 14h2v5H7v-5zM13 12h6v2h-6v-2zM15 14h2v5h-2v-5z"
   }));
 }
 const TagList = () => {
@@ -16074,6 +16074,9 @@ const TagItemContainer = (props) => {
           children: /* @__PURE__ */ jsx(SvgArrowRight, {
             className: "icon-img"
           })
+        }) : !flat ? /* @__PURE__ */ jsx("span", {
+          className: "action-btn toggle-btn placeholder",
+          "aria-hidden": "true"
         }) : null]
       })]
     }), hasSubTags ? /* @__PURE__ */ jsx("div", {

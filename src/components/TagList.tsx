@@ -186,6 +186,9 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
             >
               <ArrowRight className="icon-img" />
             </button>
+          ) : !flat ? (
+            // 树状下无子行补隐形占位：有子行的箭头钮占 16px 净宽，缺占位会让两类行的数字列错开（2026-09-10 owner 反馈）
+            <span className="action-btn toggle-btn placeholder" aria-hidden="true" />
           ) : null}
         </div>
       </div>

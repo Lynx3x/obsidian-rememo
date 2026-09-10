@@ -162,6 +162,11 @@ div[data-type='memos_view'] .tags-wrapper {
           &.shown {
             transform: rotate(90deg);
           }
+
+          // 树状无子行的隐形占位（保持数字列纵向对齐；见 TagList.tsx）
+          &.placeholder {
+            visibility: hidden;
+          }
         }
       }
     }
