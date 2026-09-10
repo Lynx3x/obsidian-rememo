@@ -39,7 +39,7 @@ const DailyMemo: React.FC<Props> = (props: Props) => {
         <span className="normal-text">{memo.timeStr}</span>
       </div>
       <div className="memo-content-container">
-        <div className="memo-content-text" dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}></div>
+        <div className="memo-content-text" dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content, { tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === 'inline' }) }}></div>
         <Only when={external.length > 0}>
           <div className="images-container">
             {external.map((imgUrl, idx) => (

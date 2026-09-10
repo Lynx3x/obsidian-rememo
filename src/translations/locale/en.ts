@@ -298,4 +298,10 @@ export default {
   'Enter a vault-relative path (e.g. assets/send.mp3).': 'Enter a vault-relative path (e.g. assets/send.mp3).',
   Preview: 'Preview',
   'Failed to play the sound: ': 'Failed to play the sound: ',
+
+  // 2026-09-11 标签渲染位置：设置项
+  'Tag position': 'Tag position',
+  'Show tags at the bottom of the card, or keep them where they appear in the text.':
+    'Show tags at the bottom of the card, or keep them where they appear in the text.',
+  'In place': 'In place',
 };

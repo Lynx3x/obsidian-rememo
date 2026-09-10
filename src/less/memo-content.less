@@ -173,7 +173,9 @@
     padding-left: 4px;
     padding-right: 6px;
     line-height: 24px;
-    font-size: 13px;
+    // 12px（沉底/原位统一）：该字体的字顶高于底色框，13px 时字顶戳出框外"像被削"（行内/沉底同病，
+    // 2026-09-11 owner 目视定案统一收一档；改动前先量：底色框内至少给字 1.5px 余量）
+    font-size: 12px;
     border: none;
     border-radius: var(--radius-s, 4px);
     color: var(--interactive-accent);
@@ -186,6 +188,14 @@
       background-color: color-mix(in srgb, var(--memo-accent) 18%, var(--memo-surface-hover));
       color: var(--memo-accent);
     }
+  }
+
+  // 原位模式（TagRenderPosition='inline'）的正文内联标签：字号随基底统一 12px；
+  // 行高 19px + 上下 2px 内衬（盒 23px）——行盒 24px 里留半步不挤、底色框内给字内衬（owner 定：按之前挤的方案）
+  p:not(.memo-tags) > .tag-span {
+    line-height: 19px;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
 
   .memo-link-text {
@@ -277,7 +287,14 @@
 
   .tag-span {
     line-height: 26px;
-    font-size: 14px;
+    font-size: 13px; // 同桌面收一档（14→13）
+  }
+
+  // 移动端镜像：正文内联标签行高内收 + 上下 2px 内衬（盒 24px，行盒 26px 里留 1px）
+  p:not(.memo-tags) > .tag-span {
+    line-height: 20px;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
 }
 

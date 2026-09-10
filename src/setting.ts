@@ -24,6 +24,8 @@ export interface MemosSettings {
   RecycleBinRetention: 'never' | '7' | '30' | '90' | '180';
   /** 侧栏标签视图形态（2026-09-10）：'flat' = 平铺全名（默认）；'tree' = 层级折叠树 */
   TagListView: 'flat' | 'tree';
+  /** 卡片标签渲染位置（2026-09-11）：'bottom' = 抽到正文末尾（默认，现状）；'inline' = 保留原位（内联可点，全部卡片渲染面跟随） */
+  TagRenderPosition: 'bottom' | 'inline';
   /** 热力图周起点（2026-09-10）：'sunday'（默认）| 'monday' —— 渲染排布用 */
   HeatMapStartDay: 'sunday' | 'monday';
   /** 是否显示侧栏热力图（2026-09-10）：默认 true；关闭时隐藏区块，导航随之上浮 */
@@ -58,6 +60,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   EnableRecycleBin: true,
   RecycleBinRetention: 'never',
   TagListView: 'flat',
+  TagRenderPosition: 'bottom',
   HeatMapStartDay: 'sunday',
   ShowHeatMap: true,
   EnterToSend: false,
@@ -224,6 +227,20 @@ export class MemosSettingTab extends PluginSettingTab {
 
     // ===== 列表与侧栏 =====
     new Setting(containerEl).setName(t('List & Sidebar')).setHeading();
+
+    new Setting(containerEl)
+      .setName(t('Tag position'))
+      .setDesc(t('Show tags at the bottom of the card, or keep them where they appear in the text.'))
+      .addDropdown((d: DropdownComponent) => {
+        d.addOption('bottom', t('Bottom'));
+        d.addOption('inline', t('In place'));
+        d.setValue(this.plugin.settings.TagRenderPosition).onChange(
+          async (value: MemosSettings['TagRenderPosition']) => {
+            this.plugin.settings.TagRenderPosition = value;
+            this.applySettingsUpdate();
+          },
+        );
+      });
 
     new Setting(containerEl)
       .setName(t('Hide done tasks in Memo list'))

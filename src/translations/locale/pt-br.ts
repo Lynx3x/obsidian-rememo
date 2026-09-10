@@ -266,4 +266,10 @@ export default {
   'Enter a vault-relative path (e.g. assets/send.mp3).': 'Indique um caminho relativo ao cofre (ex.: assets/send.mp3).',
   Preview: 'Ouvir',
   'Failed to play the sound: ': 'Falha ao reproduzir o som: ',
+
+  // 2026-09-11 标签渲染位置：设置项
+  'Tag position': 'Posição das tags',
+  'Show tags at the bottom of the card, or keep them where they appear in the text.':
+    'Mostra as tags no fim do cartão ou no local original no texto.',
+  'In place': 'No local',
 };

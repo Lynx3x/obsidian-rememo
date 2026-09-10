@@ -272,4 +272,10 @@ export default {
   'Enter a vault-relative path (e.g. assets/send.mp3).': '填库内相对路径（如 assets/send.mp3）。',
   Preview: '试听',
   'Failed to play the sound: ': '音效播放失败：',
+
+  // 2026-09-11 标签渲染位置：设置项
+  'Tag position': '标签位置',
+  'Show tags at the bottom of the card, or keep them where they appear in the text.':
+    '标签抽到卡片正文末尾，还是保留在句子里原来的位置。',
+  'In place': '原位',
 };

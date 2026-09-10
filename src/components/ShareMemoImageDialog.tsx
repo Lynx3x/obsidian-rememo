@@ -233,7 +233,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
             <span className="background-container"></span>
             <div
               className="memo-content-text"
-              dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}
+              dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content, { tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === 'inline' }) }}
             ></div>
             <Only when={externalImageUrls.length > 0}>
               <div className="images-container">

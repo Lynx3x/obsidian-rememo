@@ -366,7 +366,12 @@ const Memo: React.FC<Props> = (props: Props) => {
         className="memo-content-text"
         onClick={(e) => handleMemoContentClick(e, propsMemo)}
         onDoubleClick={handleMemoDoubleClick}
-        dangerouslySetInnerHTML={{ __html: formatMemoContent(propsMemo.content, propsMemo.id) }}
+        dangerouslySetInnerHTML={{
+          __html: formatMemoContent(propsMemo.content, {
+            memoid: propsMemo.id,
+            tagsInline: settings.TagRenderPosition === 'inline',
+          }),
+        }}
       ></div>
       <MemoImage {...imageProps} />
       <MemoRefBar content={propsMemo.content} currentPath={propsMemo.path} onOpenMemo={(tm) => showMemoCardDialog(tm)} />
@@ -390,7 +395,8 @@ const Memo: React.FC<Props> = (props: Props) => {
   );
 };
 
-export function formatMemoContent(content: string, memoid?: string) {
+export function formatMemoContent(content: string, options?: { memoid?: string; tagsInline?: boolean }) {
+  const { memoid, tagsInline = false } = options ?? {};
   const { shouldUseMarkdownParser, shouldHideImageUrl } = globalStateService.getState();
 
   // P3 引用标记（MEMO_LINK）不渲染在正文：整串剥离，引用由卡底"引用自"条呈现（见 Memo.tsx 渲染）
@@ -413,6 +419,17 @@ export function formatMemoContent(content: string, memoid?: string) {
     .replace(/\^\S{6}/g, '');
 
   const tagsCollect = (content: string) => {
+    // 原位模式（TagRenderPosition='inline'）：不剥除，把标签原地包成可点 span——
+    // 前缀空白（TAG_REG 匹配含一个 \s，可能是换行）与行首标记（<p>/<br>）都原样保留
+    if (tagsInline) {
+      return content
+        .replace(TAG_REG, (match, name: string) => `${match[0]}<span class='tag-span'>#${name}</span>`)
+        .replace(
+          FIRST_TAG_REG,
+          (_match, prefix: string, name: string) => `${prefix}<span class='tag-span'>#${name}</span>`,
+        );
+    }
+
     let tags = [...content.matchAll(TAG_REG)];
     tags = [...tags, ...content.matchAll(FIRST_TAG_REG)];
     tags.sort((tag, tag2) => tag.index - tag2.index);

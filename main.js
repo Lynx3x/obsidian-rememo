@@ -9136,7 +9136,10 @@ var en = {
   "Sound file path": "Sound file path",
   "Enter a vault-relative path (e.g. assets/send.mp3).": "Enter a vault-relative path (e.g. assets/send.mp3).",
   Preview: "Preview",
-  "Failed to play the sound: ": "Failed to play the sound: "
+  "Failed to play the sound: ": "Failed to play the sound: ",
+  "Tag position": "Tag position",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Show tags at the bottom of the card, or keep them where they appear in the text.",
+  "In place": "In place"
 };
 var enGB = {};
 var es = {};
@@ -9318,7 +9321,10 @@ var fr = {
   "Sound file path": "Chemin du fichier son",
   "Enter a vault-relative path (e.g. assets/send.mp3).": "Indiquez un chemin relatif au coffre (ex. : assets/send.mp3).",
   Preview: "\xC9couter",
-  "Failed to play the sound: ": "Impossible de lire le son : "
+  "Failed to play the sound: ": "Impossible de lire le son : ",
+  "Tag position": "Position des \xE9tiquettes",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Affiche les \xE9tiquettes en bas de la carte ou \xE0 leur emplacement d'origine dans le texte.",
+  "In place": "Sur place"
 };
 var hi = {};
 var id = {};
@@ -9544,7 +9550,10 @@ var pt = {
   "Sound file path": "Caminho do ficheiro de som",
   "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
   Preview: "Ouvir",
-  "Failed to play the sound: ": "Falha ao reproduzir o som: "
+  "Failed to play the sound: ": "Falha ao reproduzir o som: ",
+  "Tag position": "Posi\xE7\xE3o das etiquetas",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as etiquetas no fim do cart\xE3o ou no local original no texto.",
+  "In place": "No local"
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9762,7 +9771,10 @@ var ptBR = {
   "Sound file path": "Caminho do arquivo de som",
   "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
   Preview: "Ouvir",
-  "Failed to play the sound: ": "Falha ao reproduzir o som: "
+  "Failed to play the sound: ": "Falha ao reproduzir o som: ",
+  "Tag position": "Posi\xE7\xE3o das tags",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as tags no fim do cart\xE3o ou no local original no texto.",
+  "In place": "No local"
 };
 var ro = {};
 var ru = {};
@@ -10001,7 +10013,10 @@ var zhCN = {
   "Sound file path": "\u97F3\u6548\u6587\u4EF6\u8DEF\u5F84",
   "Enter a vault-relative path (e.g. assets/send.mp3).": "\u586B\u5E93\u5185\u76F8\u5BF9\u8DEF\u5F84\uFF08\u5982 assets/send.mp3\uFF09\u3002",
   Preview: "\u8BD5\u542C",
-  "Failed to play the sound: ": "\u97F3\u6548\u64AD\u653E\u5931\u8D25\uFF1A"
+  "Failed to play the sound: ": "\u97F3\u6548\u64AD\u653E\u5931\u8D25\uFF1A",
+  "Tag position": "\u6807\u7B7E\u4F4D\u7F6E",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "\u6807\u7B7E\u62BD\u5230\u5361\u7247\u6B63\u6587\u672B\u5C3E\uFF0C\u8FD8\u662F\u4FDD\u7559\u5728\u53E5\u5B50\u91CC\u539F\u6765\u7684\u4F4D\u7F6E\u3002",
+  "In place": "\u539F\u4F4D"
 };
 var zhTW = {};
 const localeMap = {
@@ -13870,7 +13885,9 @@ const MemoCardDialog = (props) => {
           className: "memo-content-text",
           onClick: handleMemoContentClick,
           dangerouslySetInnerHTML: {
-            __html: formatMemoContent(memo2.content)
+            __html: formatMemoContent(memo2.content, {
+              tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === "inline"
+            })
           }
         }), /* @__PURE__ */ jsx(MemoImage, {
           memo: memo2.content
@@ -13923,7 +13940,10 @@ const MemoCardDialog = (props) => {
         }), /* @__PURE__ */ jsx("div", {
           className: "ref-comment-content",
           dangerouslySetInnerHTML: {
-            __html: formatMemoContent(m2.content, m2.id)
+            __html: formatMemoContent(m2.content, {
+              memoid: m2.id,
+              tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === "inline"
+            })
           }
         })]
       }, m2.id))]
@@ -14182,7 +14202,9 @@ const ShareMemoImageDialog = (props) => {
           }), /* @__PURE__ */ jsx("div", {
             className: "memo-content-text",
             dangerouslySetInnerHTML: {
-              __html: formatMemoContent(memo2.content)
+              __html: formatMemoContent(memo2.content, {
+                tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === "inline"
+              })
             }
           }), /* @__PURE__ */ jsx(Only, {
             when: externalImageUrls.length > 0,
@@ -14616,7 +14638,10 @@ const Memo = (props) => {
       onClick: (e) => handleMemoContentClick(e, propsMemo),
       onDoubleClick: handleMemoDoubleClick,
       dangerouslySetInnerHTML: {
-        __html: formatMemoContent(propsMemo.content, propsMemo.id)
+        __html: formatMemoContent(propsMemo.content, {
+          memoid: propsMemo.id,
+          tagsInline: settings.TagRenderPosition === "inline"
+        })
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       ...imageProps
@@ -14641,7 +14666,11 @@ const Memo = (props) => {
     })]
   });
 };
-function formatMemoContent(content2, memoid) {
+function formatMemoContent(content2, options) {
+  const {
+    memoid,
+    tagsInline = false
+  } = options != null ? options : {};
   const {
     shouldUseMarkdownParser,
     shouldHideImageUrl
@@ -14656,6 +14685,9 @@ function formatMemoContent(content2, memoid) {
   }
   content2 = content2.replace(LINK_REG, "$1<a class='link' target='_blank' rel='noreferrer' href='$2'>$2</a>").replace(MD_LINK_REG, "<a class='link' target='_blank' rel='noreferrer' href='$2'>$1</a>").replace(/\^\S{6}/g, "");
   const tagsCollect = (content22) => {
+    if (tagsInline) {
+      return content22.replace(TAG_REG, (match, name2) => `${match[0]}<span class='tag-span'>#${name2}</span>`).replace(FIRST_TAG_REG, (_match, prefix, name2) => `${prefix}<span class='tag-span'>#${name2}</span>`);
+    }
     let tags2 = [...content22.matchAll(TAG_REG)];
     tags2 = [...tags2, ...content22.matchAll(FIRST_TAG_REG)];
     tags2.sort((tag, tag2) => tag.index - tag2.index);
@@ -14721,7 +14753,9 @@ const DailyMemo = (props) => {
       children: [/* @__PURE__ */ jsx("div", {
         className: "memo-content-text",
         dangerouslySetInnerHTML: {
-          __html: formatMemoContent(memo2.content)
+          __html: formatMemoContent(memo2.content, {
+            tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === "inline"
+          })
         }
       }), /* @__PURE__ */ jsx(Only, {
         when: external.length > 0,
@@ -15259,7 +15293,9 @@ const RandomMemoDialog = ({
           children: [/* @__PURE__ */ jsx("div", {
             className: "memo-content-text",
             dangerouslySetInnerHTML: {
-              __html: formatMemoContent(memo2.content)
+              __html: formatMemoContent(memo2.content, {
+                tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === "inline"
+              })
             }
           }), /* @__PURE__ */ jsx(MemoImage, {
             memo: memo2.content
@@ -34527,7 +34563,9 @@ const DeletedMemo = (props) => {
     }), /* @__PURE__ */ jsx("div", {
       className: "memo-content-text",
       dangerouslySetInnerHTML: {
-        __html: formatMemoContent(memo2.content)
+        __html: formatMemoContent(memo2.content, {
+          tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === "inline"
+        })
       }
     }), /* @__PURE__ */ jsx(MemoImage, {
       memo: memo2.content
@@ -35752,6 +35790,7 @@ const DEFAULT_SETTINGS = {
   EnableRecycleBin: true,
   RecycleBinRetention: "never",
   TagListView: "flat",
+  TagRenderPosition: "bottom",
   HeatMapStartDay: "sunday",
   ShowHeatMap: true,
   EnterToSend: false,
@@ -35862,6 +35901,16 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       })
     );
     new require$$0.Setting(containerEl).setName(t$2("List & Sidebar")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$2("Tag position")).setDesc(t$2("Show tags at the bottom of the card, or keep them where they appear in the text.")).addDropdown((d) => {
+      d.addOption("bottom", t$2("Bottom"));
+      d.addOption("inline", t$2("In place"));
+      d.setValue(this.plugin.settings.TagRenderPosition).onChange(
+        async (value) => {
+          this.plugin.settings.TagRenderPosition = value;
+          this.applySettingsUpdate();
+        }
+      );
+    });
     new require$$0.Setting(containerEl).setName(t$2("Hide done tasks in Memo list")).setDesc(t$2("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
         this.plugin.settings.HideDoneTasks = value;

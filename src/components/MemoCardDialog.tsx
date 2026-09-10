@@ -167,7 +167,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
           <div
             className="memo-content-text"
             onClick={handleMemoContentClick}
-            dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}
+            dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content, { tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === 'inline' }) }}
           ></div>
           <MemoImage memo={memo.content} />
           {/* <Only when={externalImageUrls.length > 0}>
@@ -249,7 +249,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
               <span className="ref-comment-time">{m.createdAtStr}</span>
               <div
                 className="ref-comment-content"
-                dangerouslySetInnerHTML={{ __html: formatMemoContent(m.content, m.id) }}
+                dangerouslySetInnerHTML={{ __html: formatMemoContent(m.content, { memoid: m.id, tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === 'inline' }) }}
               />
             </div>
           ))}

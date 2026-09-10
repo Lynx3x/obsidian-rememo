@@ -179,7 +179,7 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
           </div>
         </div>
       </div>
-      <div className="memo-content-text" dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}></div>
+      <div className="memo-content-text" dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content, { tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === 'inline' }) }}></div>
       <MemoImage memo={memo.content} />
       <MemoRefBar
         content={memo.content}

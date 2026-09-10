@@ -76,7 +76,7 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
             <div className="memo-container">
               <div
                 className="memo-content-text"
-                dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content) }}
+                dangerouslySetInnerHTML={{ __html: formatMemoContent(memo.content, { tagsInline: appStore.getState().settingsState.settings.TagRenderPosition === 'inline' }) }}
               ></div>
               <MemoImage memo={memo.content} />
             </div>

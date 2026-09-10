@@ -1605,7 +1605,7 @@ div[data-type='memos_view'] svg.action-btn,
   padding-left: 4px;
   padding-right: 6px;
   line-height: 24px;
-  font-size: 13px;
+  font-size: 12px;
   border: none;
   border-radius: var(--radius-s, 4px);
   color: var(--interactive-accent);
@@ -1617,6 +1617,12 @@ div[data-type='memos_view'] svg.action-btn,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text .tag-span:hover {
   background-color: color-mix(in srgb, var(--memo-accent) 18%, var(--memo-surface-hover));
   color: var(--memo-accent);
+}
+[data-type='memos_view'] .daily-memo-wrapper .memo-content-text p:not(.memo-tags) > .tag-span,
+[data-type='memos_view'] .memolist-wrapper .memo-content-text p:not(.memo-tags) > .tag-span {
+  line-height: 19px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text .memo-link-text,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text .memo-link-text {
@@ -1696,7 +1702,12 @@ div[data-type='memos_view'] svg.action-btn,
 }
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text .tag-span {
   line-height: 26px;
-  font-size: 14px;
+  font-size: 13px;
+}
+[data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text p:not(.memo-tags) > .tag-span {
+  line-height: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 [data-type='memos_view'] .memo-wrapper .memo-top-right-wrapper > .reply-button-wrapper {
   display: flex;

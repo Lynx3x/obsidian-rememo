@@ -218,4 +218,10 @@ export default {
   'Enter a vault-relative path (e.g. assets/send.mp3).': 'Indiquez un chemin relatif au coffre (ex. : assets/send.mp3).',
   Preview: 'Écouter',
   'Failed to play the sound: ': 'Impossible de lire le son : ',
+
+  // 2026-09-11 标签渲染位置：设置项
+  'Tag position': 'Position des étiquettes',
+  'Show tags at the bottom of the card, or keep them where they appear in the text.':
+    "Affiche les étiquettes en bas de la carte ou à leur emplacement d'origine dans le texte.",
+  'In place': 'Sur place',
 };
