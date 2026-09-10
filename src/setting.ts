@@ -325,8 +325,8 @@ export class MemosSettingTab extends PluginSettingTab {
       .setDesc(t('Time display format description'))
       .addDropdown(async (d: DropdownComponent) => {
         dropdown = d;
-        dropdown.addOption('HH:mm:ss', 'HH:mm:ss');
         dropdown.addOption('HH:mm', 'HH:mm');
+        dropdown.addOption('HH:mm:ss', 'HH:mm:ss');
         dropdown.setValue(this.plugin.settings.TimeFormat).onChange(async (value: 'HH:mm:ss' | 'HH:mm') => {
           this.plugin.settings.TimeFormat = value;
           this.applySettingsUpdate();

@@ -35703,8 +35703,8 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     });
     new require$$0.Setting(containerEl).setName(t$2("Time display format")).setDesc(t$2("Time display format description")).addDropdown(async (d) => {
       dropdown = d;
-      dropdown.addOption("HH:mm:ss", "HH:mm:ss");
       dropdown.addOption("HH:mm", "HH:mm");
+      dropdown.addOption("HH:mm:ss", "HH:mm:ss");
       dropdown.setValue(this.plugin.settings.TimeFormat).onChange(async (value) => {
         this.plugin.settings.TimeFormat = value;
         this.applySettingsUpdate();
