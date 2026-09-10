@@ -80,7 +80,7 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   DefaultDarkBackgroundImage: '',
   DefaultMemoComposition: '{TIME} {CONTENT}',
   ShowLeftSideBar: false,
-  TimeFormat: 'HH:mm:ss',
+  TimeFormat: 'HH:mm',
 };
 
 export class MemosSettingTab extends PluginSettingTab {

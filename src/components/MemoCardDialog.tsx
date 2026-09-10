@@ -82,7 +82,11 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
       if (memoTemp) {
         const nextMemo = {
           ...memoTemp,
-          createdAtStr: utils.getDateTimeString(memoTemp.createdAt),
+          // 补 showSeconds（2026-09-10 修复漏网）：链式跳转后的浮窗时间此前恒带秒；事件时直读最新设置
+          createdAtStr: utils.getDateTimeString(
+            memoTemp.createdAt,
+            appStore.getState().settingsState.settings.TimeFormat !== 'HH:mm',
+          ),
         };
         setLinkMemos([]);
         setLinkedMemos([]);

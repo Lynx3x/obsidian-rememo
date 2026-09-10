@@ -13600,7 +13600,7 @@ const MemoCardDialog = (props) => {
       if (memoTemp) {
         const nextMemo = {
           ...memoTemp,
-          createdAtStr: utils$1.getDateTimeString(memoTemp.createdAt)
+          createdAtStr: utils$1.getDateTimeString(memoTemp.createdAt, appStore.getState().settingsState.settings.TimeFormat !== "HH:mm")
         };
         setLinkMemos([]);
         setLinkedMemos([]);
@@ -35566,7 +35566,7 @@ const DEFAULT_SETTINGS = {
   DefaultDarkBackgroundImage: "",
   DefaultMemoComposition: "{TIME} {CONTENT}",
   ShowLeftSideBar: false,
-  TimeFormat: "HH:mm:ss"
+  TimeFormat: "HH:mm"
 };
 class MemosSettingTab extends require$$0.PluginSettingTab {
   constructor(app2, plugin) {
