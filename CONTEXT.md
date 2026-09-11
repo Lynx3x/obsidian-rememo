@@ -119,12 +119,18 @@
 - `versions.json`：`{"1.0.0": "1.5.0"}`；LICENSE 追加 Lynx3x 版权行；`main.js.map` 移出版本库、`yarn.lock` 退役（发布物只三件套）；
 - 设置页捐赠区改造：`DONATE_AFDIAN_URL` / `DONATE_KOFI_URL` 两个常量在 [src/setting.ts](src/setting.ts) 顶部，**空串 = 该渠道不显示、两个都空 = 「捐赠」行整体隐藏**；i18n `Afdian` 键。
 
-**待 owner**：
-1. 注册 **爱发电 + Ko-fi**（**2026-09-11 owner 定：搁置，链接后补**）→ 之后填 `fundingUrl` + 两个常量；
-2. 按清单截图（存 `assets/screenshots/`，浅色主题、窗口 ~1100px 宽、**不带正式库私人内容**）：
-   `01-main.png` 主界面全景（左栏+卡片流含任务卡/带图卡）· `02-editor.png` 编辑器任务模式（滑块在右格+左上斜带+占位符）· `03-tags.png` 标签卡+侧栏标签 · `04-recycle.png` 回收站 · `05-settings.png` 设置页（关于组）· `06-sidebar.png` 侧栏特写（可选）· `07-send.gif` 发送 Q 弹落位（可选，ScreenToGif 3 秒）。
+**待 owner**：注册 **爱发电 + Ko-fi**（**2026-09-11 owner 定：搁置，链接后补**）→ 之后填 `fundingUrl` + 两个常量。
 
-**待开发侧**：~~README 英文为主（`README.md`）+ 中文副档（`README.zh.md`）~~ **初稿已完成**（含截图位：`assets/screenshots/01..04.png`，等 owner 拍图后校验排版）；执行发布线。
+**截图批次（2026-09-11 英文版完成，owner 定：主图为主 + 特性图拼排，设置页不做）**：README 顶部用**成品拼图** `00-overview.png`（HTML/CSS 排版 → 无头 Edge 2 倍渲染；源文件 `tools/screenshots/overview.html`），下方保留四张单图——`02-editor` 任务模式 / `03-tags` 标签筛选 / `04-recycle` 回收站 / `05-references` 引用浮窗；`01-main` 主界面单图存仓库备用。
+- **示例内容**：`tools/demo/en/`（英文演示集，47 个日记文件 = 首屏 10 张功能卡 + 6–9 月给热力图形状的补白 + 两篇 2022/2024 旧笔记撑 DAY 数字）；`tools/demo/apply.ps1` 一键铺库（先备份 `daily/*.md` → `bak/demo-swap-<ts>/`）。
+- **流程与脚本**：`docs/SCREENSHOTS.md`（环境 → shoot.ps1 → crop.py → render-overview.ps1 → 核对清单）+ `tools/screenshots/`（`_win.ps1` 按进程+标题枚举窗口；`resize/click/scroll/shot.ps1` 单动作；`shoot.ps1` 步骤表与坐标；`overview.html` 拼图版式，改版式改 CSS）。
+- **环境实测**：UI 语言英文（`.obsidian/app.json` 写 `"locale":"en"` 生效）；浅色主题、默认 accent；窗口 **1300×980@(200,50)**；界面字体 **思源黑体 CN**（owner 2026-09-11 换）。
+- **中文版**：owner 定"之后中文文档再截一版"——`tools/demo/zh/` 同日/同结构只换文案，流程同上。
+- 开发库界面语言改英文后**不必改回**（owner 无异议）。发布线仍待执行（`main` 快进 → tag `1.0.0` → Release 三件套 → community.obsidian.md 提交）。
+
+**待开发侧**：README 英文主版 + 中文副档内容均已就绪（截图已按上表排入）；下一步即发布线。
+
+**开发库 MCP**：Local REST API 在开发库实例跑 `27125`（正式库实例仍占 27123）——`mcp__obsidian__*` 操作的是**开发库**（见 memory `obsidian-mcp-targets-real-vault`）。
 
 **已定决策**：README 英文为主；**不做应用内新手引导**（README「快速开始」+ 现有失败 Notice 兜底）；作者名 `Lynx3x`。
 

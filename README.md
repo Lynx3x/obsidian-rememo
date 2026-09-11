@@ -8,10 +8,12 @@ Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten
 
 ## Screenshots
 
-![Main view](assets/screenshots/01-main.png)
-![Editor in task mode](assets/screenshots/02-editor.png)
-![Tags](assets/screenshots/03-tags.png)
-![Recycle bin](assets/screenshots/04-recycle.png)
+<img src="assets/screenshots/00-overview.png" alt="Rememo at a glance: the card feed, task mode, tag filtering, the recycle bin and references">
+
+|  |  |
+|---|---|
+| <img src="assets/screenshots/02-editor.png" alt="Editor in task mode"><br><sub>**Task mode** — the two-segment slider next to the send button turns what you type into a task card</sub> | <img src="assets/screenshots/03-tags.png" alt="Feed filtered by a tag"><br><sub>**Tag filter** — click any tag to filter the feed</sub> |
+| <img src="assets/screenshots/04-recycle.png" alt="Recycle bin"><br><sub>**Recycle bin** — deleted cards stay in your note and can be restored</sub> | <img src="assets/screenshots/05-references.png" alt="A memo and the memos referencing it"><br><sub>**References** — replies are reference cards, gathered under the memo they answer</sub> |
 
 ## Features
 

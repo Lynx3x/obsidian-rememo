@@ -8,10 +8,12 @@ Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com
 
 ## 截图
 
-![主界面](assets/screenshots/01-main.png)
-![任务模式的编辑器](assets/screenshots/02-editor.png)
-![标签](assets/screenshots/03-tags.png)
-![回收站](assets/screenshots/04-recycle.png)
+<img src="assets/screenshots/00-overview.png" alt="Rememo 一览：卡片流、任务模式、标签筛选、回收站与引用">
+
+|  |  |
+|---|---|
+| <img src="assets/screenshots/02-editor.png" alt="任务模式下的输入框"><br><sub>**任务模式** —— 发送键旁的双段滑块，把这条闪念写成任务卡</sub> | <img src="assets/screenshots/03-tags.png" alt="按标签筛选后的列表"><br><sub>**标签筛选** —— 点任意标签即可筛选列表</sub> |
+| <img src="assets/screenshots/04-recycle.png" alt="回收站"><br><sub>**回收站** —— 删除的卡仍留在日记里，可随时恢复</sub> | <img src="assets/screenshots/05-references.png" alt="卡片与其引用"><br><sub>**引用** —— 回复即引用卡，聚合在被回复的卡下</sub> |
 
 ## 特性
 
