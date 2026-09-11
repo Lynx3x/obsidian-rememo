@@ -11,6 +11,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write # actions/attest 需要（OIDC）
+  attestations: write # 写构建证明
 
 jobs:
   release:
@@ -45,6 +47,15 @@ jobs:
               exit 1
             fi
           done
+
+      # 构建证明（社区审查建议）：让用户可核验发布物出自本仓库的这次运行。
+      # 先证明再发布：证明失败就不出 Release，避免发一个缺证明的版本。
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            main.js
+            styles.css
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

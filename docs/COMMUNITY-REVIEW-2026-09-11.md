@@ -44,7 +44,7 @@ pnpm lint          # = 审查同款口径
 | `no-deprecated`：`PluginSettingTab.display`、`setDynamicTooltip` | 3 | 前者需迁到 1.13 的声明式设置 API（大改），后者移除会让低版本失去数值提示 → 暂留 |
 | `namespace` 语法 | 2 | `helpers/utils.ts`、`helpers/storage.ts`，审查归为 Recommendation |
 
-## 其它两条非代码建议（未处理）
+## 其它两条非代码建议（已处理）
 
-- **Repository**：仓库 Issues 当前关闭（建议开启）。
-- **Releases**：建议为 `main.js` / `styles.css` 添加构建证明（artifact attestations）。
+- **Repository**：仓库 Issues 原为关闭 → 已开启。
+- **Releases**：构建证明（artifact attestations）→ 发版工作流已加 `actions/attest@v4`，推 tag 时自动为 `main.js` / `styles.css` 生成 provenance（步骤排在发布之前：证明失败则不出 Release）。

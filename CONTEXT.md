@@ -138,7 +138,8 @@
 - 1.0.0 提交后官方自动审查**未通过**：9 类**阻断级 Error**（不清完用户装不上）+ 几百条 Warning/Recommendation。完整清单与逐项处置见 **[docs/COMMUNITY-REVIEW-2026-09-11.md](docs/COMMUNITY-REVIEW-2026-09-11.md)**。
 - **本地已接审查同款 lint**：`eslint-plugin-obsidianmd` recommended + eslint 9 flat config（[eslint.config.mjs](eslint.config.mjs)；旧 `.eslintrc.js` 删除；顺带升 TS 5.9 / obsidian typings 1.13.1 / react-hooks 5.2）——**`pnpm lint` 即审查口径，改完可自查**；`dev` 脚本不再串联 lint。
 - 9 类 Error 全清 + **顺带修 3 个真 bug**（分享图 `className.contains` 抛异常、外链图 `fetch(no-cors)` 必失败、死监听）。**`minAppVersion` 1.5.0 → 1.7.2**（用到 `revealLeaf`，审查要求）；manifest `version` 已升 **1.0.1**（`versions.json` 同补条目）。
-- **批 2（未做，均为审查 Warning 档，不阻断）**：`no-unsafe-*` 约 205、hooks 依赖 28、`no-misused-promises` 24、`localStorage`→App API 4、`display()`/`setDynamicTooltip` 弃用 3、`namespace` 2；另审查提的「仓库 Issues 未开」「Release 缺构建证明」两条非代码建议。
+- **批 2（未做，均为审查 Warning 档，不阻断）**：`no-unsafe-*` 约 205、hooks 依赖 28、`no-misused-promises` 24、`localStorage`→App API 4、`display()`/`setDynamicTooltip` 弃用 3、`namespace` 2。
+- **审查另两条非代码建议已处理（2026-09-11）**：①仓库 Issues 已开启；②发版工作流加**构建证明**（`actions/attest@v4`，tag 推送时为 `main.js`/`styles.css` 出 provenance；先证明后发布，证明失败则不出 Release）。
 - **下一步（发布线，1.0.1）**：①提交本批 → ②`main` 快进 → ③`git push` tag **1.0.1**（工作流自动建 Release）→ ④owner 到 community.obsidian.md 重新提交。
 
 **发布线（2026-09-11 首次执行，1.0.0）——四步含义与自动化留档**
