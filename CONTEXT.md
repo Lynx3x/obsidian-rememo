@@ -133,6 +133,17 @@
 
 **开发库 MCP**：Local REST API 在开发库实例跑 `27125`（正式库实例仍占 27123）——`mcp__obsidian__*` 操作的是**开发库**（见 memory `obsidian-mcp-targets-real-vault`）。
 
+**待执行：发布线（2026-09-11 交接给其他会话）**
+
+- **已就绪**：`dev` 分支含两批截图提交——`769a4f5`（英文批：字号/断词修复 + 六张英文图 + 成品拼图）与 `611c61e`（中文批：`tools/demo/zh` 演示集 + 六张中文图 + 胶囊中文化）；`pnpm build` 产物随提交（styles.css 249.4 KiB、main.js 1334 KiB）；`manifest.json`：作者 Lynx3x、minAppVersion 1.5.0、version 1.0.0；`versions.json` = `{"1.0.0": "1.5.0"}`；英文 README 引英文图、中文 README 引 `*.zh.png`。
+- **步骤**：
+  1. `git checkout main && git merge --ff-only dev && git push origin main`（**默认分支是 main**——市场只读默认分支 HEAD 的 manifest）
+  2. `git tag 1.0.0 && git push origin 1.0.0`（tag 必须与 manifest.version 一致）
+  3. GitHub Release：附 `main.js` / `manifest.json` / `styles.css` 三件套
+  4. owner 到 **community.obsidian.md** 提交（网页授权，脚本代不了）
+- **待 owner**：爱发电/Ko-fi 链接（已定搁置）→ 届时填 manifest `fundingUrl` + `src/setting.ts` 顶部两个常量（空串 = 该渠道不显示）。
+- **注意**：`PRODUCT.md` 仍未跟踪（owner 未定，**勿提交**）；发布物只三件套（main.js.map / yarn.lock 已退役）。
+
 **已定决策**：README 英文为主；**不做应用内新手引导**（README「快速开始」+ 现有失败 Notice 兜底）；作者名 `Lynx3x`。
 
 **捐赠（2026-09-11 定，暂搁置）**：**爱发电**（国内，微信/支付宝直达，抽 6%）+ **Ko-fi**（海外，平台 0% 抽成、收款走 PayPal/Stripe——owner 接受 PayPal；Stripe 大陆主体不可用）。**owner 定：先搁置，链接后补**——代码端常量位已留好。档位原则：**只开自由打赏、不开带承诺档位**——爱发电开「发电」+ 可选 ¥6/¥30 象征档（不带任何交付承诺）；Ko-fi 只 Tips（预设 $3/$5/$10）、**不开 Memberships**；两边配同一句声明「支持完全自愿，不影响任何功能」。备选记录：Buy Me a Coffee 的「标准打款」走 Payoneer 通道（覆盖大陆），日后若想绕开 PayPal 可切。
