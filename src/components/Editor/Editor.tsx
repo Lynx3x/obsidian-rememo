@@ -65,7 +65,6 @@ interface EditorProps {
   enterToSend?: boolean;
 }
 
-// eslint-disable-next-line react/display-name
 const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRefActions>) => {
   const {
     className,
@@ -81,7 +80,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
   const mountRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const nativeRef = useRef<any>(null);
+  const nativeRef = useRef<unknown>(null);
   const roCompartmentRef = useRef(new Compartment());
   const cbRef = useRef<{
     confirm: (content: string) => void;
@@ -127,7 +126,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     if (!parent || parent.querySelector('.cm-editor')) {
       return;
     }
-    const app: any = appStore.getState().dailyNotesState.app;
+    const app: unknown = appStore.getState().dailyNotesState.app;
     const NativeEditor = getNativeMarkdownEditorClass(app);
     if (!NativeEditor) {
       console.error('[rememo] 原生 MarkdownEditor 初始化失败（内核 API 变动，见 native.ts）');
@@ -139,7 +138,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     // 通道（buildLocalExtensions 内核原版 updateEvent 触发），条件含 editor+file。
     // 此前 file=null 原生联想不工作才自喂 suggest；挂 dev 库真实文件后原生联想可用
     // （kanban 同款），自产 suggest 退役。
-    const contextFile: any = app?.vault?.getMarkdownFiles?.()?.[0] ?? null;
+    const contextFile: unknown = app?.vault?.getMarkdownFiles?.()?.[0] ?? null;
     const controller = {
       app,
       syncScroll: () => undefined, // 内核滚动处理调 owner.syncScroll（缺了会 TypeError）
@@ -173,7 +172,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
     };
 
     class MemoNativeEditor extends NativeEditor {
-      constructor(...args: any[]) {
+      constructor(...args: unknown[]) {
         super(...args);
       }
 
@@ -225,7 +224,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       // EditorView.updateListener 属插件自打包 cm6 副本的 facet，对内核创建的
       // state 不生效（实测：只留它时按钮可用态完全不更新）→ 已退役，勿再依赖
       // "插件侧扩展会随建态生效"的假设（同类还有 placeholder/keymap/roCompartment）。
-      onUpdate(update: any, changed: boolean) {
+      onUpdate(update: unknown, changed: boolean) {
         super.onUpdate?.(update, changed);
         if (update?.docChanged) {
           const text = update.state.doc.toString();
@@ -235,7 +234,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
       }
     }
 
-    let native: any;
+    let native: unknown;
     try {
       native = new MemoNativeEditor(app, parent, controller);
     } catch (err) {
@@ -247,7 +246,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
 
     // kanban 同款生命周期：把编辑器挂进插件组件树（addChild → 内核完整 load 链）。
     // 这是与 kanban 接入方式最后未验证的差异（kanban: plugin.addChild(editor)）。
-    const plugin: any = app?.plugins?.plugins?.['rememo'];
+    const plugin: unknown = app?.plugins?.plugins?.['rememo'];
     let addedToPlugin = false;
     if (plugin && typeof plugin.addChild === 'function') {
       try {
@@ -354,18 +353,17 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
         }
       }
     };
-    // 只在挂载时建一次
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 只在挂载时建一次，刻意留空依赖（重跑会重建编辑器实例）
   }, []);
 
   useImperativeHandle(
     ref,
     () => ({
       get element(): HTMLElement {
-        return viewRef.current?.dom ?? mountRef.current ?? document.createElement('div');
+        return viewRef.current?.dom ?? mountRef.current ?? createDiv();
       },
       get contentEl(): HTMLElement {
-        return (viewRef.current?.contentDOM as HTMLElement) ?? document.createElement('div');
+        return (viewRef.current?.contentDOM) ?? createDiv();
       },
       focus: () => {
         if (FocusOnEditor) {
@@ -417,7 +415,7 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
         } catch {
           // roCompartment 属插件副本 facet，对内核 state 不生效时会抛（2026-09-05
           // 实测 updateListener 不触发即此类问题）→ 退回 DOM 锁；此兜底必须保留
-          const el = view.contentDOM as HTMLElement | undefined;
+          const el = view.contentDOM;
           if (el) el.contentEditable = editable ? 'true' : 'false';
         }
       },

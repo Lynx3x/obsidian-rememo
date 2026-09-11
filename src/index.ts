@@ -1,4 +1,4 @@
-import { Notice, Platform, Plugin, TFile } from 'obsidian';
+import { Platform, Plugin, TFile } from 'obsidian';
 import { FocusOnEditor, Memos } from './memos';
 import { MEMOS_VIEW_TYPE } from './constants';
 import addIcons from './obComponents/customIcons';
@@ -11,13 +11,11 @@ export default class MemosPlugin extends Plugin {
     public settings: MemosSettings;
 
     async onload(): Promise<void> {
-        console.log('obsidian-memos loading...');
         await this.loadSettings();
 
         this.registerView(MEMOS_VIEW_TYPE, (leaf) => new Memos(leaf, this));
 
         this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
-        console.log(t('welcome'));
     }
 
     public async loadSettings() {
@@ -46,15 +44,10 @@ export default class MemosPlugin extends Plugin {
         appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.settings } });
     }
 
-    onunload() {
-        this.app.workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
-        new Notice(t('Close Memos Successfully'));
-    }
-
     registerMobileEvent() {
         this.registerEvent(
             this.app.workspace.on('receive-text-menu', (menu, source) => {
-                menu.addItem((item: any) => {
+                menu.addItem((item: unknown) => {
                     item
                         .setIcon('popup-open')
                         .setTitle(t('Insert as Memo'))
@@ -102,9 +95,8 @@ export default class MemosPlugin extends Plugin {
         this.addSettingTab(new MemosSettingTab(this.app, this));
         this.addCommand({
             id: 'open-memos',
-            name: 'Open Memos',
+            name: 'Open memos',
             callback: () => this.openMemos(),
-            hotkeys: [],
         });
 
         if (Platform.isMobile) {
@@ -112,7 +104,7 @@ export default class MemosPlugin extends Plugin {
         }
 
         this.addRibbonIcon('Memos', t('ribbonIconTitle'), () => {
-            this.openMemos();
+            void this.openMemos();
         });
 
         const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
@@ -121,13 +113,13 @@ export default class MemosPlugin extends Plugin {
         }
         if (this.settings.FocusOnEditor) {
             const leaf = leaves[0];
-            (leaf.view.containerEl.querySelector('.cm-content') as HTMLElement | null)?.focus();
+            (leaf.view.containerEl.querySelector('.cm-content'))?.focus();
             return;
         }
         if (!this.settings.OpenMemosAutomatically) {
             return;
         }
-        this.openMemos();
+        void this.openMemos();
     }
 
     async openMemos() {
@@ -136,20 +128,20 @@ export default class MemosPlugin extends Plugin {
         const existing = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
         if (existing.length > 0) {
             workspace.setActiveLeaf(existing[0]);
-            workspace.revealLeaf(existing[0]);
+            void workspace.revealLeaf(existing[0]);
             if (FocusOnEditor) {
-                (existing[0].view.containerEl.querySelector('.cm-content') as HTMLElement | null)?.focus();
+                (existing[0].view.containerEl.querySelector('.cm-content'))?.focus();
             }
             return;
         }
         const leaf = workspace.getLeaf(true);
         await leaf.setViewState({ type: MEMOS_VIEW_TYPE });
-        workspace.revealLeaf(leaf);
+        void workspace.revealLeaf(leaf);
 
         if (!FocusOnEditor) {
             return;
         }
 
-        (leaf.view.containerEl.querySelector('.cm-content') as HTMLElement | null)?.focus();
+        (leaf.view.containerEl.querySelector('.cm-content'))?.focus();
     }
 }

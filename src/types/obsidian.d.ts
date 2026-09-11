@@ -3,7 +3,7 @@ import type { TFile as ObsidianTFile, TFolder } from 'obsidian';
 declare module 'obsidian' {
   interface App {
     plugins: {
-      getPlugin(id: string): any;
+      getPlugin(id: string): unknown;
     };
   }
 
@@ -13,7 +13,7 @@ declare module 'obsidian' {
 
   // 简化 DataAdapter 接口，使用 any 来处理方法的版本差异
   interface DataAdapter {
-    process: any;
+    process: unknown;
   }
 
   interface Vault {
@@ -21,7 +21,7 @@ declare module 'obsidian' {
     getFileByPath(path: string): TFile | null;
     getFolderByPath(path: string): TFolder | null;
     getAllFolders(): TFolder[];
-    createFolder(path: string): Promise<any>;
+    createFolder(path: string): Promise<unknown>;
     read(file: TFile): Promise<string>;
     process(): Promise<void>;
   }
@@ -42,7 +42,7 @@ export interface BaseMemo {
 
 declare global {
   type TFile = ObsidianTFile & {
-    vault: any;
+    vault: unknown;
     parent: TFolder;
   };
 

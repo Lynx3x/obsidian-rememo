@@ -87,7 +87,7 @@ export function showPreviewImageDialog(
     lightboxHost = null;
   }
 
-  const host = document.createElement('div');
+  const host = createDiv();
   document.body.appendChild(host);
   lightboxHost = host;
 

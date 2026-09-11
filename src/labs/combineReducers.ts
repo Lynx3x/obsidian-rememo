@@ -1,11 +1,11 @@
 import { Action, Reducer, State } from './createStore';
 
-interface ReducersMapObject<S extends State = any, A extends Action = any> {
+interface ReducersMapObject<S extends State = unknown, A extends Action = unknown> {
   [key: string]: Reducer<S, A>;
 }
 
 type StateFromReducersMapObject<M> = M extends ReducersMapObject
-  ? { [P in keyof M]: M[P] extends Reducer<infer S, any> ? S : never }
+  ? { [P in keyof M]: M[P] extends Reducer<infer S, unknown> ? S : never }
   : never;
 
 function combineReducers<S extends State, A extends Action>(reducers: ReducersMapObject): Reducer<S, A> {
@@ -30,7 +30,7 @@ function combineReducers<S extends State, A extends Action>(reducers: ReducersMa
     }
 
     return hasChanged ? nextState : state;
-  }) as any as Reducer<S, A>;
+  }) as unknown as Reducer<S, A>;
 }
 
 export default combineReducers;

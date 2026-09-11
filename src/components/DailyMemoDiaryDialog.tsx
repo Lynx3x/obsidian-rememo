@@ -52,10 +52,10 @@ const DailyMemoDiaryDialog: React.FC<Props> = (props: Props) => {
   }, [currentDateStamp]);
 
   const convertBase64ToBlob = (base64: string, type: string) => {
-    var bytes = window.atob(base64);
-    var ab = new ArrayBuffer(bytes.length);
-    var ia = new Uint8Array(ab);
-    for (var i = 0; i < bytes.length; i++) {
+    let bytes = window.atob(base64);
+    let ab = new ArrayBuffer(bytes.length);
+    let ia = new Uint8Array(ab);
+    for (let i = 0; i < bytes.length; i++) {
       ia[i] = bytes.charCodeAt(i);
     }
     return new Blob([ab], { type: type });
@@ -64,7 +64,7 @@ const DailyMemoDiaryDialog: React.FC<Props> = (props: Props) => {
   const handleShareBtnClick = async () => {
     toggleShowDatePicker(false);
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       if (!memosElRef.current) {
         return;
       }
@@ -77,9 +77,8 @@ const DailyMemoDiaryDialog: React.FC<Props> = (props: Props) => {
           if (appStore.getState().settingsState.settings.AutoSaveWhenOnMobile && Platform.isMobile) {
             const myBase64 = url.split('base64,')[1];
             const blobInput = convertBase64ToBlob(myBase64, 'image/png');
-            blobInput.arrayBuffer().then(async (buffer) => {
+            void blobInput.arrayBuffer().then(async (buffer) => {
               let aFile;
-              let newFile;
               const ext = 'png';
               const dailyNotes = getAllDailyNotes();
               for (const string in dailyNotes) {
@@ -89,7 +88,7 @@ const DailyMemoDiaryDialog: React.FC<Props> = (props: Props) => {
                 }
               }
               if (aFile !== undefined) {
-                newFile = await vault.createBinary(
+                await vault.createBinary(
                   //@ts-expect-error, private method
                   await vault.getAvailablePathForAttachments(
                     `Pasted Image ${moment().format('YYYYMMDDHHmmss')}`,

@@ -5,7 +5,7 @@ import showDailyMemoDiaryDialog from './DailyMemoDiaryDialog';
 import '../less/user-banner.less';
 import { t } from '../translations/helper';
 
-interface Props {}
+type Props = object;
 
 /**
  * 计数器滚动数字（2026-09-10 owner 灵感）：值变化时从旧值快速滚到新值（easeOutCubic ~420ms），
@@ -35,7 +35,7 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
       const eased = 1 - Math.pow(1 - p, 3);
       setDisplay(Math.round(from + (to - from) * eased));
       if (p < 1) {
-        raf = requestAnimationFrame(tick);
+        raf = window.requestAnimationFrame(tick);
       } else if (spanRef.current) {
         // 落定轻弹：位移 -2px 回零（Q 弹语汇，不缩放）
         spanRef.current.animate(
@@ -44,7 +44,7 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
         );
       }
     };
-    raf = requestAnimationFrame(tick);
+    raf = window.requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [value]);
 

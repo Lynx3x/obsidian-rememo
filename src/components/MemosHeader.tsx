@@ -6,7 +6,7 @@ import Only from './common/OnlyWhen';
 import '../less/memos-header.less';
 import MenuSvg from '../icons/menu.svg?component';
 
-interface Props {}
+type Props = object;
 
 const MemosHeader: React.FC<Props> = () => {
   const {

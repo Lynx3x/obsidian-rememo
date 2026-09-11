@@ -19,7 +19,7 @@ export const getSuggestions = (inputStr: string) => {
 
     const base = file.basename.toLowerCase();
     const path = file.path.toLowerCase();
-    let score = 0;
+    let score: number;
     if (!query) {
       // 刚输入 [[ 未打字：全量列出（Obsidian 同款），按路径排序即可
       score = 1;
@@ -35,9 +35,9 @@ export const getSuggestions = (inputStr: string) => {
       return;
     }
     results.push({
-      name: file.basename as string,
-      char: file.name as string,
-      file: file as TFile,
+      name: file.basename,
+      char: file.name,
+      file: file,
       score,
     });
   });

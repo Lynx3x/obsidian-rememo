@@ -1,6 +1,6 @@
 (() => {
   if (!String.prototype.replaceAll) {
-    String.prototype.replaceAll = function (str: any, newStr: any) {
+    String.prototype.replaceAll = function (str: unknown, newStr: unknown) {
       // If a regex pattern
       if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
         return this.replace(str, newStr);

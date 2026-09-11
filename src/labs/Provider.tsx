@@ -3,8 +3,8 @@ import { Store } from './createStore';
 
 interface Props {
   children: React.ReactElement;
-  store: Store<any, any>;
-  context: React.Context<any>;
+  store: Store<unknown, unknown>;
+  context: React.Context<unknown>;
 }
 
 /**

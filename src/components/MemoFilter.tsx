@@ -6,7 +6,7 @@ import '../less/memo-filter.less';
 import { moment } from 'obsidian';
 import { t } from '../translations/helper';
 
-interface FilterProps {}
+type FilterProps = object;
 
 const MemoFilter: React.FC<FilterProps> = () => {
   const {

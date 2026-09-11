@@ -24,8 +24,9 @@ import { moment, Notice, Platform } from 'obsidian';
 import useToggle from '../hooks/useToggle';
 import { MEMOS_VIEW_TYPE } from '../constants';
 import { t } from '../translations/helper';
+import { errorMessage } from '../helpers/errorMessage';
 
-interface Props {}
+type Props = object;
 
 let isList: boolean;
 let isEditor = false as boolean;
@@ -138,7 +139,7 @@ const MemoEditor: React.FC<Props> = () => {
         memosHeight = window.innerHeight;
       }
 
-      const divThis = document.createElement('img');
+      const divThis = createEl('img');
       const memoEditorDiv = leafView.querySelector(
         "div[data-type='memos_view'] .view-content .memo-editor-wrapper",
       ) as HTMLElement;
@@ -167,7 +168,7 @@ const MemoEditor: React.FC<Props> = () => {
           },
         );
 
-        setTimeout(() => {
+        window.setTimeout(() => {
           divThis.className = 'memo-show-editor-button hidden';
           if (isEditor) {
             handleShowEditor(false);
@@ -202,7 +203,7 @@ const MemoEditor: React.FC<Props> = () => {
             },
           );
           let scaleOneElementAni: Animation;
-          setTimeout(() => {
+          window.setTimeout(() => {
             scaleOneElementAni = divThis.animate(
               [
                 // keyframes
@@ -216,11 +217,11 @@ const MemoEditor: React.FC<Props> = () => {
               },
             );
           }, 300);
-          setTimeout(() => {
+          window.setTimeout(() => {
             handleShowEditor(true);
             divThis.className = 'memo-show-editor-button';
           }, 300);
-          setTimeout(() => {
+          window.setTimeout(() => {
             scaleOneElementAni.cancel();
             scaleEditorElementAni.reverse();
           }, 700);
@@ -302,7 +303,7 @@ const MemoEditor: React.FC<Props> = () => {
       el.removeEventListener('paste', handlePasteEvent);
       el.removeEventListener('drop', handleDropEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 挂载时一次性绑定 paste/drop：el 与上传函数在生命周期内固定
   }, []);
 
   const handleUploadFile = useCallback(async (file: File) => {
@@ -315,7 +316,7 @@ const MemoEditor: React.FC<Props> = () => {
     try {
       const image = await resourceService.upload(file);
       return `${image}`;
-    } catch (error: any) {
+    } catch (error: unknown) {
       new Notice(error);
     }
   }, []);
@@ -326,7 +327,7 @@ const MemoEditor: React.FC<Props> = () => {
     if (!el) {
       return;
     }
-    el.style.transformOrigin = '50% 0%';
+    el.setCssStyles({ transformOrigin: '50% 0%' });
     const anim = el.animate(
       [
         // 0%：原状；~28%：压到低点；28%→70%：保持压缩（蓄力）
@@ -341,7 +342,7 @@ const MemoEditor: React.FC<Props> = () => {
     );
     anim.onfinish = () => {
       anim.cancel();
-      el.style.transformOrigin = '';
+      el.setCssStyles({ transformOrigin: '' });
     };
   };
 
@@ -432,11 +433,11 @@ const MemoEditor: React.FC<Props> = () => {
           }
         }, remaining);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // 失败兜底：输入框内容与草稿缓存一律保留（清空只发生在写盘成功后），可直接重按发送重试
       sendingRef.current = false;
       editorRef.current?.setEditable(true);
-      new Notice(t('Failed to save: ') + (error?.message ?? String(error)), 8000);
+      new Notice(t('Failed to save: ') + errorMessage(error), 8000);
     }
   }, []);
 
@@ -450,9 +451,9 @@ const MemoEditor: React.FC<Props> = () => {
   }, []);
 
   const handleContentChange = useCallback((content: string) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
-    if (tempDiv.innerText.trim() === '') {
+    // 判空用 DOMParser 取纯文本（社区审查禁止 innerHTML 赋值）
+    const plainText = new DOMParser().parseFromString(content, 'text/html').body.textContent;
+    if (plainText?.trim() === '') {
       content = '';
     }
     setEditorContentCache(content);
@@ -461,7 +462,7 @@ const MemoEditor: React.FC<Props> = () => {
       return;
     }
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       // 取消编辑等场景要跳过这次自动聚焦（否则刚 blur 又被 focus 回来）
       if (skipNextFocusRef.current) {
         skipNextFocusRef.current = false;
@@ -502,7 +503,7 @@ const MemoEditor: React.FC<Props> = () => {
   }, []);
 
   const handleUploadFileBtnClick = useCallback(() => {
-    const inputEl = document.createElement('input');
+    const inputEl = createEl('input');
     document.body.appendChild(inputEl);
     inputEl.type = 'file';
     inputEl.multiple = false;

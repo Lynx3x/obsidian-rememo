@@ -4,9 +4,10 @@
 import convertResourceToDataURL from './convertResourceToDataURL';
 
 const getCloneStyledElement = async (element: HTMLElement) => {
-  const clonedElementContainer = document.createElement(element.tagName);
-  // const { vault } = dailyNotesService.getState().app;
-  clonedElementContainer.innerHTML = element.innerHTML;
+  // 与原实现（新建同标签空壳 + 复制 innerHTML）等价：仍不带外层属性，只深拷贝子节点。
+  // 不用 innerHTML 是社区审查的硬要求（禁止 innerHTML 赋值）。
+  const clonedElementContainer = createEl(element.tagName);
+  clonedElementContainer.append(...Array.from(element.childNodes, (node) => node.cloneNode(true)));
 
   const applyStyles = async (sourceElement: HTMLElement, clonedElement: HTMLElement) => {
     if (!sourceElement || !clonedElement) {
@@ -21,7 +22,7 @@ const getCloneStyledElement = async (element: HTMLElement) => {
           sourceElement.getAttribute('path') ?? sourceElement.getAttribute('src'),
         );
         (clonedElement as HTMLImageElement).src = url;
-      } catch (error) {
+      } catch {
         // do nth
       }
     } else if (sourceElement.className === 'property-image') {
@@ -29,7 +30,7 @@ const getCloneStyledElement = async (element: HTMLElement) => {
         const imageUrl = sourceElement.style.backgroundImage;
         const url = await convertResourceToDataURL(imageUrl);
         (clonedElement as HTMLImageElement).style.backgroundImage = url;
-      } catch (error) {
+      } catch {
         // do nth
       }
     }

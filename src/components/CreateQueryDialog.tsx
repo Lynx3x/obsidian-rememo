@@ -36,7 +36,7 @@ const CreateQueryDialog: React.FC<Props> = (props: Props) => {
   }, [queryId]);
 
   const handleTitleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const text = e.target.value as string;
+    const text = e.target.value;
     setTitle(text);
   };
 
@@ -55,13 +55,13 @@ const CreateQueryDialog: React.FC<Props> = (props: Props) => {
       if (queryId) {
         const editedQuery = await queryService.updateQuery(queryId, title, JSON.stringify(filters));
         queryService.editQuery(editedQuery);
-        queryService.getMyAllQueries();
+        void queryService.getMyAllQueries();
       } else {
         const query = await queryService.createQuery(title, JSON.stringify(filters));
         queryService.pushQuery(query);
-        queryService.getMyAllQueries();
+        void queryService.getMyAllQueries();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       new Notice(error.message);
     }
     destroy();
@@ -163,7 +163,7 @@ const FilterInputer: React.FC<MemoFilterInputerProps> = (props: MemoFilterInpute
       operatorElement = (
         <Selector
           className="operator-selector"
-          dataSource={Object.values(filterConsts[type as FilterType].operators)}
+          dataSource={Object.values(filterConsts[type].operators)}
           value={filter.value.operator}
           handleValueChanged={handleOperatorChange}
         />

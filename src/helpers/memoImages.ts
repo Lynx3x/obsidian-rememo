@@ -52,7 +52,7 @@ const resolveFilePath = (
   if (file === null) {
     return null;
   }
-  const asFile = file as TFile;
+  const asFile = file;
   return {
     linkText: rawName,
     altText: altText || '',

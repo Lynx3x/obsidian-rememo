@@ -10,7 +10,7 @@ import useToggle from '../hooks/useToggle';
 
 // import useToggle from "../hooks/useToggle";
 
-interface Props {}
+type Props = object;
 
 export let searchBoxInput: HTMLInputElement;
 // let isSearchBar = false as boolean;

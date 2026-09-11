@@ -41,7 +41,7 @@ const RandomMemoDialog: React.FC<DialogProps> = ({ destroy }: DialogProps) => {
 
   useEffect(() => {
     pickRandom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 只在打开时抽一次：pickRandom 每次渲染都是新函数
   }, []);
 
   const handleOpenDiary = useCallback(async () => {

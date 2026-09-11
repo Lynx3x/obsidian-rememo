@@ -24,8 +24,6 @@ export async function deleteQueryForever(queryID: string): Promise<void> {
           await vault.modify(queryFile, newFileContent);
         }
       }
-      fileLines = null;
-      fileContents = null;
     }
   }
   // return deletedMemos;

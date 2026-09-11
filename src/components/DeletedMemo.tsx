@@ -110,7 +110,7 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
         await animateOut(false);
         await memoService.deleteMemoById(memo.id, memo.hasId, memo.path);
         handleDeletedMemoAction(memo.id);
-      } catch (error: any) {
+      } catch (error: unknown) {
         new Notice(error.message);
       }
     } else {
@@ -124,7 +124,7 @@ const DeletedMemo: React.FC<Props> = (props: Props) => {
       await memoService.restoreMemoById(memo.id, memo.hasId, memo.path);
       handleDeletedMemoAction(memo.id);
       new Notice(t('RESTORE SUCCEED'));
-    } catch (error: any) {
+    } catch (error: unknown) {
       new Notice(error.message);
     }
   };

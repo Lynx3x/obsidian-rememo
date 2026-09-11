@@ -92,7 +92,7 @@ const Memo: React.FC<Props> = (props: Props) => {
     if (UseButtonToShowEditor && DefaultEditorLocation === 'Bottom') {
       const elem = document.querySelector(
         "div[data-type='memos_view'] .view-content .memo-show-editor-button",
-      ) as HTMLElement;
+      );
       if (elem?.onclick) {
         (elem.onclick as EventListener).call(elem, new MouseEvent('click'));
       }
@@ -108,7 +108,7 @@ const Memo: React.FC<Props> = (props: Props) => {
     if (UseButtonToShowEditor && DefaultEditorLocation === 'Bottom' && Platform.isMobile) {
       const elem = document.querySelector(
         "div[data-type='memos_view'] .view-content .memo-show-editor-button",
-      ) as HTMLElement;
+      );
       if (elem.onclick) {
         (elem.onclick as EventListener).call(elem, new MouseEvent('click'));
       }
@@ -118,7 +118,7 @@ const Memo: React.FC<Props> = (props: Props) => {
   };
 
   const handleSourceMemoClick = (m: Model.Memo) => {
-    showMemoInDailyNotes(m.id, m.path || '');
+    void showMemoInDailyNotes(m.id, m.path || '');
   };
 
   // 任务卡整卡勾选：切换头行 [ ]↔[x]（写完即回读，勾选框/置灰随之刷新）
@@ -129,7 +129,7 @@ const Memo: React.FC<Props> = (props: Props) => {
       e.preventDefault();
       try {
         await memoService.toggleMemoTask(propsMemo);
-      } catch (error: any) {
+      } catch (error: unknown) {
         new Notice(error.message);
       }
     },
@@ -140,7 +140,7 @@ const Memo: React.FC<Props> = (props: Props) => {
   const handleToggleTaskTypeClick = useCallback(async () => {
     try {
       await memoService.toggleMemoTaskType(propsMemo);
-    } catch (error: any) {
+    } catch (error: unknown) {
       new Notice(error.message);
     }
   }, [propsMemo]);
@@ -170,22 +170,43 @@ const Memo: React.FC<Props> = (props: Props) => {
     // 先克隆（放入 overlay 前），仍处在 memos_view 作用域内 → 克隆样式正常
     const cloneTemplate = el.cloneNode(true) as HTMLElement;
     cloneTemplate.querySelectorAll('.more-action-btns-wrapper').forEach((n) => {
-      (n as HTMLElement).style.display = 'none';
+      (n as HTMLElement).setCssStyles({ display: 'none' });
     });
 
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;pointer-events:none;z-index:50;`;
+    const overlay = createDiv();
+    overlay.setCssStyles({
+      position: 'absolute',
+      left: `${x}px`,
+      top: `${y}px`,
+      width: `${w}px`,
+      height: `${h}px`,
+      pointerEvents: 'none',
+      zIndex: '50',
+    });
     for (let i = 0; i < N; i++) {
-      const outer = document.createElement('div');
-      outer.style.cssText = `position:absolute;top:0;left:${i * band}px;width:${band}px;height:100%;overflow:hidden;`;
-      const inner = document.createElement('div');
-      inner.style.cssText = `position:absolute;top:0;left:${-i * band}px;width:${w}px;height:auto;`;
+      const outer = createDiv();
+      outer.setCssStyles({
+        position: 'absolute',
+        top: '0',
+        left: `${i * band}px`,
+        width: `${band}px`,
+        height: '100%',
+        overflow: 'hidden',
+      });
+      const inner = createDiv();
+      inner.setCssStyles({
+        position: 'absolute',
+        top: '0',
+        left: `${-i * band}px`,
+        width: `${w}px`,
+        height: 'auto',
+      });
       inner.appendChild(cloneTemplate.cloneNode(true) as HTMLElement);
       outer.appendChild(inner);
       overlay.appendChild(outer);
     }
     host.appendChild(overlay);
-    el.style.visibility = 'hidden';
+    el.setCssStyles({ visibility: 'hidden' });
 
     const rnd = (min: number, max: number) => min + Math.random() * (max - min);
     Array.from(overlay.children).forEach((outer) => {
@@ -206,7 +227,7 @@ const Memo: React.FC<Props> = (props: Props) => {
         overlay.remove();
         // 若仍挂载（删除失败等），恢复可见
         if (document.contains(el)) {
-          el.style.visibility = '';
+          el.setCssStyles({ visibility: '' });
         }
         resolve();
       }, 460);
@@ -228,7 +249,7 @@ const Memo: React.FC<Props> = (props: Props) => {
       } else {
         await memoService.deleteMemoById(propsMemo.id, propsMemo.hasId, propsMemo.path);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       new Notice(error.message);
     }
     await shredDone;
@@ -461,8 +482,8 @@ export function formatMemoContent(content: string, options?: { memoid?: string; 
     .replace(/<p>(?:\s*<br\s*\/?>)+/g, '<p>')
     .replace(/(?:<br\s*\/?>)+\s*<\/p>/g, '</p>');
 
-  const tempDivContainer = document.createElement('div');
-  tempDivContainer.innerHTML = content;
+  // 用 DOMParser 解析（社区审查禁止 innerHTML 赋值；解析 + 读回序列化与原先的 innerHTML 往返等价）
+  const tempDivContainer = new DOMParser().parseFromString(content, 'text/html').body;
   for (let i = 0; i < tempDivContainer.children.length; i++) {
     const c = tempDivContainer.children[i];
 

@@ -5,7 +5,7 @@ import { Rule, Issue, DetectContext } from '../types';
 const ID_AT_END = /\^([A-Za-z0-9]{6})\s*$/;
 
 function randomId(exclude: Set<string>): string {
-  let id = '';
+  let id: string;
   do {
     id = Math.random().toString(36).slice(-6);
   } while (exclude.has(id));

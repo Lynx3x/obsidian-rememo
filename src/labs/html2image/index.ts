@@ -6,7 +6,6 @@
  * 2. <foreignObject>: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject
  */
 import getCloneStyledElement from './getCloneStyledElement';
-import getFontsStyleElement from './getFontsStyleElement';
 
 type Options = Partial<{
   backgroundColor: string;
@@ -56,11 +55,10 @@ export const toSVG = async (element: HTMLElement, options?: Options) => {
   const clonedElement = await getCloneStyledElement(element);
 
   if (options?.backgroundColor) {
-    clonedElement.style.backgroundColor = options.backgroundColor;
+    clonedElement.setCssStyles({ backgroundColor: options.backgroundColor });
   }
 
   const svg = generateSVGElement(width, height, clonedElement);
-  svg.prepend(await getFontsStyleElement(element));
 
   const url = convertSVGToDataURL(svg);
 
@@ -76,11 +74,11 @@ export const toCanvas = async (element: HTMLElement, options?: Options): Promise
   const ratio = options?.pixelRatio || 1;
   const { width, height } = getElementSize(element);
 
-  const canvas = document.createElement('canvas');
+  const canvas = createEl('canvas');
   const context = canvas.getContext('2d');
 
   if (!context) {
-    return Promise.reject('Canvas error');
+    return Promise.reject(new Error('Canvas error'));
   }
 
   canvas.width = width * ratio;
@@ -89,7 +87,7 @@ export const toCanvas = async (element: HTMLElement, options?: Options): Promise
   canvas.style.width = `${width}`;
   canvas.style.height = `${height}`;
 
-  if (options?.backgroundColor || document.body.className.contains('theme-dark')) {
+  if (options?.backgroundColor || document.body.classList.contains('theme-dark')) {
     context.fillStyle = options.backgroundColor || '#1f1f1f';
     context.fillRect(0, 0, canvas.width, canvas.height);
   }

@@ -1,5 +1,5 @@
+import { requestUrl } from 'obsidian';
 import { dailyNotesService } from '../../services';
-// import {request} from 'obsidian';
 
 const cachedResourceMap = new Map<string, string>();
 
@@ -7,7 +7,7 @@ const convertResourceToDataURL = async (url: string, useCache = true): Promise<s
   const { vault } = dailyNotesService.getState().app;
 
   if (useCache && cachedResourceMap.has(url)) {
-    return Promise.resolve(cachedResourceMap.get(url) as string);
+    return Promise.resolve(cachedResourceMap.get(url));
   }
 
   // let res;
@@ -66,7 +66,7 @@ const convertResourceToDataURL = async (url: string, useCache = true): Promise<s
       });
       // return ((download === "Not Found" || download === `{"error":"Not Found"}`) ? null : download);
     } catch (error) {
-      console.log('error in grabReleaseFileFromRepository', URL, error);
+      console.error('convertResourceToDataURL failed:', url, error);
     }
   }
 };
@@ -90,22 +90,20 @@ const convertResourceToDataURL = async (url: string, useCache = true): Promise<s
 // }
 
 const downloadFile = async (url: string) => {
-  const response = await fetch(url, {
-    // method: 'GET',
-    mode: 'no-cors',
-  });
-  if (response.status !== 200) {
-    return {
-      ok: false,
-      msg: response.statusText,
-    };
-  }
-  const buffer = await response.arrayBuffer();
+  // 用内核 requestUrl（社区审查要求，替代 fetch）：不受 CORS 限制，
+  // 而原 fetch(no-cors) 拿到的是 opaque 响应（status 恒 0），外链图其实一直取不到
   try {
+    const response = await requestUrl({ url });
+    if (response.status !== 200) {
+      return {
+        ok: false,
+        msg: String(response.status),
+      };
+    }
     return {
       ok: true,
       msg: 'ok',
-      buffer: buffer,
+      buffer: response.arrayBuffer,
     };
   } catch (err) {
     return {

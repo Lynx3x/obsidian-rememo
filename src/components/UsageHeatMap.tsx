@@ -34,7 +34,7 @@ interface DailyUsageStat {
 //   begin: string;
 // }
 
-interface Props {}
+type Props = object;
 
 // let FromTo: string = '';
 
@@ -63,7 +63,7 @@ const UsageHeatMap: React.FC<Props> = () => {
   const [allStat, setAllStat] = useState<DailyUsageStat[]>(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
   const [popupStat, setPopupStat] = useState<DailyUsageStat | null>(null);
   const [currentStat, setCurrentStat] = useState<DailyUsageStat | null>(null);
-  const [fromTo, setFromTo, fromToRef] = useState('');
+  const [, setFromTo, fromToRef] = useState('');
   const containerElRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -93,7 +93,7 @@ const UsageHeatMap: React.FC<Props> = () => {
 
     const { isMobileView } = globalStateService.getState();
     const targetEl = event.target as HTMLElement;
-    const sidebarEl = document.querySelector('.memos-sidebar-wrapper') as HTMLElement;
+    const sidebarEl = document.querySelector('.memos-sidebar-wrapper');
     popupRef.current.style.left = targetEl.offsetLeft - (containerElRef.current?.offsetLeft ?? 0) + 'px';
     let topValue = targetEl.offsetTop;
     if (!isMobileView) {
@@ -185,14 +185,14 @@ const UsageHeatMap: React.FC<Props> = () => {
 
       const file = getDailyNote(moment(item.timestamp), dailyNotes);
       if (!Platform.isMobile) {
-        const leaf = app.workspace.splitActiveLeaf();
-        leaf.openFile(file);
+        const leaf = app.workspace.getLeaf(true);
+        void leaf.openFile(file);
       } else {
-        let leaf = app.workspace.activeLeaf;
+        let leaf = app.workspace.getMostRecentLeaf();
         if (leaf === null) {
           leaf = app.workspace.getLeaf(true);
         }
-        leaf.openFile(file);
+        void leaf.openFile(file);
       }
     } else if (item.count > 0 && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
       if (!['/', '/recycle'].includes(locationService.getState().pathname)) {
@@ -227,7 +227,7 @@ const UsageHeatMap: React.FC<Props> = () => {
       {/* popup */}
       <div ref={popupRef} className={'usage-detail-container pop-up ' + (popupStat ? '' : 'hidden')}>
         {popupStat?.count} memos on{' '}
-        <span className="date-text">{new Date(popupStat?.timestamp as number).toDateString()}</span>
+        <span className="date-text">{new Date(popupStat?.timestamp).toDateString()}</span>
       </div>
 
       <div className="usage-heat-map">

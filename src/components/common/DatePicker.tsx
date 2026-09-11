@@ -43,7 +43,7 @@ const DatePicker: React.FC<DatePickerProps> = (props: DatePickerProps) => {
   const handleChangeMonthBtnClick = (i: -1 | 1) => {
     const year = firstDate.getFullYear();
     const month = firstDate.getMonth() + 1;
-    let nextDateStamp = 0;
+    let nextDateStamp: number;
     if (month === 1 && i === -1) {
       nextDateStamp = new Date(`${year - 1}/12/1`).getTime();
     } else if (month === 12 && i === 1) {

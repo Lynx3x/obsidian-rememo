@@ -3,7 +3,7 @@ import appStore from '../stores/appStore';
 import { QUERY_FILE_NAME } from '../helpers/consts';
 import { getDailyNotePath } from '../helpers/utils';
 
-export const createObsidianQuery = async (title: string, querystring: string): Promise<any> => {
+export const createObsidianQuery = async (title: string, querystring: string): Promise<unknown> => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
 
   const filePath = getDailyNotePath();
@@ -71,7 +71,7 @@ export const createQueryInFile = async (
   id: string,
   title: string,
   queryString: string,
-): Promise<any> => {
+): Promise<unknown> => {
   const { vault } = appStore.getState().dailyNotesState.app;
   let newContent;
   if (fileContent === '') {

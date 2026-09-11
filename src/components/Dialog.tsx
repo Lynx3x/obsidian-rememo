@@ -4,7 +4,7 @@ import Provider from '../labs/Provider';
 import appStore from '../stores/appStore';
 import { ANIMATION_DURATION } from '../helpers/consts';
 import '../less/dialog.less';
-import React, { KeyboardEvent, useRef } from 'react';
+import React from 'react';
 
 interface DialogConfig {
   className: string;
@@ -25,7 +25,7 @@ const BaseDialog: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const handleEscClicked = (e: any) => {
+  const handleEscClicked = (e: unknown) => {
     const { key } = e;
     if (key === 'Escape') {
       destroy();
@@ -50,10 +50,10 @@ export function showDialog<T extends DialogProps>(
   DialogComponent: React.FC<T>,
   props?: Omit<T, 'destroy'>,
 ): DialogCallback {
-  const tempDiv = document.createElement('div');
+  const tempDiv = createDiv();
   document.body.append(tempDiv);
 
-  setTimeout(() => {
+  window.setTimeout(() => {
     tempDiv.firstElementChild?.classList.add('showup');
   }, 0);
 
@@ -61,7 +61,7 @@ export function showDialog<T extends DialogProps>(
     destroy: () => {
       tempDiv.firstElementChild?.classList.remove('showup');
       tempDiv.firstElementChild?.classList.add('showoff');
-      setTimeout(() => {
+      window.setTimeout(() => {
         tempDiv.remove();
         ReactDOM.unmountComponentAtNode(tempDiv);
       }, ANIMATION_DURATION);

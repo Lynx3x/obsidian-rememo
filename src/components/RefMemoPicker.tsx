@@ -43,7 +43,7 @@ const RefMemoPicker: React.FC<Props> = ({ anchorEl, selectedIds, onPick, onClose
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('keydown', handleKeyDown);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onClose 每次渲染都是新函数，列入会反复解绑重绑；只在锚点/面板变化时重挂
   }, [anchorEl, popperEl]);
 
   const list = useMemo(() => {
@@ -59,7 +59,7 @@ const RefMemoPicker: React.FC<Props> = ({ anchorEl, selectedIds, onPick, onClose
       return (b.createdAt ?? '').localeCompare(a.createdAt ?? '');
     });
     return sorted;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [query, selectedIds]);
 
   return (

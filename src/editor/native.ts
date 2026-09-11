@@ -10,9 +10,9 @@
 // 依赖内部 API（embedRegistry/showEditor/editMode），Obsidian 1.13.7 已验证存在；
 // 内核大版本升级可能失效——失败时返回 null，由调用方降级提示而非崩溃。
 
-let cachedClass: any = null;
+let cachedClass: unknown = null;
 
-export function getNativeMarkdownEditorClass(app: any): any {
+export function getNativeMarkdownEditorClass(app: unknown): unknown {
   if (cachedClass) return cachedClass;
   try {
     // 1) 瞬时 md embed（detached 容器，不落盘不渲染）

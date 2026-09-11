@@ -31,12 +31,12 @@ export namespace storage {
           const val = JSON.parse(stringifyValue);
           data[key] = val;
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Get storage failed in ', key, error);
       }
     }
 
-    return data as Partial<StorageData>;
+    return data;
   }
 
   export function set(data: Partial<StorageData>) {
@@ -44,7 +44,7 @@ export namespace storage {
       try {
         const stringifyValue = JSON.stringify(data[key as StorageKey]);
         localStorage.setItem(key, stringifyValue);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Save storage failed in ', key, error);
       }
     }
@@ -54,7 +54,7 @@ export namespace storage {
     for (const key of keys) {
       try {
         localStorage.removeItem(key);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Remove storage failed in ', key, error);
       }
     }
@@ -64,17 +64,8 @@ export namespace storage {
   export function removeRaw(key: string) {
     try {
       localStorage.removeItem(key);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Remove storage failed in ', key, error);
     }
-  }
-
-  export function emitStorageChangedEvent() {
-    const iframeEl = document.createElement('iframe');
-    iframeEl.style.display = 'none';
-    document.body.appendChild(iframeEl);
-
-    iframeEl.contentWindow?.localStorage.setItem('t', Date.now().toString());
-    iframeEl.remove();
   }
 }

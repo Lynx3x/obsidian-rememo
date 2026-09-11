@@ -3,28 +3,7 @@ var require$$0 = require("obsidian");
 function _interopDefaultLegacy(e) {
   return e && typeof e === "object" && "default" in e ? e : { "default": e };
 }
-function _interopNamespace(e) {
-  if (e && e.__esModule)
-    return e;
-  var n2 = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
-  if (e) {
-    Object.keys(e).forEach(function(k) {
-      if (k !== "default") {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n2, k, d.get ? d : {
-          enumerable: true,
-          get: function() {
-            return e[k];
-          }
-        });
-      }
-    });
-  }
-  n2["default"] = e;
-  return Object.freeze(n2);
-}
 var require$$0__default = /* @__PURE__ */ _interopDefaultLegacy(require$$0);
-var require$$0__namespace = /* @__PURE__ */ _interopNamespace(require$$0);
 const MEMOS_VIEW_TYPE = "memos_view";
 var react = { exports: {} };
 var react_production_min = {};
@@ -6868,7 +6847,7 @@ function checkDCE() {
   reactDom.exports = reactDom_production_min;
 }
 var ReactDOM = reactDom.exports;
-var app$1 = "";
+var app = "";
 var jsxRuntime = { exports: {} };
 var reactJsxRuntime_production_min = {};
 /** @license React v17.0.2
@@ -7761,19 +7740,6 @@ var utils;
     return parseInt(require$$0.moment().format("x"));
   }
   utils2.getNowTimeStamp = getNowTimeStamp;
-  function getOSVersion() {
-    const appVersion = navigator.userAgent;
-    let detectedOS = "Unknown";
-    if (appVersion.indexOf("Win") != -1) {
-      detectedOS = "Windows";
-    } else if (appVersion.indexOf("Mac") != -1) {
-      detectedOS = "MacOS";
-    } else if (appVersion.indexOf("Linux") != -1) {
-      detectedOS = "Linux";
-    }
-    return detectedOS;
-  }
-  utils2.getOSVersion = getOSVersion;
   function getTimeStampByDate(t2) {
     if (typeof t2 === "string") {
       t2 = t2.replaceAll("-", "/");
@@ -7843,10 +7809,10 @@ var utils;
     let timer = null;
     return () => {
       if (timer) {
-        clearTimeout(timer);
-        timer = setTimeout(fn2, delay);
+        window.clearTimeout(timer);
+        timer = window.setTimeout(fn2, delay);
       } else {
-        timer = setTimeout(fn2, delay);
+        timer = window.setTimeout(fn2, delay);
       }
     };
   }
@@ -7856,7 +7822,7 @@ var utils;
     let isInvoke = false;
     function _debounce(...arg) {
       if (timer)
-        clearTimeout(timer);
+        window.clearTimeout(timer);
       if (immdiate && !isInvoke) {
         const result = fn2.apply(this, arg);
         if (resultCallback && typeof resultCallback === "function")
@@ -7874,7 +7840,7 @@ var utils;
     }
     _debounce.cancel = function() {
       if (timer)
-        clearTimeout(timer);
+        window.clearTimeout(timer);
       timer = null;
       isInvoke = false;
     };
@@ -7888,7 +7854,7 @@ var utils;
         return false;
       }
       valid = false;
-      setTimeout(() => {
+      window.setTimeout(() => {
         fn2();
         valid = true;
       }, delay);
@@ -7904,7 +7870,7 @@ var utils;
         if (typeof val === "object") {
           params.push(...transformObjectToParamsString(val).split("&"));
         } else {
-          params.push(`${key}=${val}`);
+          params.push(`${key}=${String(val)}`);
         }
       }
     }
@@ -8196,14 +8162,14 @@ const SHOW_SIDERBAR_MOBILE_CLASSNAME = "mobile-show-sidebar";
 const ANIMATION_DURATION = 200;
 const DAILY_TIMESTAMP = 3600 * 24 * 1e3;
 const QUERY_FILE_NAME = "query";
-const TAG_REG = /\s#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
-const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
-const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
+const TAG_REG = /\s#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
 const LINK_REG = /(\s|：|>|^)((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/g;
 const MD_LINK_REG = /\[([\s\S]*?)\]\(([\s\S]*?)\)/gu;
 const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg|webp|bmp))(\]\])?(\))?/g;
 const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\s*\))/g;
-const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
+const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
 const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
 const MEMO_LINK_REG = /\[@(.*?)\]\((.+?)\)/g;
 class DailyNotesService {
@@ -8283,15 +8249,6 @@ var storage;
     }
   }
   storage2.removeRaw = removeRaw;
-  function emitStorageChangedEvent() {
-    var _a2;
-    const iframeEl = document.createElement("iframe");
-    iframeEl.style.display = "none";
-    document.body.appendChild(iframeEl);
-    (_a2 = iframeEl.contentWindow) == null ? void 0 : _a2.localStorage.setItem("t", Date.now().toString());
-    iframeEl.remove();
-  }
-  storage2.emitStorageChangedEvent = emitStorageChangedEvent;
 })(storage || (storage = {}));
 class GlobalStateService {
   constructor() {
@@ -8669,9 +8626,9 @@ async function waitForInsert(MemoContent, isTASK, insertDate) {
   return memo2;
 }
 async function writeBlockToDailyNote(date, blockText, memo2) {
-  const { vault } = appStore.getState().dailyNotesState.app === void 0 ? app : appStore.getState().dailyNotesState.app;
+  const { vault } = appStore.getState().dailyNotesState.app;
   let headerIdx;
-  const dailyNotes = await getAllDailyNotes_1();
+  const dailyNotes = getAllDailyNotes_1();
   const existingFile = getDailyNote_1(date, dailyNotes);
   if (!existingFile) {
     const file = await utils$1.createDailyNoteCheck(date);
@@ -10162,8 +10119,6 @@ async function getMemosFromDailyNote(dailyNote, allMemos) {
   let fileLines = getAllLinesFromFile$5(fileContents);
   const baseDate = getDateFromFile_1(dailyNote, "day");
   parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate);
-  fileLines = null;
-  fileContents = null;
   return allMemos;
 }
 function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
@@ -10207,7 +10162,7 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
     const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s?)?/, "");
     const { time, rest } = extractMemoTime(stripped);
     let content2 = rest;
-    let hasId = "";
+    let hasId;
     const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content2);
     if (idMatch) {
       hasId = idMatch[1];
@@ -10287,7 +10242,7 @@ async function getMemos(onBatch) {
     return memos;
   }
   const dailyNotesFolder = vault.getAbstractFileByPath(require$$0.normalizePath(folder));
-  if (!dailyNotesFolder) {
+  if (!(dailyNotesFolder instanceof require$$0.TFolder)) {
     throw new DailyNotesFolderMissingError("Failed to find daily notes folder");
   }
   const dailyNotes = getAllDailyNotes_1();
@@ -10623,8 +10578,6 @@ async function deleteQueryForever(queryID) {
           await vault.modify(queryFile, newFileContent);
         }
       }
-      fileLines = null;
-      fileContents = null;
     }
   }
 }
@@ -10914,21 +10867,6 @@ class ResourceService {
     }
     return fileManager.generateMarkdownLink(newFile, newFile.path, "", "");
   }
-  async parseHtml(html) {
-    const output = await html.text();
-    const el = document.createElement("html");
-    el.innerHTML = output;
-    const elementsByClassName = el.getElementsByClassName("memo");
-    for (let i2 = 0; i2 < elementsByClassName.length; i2++) {
-      const source = elementsByClassName[i2].getElementsByClassName("content")[0].innerHTML.replace(/\s{16}?<p><\/p>/g, "").replace(/\s{16}?<p>/g, "").replace(/<\/p>/g, "").replace(/<strong>/g, "**").replace(/<\/strong>/g, "**").replace(/^\s{16}/g, "");
-      const importedMemo = await memoService.importMemos(
-        source,
-        true,
-        require$$0.moment(elementsByClassName[i2].getElementsByClassName("time")[0].innerHTML)
-      );
-      memoService.pushMemo(importedMemo);
-    }
-  }
 }
 const getExt = (line) => {
   var _a2;
@@ -10970,26 +10908,23 @@ const convertResourceToDataURL = async (url, useCache = true) => {
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.log("error in grabReleaseFileFromRepository", URL, error);
+      console.error("convertResourceToDataURL failed:", url, error);
     }
   }
 };
 const downloadFile = async (url) => {
-  const response = await fetch(url, {
-    mode: "no-cors"
-  });
-  if (response.status !== 200) {
-    return {
-      ok: false,
-      msg: response.statusText
-    };
-  }
-  const buffer = await response.arrayBuffer();
   try {
+    const response = await require$$0.requestUrl({ url });
+    if (response.status !== 200) {
+      return {
+        ok: false,
+        msg: String(response.status)
+      };
+    }
     return {
       ok: true,
       msg: "ok",
-      buffer
+      buffer: response.arrayBuffer
     };
   } catch (err) {
     return {
@@ -10999,8 +10934,8 @@ const downloadFile = async (url) => {
   }
 };
 const getCloneStyledElement = async (element) => {
-  const clonedElementContainer = document.createElement(element.tagName);
-  clonedElementContainer.innerHTML = element.innerHTML;
+  const clonedElementContainer = createEl(element.tagName);
+  clonedElementContainer.append(...Array.from(element.childNodes, (node) => node.cloneNode(true)));
   const applyStyles2 = async (sourceElement, clonedElement) => {
     var _a2;
     if (!sourceElement || !clonedElement) {
@@ -11013,14 +10948,14 @@ const getCloneStyledElement = async (element) => {
           (_a2 = sourceElement.getAttribute("path")) != null ? _a2 : sourceElement.getAttribute("src")
         );
         clonedElement.src = url;
-      } catch (error) {
+      } catch {
       }
     } else if (sourceElement.className === "property-image") {
       try {
         const imageUrl = sourceElement.style.backgroundImage;
         const url = await convertResourceToDataURL(imageUrl);
         clonedElement.style.backgroundImage = url;
-      } catch (error) {
+      } catch {
       }
     }
     for (const item of sourceStyles) {
@@ -11036,19 +10971,6 @@ const getCloneStyledElement = async (element) => {
   };
   await applyStyles2(element, clonedElementContainer);
   return clonedElementContainer;
-};
-const getFontsStyleElement = async (element) => {
-  const styleSheets = element.ownerDocument.styleSheets;
-  const fontFamilyStyles = [];
-  for (const sheet of styleSheets) {
-    for (const rule of sheet.cssRules) {
-      if (rule.constructor.name === "CSSFontFaceRule") {
-        fontFamilyStyles.push(rule.style);
-      }
-    }
-  }
-  const styleElement = document.createElement("style");
-  return styleElement;
 };
 const getElementSize = (element) => {
   const { width, height } = window.getComputedStyle(element);
@@ -11082,10 +11004,9 @@ const toSVG = async (element, options) => {
   const { width, height } = getElementSize(element);
   const clonedElement = await getCloneStyledElement(element);
   if (options == null ? void 0 : options.backgroundColor) {
-    clonedElement.style.backgroundColor = options.backgroundColor;
+    clonedElement.setCssStyles({ backgroundColor: options.backgroundColor });
   }
   const svg = generateSVGElement(width, height, clonedElement);
-  svg.prepend(await getFontsStyleElement(element));
   const url = convertSVGToDataURL(svg);
   return url;
 };
@@ -11095,16 +11016,16 @@ const toCanvas = async (element, options) => {
   imageEl.src = url;
   const ratio = (options == null ? void 0 : options.pixelRatio) || 1;
   const { width, height } = getElementSize(element);
-  const canvas = document.createElement("canvas");
+  const canvas = createEl("canvas");
   const context = canvas.getContext("2d");
   if (!context) {
-    return Promise.reject("Canvas error");
+    return Promise.reject(new Error("Canvas error"));
   }
   canvas.width = width * ratio;
   canvas.height = height * ratio;
   canvas.style.width = `${width}`;
   canvas.style.height = `${height}`;
-  if ((options == null ? void 0 : options.backgroundColor) || document.body.className.contains("theme-dark")) {
+  if ((options == null ? void 0 : options.backgroundColor) || document.body.classList.contains("theme-dark")) {
     context.fillStyle = options.backgroundColor || "#1f1f1f";
     context.fillRect(0, 0, canvas.width, canvas.height);
   }
@@ -11193,9 +11114,9 @@ const BaseDialog = (props) => {
   });
 };
 function showDialog(config, DialogComponent, props) {
-  const tempDiv = document.createElement("div");
+  const tempDiv = createDiv();
   document.body.append(tempDiv);
-  setTimeout(() => {
+  window.setTimeout(() => {
     var _a2;
     (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.add("showup");
   }, 0);
@@ -11204,7 +11125,7 @@ function showDialog(config, DialogComponent, props) {
       var _a2, _b;
       (_a2 = tempDiv.firstElementChild) == null ? void 0 : _a2.classList.remove("showup");
       (_b = tempDiv.firstElementChild) == null ? void 0 : _b.classList.add("showoff");
-      setTimeout(() => {
+      window.setTimeout(() => {
         tempDiv.remove();
         ReactDOM.unmountComponentAtNode(tempDiv);
       }, ANIMATION_DURATION);
@@ -13294,7 +13215,7 @@ function showPreviewImageDialog(imgUrl, filepath, allImages, startIndex = 0) {
     lightboxHost.remove();
     lightboxHost = null;
   }
-  const host = document.createElement("div");
+  const host = createDiv();
   document.body.appendChild(host);
   lightboxHost = host;
   const slides = allImages && allImages.length > 0 ? allImages : [{
@@ -13438,8 +13359,15 @@ const CODE_INLINE_REG = /(^|[^`])`([^`\n]+?)`([^`]|$)/g;
 const INTERNAL_MD_REG = /\[\[([^\]]+)\]\]/g;
 const EXRERNAL_MD_REG = /\[([^\]]+)\]\((([^\]]+).md)\)/g;
 const PLACEHOLDER = "\0";
+const parseCodePlaceholder = (line) => {
+  const head = `${PLACEHOLDER}CODE`;
+  if (!line.startsWith(head) || !line.endsWith(PLACEHOLDER))
+    return null;
+  const num = line.slice(head.length, line.length - PLACEHOLDER.length);
+  return /^\d+$/.test(num) ? Number(num) : null;
+};
 const encodeHtml = (htmlStr) => {
-  const t2 = document.createElement("div");
+  const t2 = createDiv();
   t2.textContent = htmlStr;
   return t2.innerHTML;
 };
@@ -13509,11 +13437,11 @@ function renderMemoContentLines(src) {
   };
   const indentWidth = (line) => line.length - line.trimStart().length;
   for (const line of masked.split("\n")) {
-    const codeIdx = /^ CODE(\d+) $/.exec(line);
-    if (codeIdx) {
+    const codeIdx = parseCodePlaceholder(line);
+    if (codeIdx !== null) {
       flushPara();
       flushQuote();
-      out.push(codeBlocks[+codeIdx[1]]);
+      out.push(codeBlocks[codeIdx]);
       continue;
     }
     if (line.trim() === "") {
@@ -13793,16 +13721,16 @@ const MemoCardDialog = (props) => {
           }
         }
         setLinkMemos([...linkMemos2]);
-        const linkedMemos2 = await memoService.getLinkedMemos(memo2);
+        const linkedMemos2 = memoService.getLinkedMemos(memo2);
         setLinkedMemos(linkedMemos2.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).map((m2) => ({
           ...m2,
           createdAtStr: utils$1.getDateTimeString(m2.createdAt, showSeconds),
           dateStr: utils$1.getDateString(m2.createdAt)
         })));
-      } catch (error) {
+      } catch {
       }
     };
-    fetchLinkedMemos();
+    void fetchLinkedMemos();
   }, [memo2.id]);
   const handleMemoContentClick = react.exports.useCallback(async (e) => {
     var _a2;
@@ -13840,8 +13768,8 @@ const MemoCardDialog = (props) => {
     if (!showConfirmDelete) {
       setShowConfirmDelete(true);
       if (deleteTimerRef.current)
-        clearTimeout(deleteTimerRef.current);
-      deleteTimerRef.current = setTimeout(() => setShowConfirmDelete(false), 2500);
+        window.clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = window.setTimeout(() => setShowConfirmDelete(false), 2500);
       return;
     }
     try {
@@ -14037,13 +13965,13 @@ const ShareMemoImageDialog = (props) => {
     if (imgAmount > 0) {
       return;
     }
-    changeBackgroundImage();
-    setTimeout(() => {
+    void changeBackgroundImage();
+    window.setTimeout(() => {
       if (!memoElRef.current) {
         return;
       }
       let shareDialogBackgroundColor;
-      if (document.body.className.contains("theme-dark")) {
+      if (document.body.classList.contains("theme-dark")) {
         shareDialogBackgroundColor = "#727171";
       } else {
         shareDialogBackgroundColor = "#eaeaea";
@@ -14097,14 +14025,14 @@ const ShareMemoImageDialog = (props) => {
     let imagePath;
     const lightBackgroundImage = encodeURI(lightBackground);
     const darkBackgroundImage = encodeURI(darkBackground);
-    if (document.body.className.contains("theme-light")) {
+    if (document.body.classList.contains("theme-light")) {
       if (await app22.vault.adapter.exists(DefaultLightBackgroundImage) && /\.(png|svg|jpg|jpeg)/g.test(DefaultLightBackgroundImage)) {
         imagePath = DefaultLightBackgroundImage;
         imageUrl = await convertBackgroundToBase64(imagePath);
       } else {
         imageUrl = lightBackgroundImage;
       }
-    } else if (document.body.className.contains("theme-dark")) {
+    } else if (document.body.classList.contains("theme-dark")) {
       if (await app22.vault.adapter.exists(DefaultDarkBackgroundImage) && /\.(png|svg|jpg|jpeg)/g.test(DefaultDarkBackgroundImage)) {
         imagePath = DefaultDarkBackgroundImage;
         imageUrl = await convertBackgroundToBase64(imagePath);
@@ -14113,9 +14041,15 @@ const ShareMemoImageDialog = (props) => {
       }
     }
     const memoShareDiv = document.querySelector(".dialog-wrapper .memo-background .property-image");
-    memoShareDiv.style.backgroundImage = "url('" + imageUrl + "')";
-    if (document.body.className.contains("theme-dark")) {
-      memoShareDiv.style.backgroundColor = "#1f1f1f";
+    if (memoShareDiv) {
+      memoShareDiv.setCssStyles({
+        backgroundImage: `url('${imageUrl}')`
+      });
+      if (document.body.classList.contains("theme-dark")) {
+        memoShareDiv.setCssStyles({
+          backgroundColor: "#1f1f1f"
+        });
+      }
     }
   };
   const handleCopytoClipboardBtnClick = async () => {
@@ -14127,7 +14061,7 @@ const ShareMemoImageDialog = (props) => {
     const blobInput = convertBase64ToBlob(myBase64, "image/png");
     let aFile;
     if (AutoSaveWhenOnMobile && require$$0.Platform.isMobile) {
-      blobInput.arrayBuffer().then(async (buffer) => {
+      void blobInput.arrayBuffer().then(async (buffer) => {
         const ext = "png";
         const dailyNotes = getAllDailyNotes_1();
         for (const string2 in dailyNotes) {
@@ -14147,7 +14081,7 @@ const ShareMemoImageDialog = (props) => {
     const clipboardItemInput = new ClipboardItem({
       "image/png": blobInput
     });
-    window.navigator["clipboard"].write([clipboardItemInput]);
+    void window.navigator["clipboard"].write([clipboardItemInput]);
     new require$$0.Notice("Send to clipboard successfully");
   };
   const handleImageOnLoad = (ev) => {
@@ -14275,14 +14209,14 @@ const showMemoInDailyNotes = async (memoId, memoPath) => {
   const lineNum = parseInt(memoId.slice(14));
   const file = app2.metadataCache.getFirstLinkpathDest("", memoPath);
   if (!require$$0.Platform.isMobile) {
-    const leaf = app2.workspace.splitActiveLeaf();
-    leaf.openFile(file, { eState: { line: lineNum } });
+    const leaf = app2.workspace.getLeaf(true);
+    void leaf.openFile(file, { eState: { line: lineNum } });
   } else {
-    let leaf = app2.workspace.activeLeaf;
+    let leaf = app2.workspace.getMostRecentLeaf();
     if (leaf === null) {
       leaf = app2.workspace.getLeaf(true);
     }
-    leaf.openFile(file, { eState: { line: lineNum } });
+    void leaf.openFile(file, { eState: { line: lineNum } });
   }
   return;
 };
@@ -14422,7 +14356,7 @@ const Memo = (props) => {
     globalStateService.setEditMemoId(propsMemo.id);
   };
   const handleSourceMemoClick = (m2) => {
-    showMemoInDailyNotes(m2.id, m2.path || "");
+    void showMemoInDailyNotes(m2.id, m2.path || "");
   };
   const isTaskCard = propsMemo.memoType === "TASK-TODO" || propsMemo.memoType === "TASK-DONE";
   const handleToggleTaskClick = react.exports.useCallback(async (e) => {
@@ -14462,21 +14396,46 @@ const Memo = (props) => {
     const band = w2 / N2;
     const cloneTemplate = el.cloneNode(true);
     cloneTemplate.querySelectorAll(".more-action-btns-wrapper").forEach((n2) => {
-      n2.style.display = "none";
+      n2.setCssStyles({
+        display: "none"
+      });
     });
-    const overlay = document.createElement("div");
-    overlay.style.cssText = `position:absolute;left:${x2}px;top:${y2}px;width:${w2}px;height:${h2}px;pointer-events:none;z-index:50;`;
+    const overlay = createDiv();
+    overlay.setCssStyles({
+      position: "absolute",
+      left: `${x2}px`,
+      top: `${y2}px`,
+      width: `${w2}px`,
+      height: `${h2}px`,
+      pointerEvents: "none",
+      zIndex: "50"
+    });
     for (let i2 = 0; i2 < N2; i2++) {
-      const outer = document.createElement("div");
-      outer.style.cssText = `position:absolute;top:0;left:${i2 * band}px;width:${band}px;height:100%;overflow:hidden;`;
-      const inner = document.createElement("div");
-      inner.style.cssText = `position:absolute;top:0;left:${-i2 * band}px;width:${w2}px;height:auto;`;
+      const outer = createDiv();
+      outer.setCssStyles({
+        position: "absolute",
+        top: "0",
+        left: `${i2 * band}px`,
+        width: `${band}px`,
+        height: "100%",
+        overflow: "hidden"
+      });
+      const inner = createDiv();
+      inner.setCssStyles({
+        position: "absolute",
+        top: "0",
+        left: `${-i2 * band}px`,
+        width: `${w2}px`,
+        height: "auto"
+      });
       inner.appendChild(cloneTemplate.cloneNode(true));
       outer.appendChild(inner);
       overlay.appendChild(outer);
     }
     host.appendChild(overlay);
-    el.style.visibility = "hidden";
+    el.setCssStyles({
+      visibility: "hidden"
+    });
     const rnd = (min2, max2) => min2 + Math.random() * (max2 - min2);
     Array.from(overlay.children).forEach((outer) => {
       outer.animate([{
@@ -14496,7 +14455,9 @@ const Memo = (props) => {
       window.setTimeout(() => {
         overlay.remove();
         if (document.contains(el)) {
-          el.style.visibility = "";
+          el.setCssStyles({
+            visibility: ""
+          });
         }
         resolve();
       }, 460);
@@ -14715,8 +14676,7 @@ function formatMemoContent(content2, options) {
   };
   content2 = tagsCollect(content2);
   content2 = content2.replace(/(?:<br\s*\/?>){2,}/g, "<br>").replace(/<p>(?:\s*<br\s*\/?>)+/g, "<p>").replace(/(?:<br\s*\/?>)+\s*<\/p>/g, "</p>");
-  const tempDivContainer = document.createElement("div");
-  tempDivContainer.innerHTML = content2;
+  const tempDivContainer = new DOMParser().parseFromString(content2, "text/html").body;
   for (let i2 = 0; i2 < tempDivContainer.children.length; i2++) {
     const c = tempDivContainer.children[i2];
     if (c.tagName === "P" && c.textContent === "") {
@@ -14862,7 +14822,7 @@ const DatePicker = (props) => {
   const handleChangeMonthBtnClick = (i2) => {
     const year = firstDate.getFullYear();
     const month = firstDate.getMonth() + 1;
-    let nextDateStamp = 0;
+    let nextDateStamp;
     if (month === 1 && i2 === -1) {
       nextDateStamp = new Date(`${year - 1}/12/1`).getTime();
     } else if (month === 12 && i2 === 1) {
@@ -14966,10 +14926,10 @@ const DailyMemoDiaryDialog = (props) => {
     setDailyMemos();
   }, [currentDateStamp]);
   const convertBase64ToBlob = (base64, type) => {
-    var bytes = window.atob(base64);
-    var ab2 = new ArrayBuffer(bytes.length);
-    var ia2 = new Uint8Array(ab2);
-    for (var i2 = 0; i2 < bytes.length; i2++) {
+    let bytes = window.atob(base64);
+    let ab2 = new ArrayBuffer(bytes.length);
+    let ia2 = new Uint8Array(ab2);
+    for (let i2 = 0; i2 < bytes.length; i2++) {
       ia2[i2] = bytes.charCodeAt(i2);
     }
     return new Blob([ab2], {
@@ -14978,7 +14938,7 @@ const DailyMemoDiaryDialog = (props) => {
   };
   const handleShareBtnClick = async () => {
     toggleShowDatePicker(false);
-    setTimeout(() => {
+    window.setTimeout(() => {
       if (!memosElRef.current) {
         return;
       }
@@ -14989,7 +14949,7 @@ const DailyMemoDiaryDialog = (props) => {
         if (appStore.getState().settingsState.settings.AutoSaveWhenOnMobile && require$$0.Platform.isMobile) {
           const myBase64 = url.split("base64,")[1];
           const blobInput = convertBase64ToBlob(myBase64, "image/png");
-          blobInput.arrayBuffer().then(async (buffer) => {
+          void blobInput.arrayBuffer().then(async (buffer) => {
             let aFile;
             const ext = "png";
             const dailyNotes = getAllDailyNotes_1();
@@ -15134,7 +15094,7 @@ const AnimatedNumber = ({
       const eased = 1 - Math.pow(1 - p2, 3);
       setDisplay(Math.round(from + (to - from) * eased));
       if (p2 < 1) {
-        raf = requestAnimationFrame(tick);
+        raf = window.requestAnimationFrame(tick);
       } else if (spanRef.current) {
         spanRef.current.animate([{
           transform: "translateY(0)"
@@ -15148,7 +15108,7 @@ const AnimatedNumber = ({
         });
       }
     };
-    raf = requestAnimationFrame(tick);
+    raf = window.requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [value]);
   return /* @__PURE__ */ jsx("span", {
@@ -15607,10 +15567,11 @@ const checkShouldShowMemo = (memo2, filter) => {
     }
     shouldShow = contained;
   } else if (type === "DATE") {
-    if (!app.plugins.enabledPlugins.has("nldates-obsidian")) {
+    const app2 = appStore.getState().dailyNotesState.app;
+    if (!app2.plugins.enabledPlugins.has("nldates-obsidian")) {
       new require$$0.Notice(t$2("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
     } else {
-      const nldatesPlugin = app.plugins.getPlugin("nldates-obsidian");
+      const nldatesPlugin = app2.plugins.getPlugin("nldates-obsidian");
       const parsedResult = nldatesPlugin.parseDate(value);
       let contained;
       if (parsedResult.date !== null) {
@@ -15739,11 +15700,11 @@ const CreateQueryDialog = (props) => {
       if (queryId) {
         const editedQuery = await queryService.updateQuery(queryId, title, JSON.stringify(filters));
         queryService.editQuery(editedQuery);
-        queryService.getMyAllQueries();
+        void queryService.getMyAllQueries();
       } else {
         const query = await queryService.createQuery(title, JSON.stringify(filters));
         queryService.pushQuery(query);
-        queryService.getMyAllQueries();
+        void queryService.getMyAllQueries();
       }
     } catch (error) {
       new require$$0.Notice(error.message);
@@ -16110,7 +16071,7 @@ const QueryItemContainer = (props) => {
           pinnedAt: utils$1.getDateTimeString(Date.now())
         });
       }
-    } catch (error) {
+    } catch {
     }
   };
   const handleDeleteBtnMouseLeave = () => {
@@ -16346,7 +16307,7 @@ const TagItemContainer = (props) => {
     if (isActive) {
       locationService.setTagQuery("");
     } else {
-      utils$1.copyTextToClipboard(`#${tag.text} `);
+      void utils$1.copyTextToClipboard(`#${tag.text} `);
       if (!["/", "/recycle"].includes(locationService.getState().pathname)) {
         locationService.setPathname("/");
       }
@@ -16433,7 +16394,7 @@ const UsageHeatMap = () => {
   const [allStat, setAllStat] = dist$1(getInitialUsageStat(usedDaysAmount, beginDayTimestamp));
   const [popupStat, setPopupStat] = dist$1(null);
   const [currentStat, setCurrentStat] = dist$1(null);
-  const [fromTo, setFromTo, fromToRef] = dist$1("");
+  const [, setFromTo, fromToRef] = dist$1("");
   const containerElRef = react.exports.useRef(null);
   const popupRef = react.exports.useRef(null);
   react.exports.useEffect(() => {
@@ -16513,14 +16474,14 @@ const UsageHeatMap = () => {
       } = dailyNotesService.getState();
       const file = getDailyNote_1(require$$0.moment(item.timestamp), dailyNotes);
       if (!require$$0.Platform.isMobile) {
-        const leaf = app2.workspace.splitActiveLeaf();
-        leaf.openFile(file);
+        const leaf = app2.workspace.getLeaf(true);
+        void leaf.openFile(file);
       } else {
-        let leaf = app2.workspace.activeLeaf;
+        let leaf = app2.workspace.getMostRecentLeaf();
         if (leaf === null) {
           leaf = app2.workspace.getLeaf(true);
         }
-        leaf.openFile(file);
+        void leaf.openFile(file);
       }
     } else if (item.count > 0 && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
       if (!["/", "/recycle"].includes(locationService.getState().pathname)) {
@@ -16650,6 +16611,20 @@ function Home() {
 const appRouter = {
   "*": /* @__PURE__ */ jsx(Home, {})
 };
+function errorMessage(e) {
+  var _a2;
+  if (e instanceof Error)
+    return e.message;
+  if (typeof e === "string")
+    return e;
+  if (typeof e === "number" || typeof e === "boolean")
+    return String(e);
+  try {
+    return (_a2 = JSON.stringify(e)) != null ? _a2 : "Unknown error";
+  } catch {
+    return "Unknown error";
+  }
+}
 const BUILTIN_SEND_SOUND_URI = "data:audio/wav;base64,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";
 const AUDIO_MIME = {
   mp3: "audio/mpeg",
@@ -16666,11 +16641,11 @@ const isAudioPath = (p2) => {
   var _a2, _b;
   return AUDIO_EXT.has((_b = (_a2 = p2.split(".").pop()) == null ? void 0 : _a2.toLowerCase()) != null ? _b : "");
 };
-const AbstractInputSuggest = require$$0__namespace.AbstractInputSuggest;
+const AbstractInputSuggestCtor = require$$0.AbstractInputSuggest;
 function attachAudioPathSuggest(app2, inputEl, onPick) {
-  if (!AbstractInputSuggest)
+  if (!AbstractInputSuggestCtor)
     return;
-  class AudioPathSuggest extends AbstractInputSuggest {
+  class AudioPathSuggest extends AbstractInputSuggestCtor {
     constructor() {
       super(app2, inputEl);
     }
@@ -16738,7 +16713,6 @@ function preloadSendSound(settings) {
   });
 }
 async function playSendSound(settings, options) {
-  var _a2;
   const target = targetOf(settings);
   if (!target)
     return false;
@@ -16752,7 +16726,7 @@ async function playSendSound(settings, options) {
     return true;
   } catch (error) {
     if ((options == null ? void 0 : options.manual) || warnedKey !== target.key) {
-      new require$$0.Notice(t$2("Failed to play the sound: ") + ((_a2 = error == null ? void 0 : error.message) != null ? _a2 : String(error)), 8e3);
+      new require$$0.Notice(t$2("Failed to play the sound: ") + errorMessage(error), 8e3);
       warnedKey = target.key;
     }
     console.error("[rememo] send sound failed:", target.key, error);
@@ -31234,11 +31208,11 @@ const Editor = react.exports.forwardRef((props, ref) => {
   react.exports.useImperativeHandle(ref, () => ({
     get element() {
       var _a2, _b, _c;
-      return (_c = (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.dom) != null ? _b : mountRef.current) != null ? _c : document.createElement("div");
+      return (_c = (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.dom) != null ? _b : mountRef.current) != null ? _c : createDiv();
     },
     get contentEl() {
       var _a2, _b;
-      return (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.contentDOM) != null ? _b : document.createElement("div");
+      return (_b = (_a2 = viewRef.current) == null ? void 0 : _a2.contentDOM) != null ? _b : createDiv();
     },
     focus: () => {
       var _a2;
@@ -33263,7 +33237,7 @@ const MemoEditor = () => {
         leafView = document;
         memosHeight = window.innerHeight;
       }
-      const divThis = document.createElement("img");
+      const divThis = createEl("img");
       const memoEditorDiv = leafView.querySelector("div[data-type='memos_view'] .view-content .memo-editor-wrapper");
       divThis.src = `${showEditorSvg}`;
       if (isEditorShown) {
@@ -33287,7 +33261,7 @@ const MemoEditor = () => {
           duration: 300,
           iterations: Infinity
         });
-        setTimeout(() => {
+        window.setTimeout(() => {
           var _a4, _b3;
           divThis.className = "memo-show-editor-button hidden";
           if (isEditor) {
@@ -33320,7 +33294,7 @@ const MemoEditor = () => {
             iterations: 1
           });
           let scaleOneElementAni;
-          setTimeout(() => {
+          window.setTimeout(() => {
             scaleOneElementAni = divThis.animate([
               {
                 transform: "rotate(20deg) scale(1.5)"
@@ -33333,11 +33307,11 @@ const MemoEditor = () => {
               iterations: 1
             });
           }, 300);
-          setTimeout(() => {
+          window.setTimeout(() => {
             handleShowEditor(true);
             divThis.className = "memo-show-editor-button";
           }, 300);
-          setTimeout(() => {
+          window.setTimeout(() => {
             scaleOneElementAni.cancel();
             scaleEditorElementAni.reverse();
           }, 700);
@@ -33427,7 +33401,9 @@ const MemoEditor = () => {
     if (!el) {
       return;
     }
-    el.style.transformOrigin = "50% 0%";
+    el.setCssStyles({
+      transformOrigin: "50% 0%"
+    });
     const anim = el.animate([
       {
         transform: "scale(1, 1)",
@@ -33455,11 +33431,13 @@ const MemoEditor = () => {
     });
     anim.onfinish = () => {
       anim.cancel();
-      el.style.transformOrigin = "";
+      el.setCssStyles({
+        transformOrigin: ""
+      });
     };
   };
   const handleSaveBtnClick = react.exports.useCallback(async (content2) => {
-    var _a3, _b2, _c;
+    var _a3, _b2;
     const {
       editMemoId,
       markMemoIds
@@ -33534,7 +33512,7 @@ ${content2.trimStart()}`.trimEnd();
     } catch (error) {
       sendingRef.current = false;
       (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
-      new require$$0.Notice(t$2("Failed to save: ") + ((_c = error == null ? void 0 : error.message) != null ? _c : String(error)), 8e3);
+      new require$$0.Notice(t$2("Failed to save: ") + errorMessage(error), 8e3);
     }
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
@@ -33546,16 +33524,15 @@ ${content2.trimStart()}`.trimEnd();
     (_c = (_b2 = editorRef.current) == null ? void 0 : _b2.contentEl) == null ? void 0 : _c.blur();
   }, []);
   const handleContentChange = react.exports.useCallback((content2) => {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content2;
-    if (tempDiv.innerText.trim() === "") {
+    const plainText = new DOMParser().parseFromString(content2, "text/html").body.textContent;
+    if ((plainText == null ? void 0 : plainText.trim()) === "") {
       content2 = "";
     }
     setEditorContentCache(content2);
     if (!editorRef.current) {
       return;
     }
-    setTimeout(() => {
+    window.setTimeout(() => {
       var _a3;
       if (skipNextFocusRef.current) {
         skipNextFocusRef.current = false;
@@ -33589,7 +33566,7 @@ ${content2.trimStart()}`.trimEnd();
     (_a3 = editorRef.current) == null ? void 0 : _a3.toggleHashAtCursor();
   }, []);
   const handleUploadFileBtnClick = react.exports.useCallback(() => {
-    const inputEl = document.createElement("input");
+    const inputEl = createEl("input");
     document.body.appendChild(inputEl);
     inputEl.type = "file";
     inputEl.multiple = false;
@@ -34197,7 +34174,7 @@ const MemoList = () => {
     if (memoService.isInitialized) {
       setFetchStatus(false);
     } else {
-      setTimeout(() => {
+      window.setTimeout(() => {
         const silent = memoService.getState().memos.length > 0;
         memoService.fetchAllMemos({
           silent
@@ -34211,7 +34188,7 @@ const MemoList = () => {
     dailyNotesService.getMyAllDailyNotes().then(() => {
       setFetchStatus(false);
     }).catch(() => {
-      new require$$0.Notice("\u{1F62D} Fetch DailyNotes Error");
+      new require$$0.Notice("\u{1F62D} Failed to fetch daily notes");
     });
     dailyNotesService.getState();
     memoService.getState();
@@ -34302,7 +34279,7 @@ const MemoList = () => {
           anim.onfinish = () => anim.cancel();
         }
         if (!reduceMotion) {
-          const flash = document.createElement("span");
+          const flash = createSpan();
           flash.className = "memo-new-flash";
           flash.setAttribute("aria-hidden", "true");
           first.appendChild(flash);
@@ -34386,9 +34363,9 @@ const MemoList = () => {
       const sourcePath = targetEl.getAttribute("data-filepath") || "";
       if (sourcePath) {
         if (require$$0.Platform.isMobile) {
-          workspace.openLinkText(sourcePath, sourcePath, false);
+          void workspace.openLinkText(sourcePath, sourcePath, false);
         } else {
-          workspace.openLinkText(sourcePath, sourcePath, true);
+          void workspace.openLinkText(sourcePath, sourcePath, true);
         }
       }
     }
@@ -34679,7 +34656,7 @@ const MemoTrash = () => {
   }) : deletedMemos;
   react.exports.useEffect(() => {
     if (!memoService.isInitialized) {
-      memoService.fetchAllMemos();
+      void memoService.fetchAllMemos();
     }
     memoService.fetchDeletedMemos().then((result) => {
       if (result.length !== 0) {
@@ -34769,7 +34746,7 @@ const legacyTimeRule = {
 };
 const ID_AT_END$1 = /\^([A-Za-z0-9]{6})\s*$/;
 function randomId$1(exclude) {
-  let id2 = "";
+  let id2;
   do {
     id2 = Math.random().toString(36).slice(-6);
   } while (exclude.has(id2));
@@ -34909,10 +34886,8 @@ function readLines(file) {
 }
 async function runAudit(onProgress) {
   var _a2, _b;
-  const app2 = appStore.getState().dailyNotesState.app;
-  app2.vault;
   const dailyNotes = getAllDailyNotes_1();
-  const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").map(([, f2]) => f2).sort((a, b) => b.path.localeCompare(a.path));
+  const files = Object.entries(dailyNotes).filter((entry) => entry[1] instanceof require$$0.TFile && entry[1].extension === "md").map(([, f2]) => f2).sort((a, b) => b.path.localeCompare(a.path));
   const issues = [];
   for (let i2 = 0; i2 < files.length; i2++) {
     const file = files[i2];
@@ -35310,7 +35285,7 @@ const AuditPage = () => {
     }
   }, []);
   react.exports.useEffect(() => {
-    scan();
+    void scan();
   }, [scan]);
   const pushFlash = (lines) => {
     if (lines.length === 0)
@@ -35580,7 +35555,7 @@ const AuditPage = () => {
                 title: "\u628A\u672C\u6587\u4EF6\u7684\u65E7\u683C\u5F0F\u884C\u6574\u4F53\u8FC1\u79FB\u4E3A\u65B0\u5361\u7247\u5757\uFF08\u81EA\u52A8\u5907\u4EFD\uFF09\uFF0C\u8FC1\u79FB\u540E\u65E7\u6570\u636E\u6062\u590D\u6E32\u67D3",
                 onClick: (e) => {
                   e.stopPropagation();
-                  migrateOneFile(file.path);
+                  void migrateOneFile(file.path);
                 },
                 disabled: busy,
                 children: migratingPath === file.path ? "\u8FC1\u79FB\u4E2D\u2026" : "\u6574\u6587\u4EF6\u8FC1\u79FB"
@@ -35713,27 +35688,23 @@ class Memos extends require$$0.ItemView {
   getViewType() {
     return MEMOS_VIEW_TYPE;
   }
-  onMemosSettingsUpdate() {
-    memoService.clearMemos();
-    memoService.fetchAllMemos();
-  }
   async onFileDeleted(file) {
     if (getDateFromFile_1(file, "day")) {
       await dailyNotesService.getMyAllDailyNotes();
       memoService.clearMemos();
-      memoService.fetchAllMemos();
+      void memoService.fetchAllMemos();
     }
   }
   async onFileModified(file) {
     const date = getDateFromFile_1(file, "day");
     if (date && this.memosComponent) {
-      memoService.fetchMemosFromFile(file);
+      void memoService.fetchMemosFromFile(file);
     }
   }
   onFileCreated(file) {
     if (this.app.workspace.layoutReady && this.memosComponent) {
       if (getDateFromFile_1(file, "day")) {
-        dailyNotesService.getMyAllDailyNotes();
+        void dailyNotesService.getMyAllDailyNotes();
       }
     }
   }
@@ -35756,19 +35727,12 @@ class Memos extends require$$0.ItemView {
     }
   }
   async onOpen() {
-    this.onMemosSettingsUpdate = this.onMemosSettingsUpdate.bind(this);
-    this.onFileCreated = this.onFileCreated.bind(this);
-    this.onFileDeleted = this.onFileDeleted.bind(this);
-    this.onFileModified = this.onFileModified.bind(this);
-    this.registerEvent(
-      this.app.workspace.on("obsidian-memos:settings-updated", this.onMemosSettingsUpdate)
-    );
-    this.registerEvent(this.app.vault.on("create", this.onFileCreated));
-    this.registerEvent(this.app.vault.on("delete", this.onFileDeleted));
-    this.registerEvent(this.app.vault.on("modify", require$$0.debounce(this.onFileModified, 2e3, true)));
+    this.registerEvent(this.app.vault.on("create", (file) => this.onFileCreated(file)));
+    this.registerEvent(this.app.vault.on("delete", (file) => this.onFileDeleted(file)));
+    this.registerEvent(this.app.vault.on("modify", require$$0.debounce((file) => this.onFileModified(file), 2e3, true)));
     this.registerEvent(
       this.app.workspace.on("resize", () => {
-        this.handleResize();
+        void this.handleResize();
       })
     );
     dailyNotesService.getApp(this.app);
@@ -35803,6 +35767,10 @@ function addIcons() {
     require$$0.addIcon(key, icons[key]);
   });
 }
+const TIME_FORMAT_OPTIONS = [
+  { value: "HH:mm", label: "HH:mm" },
+  { value: "HH:mm:ss", label: "HH:mm:ss" }
+];
 const DONATE_AFDIAN_URL = "";
 const DONATE_KOFI_URL = "";
 const DEFAULT_SETTINGS = {
@@ -35839,14 +35807,12 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
     this.plugin = plugin;
   }
   applySettingsUpdate() {
-    clearTimeout(this.applyDebounceTimer);
+    window.clearTimeout(this.applyDebounceTimer);
     const plugin = this.plugin;
     this.applyDebounceTimer = window.setTimeout(() => {
-      plugin.saveSettings();
+      void plugin.saveSettings();
     }, 100);
     memoService.updateTagsState();
-  }
-  async hide() {
   }
   async display() {
     await this.plugin.loadSettings();
@@ -35872,8 +35838,8 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       });
     });
     new require$$0.Setting(containerEl).setName(t$2("Time display format")).setDesc(t$2("Time display format description")).addDropdown(async (d) => {
-      d.addOption("HH:mm", "HH:mm");
-      d.addOption("HH:mm:ss", "HH:mm:ss");
+      for (const opt of TIME_FORMAT_OPTIONS)
+        d.addOption(opt.value, opt.label);
       d.setValue(this.plugin.settings.TimeFormat).onChange(async (value) => {
         this.plugin.settings.TimeFormat = value;
         this.applySettingsUpdate();
@@ -35893,7 +35859,7 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
         async (value) => {
           this.plugin.settings.SendSoundSource = value;
           await this.plugin.saveSettings();
-          this.display();
+          void this.display();
         }
       );
     });
@@ -35984,7 +35950,7 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
       (toggle) => toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
         this.plugin.settings.EnableRecycleBin = value;
         await this.plugin.saveSettings();
-        this.display();
+        void this.display();
       })
     );
     if (this.plugin.settings.EnableRecycleBin) {
@@ -36090,11 +36056,9 @@ class MemosSettingTab extends require$$0.PluginSettingTab {
 }
 class MemosPlugin extends require$$0.Plugin {
   async onload() {
-    console.log("obsidian-memos loading...");
     await this.loadSettings();
     this.registerView(MEMOS_VIEW_TYPE, (leaf) => new Memos(leaf, this));
     this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
-    console.log(t$2("welcome"));
   }
   async loadSettings() {
     var _a2;
@@ -36115,10 +36079,6 @@ class MemosPlugin extends require$$0.Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.settings } });
-  }
-  onunload() {
-    this.app.workspace.detachLeavesOfType(MEMOS_VIEW_TYPE);
-    new require$$0.Notice(t$2("Close Memos Successfully"));
   }
   registerMobileEvent() {
     this.registerEvent(
@@ -36160,15 +36120,14 @@ class MemosPlugin extends require$$0.Plugin {
     this.addSettingTab(new MemosSettingTab(this.app, this));
     this.addCommand({
       id: "open-memos",
-      name: "Open Memos",
-      callback: () => this.openMemos(),
-      hotkeys: []
+      name: "Open memos",
+      callback: () => this.openMemos()
     });
     if (require$$0.Platform.isMobile) {
       this.registerMobileEvent();
     }
     this.addRibbonIcon("Memos", t$2("ribbonIconTitle"), () => {
-      this.openMemos();
+      void this.openMemos();
     });
     const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
     if (!(leaves.length > 0)) {
@@ -36182,7 +36141,7 @@ class MemosPlugin extends require$$0.Plugin {
     if (!this.settings.OpenMemosAutomatically) {
       return;
     }
-    this.openMemos();
+    void this.openMemos();
   }
   async openMemos() {
     var _a2, _b;
@@ -36190,7 +36149,7 @@ class MemosPlugin extends require$$0.Plugin {
     const existing = workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
     if (existing.length > 0) {
       workspace.setActiveLeaf(existing[0]);
-      workspace.revealLeaf(existing[0]);
+      void workspace.revealLeaf(existing[0]);
       if (FocusOnEditor) {
         (_a2 = existing[0].view.containerEl.querySelector(".cm-content")) == null ? void 0 : _a2.focus();
       }
@@ -36198,7 +36157,7 @@ class MemosPlugin extends require$$0.Plugin {
     }
     const leaf = workspace.getLeaf(true);
     await leaf.setViewState({ type: MEMOS_VIEW_TYPE });
-    workspace.revealLeaf(leaf);
+    void workspace.revealLeaf(leaf);
     if (!FocusOnEditor) {
       return;
     }

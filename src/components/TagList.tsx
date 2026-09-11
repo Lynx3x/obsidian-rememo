@@ -18,7 +18,7 @@ interface Tag {
   subTags: Tag[];
 }
 
-interface Props {}
+type Props = object;
 
 const TagList: React.FC<Props> = () => {
   const {
@@ -39,7 +39,7 @@ const TagList: React.FC<Props> = () => {
 
   useEffect(() => {
     const sortedTags = Array.from(tagsText).sort();
-    const root: KVObject<any> = {
+    const root: KVObject<unknown> = {
       subTags: [],
     };
     for (const tag of sortedTags) {
@@ -170,7 +170,7 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
     if (isActive) {
       locationService.setTagQuery('');
     } else {
-      utils.copyTextToClipboard(`#${tag.text} `);
+      void utils.copyTextToClipboard(`#${tag.text} `);
       if (!['/', '/recycle'].includes(locationService.getState().pathname)) {
         locationService.setPathname('/');
       }

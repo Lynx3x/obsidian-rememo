@@ -63,16 +63,16 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
       return;
     }
 
-    changeBackgroundImage();
+    void changeBackgroundImage();
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       if (!memoElRef.current) {
         return;
       }
 
       let shareDialogBackgroundColor;
 
-      if (document.body.className.contains('theme-dark')) {
+      if (document.body.classList.contains('theme-dark')) {
         shareDialogBackgroundColor = '#727171';
       } else {
         shareDialogBackgroundColor = '#eaeaea';
@@ -129,7 +129,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
     let imagePath;
     const lightBackgroundImage = encodeURI(lightBackground);
     const darkBackgroundImage = encodeURI(darkBackground);
-    if (document.body.className.contains('theme-light')) {
+    if (document.body.classList.contains('theme-light')) {
       if (
         (await app.vault.adapter.exists(DefaultLightBackgroundImage)) &&
         /\.(png|svg|jpg|jpeg)/g.test(DefaultLightBackgroundImage)
@@ -139,7 +139,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
       } else {
         imageUrl = lightBackgroundImage;
       }
-    } else if (document.body.className.contains('theme-dark')) {
+    } else if (document.body.classList.contains('theme-dark')) {
       if (
         (await app.vault.adapter.exists(DefaultDarkBackgroundImage)) &&
         /\.(png|svg|jpg|jpeg)/g.test(DefaultDarkBackgroundImage)
@@ -150,22 +150,23 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
         imageUrl = darkBackgroundImage;
       }
     }
-    const memoShareDiv = document.querySelector('.dialog-wrapper .memo-background .property-image') as HTMLElement;
-    memoShareDiv.style.backgroundImage = "url('" + imageUrl + "')";
-    if (document.body.className.contains('theme-dark')) {
-      memoShareDiv.style.backgroundColor = '#1f1f1f';
+    const memoShareDiv = document.querySelector<HTMLElement>('.dialog-wrapper .memo-background .property-image');
+    if (memoShareDiv) {
+      memoShareDiv.setCssStyles({ backgroundImage: `url('${imageUrl}')` });
+      if (document.body.classList.contains('theme-dark')) {
+        memoShareDiv.setCssStyles({ backgroundColor: '#1f1f1f' });
+      }
     }
   };
 
   const handleCopytoClipboardBtnClick = async () => {
     const { vault } = appStore.getState().dailyNotesState.app;
-    const divs = document.querySelector('.memo-shortcut-img') as HTMLElement;
+    const divs = document.querySelector('.memo-shortcut-img');
     const myBase64 = divs.getAttribute('src').split('base64,')[1];
     const blobInput = convertBase64ToBlob(myBase64, 'image/png');
     let aFile: TFile;
-    let newFile;
     if (AutoSaveWhenOnMobile && Platform.isMobile) {
-      blobInput.arrayBuffer().then(async (buffer) => {
+      void blobInput.arrayBuffer().then(async (buffer) => {
         const ext = 'png';
         const dailyNotes = getAllDailyNotes();
         for (const string in dailyNotes) {
@@ -175,7 +176,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
           }
         }
         if (aFile !== undefined) {
-          newFile = await vault.createBinary(
+          await vault.createBinary(
             //@ts-expect-error, private method
             await vault.getAvailablePathForAttachments(`Pasted Image ${moment().format('YYYYMMDDHHmmss')}`, ext, aFile),
             buffer,
@@ -184,7 +185,7 @@ const ShareMemoImageDialog: React.FC<Props> = (props: Props) => {
       });
     }
     const clipboardItemInput = new ClipboardItem({ 'image/png': blobInput });
-    window.navigator['clipboard'].write([clipboardItemInput]);
+    void window.navigator['clipboard'].write([clipboardItemInput]);
     new Notice('Send to clipboard successfully');
   };
 

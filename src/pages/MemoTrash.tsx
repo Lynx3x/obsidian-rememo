@@ -13,7 +13,7 @@ import MenuSvg from '../icons/menu.svg?component';
 import { Notice } from 'obsidian';
 import { t } from '../translations/helper';
 
-interface Props {}
+type Props = object;
 
 const MemoTrash: React.FC<Props> = () => {
   const {
@@ -97,7 +97,7 @@ const MemoTrash: React.FC<Props> = () => {
   useEffect(() => {
     // 已初始化则不再全量重读（切页跳动修复，2026-09-10）；未初始化兜底拉一次
     if (!memoService.isInitialized) {
-      memoService.fetchAllMemos();
+      void memoService.fetchAllMemos();
     }
     memoService
       .fetchDeletedMemos()

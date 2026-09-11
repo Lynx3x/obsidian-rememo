@@ -35,10 +35,8 @@ export async function getMemosFromDailyNote(dailyNote: TFile | null, allMemos: M
     const { vault } = appStore.getState().dailyNotesState.app;
     let fileContents = await vault.read(dailyNote);
     let fileLines = getAllLinesFromFile(fileContents);
-    const baseDate = getDateFromFile(dailyNote as any, 'day');
+    const baseDate = getDateFromFile(dailyNote as unknown, 'day');
     parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate);
-    fileLines = null;
-    fileContents = null;
     return allMemos;
 }
 
@@ -114,7 +112,7 @@ function parseMemosFromNote(
         const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s?)?/, '');
         const { time, rest } = extractMemoTime(stripped);
         let content = rest;
-        let hasId = '';
+        let hasId: string;
         const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content);
         if (idMatch) {
             hasId = idMatch[1];
@@ -202,9 +200,9 @@ export async function getMemos(
         new Notice(t('Please check your daily note plugin OR periodic notes plugin settings'));
         return memos;
     }
-    const dailyNotesFolder = vault.getAbstractFileByPath(normalizePath(folder)) as TFolder;
+    const dailyNotesFolder = vault.getAbstractFileByPath(normalizePath(folder));
 
-    if (!dailyNotesFolder) {
+    if (!(dailyNotesFolder instanceof TFolder)) {
         throw new DailyNotesFolderMissingError('Failed to find daily notes folder');
     }
 
@@ -217,7 +215,7 @@ export async function getMemos(
 
     const BATCH_SIZE = 5;
     for (let i = 0; i < files.length; i++) {
-        await getMemosFromDailyNote(files[i][1] as any, memos);
+        await getMemosFromDailyNote(files[i][1] as unknown, memos);
         if (onBatch && (i + 1) % BATCH_SIZE === 0) {
             await onBatch([...memos]);
         }

@@ -15,13 +15,11 @@ function readLines(file: TFile): Promise<string[]> {
 export async function runAudit(
   onProgress?: (done: number, total: number) => void,
 ): Promise<AuditResult> {
-  const app = appStore.getState().dailyNotesState.app;
-  const vault = app.vault;
   const dailyNotes = getAllDailyNotes();
 
   const files = Object.entries(dailyNotes)
-    .filter(([, f]) => f instanceof TFile && f.extension === 'md')
-    .map(([, f]) => f as TFile)
+    .filter((entry): entry is [string, TFile] => entry[1] instanceof TFile && entry[1].extension === 'md')
+    .map(([, f]) => f)
     .sort((a, b) => b.path.localeCompare(a.path));
 
   const issues: Issue[] = [];
@@ -116,7 +114,7 @@ export async function applyFixes(
       if (lineIdx < 0 || lineIdx >= lines.length) continue;
       if (handledLines.has(lineIdx)) continue;
       handledLines.add(lineIdx);
-      lines[lineIdx] = issue.fixedLine as string;
+      lines[lineIdx] = issue.fixedLine;
       applied++;
       appliedLines.push({ path, line: issue.line, raw: issue.raw });
       changed = true;

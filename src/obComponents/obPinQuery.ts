@@ -3,7 +3,7 @@ import appStore from '../stores/appStore';
 import { QUERY_FILE_NAME } from '../helpers/consts';
 import { getDailyNotePath } from '../helpers/utils';
 
-export const pinQueryInFile = async (queryID: string): Promise<any> => {
+export const pinQueryInFile = async (queryID: string): Promise<unknown> => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
   if (/\d{14,}/.test(queryID)) {
     const filePath = getDailyNotePath();
@@ -38,7 +38,7 @@ export const pinQueryInFile = async (queryID: string): Promise<any> => {
   }
 };
 
-export const unpinQueryInFile = async (queryID: string): Promise<any> => {
+export const unpinQueryInFile = async (queryID: string): Promise<unknown> => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
 
   const filePath = getDailyNotePath();
@@ -65,7 +65,7 @@ export const createDeleteMemoInFile = async (
   fileContent: string,
   memoContent: string,
   pinnedAtDateID: string,
-): Promise<any> => {
+): Promise<unknown> => {
   const { vault } = appStore.getState().dailyNotesState.app;
   let newContent;
   if (fileContent === '') {
@@ -86,11 +86,10 @@ export const createqueryFile = async (path: string): Promise<TFile> => {
     return await vault.create(path, '');
   } catch (err) {
     console.error(`Failed to create file: '${path}'`, err);
-    new Notice('Unable to create new Query file.');
+    new Notice('Unable to create new query file.');
   }
 };
 
 const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/);
-//eslint-disable-next-line
 const extractPinnedAtfromText = (line: string) =>
   /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)?.[6];

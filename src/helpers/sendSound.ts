@@ -1,8 +1,8 @@
-import { Notice } from 'obsidian';
-import * as obsidianApi from 'obsidian';
+import { AbstractInputSuggest, Notice } from 'obsidian';
 import type { App, TFile } from 'obsidian';
 import { t } from '../translations/helper';
 import { dailyNotesService } from '../services';
+import { errorMessage } from './errorMessage';
 import { BUILTIN_SEND_SOUND_URI } from './builtinSendSound';
 import type { MemosSettings } from '../setting';
 
@@ -31,15 +31,15 @@ const isAudioPath = (p: string) => AUDIO_EXT.has(p.split('.').pop()?.toLowerCase
 
 /**
  * 路径输入的库内自动补全（只列音频文件）。
- * AbstractInputSuggest 在 obsidian 0.16.3 的 d.ts 里没有类型（运行时才有），故命名空间取值 +
- * 运行时判空：老版本 Obsidian 直接跳过，输入框降级为纯手填。
+ * AbstractInputSuggest 曾是「运行时才有、d.ts 里没有」的类，故旧代码靠命名空间取值 + any 兜底；
+ * typings 升到 1.13 后已是正式导出，直接 extends。运行时仍判空一次：低版本 Obsidian 没有该类，
+ * 输入框降级为纯手填。
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const AbstractInputSuggest: any = (obsidianApi as unknown as { AbstractInputSuggest?: any }).AbstractInputSuggest;
+const AbstractInputSuggestCtor: typeof AbstractInputSuggest | undefined = AbstractInputSuggest;
 
 export function attachAudioPathSuggest(app: App, inputEl: HTMLInputElement, onPick: (path: string) => void): void {
-    if (!AbstractInputSuggest) return;
-    class AudioPathSuggest extends AbstractInputSuggest {
+    if (!AbstractInputSuggestCtor) return;
+    class AudioPathSuggest extends AbstractInputSuggestCtor<TFile> {
         constructor() {
             super(app, inputEl);
         }
@@ -125,9 +125,9 @@ export async function playSendSound(
         if (audio.readyState > 0) audio.currentTime = 0; // 复用同一元素：从头播
         await audio.play();
         return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
         if (options?.manual || warnedKey !== target.key) {
-            new Notice(t('Failed to play the sound: ') + (error?.message ?? String(error)), 8000);
+            new Notice(t('Failed to play the sound: ') + errorMessage(error), 8000);
             warnedKey = target.key;
         }
         console.error('[rememo] send sound failed:', target.key, error);

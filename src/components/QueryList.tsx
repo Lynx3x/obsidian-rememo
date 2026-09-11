@@ -12,7 +12,7 @@ import MoreWhite from '../icons/more-white.svg?component';
 import { Notice } from 'obsidian';
 import { t } from '../translations/helper';
 
-interface Props {}
+type Props = object;
 
 const QueryList: React.FC<Props> = () => {
   const {
@@ -97,7 +97,7 @@ const QueryItemContainer: React.FC<QueryItemContainerProps> = (props: QueryItemC
     if (showConfirmDeleteBtn) {
       try {
         await queryService.deleteQuery(query.id);
-      } catch (error: any) {
+      } catch (error: unknown) {
         new Notice(error.message);
       }
     } else {
@@ -127,7 +127,7 @@ const QueryItemContainer: React.FC<QueryItemContainerProps> = (props: QueryItemC
           pinnedAt: utils.getDateTimeString(Date.now()),
         });
       }
-    } catch (error) {
+    } catch {
       // do nth
     }
   };

@@ -54,7 +54,7 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
         }
         setLinkMemos([...linkMemos]);
 
-        const linkedMemos = await memoService.getLinkedMemos(memo);
+        const linkedMemos = memoService.getLinkedMemos(memo);
         setLinkedMemos(
           linkedMemos
             .sort((a, b) => utils.getTimeStampByDate(b.createdAt) - utils.getTimeStampByDate(a.createdAt))
@@ -64,12 +64,12 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
               dateStr: utils.getDateString(m.createdAt),
             })),
         );
-      } catch (error) {
+      } catch {
         // do nth
       }
     };
 
-    fetchLinkedMemos();
+    void fetchLinkedMemos();
   }, [memo.id]);
 
   const handleMemoContentClick = useCallback(async (e: React.MouseEvent) => {
@@ -115,8 +115,8 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
   const handleDeleteMemoClick = useCallback(async () => {
     if (!showConfirmDelete) {
       setShowConfirmDelete(true);
-      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
-      deleteTimerRef.current = setTimeout(() => setShowConfirmDelete(false), 2500);
+      if (deleteTimerRef.current) window.clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = window.setTimeout(() => setShowConfirmDelete(false), 2500);
       return;
     }
     try {
@@ -130,10 +130,10 @@ const MemoCardDialog: React.FC<Props> = (props: Props) => {
         globalStateService.setEditMemoId('');
       }
       props.destroy();
-    } catch (error: any) {
+    } catch (error: unknown) {
       new Notice(error?.message ?? error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 依赖只需 memo 与确认态：props 与各服务是稳定引用，列入会让回调每次渲染重建
   }, [memo, showConfirmDelete]);
 
   return (

@@ -1,25 +1,9 @@
-import { moment, Notice, TFile } from 'obsidian';
+import { moment, TFile } from 'obsidian';
 import { createDailyNote, getDailyNoteSettings } from 'obsidian-daily-notes-interface';
-import { t } from '../translations/helper';
 
 namespace utils {
   export function getNowTimeStamp(): number {
     return parseInt(moment().format('x'));
-  }
-
-  export function getOSVersion(): 'Windows' | 'MacOS' | 'Linux' | 'Unknown' {
-    const appVersion = navigator.userAgent;
-    let detectedOS: 'Windows' | 'MacOS' | 'Linux' | 'Unknown' = 'Unknown';
-
-    if (appVersion.indexOf('Win') != -1) {
-      detectedOS = 'Windows';
-    } else if (appVersion.indexOf('Mac') != -1) {
-      detectedOS = 'MacOS';
-    } else if (appVersion.indexOf('Linux') != -1) {
-      detectedOS = 'Linux';
-    }
-
-    return detectedOS;
   }
 
   export function getTimeStampByDate(t: Date | number | string): number {
@@ -105,20 +89,20 @@ namespace utils {
 
     return () => {
       if (timer) {
-        clearTimeout(timer);
-        timer = setTimeout(fn, delay);
+        window.clearTimeout(timer);
+        timer = window.setTimeout(fn, delay);
       } else {
-        timer = setTimeout(fn, delay);
+        timer = window.setTimeout(fn, delay);
       }
     };
   }
 
-  export function debouncePlus(fn: FunctionType, delay: number, immdiate = false, resultCallback?: (result: any) => void) {
+  export function debouncePlus(fn: FunctionType, delay: number, immdiate = false, resultCallback?: (result: unknown) => void) {
     let timer: number | null = null;
     let isInvoke = false;
 
-    function _debounce(this: any, ...arg: any[]) {
-      if (timer) clearTimeout(timer);
+    function _debounce(this: unknown, ...arg: unknown[]) {
+      if (timer) window.clearTimeout(timer);
       if (immdiate && !isInvoke) {
         const result = fn.apply(this, arg);
         if (resultCallback && typeof resultCallback === 'function') resultCallback(result);
@@ -134,7 +118,7 @@ namespace utils {
     }
 
     _debounce.cancel = function () {
-      if (timer) clearTimeout(timer);
+      if (timer) window.clearTimeout(timer);
       timer = null;
       isInvoke = false;
     };
@@ -150,7 +134,7 @@ namespace utils {
         return false;
       }
       valid = false;
-      setTimeout(() => {
+      window.setTimeout(() => {
         fn();
         valid = true;
       }, delay);
@@ -167,7 +151,7 @@ namespace utils {
         if (typeof val === 'object') {
           params.push(...transformObjectToParamsString(val).split('&'));
         } else {
-          params.push(`${key}=${val}`);
+          params.push(`${key}=${String(val)}`);
         }
       }
     }
@@ -251,7 +235,7 @@ namespace utils {
     });
   }
 
-  export async function createDailyNoteCheck(date: any): Promise<TFile> {
+  export async function createDailyNoteCheck(date: unknown): Promise<TFile> {
     // 2026-09-10 起恒走核心 Daily Notes（periodic-notes 分支随设置项 UseDailyOrPeriodic 删除）
     return await createDailyNote(date);
   }

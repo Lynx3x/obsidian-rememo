@@ -16,17 +16,12 @@ export const QUERY_FILE_NAME = 'query';
 // 格式化时间
 
 // 标签 正则
-//eslint-disable-next-line
-export const TAG_REG = /\s#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
-//eslint-disable-next-line
-export const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
-//eslint-disable-next-line
-export const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/gu;
-//eslint-disable-next-line
-export const ALL_TAG_REG = /([\p{Letter}\p{Emoji_Presentation}\p{Number}\/_-]+)/u;
+export const TAG_REG = /\s#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+export const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+export const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+export const ALL_TAG_REG = /([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/u;
 
 // URL 正则
-//eslint-disable-next-line
 export const LINK_REG =
   /(\s|：|>|^)((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/g;
 
@@ -34,7 +29,6 @@ export const LINK_REG =
 // export const LINK_REG = /(https?:\/\/[^\s<\\*>']+)/g;
 
 // MARKDOWN URL 正则
-//eslint-disable-next-line
 export const MD_LINK_REG = /\[([\s\S]*?)\]\(([\s\S]*?)\)/gu;
 
 // 图片 正则
@@ -48,8 +42,7 @@ export const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\
 
 // 检测是否为外部图片
 // 扩展名后允许查询串/锚点（?size=1024&x=1），避免 URL 被截断
-//eslint-disable-next-line
-export const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^\/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
+export const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
 
 // Wiki 图片正则
 // Group 1 为图片

@@ -3,14 +3,14 @@ export interface DataviewListItem {
     header: {
         subpath: string;
     };
-    children: any[];
+    children: unknown[];
     text: string;
     task?: boolean;
     status?: string;
     line: number;
     blockId?: string;
     path: string;
-    parent?: any;
+    parent?: unknown;
 }
 
 export interface BaseMemo {
@@ -42,6 +42,6 @@ export interface UpdateMemoParams {
 
 declare global {
     namespace Model {
-        interface Memo extends BaseMemo { }
+        type Memo = BaseMemo;
     }
 }

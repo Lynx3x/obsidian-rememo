@@ -3,7 +3,7 @@ import appStore from '../stores/appStore';
 import { QUERY_FILE_NAME } from '../helpers/consts';
 import { getDailyNotePath } from '../helpers/utils';
 
-export const findQuery = async (): Promise<any[]> => {
+export const findQuery = async (): Promise<unknown[]> => {
   const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
 
   const queryList = [];
@@ -66,14 +66,9 @@ export const findQuery = async (): Promise<any[]> => {
 };
 
 const getAllLinesFromFile = (cache: string) => cache.split(/\r?\n/);
-//eslint-disable-next-line
 const getCreatedDateFromLine = (line: string) => /^(\d{14})/.exec(line)?.[1];
-//eslint-disable-next-line
 const getIDFromLine = (line: string) => /^(\d{14})(\d{1,})\s/.exec(line)?.[2];
-//eslint-disable-next-line
 const getStringFromLine = (line: string) => /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)?.[4];
-//eslint-disable-next-line
 const getTitleFromLine = (line: string) => /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)?.[3];
-//eslint-disable-next-line
 const getPinnedDateFromLine = (line: string) =>
   /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)?.[7];

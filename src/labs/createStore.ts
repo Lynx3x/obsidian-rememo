@@ -1,7 +1,7 @@
-export type State = Readonly<Record<string, any>>;
+export type State = Readonly<Record<string, unknown>>;
 export type Action = {
   type: string;
-  payload: any;
+  payload: unknown;
 };
 
 export type Reducer<S extends State, A extends Action> = (s: S, a: A) => S;

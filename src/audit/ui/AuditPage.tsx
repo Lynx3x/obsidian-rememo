@@ -47,7 +47,7 @@ const AuditPage: React.FC = () => {
     try {
       const res = await runAudit((done, total) => setProgress({ done, total }));
       setResult(res);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMsg(`扫描失败：${e?.message ?? e}`);
     } finally {
       setBusy(false);
@@ -56,7 +56,7 @@ const AuditPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    scan();
+    void scan();
   }, [scan]);
 
   const pushFlash = (lines: FixedFlash[]) => {
@@ -156,7 +156,7 @@ const AuditPage: React.FC = () => {
       await scan({ silent: true });
       // 迁移改变了整文件行结构，vault 2s debounce 会吞事件 → 显式全量回读
       await memoService.fetchAllMemos();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMsg(`迁移失败：${e?.message ?? e}`);
     } finally {
       setBusy(false);
@@ -193,7 +193,7 @@ const AuditPage: React.FC = () => {
       );
       await scan({ silent: true });
       await memoService.fetchAllMemos();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMsg(`迁移失败：${e?.message ?? e}`);
     } finally {
       setBusy(false);
@@ -345,7 +345,7 @@ const AuditPage: React.FC = () => {
                         title="把本文件的旧格式行整体迁移为新卡片块（自动备份），迁移后旧数据恢复渲染"
                         onClick={(e) => {
                           e.stopPropagation();
-                          migrateOneFile(file.path);
+                          void migrateOneFile(file.path);
                         }}
                         disabled={busy}
                       >

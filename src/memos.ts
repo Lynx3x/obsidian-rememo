@@ -32,16 +32,11 @@ export class Memos extends ItemView {
     return MEMOS_VIEW_TYPE;
   }
 
-  private onMemosSettingsUpdate(): void {
-    memoService.clearMemos();
-    memoService.fetchAllMemos();
-  }
-
   private async onFileDeleted(file: TFile): Promise<void> {
     if (getDateFromFile(file, 'day')) {
       await dailyNotesService.getMyAllDailyNotes();
       memoService.clearMemos();
-      memoService.fetchAllMemos();
+      void memoService.fetchAllMemos();
     }
   }
 
@@ -49,14 +44,14 @@ export class Memos extends ItemView {
     const date = getDateFromFile(file, 'day');
     if (date && this.memosComponent) {
       // 增量：只重读变化的文件，避免全量重读所有日记
-      memoService.fetchMemosFromFile(file);
+      void memoService.fetchMemosFromFile(file);
     }
   }
 
   private onFileCreated(file: TFile): void {
     if (this.app.workspace.layoutReady && this.memosComponent) {
       if (getDateFromFile(file, 'day')) {
-        dailyNotesService.getMyAllDailyNotes();
+        void dailyNotesService.getMyAllDailyNotes();
         // memoService.clearMemos();
         // memoService.fetchAllMemos();
       }
@@ -87,22 +82,12 @@ export class Memos extends ItemView {
   }
 
   async onOpen(): Promise<void> {
-    this.onMemosSettingsUpdate = this.onMemosSettingsUpdate.bind(this);
-    this.onFileCreated = this.onFileCreated.bind(this);
-    this.onFileDeleted = this.onFileDeleted.bind(this);
-    this.onFileModified = this.onFileModified.bind(this);
-
-    this.registerEvent(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (<any>this.app.workspace).on('obsidian-memos:settings-updated', this.onMemosSettingsUpdate),
-    );
-
-    this.registerEvent(this.app.vault.on('create', this.onFileCreated));
-    this.registerEvent(this.app.vault.on('delete', this.onFileDeleted));
-    this.registerEvent(this.app.vault.on('modify', debounce(this.onFileModified, 2000, true)));
+    this.registerEvent(this.app.vault.on('create', (file) => this.onFileCreated(file)));
+    this.registerEvent(this.app.vault.on('delete', (file) => this.onFileDeleted(file)));
+    this.registerEvent(this.app.vault.on('modify', debounce((file) => this.onFileModified(file), 2000, true)));
     this.registerEvent(
       this.app.workspace.on('resize', () => {
-        this.handleResize();
+        void this.handleResize();
       }),
     );
 
@@ -132,8 +117,7 @@ export class Memos extends ItemView {
 
     this.memosComponent = React.createElement(App);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ReactDOM.render(this.memosComponent, (this as any).contentEl);
+    ReactDOM.render(this.memosComponent, this.contentEl);
   }
 
   async onClose() {

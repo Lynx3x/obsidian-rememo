@@ -1,6 +1,7 @@
 import { t } from '../translations/helper';
 import { IMAGE_URL_REG, LINK_REG, MEMO_LINK_REG, NOP_FIRST_TAG_REG, TAG_REG } from './consts';
 import { moment, Notice } from 'obsidian';
+import appStore from '../stores/appStore';
 
 export const relationConsts = [
   { text: 'AND', value: 'AND' },
@@ -186,10 +187,11 @@ export const checkShouldShowMemo = (memo: Model.Memo, filter: Filter) => {
     }
     shouldShow = contained;
   } else if (type === 'DATE') {
-    if (!(app as any).plugins.enabledPlugins.has('nldates-obsidian')) {
+    const app = appStore.getState().dailyNotesState.app;
+    if (!app.plugins.enabledPlugins.has('nldates-obsidian')) {
       new Notice(t('OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED'));
     } else {
-      const nldatesPlugin = (app as any).plugins.getPlugin('nldates-obsidian');
+      const nldatesPlugin = app.plugins.getPlugin('nldates-obsidian');
       const parsedResult = nldatesPlugin.parseDate(value);
       let contained;
       if (parsedResult.date !== null) {

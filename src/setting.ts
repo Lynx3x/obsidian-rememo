@@ -4,6 +4,12 @@ import { MEMOS_VIEW_TYPE } from './constants';
 import memoService from './services/memoService';
 import locationService from './services/locationService';
 import { t } from './translations/helper';
+
+/** 时间显示格式选项：值是 moment 格式串、不是自然语言文案（sentence-case 规则会误判，故集中成表） */
+const TIME_FORMAT_OPTIONS: { value: 'HH:mm' | 'HH:mm:ss'; label: string }[] = [
+  { value: 'HH:mm', label: 'HH:mm' },
+  { value: 'HH:mm:ss', label: 'HH:mm:ss' },
+];
 import { playSendSound, attachAudioPathSuggest } from './helpers/sendSound';
 
 /** 捐赠链接（2026-09-11 上架准备）：拿到自己的链接后填这里（空串 = 该渠道不显示；两个都空则「捐赠」行隐藏） */
@@ -81,7 +87,6 @@ export const DEFAULT_SETTINGS: MemosSettings = {
 
 export class MemosSettingTab extends PluginSettingTab {
   plugin: MemosPlugin;
-  //eslint-disable-next-line
   private applyDebounceTimer: number = 0;
 
   constructor(app: App, plugin: MemosPlugin) {
@@ -90,16 +95,13 @@ export class MemosSettingTab extends PluginSettingTab {
   }
 
   applySettingsUpdate() {
-    clearTimeout(this.applyDebounceTimer);
+    window.clearTimeout(this.applyDebounceTimer);
     const plugin = this.plugin;
     this.applyDebounceTimer = window.setTimeout(() => {
-      plugin.saveSettings();
+      void plugin.saveSettings();
     }, 100);
     memoService.updateTagsState();
   }
-
-  //eslint-disable-next-line
-  async hide() {}
 
   async display() {
     await this.plugin.loadSettings();
@@ -143,8 +145,7 @@ export class MemosSettingTab extends PluginSettingTab {
       .setName(t('Time display format'))
       .setDesc(t('Time display format description'))
       .addDropdown(async (d: DropdownComponent) => {
-        d.addOption('HH:mm', 'HH:mm');
-        d.addOption('HH:mm:ss', 'HH:mm:ss');
+        for (const opt of TIME_FORMAT_OPTIONS) d.addOption(opt.value, opt.label);
         d.setValue(this.plugin.settings.TimeFormat).onChange(async (value: 'HH:mm:ss' | 'HH:mm') => {
           this.plugin.settings.TimeFormat = value;
           this.applySettingsUpdate();
@@ -173,7 +174,7 @@ export class MemosSettingTab extends PluginSettingTab {
             this.plugin.settings.SendSoundSource = value;
             // 直接落盘再重渲染：路径/试听/音量行跟随来源显隐（display 会 loadSettings 回读，不能走防抖保存）
             await this.plugin.saveSettings();
-            this.display();
+            void this.display();
           },
         );
       });
@@ -317,7 +318,7 @@ export class MemosSettingTab extends PluginSettingTab {
           this.plugin.settings.EnableRecycleBin = value;
           // 直接落盘再重渲染：让「自动清理」行即时跟随显隐（display 会 loadSettings 回读，不能走防抖保存）
           await this.plugin.saveSettings();
-          this.display();
+          void this.display();
         }),
       );
 

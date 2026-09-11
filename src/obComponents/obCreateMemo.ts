@@ -1,5 +1,4 @@
 import { moment } from 'obsidian';
-import type { TFile } from 'obsidian';
 import { getAllDailyNotes, getDailyNote } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
 import { MemoHeading } from '../memos';
@@ -14,7 +13,7 @@ import { contentToBodyLines } from './locateMemo';
  * 真实换行直落文件——旧的 "\n→<br> 单行编码" 管道已退役。memo.content 存与文件一致的
  * 真实换行文本（发送首帧 = 之后 vault 重读，防文字二次变化抖动）。
  */
-export async function waitForInsert(MemoContent: string, isTASK: boolean, insertDate?: any): Promise<Model.Memo> {
+export async function waitForInsert(MemoContent: string, isTASK: boolean, insertDate?: unknown): Promise<Model.Memo> {
     const date = insertDate ? insertDate : moment();
     const timeText = date.format('HH:mm:ss');
     // 创建时生成持久 ^id，写入文件，避免新建与重读产生重复
@@ -41,22 +40,21 @@ export async function waitForInsert(MemoContent: string, isTASK: boolean, insert
 }
 
 async function writeBlockToDailyNote(date: moment.Moment, blockText: string, memo: Model.Memo) {
-    const { vault } =
-        appStore.getState().dailyNotesState.app === undefined ? app : appStore.getState().dailyNotesState.app;
+    const { vault } = appStore.getState().dailyNotesState.app;
     let headerIdx: number;
-    const dailyNotes = await getAllDailyNotes();
+    const dailyNotes = getAllDailyNotes();
     const existingFile = getDailyNote(date, dailyNotes);
     if (!existingFile) {
         const file = await utils.createDailyNoteCheck(date);
-        const fileContents = (await vault.read(file as unknown as TFile)) || '';
+        const fileContents = (await vault.read(file)) || '';
         const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
-        await vault.modify(file as unknown as TFile, inserted.content);
+        await vault.modify(file, inserted.content);
         headerIdx = inserted.headerIdx;
         memo.path = file.path;
     } else {
-        const fileContents = (await vault.read(existingFile as unknown as TFile)) || '';
+        const fileContents = (await vault.read(existingFile)) || '';
         const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
-        await vault.modify(existingFile as unknown as TFile, inserted.content);
+        await vault.modify(existingFile, inserted.content);
         headerIdx = inserted.headerIdx;
         memo.path = existingFile.path;
     }

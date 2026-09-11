@@ -13,7 +13,7 @@ import { Notice, Platform } from 'obsidian';
 import { t } from '../translations/helper';
 import Pagination from './Pagination';
 
-interface Props {}
+type Props = object;
 
 const ITEMS_PER_PAGE = 10; // 每页显示10条记录
 
@@ -152,7 +152,7 @@ const MemoList: React.FC<Props> = () => {
 
   useEffect(() => {
     setCurrentPage(1); // 重置页码——仅当"可见列表"变化时（隐藏的引用卡新增不打断当前浏览位置）
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [query, shownMemos.length]);
 
   useEffect(() => {
@@ -161,7 +161,7 @@ const MemoList: React.FC<Props> = () => {
     if (memoService.isInitialized) {
       setFetchStatus(false);
     } else {
-      setTimeout(() => {
+      window.setTimeout(() => {
         // 视图重开（store 已有数据）用静默重读：读完全量一次性替换，避免分批中间态让统计行/热力图滚动跳动；
         // 首开（空 store）保持渐进加载（最新 memo 优先显示）
         const silent = memoService.getState().memos.length > 0;
@@ -181,7 +181,7 @@ const MemoList: React.FC<Props> = () => {
         setFetchStatus(false);
       })
       .catch(() => {
-        new Notice('😭 Fetch DailyNotes Error');
+        new Notice('😭 Failed to fetch daily notes');
       });
     dailyNotesService.getState();
     memoService.getState();
@@ -269,7 +269,7 @@ const MemoList: React.FC<Props> = () => {
         //    让「这条是刚写的」有一瞬颜色可认，之后零痕迹。WAAPI 驱动真实元素再移除
         //    （伪元素无法用 WAAPI）；reduced-motion 与上同 gate，不注入。
         if (!reduceMotion) {
-          const flash = document.createElement('span');
+          const flash = createSpan();
           flash.className = 'memo-new-flash';
           flash.setAttribute('aria-hidden', 'true');
           first.appendChild(flash);
@@ -343,9 +343,9 @@ const MemoList: React.FC<Props> = () => {
       const sourcePath = targetEl.getAttribute('data-filepath') || '';
       if (sourcePath) {  // 只有在路径存在时才打开链接
         if (Platform.isMobile) {
-          workspace.openLinkText(sourcePath, sourcePath, false);
+          void workspace.openLinkText(sourcePath, sourcePath, false);
         } else {
-          workspace.openLinkText(sourcePath, sourcePath, true);
+          void workspace.openLinkText(sourcePath, sourcePath, true);
         }
       }
     }
