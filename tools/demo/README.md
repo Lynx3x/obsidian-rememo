@@ -7,7 +7,8 @@ copied into any vault's daily-notes folder and read as-is.
 ```
 tools/demo/
 ├── apply.ps1      # copies a set into a vault's daily folder (backs up first)
-└── en/            # English set (dates 2022-10 → 2026-09)
+├── en/            # English set (dates 2022-10 → 2026-09)  -> <vault>/daily/
+└── vault/         # root-level notes the demo wikilinks point at -> <vault>/
 ```
 
 ## What the set is built for

@@ -2,8 +2,9 @@
 
 Run after shoot.ps1:  python tools/screenshots/crop.py [--raw DIR] [--out DIR]
 
-Raw captures are full-window (1300x980, window-relative coordinates). Boxes below are
-(x1, y1, x2, y2) in that space -- re-measure them if the window size or layout changes.
+SPECS boxes are (x1, y1, x2, y2) in the *normal* window (1300x980); SPECS_1400 boxes are for
+the one shot taken in a temporarily taller window (1300x1400 — see the 06 step in shoot.ps1).
+Both are window-relative, so re-measure if the window size or the layout changes.
 """
 import argparse
 import os
@@ -20,6 +21,13 @@ SPECS = [
     ('05-references',  (390, 140, 905, 483)),   # dialog: card + its 2 references (3:2)
 ]
 
+# The tail of the feed (quote → finished task → tags → wikilinks → list → pagination) does
+# not fit the normal viewport, so that one shot is taken in a 1300x1400 window and cropped
+# here — the list column only (the sidebar would show a tall empty area below its content).
+SPECS_1400 = [
+    ('06-feed', (470, 372, 1105, 1325)),   # keep the card's right edge and the list scrollbar in frame
+]
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -28,15 +36,16 @@ def main():
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
 
-    for name, box in SPECS:
-        src = os.path.join(args.raw, f'{name}-raw.png')
-        if not os.path.exists(src):
-            print(f'skip {name}: no {src}')
-            continue
-        img = Image.open(src).crop(box)
-        dst = os.path.join(args.out, f'{name}.png')
-        img.save(dst, 'PNG', optimize=True)
-        print(f'{name}.png  {img.width}x{img.height}  {os.path.getsize(dst) // 1024} KiB')
+    for specs in (SPECS, SPECS_1400):
+        for name, box in specs:
+            src = os.path.join(args.raw, f'{name}-raw.png')
+            if not os.path.exists(src):
+                print(f'skip {name}: no {src}')
+                continue
+            img = Image.open(src).crop(box)
+            dst = os.path.join(args.out, f'{name}.png')
+            img.save(dst, 'PNG', optimize=True)
+            print(f'{name}.png  {img.width}x{img.height}  {os.path.getsize(dst) // 1024} KiB')
 
 
 if __name__ == '__main__':

@@ -121,7 +121,8 @@
 
 **待 owner**：注册 **爱发电 + Ko-fi**（**2026-09-11 owner 定：搁置，链接后补**）→ 之后填 `fundingUrl` + 两个常量。
 
-**截图批次（2026-09-11 英文版完成，owner 定：主图为主 + 特性图拼排，设置页不做）**：README 顶部用**成品拼图** `00-overview.png`（HTML/CSS 排版 → 无头 Edge 2 倍渲染；源文件 `tools/screenshots/overview.html`），下方保留四张单图——`02-editor` 任务模式 / `03-tags` 标签筛选 / `04-recycle` 回收站 / `05-references` 引用浮窗；`01-main` 主界面单图存仓库备用。
+**截图批次（2026-09-11 英文版完成，owner 定：主图为主 + 特性图拼排，设置页不做）**：README 顶部用**成品拼图** `00-overview.png`（HTML/CSS 排版 → 无头 Edge 2 倍渲染；源文件 `tools/screenshots/overview.html`），下方保留五张单图——`02-editor` 任务模式 / `03-tags` 标签筛选 / `04-recycle` 回收站 / `05-references` 引用浮窗 / `06-rich-text` 富文本（引用条+引用块+加粗/斜体/行内码/双链，滚动后截，owner 2026-09-11 补要求）；`01-main` 主界面单图存仓库备用。
+- **2026-09-11 字号修复（owner 报"卡片英文比笔记小一号"）**：卡片正文/输入框/回收站/漫游浮窗/分享图的 memo 正文原来全部**写死 15px + 行高 24px**（网页版 Obsidian-Memos 血统），而 Obsidian 正文 = `var(--font-text-size)`（默认 16px，可调）——已全部改为 `var(--font-text-size, 16px)` + `var(--line-height-normal, 1.5)`（移动端 1.6）。实测同一句墨高 15→16 行像素。**改样式前先问"这字号该跟 Obsidian 还是写死"**。
 - **示例内容**：`tools/demo/en/`（英文演示集，47 个日记文件 = 首屏 10 张功能卡 + 6–9 月给热力图形状的补白 + 两篇 2022/2024 旧笔记撑 DAY 数字）；`tools/demo/apply.ps1` 一键铺库（先备份 `daily/*.md` → `bak/demo-swap-<ts>/`）。
 - **流程与脚本**：`docs/SCREENSHOTS.md`（环境 → shoot.ps1 → crop.py → render-overview.ps1 → 核对清单）+ `tools/screenshots/`（`_win.ps1` 按进程+标题枚举窗口；`resize/click/scroll/shot.ps1` 单动作；`shoot.ps1` 步骤表与坐标；`overview.html` 拼图版式，改版式改 CSS）。
 - **环境实测**：UI 语言英文（`.obsidian/app.json` 写 `"locale":"en"` 生效）；浅色主题、默认 accent；窗口 **1300×980@(200,50)**；界面字体 **思源黑体 CN**（owner 2026-09-11 换）。

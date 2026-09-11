@@ -15,6 +15,9 @@ Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com
 | <img src="assets/screenshots/02-editor.png" alt="任务模式下的输入框"><br><sub>**任务模式** —— 发送键旁的双段滑块，把这条闪念写成任务卡</sub> | <img src="assets/screenshots/03-tags.png" alt="按标签筛选后的列表"><br><sub>**标签筛选** —— 点任意标签即可筛选列表</sub> |
 | <img src="assets/screenshots/04-recycle.png" alt="回收站"><br><sub>**回收站** —— 删除的卡仍留在日记里，可随时恢复</sub> | <img src="assets/screenshots/05-references.png" alt="卡片与其引用"><br><sub>**引用** —— 回复即引用卡，聚合在被回复的卡下</sub> |
 
+<img src="assets/screenshots/06-rich-text.png" width="745" alt="首屏之外的卡片：引用块、行内格式、已完成任务、标签、双链与列表">
+<sub>**首屏之外** —— 引用块、行内格式（`**加粗**`、`*斜体*`、行内代码）、双链、标签胶囊、已完成任务与列表，全部由你自己的 Markdown 原样渲染。</sub>
+
 ## 特性
 
 - **原生编辑体验的输入框**：基于 Obsidian 内核编辑器——打字/换行/中文输入、撤销、`==高亮==` 实时渲染、`#tag` 与 `[[链接]]` 联想；Enter 或 Ctrl/Cmd+Enter 发送

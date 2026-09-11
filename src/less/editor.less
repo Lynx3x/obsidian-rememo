@@ -25,8 +25,9 @@ div[data-type='memos_view'] .common-editor-wrapper {
       left: 4px;
       max-width: calc(100% - 8px);
       color: var(--memo-text-faint);
-      font-size: 15px;
-      line-height: 24px;
+      // 跟随 Obsidian 正文字号（与 .cm-editor 同源，占位与首行对齐）
+      font-size: var(--font-text-size, 16px);
+      line-height: var(--line-height-normal, 1.5);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -35,7 +36,8 @@ div[data-type='memos_view'] .common-editor-wrapper {
 
     > .cm-editor {
       width: 100%;
-      font-size: 15px;
+      // 输入正文 = Obsidian 正文字号（旧 15px 比笔记小一号，2026-09-11 owner 报）
+      font-size: var(--font-text-size, 16px);
       color: var(--memo-text);
       background-color: transparent;
       // Obsidian 会给 textarea/输入元素盖白底与渐变——cm 层显式清掉

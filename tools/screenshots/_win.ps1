@@ -49,21 +49,21 @@ function Get-ObsidianWindows {
   return $list
 }
 
-# Picks the target window: title match first, else the biggest titled window of the
-# same process (so a popout never wins over the main window).
+# Picks the target window by title. A minimised window is 160x28 at (-32000,-32000),
+# so restore every title match first and then take the biggest one (a popped-out note
+# shares the vault name in its title but is smaller than the main window).
 function Get-TargetWindow([string]$Match = '*ObsidianDevVault*') {
-  $wins = @(Get-ObsidianWindows | Where-Object { $_.Width -gt 400 -and $_.Height -gt 300 })
-  $hit = $wins | Where-Object { $_.Title -like $Match } | Select-Object -First 1
-  if (-not $hit) {
-    $titled = $wins | Where-Object { $_.Title -ne '' }
-    if ($titled) {
-      $hit = $titled | Sort-Object { $_.Width * $_.Height } -Descending | Select-Object -First 1
-    }
-  }
-  if (-not $hit) {
-    $all = ($wins | ForEach-Object { "[$($_.Title)] $($_.Left),$($_.Top) $($_.Width)x$($_.Height)" }) -join ' | '
+  $cands = @(Get-ObsidianWindows | Where-Object { $_.Title -like $Match })
+  if (-not $cands) {
+    $all = (Get-ObsidianWindows | ForEach-Object { "[$($_.Title)] $($_.Width)x$($_.Height)" }) -join ' | '
     Write-Error "target window not found (match=$Match); candidates: $all"
     exit 1
   }
-  return $hit
+  foreach ($c in $cands) {
+    if ($c.Left -le -10000) { [WinEnum]::ShowWindow($c.Hwnd, 9) | Out-Null }
+  }
+  Start-Sleep -Milliseconds 400
+  $again = @(Get-ObsidianWindows | Where-Object { $_.Title -like $Match })
+  $pool = if ($again) { $again } else { $cands }
+  return $pool | Sort-Object { $_.Width * $_.Height } -Descending | Select-Object -First 1
 }

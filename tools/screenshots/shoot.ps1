@@ -79,4 +79,14 @@ if (Want '05-references') {
   Start-Sleep -Milliseconds 600
 }
 
+if (Want '06-rich-text') {
+  # The tail of the feed is taller than the normal viewport, so the window is grown for
+  # this one shot (screen is 1440 tall) instead of stitching two captures.
+  Run-Script 'resize.ps1' @{ Width = $WinW; Height = 1400; PosX = $WinX; PosY = 20 }
+  Scroll -40 $C.listArea[0] 900                    # all the way down to the page footer
+  Start-Sleep -Milliseconds 800
+  Shot '06-feed-raw'
+  Run-Script 'resize.ps1' @{ Width = $WinW; Height = $WinH; PosX = $WinX; PosY = $WinY }
+}
+
 Write-Output "done -> $OutDir"

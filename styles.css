@@ -751,8 +751,7 @@ div[data-type='memos_view'] svg.action-btn,
   width: 100%;
   font-size: 16px;
   line-height: 1.6;
-  word-wrap: break-word;
-  word-break: break-all;
+  overflow-wrap: break-word;
   padding-top: 4px;
 }
 .dialog-wrapper.memo-card-dialog > .dialog-container > .memo-card-container > .memo-container > .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
@@ -1102,8 +1101,8 @@ div[data-type='memos_view'] .image-container > img {
   padding-bottom: 12px;
   padding-left: 8%;
   width: 100%;
-  word-wrap: break-word;
-  font-size: 15px;
+  overflow-wrap: break-word;
+  font-size: var(--font-text-size, 16px);
   background-color: var(--memo-bg);
 }
 .dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote {
@@ -1533,8 +1532,7 @@ div[data-type='memos_view'] svg.action-btn,
   font-size: 14px;
   line-height: 1.6;
   color: var(--text-normal);
-  word-wrap: break-word;
-  word-break: break-word;
+  overflow-wrap: break-word;
   /* 不加 pre-wrap：段落换行交给渲染出的块结构（与浮窗正文一致），避免文本内残留换行被双倍显示 */
 }
 .dialog-wrapper .ref-comment-item > .ref-comment-content > p:not(.memo-md-line) + p:not(.memo-md-line) {
@@ -1547,8 +1545,7 @@ div[data-type='memos_view'] svg.action-btn,
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  word-wrap: break-word;
-  word-break: break-word;
+  overflow-wrap: break-word;
   white-space: pre-wrap;
   color: var(--text-normal);
 }
@@ -1565,9 +1562,9 @@ div[data-type='memos_view'] svg.action-btn,
   height: auto;
   margin-bottom: 4px;
   margin-top: -2px;
-  font-size: 15px;
-  line-height: 24px;
-  min-height: 24px;
+  font-size: var(--font-text-size, 16px);
+  line-height: var(--line-height-normal, 1.5);
+  min-height: 1.5em;
   white-space: pre-wrap;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > p > a,
@@ -1581,9 +1578,9 @@ div[data-type='memos_view'] svg.action-btn,
   display: block;
   width: 100%;
   margin: 0 0 2px;
-  font-size: 15px;
-  line-height: 24px;
-  min-height: 24px;
+  font-size: var(--font-text-size, 16px);
+  line-height: var(--line-height-normal, 1.5);
+  min-height: 1.5em;
   white-space: pre-wrap;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line),
@@ -1652,7 +1649,7 @@ div[data-type='memos_view'] svg.action-btn,
   margin: 4px 0;
   padding: 8px 12px;
   border-radius: var(--radius-s, 4px);
-  font-size: 15px;
+  font-size: var(--font-text-size, 16px);
   line-height: 1.5;
   background-color: var(--background-modifier-hover);
   white-space: pre-wrap;
@@ -1670,8 +1667,8 @@ div[data-type='memos_view'] svg.action-btn,
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote > p,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote > p {
   margin: 0;
-  font-size: 15px;
-  line-height: 24px;
+  font-size: var(--font-text-size, 16px);
+  line-height: var(--line-height-normal, 1.5);
   white-space: pre-wrap;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote p + p,
@@ -1692,13 +1689,13 @@ div[data-type='memos_view'] svg.action-btn,
   width: 400px;
 }
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text > p {
-  font-size: 15px;
-  line-height: 26px;
-  min-height: 26px;
+  font-size: var(--font-text-size, 16px);
+  line-height: 1.6;
+  min-height: 1.6em;
   white-space: pre-wrap;
 }
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text > blockquote > p {
-  line-height: 26px;
+  line-height: 1.6;
 }
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text .tag-span {
   line-height: 26px;
@@ -2934,11 +2931,10 @@ div[data-type='memos_view'] svg.action-btn,
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text {
   width: 100%;
-  font-size: 15px;
+  font-size: var(--font-text-size, 16px);
   line-height: 1.6;
   color: var(--memo-text);
-  word-wrap: break-word;
-  word-break: break-all;
+  overflow-wrap: break-word;
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text > p:not(.memo-md-line) + p:not(.memo-md-line) {
   margin-top: 8px;
@@ -4637,8 +4633,8 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host.is-empty::before {
   left: 4px;
   max-width: calc(100% - 8px);
   color: var(--memo-text-faint);
-  font-size: 15px;
-  line-height: 24px;
+  font-size: var(--font-text-size, 16px);
+  line-height: var(--line-height-normal, 1.5);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4646,7 +4642,7 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host.is-empty::before {
 }
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host > .cm-editor {
   width: 100%;
-  font-size: 15px;
+  font-size: var(--font-text-size, 16px);
   color: var(--memo-text);
   background-color: transparent;
   background-image: none;
@@ -7238,10 +7234,9 @@ div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container::-web
   display: none;
 }
 div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text {
-  font-size: 15px;
-  line-height: 24px;
-  word-wrap: break-word;
-  word-break: break-word;
+  font-size: var(--font-text-size, 16px);
+  line-height: var(--line-height-normal, 1.5);
+  overflow-wrap: break-word;
   white-space: pre-wrap;
 }
 div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text > p {

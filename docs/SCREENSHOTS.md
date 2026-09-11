@@ -14,6 +14,8 @@ the only manual part is looking at the result.
 | `assets/screenshots/03-tags.png` | `FILTER: 🏷 reading` chip + the filtered feed |
 | `assets/screenshots/04-recycle.png` | recycle-bin header + soft-deleted cards |
 | `assets/screenshots/05-references.png` | memo dialog: a card and its `2 REFERENCES` |
+| `assets/screenshots/06-feed.png` | the raw crop of the feed below the hero: quote, inline formatting, finished task, tags, wikilinks, list, pagination |
+| `assets/screenshots/06-rich-text.png` | that crop framed like the overview (gradient + rounded card + label pill) — what the README shows |
 
 ## 1. Prerequisites
 
@@ -31,7 +33,7 @@ the only manual part is looking at the result.
 ## 2. Shoot
 
 ```powershell
-powershell -File tools/screenshots/shoot.ps1                  # all five -> %TEMP%\rememo-shots\*-raw.png
+powershell -File tools/screenshots/shoot.ps1                  # all six -> %TEMP%\rememo-shots\*-raw.png
 powershell -File tools/screenshots/shoot.ps1 -Only 03-tags    # one step, for iterating
 ```
 
@@ -65,10 +67,22 @@ Boxes live in `SPECS` (window-relative `x1, y1, x2, y2` at 1300×980) — re-mea
 size changes. `01-main` keeps the Obsidian tab bar but drops the OS title bar and the empty band
 to the right of the centred view.
 
+`06` covers the whole tail of the feed, which does not fit the 1300×980 viewport: its step in
+`shoot.ps1` grows the window to **1300×1400** (the screen is 1440 tall), scrolls to the page
+footer, shoots, and restores the window. Its crop box therefore lives in `SPECS_1400`, and it
+takes the list column only (the sidebar is mostly empty at that height, and the box stops before
+the list scrollbar). The crop lands in `06-feed.png`; `feed.html` then frames it into
+`06-rich-text.png`, the one the READMEs embed:
+
 ## 3b. Compose the overview
 
 ```powershell
 powershell -File tools/screenshots/render-overview.ps1   # overview.html -> assets/screenshots/00-overview.png
+```
+
+```powershell
+powershell -File tools/screenshots/render-overview.ps1 -Html tools/screenshots/feed.html `
+  -Out assets/screenshots/06-rich-text.png -Width 700 -Height 1010
 ```
 
 `tools/screenshots/overview.html` lays the hero and the four feature cards out with CSS

@@ -36,4 +36,19 @@ Copy-Item -Path (Join-Path $src '*.md') -Destination $daily -Force
 
 Write-Output "lang=$Lang copied=$($srcFiles.Count) file(s) -> $daily"
 Write-Output "backup=$bak ($($existing.Count) file(s))"
+
+# Root-level notes: link targets for the demo wikilinks (a book note, etc.).
+# Existing files of the same name are backed up too, never silently replaced.
+$rootSrc = Join-Path $PSScriptRoot 'vault'
+if (Test-Path $rootSrc) {
+  $rootFiles = @(Get-ChildItem -Path $rootSrc -Filter *.md)
+  foreach ($f in $rootFiles) {
+    $dest = Join-Path $Vault $f.Name
+    if (Test-Path $dest) { Copy-Item $dest (Join-Path $bak $f.Name) -Force }
+    Copy-Item $f.FullName $dest -Force
+  }
+  Write-Output "vault-root copied=$($rootFiles.Count) file(s)"
+  if ($rootFiles.Count -gt 0) { Write-Output "  (backs up any same-named root note to the folder above)" }
+}
+
 Write-Output "next: reload the Rememo view in Obsidian (click the 'Rememo' list title)."

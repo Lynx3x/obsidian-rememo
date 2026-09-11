@@ -6,7 +6,12 @@
 <style>
   /* Rendered headless into assets/screenshots/00-overview.png by render-overview.ps1.
      Layout numbers here are the source of truth: canvas 1500x1060, hero on the left,
-     four feature cards tilted down the right edge, overlapping each other and the hero. */
+     four feature cards tilted down the right edge, overlapping each other and the hero.
+
+     Each feature card is a .tilt wrapper (absolute position + rotation) around a .shot
+     (the rounded, shadowed image). The label pill lives inside the wrapper, so it is
+     anchored to the card's own corner — the gap is identical for all four — and is
+     counter-rotated to stay upright. */
   html, body { margin: 0; padding: 0; }
   body {
     width: 1500px; height: 1060px; overflow: hidden; position: relative;
@@ -19,7 +24,7 @@
   }
 
   .shot {
-    position: absolute; border-radius: 13px; overflow: hidden; background: #fff;
+    position: relative; border-radius: 13px; overflow: hidden; background: #fff;
     box-shadow:
       0 1px 2px  rgba(38, 32, 66, .05),
       0 8px 18px rgba(38, 32, 66, .09),
@@ -27,39 +32,37 @@
   }
   .shot img { display: block; width: 100%; height: auto; }
 
-  .hero  { left: 60px;   top: 128px; width: 980px;
-           box-shadow: 0 2px 4px rgba(38,32,66,.05), 0 14px 30px rgba(38,32,66,.10), 0 44px 80px rgba(38,32,66,.14); }
+  .hero {
+    position: absolute; left: 60px; top: 128px; width: 980px;
+    box-shadow: 0 2px 4px rgba(38,32,66,.05), 0 14px 30px rgba(38,32,66,.10), 0 44px 80px rgba(38,32,66,.14);
+  }
+
+  /* one aligned column: the tilt and the overlap carry the "scattered" feel */
+  .tilt { position: absolute; left: 1015px; width: 420px; }
+  .tilt .shot { width: 100%; }
   /* the four feature cards sit behind the hero: a hair of blur keeps them as context
      instead of competing with it (tune the blur radius here) */
-  .c1, .c2, .c3, .c4 { filter: blur(.1px); }
-  .c1 { left: 1005px; top: 52px;  width: 420px; transform: rotate(-3.2deg); }
-  .c2 { left: 1035px; top: 276px; width: 420px; transform: rotate( 2.6deg); }
-  .c3 { left: 1012px; top: 500px; width: 420px; transform: rotate(-2.2deg); }
-  .c4 { left: 1042px; top: 724px; width: 420px; transform: rotate( 3.4deg); }
+  .tilt .shot { filter: blur(.1px); }
+  .c1 { top: 52px;  transform: rotate(-3.2deg); }
+  .c2 { top: 276px; transform: rotate( 2.6deg); }
+  .c3 { top: 500px; transform: rotate(-2.2deg); }
+  .c4 { top: 724px; transform: rotate( 3.4deg); }
 
+  /* the label sits on the card's top edge and tilts with it (a tag on the border) */
   .pill {
-    position: absolute; z-index: 10; white-space: nowrap;
-    padding: 7px 15px; border-radius: 999px; background: rgba(255,255,255,.97);
-    color: #3b3468; font-size: 19px; font-weight: 600; line-height: 1.15;
+    position: absolute; top: -14px; left: 14px; z-index: 10; white-space: nowrap;
+    padding: 6px 13px; border-radius: 999px; background: rgba(255,255,255,.97);
+    color: #3b3468; font-size: 17px; font-weight: 600; line-height: 1.15;
     box-shadow: 0 2px 10px rgba(38,32,66,.16), 0 0 0 1px rgba(255,255,255,.6);
   }
-  .p1 { left: 1027px; top: 22px;  transform: rotate(-3.2deg); }
-  .p2 { left: 1057px; top: 246px; transform: rotate( 2.6deg); }
-  .p3 { left: 1034px; top: 470px; transform: rotate(-2.2deg); }
-  .p4 { left: 1064px; top: 694px; transform: rotate( 3.4deg); }
 </style>
 </head>
 <body>
   <div class="shot hero"><img src="../../assets/screenshots/01-main.png" alt=""></div>
 
-  <div class="shot c1"><img src="../../assets/screenshots/02-editor.png" alt=""></div>
-  <div class="shot c2"><img src="../../assets/screenshots/03-tags.png" alt=""></div>
-  <div class="shot c3"><img src="../../assets/screenshots/04-recycle.png" alt=""></div>
-  <div class="shot c4"><img src="../../assets/screenshots/05-references.png" alt=""></div>
-
-  <div class="pill p1">Task mode</div>
-  <div class="pill p2">Tag filter</div>
-  <div class="pill p3">Recycle bin</div>
-  <div class="pill p4">References</div>
+  <div class="tilt c1"><div class="shot"><img src="../../assets/screenshots/02-editor.png" alt=""></div><span class="pill">Task mode</span></div>
+  <div class="tilt c2"><div class="shot"><img src="../../assets/screenshots/03-tags.png" alt=""></div><span class="pill">Tag filter</span></div>
+  <div class="tilt c3"><div class="shot"><img src="../../assets/screenshots/04-recycle.png" alt=""></div><span class="pill">Recycle bin</span></div>
+  <div class="tilt c4"><div class="shot"><img src="../../assets/screenshots/05-references.png" alt=""></div><span class="pill">References</span></div>
 </body>
 </html>

@@ -56,11 +56,10 @@
 
         > .memo-content-text {
           width: 100%;
-          font-size: 15px;
+          font-size: var(--font-text-size, 16px);
           line-height: 1.6;
           color: var(--memo-text);
-          word-wrap: break-word;
-          word-break: break-all;
+          overflow-wrap: break-word;
 
           // 段落节奏同主列表 8px 律（弹窗正文多段不挤）
           > p:not(.memo-md-line) + p:not(.memo-md-line) {

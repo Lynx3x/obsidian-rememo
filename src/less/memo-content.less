@@ -94,8 +94,7 @@
     font-size: 14px;
     line-height: 1.6;
     color: var(--text-normal);
-    word-wrap: break-word;
-    word-break: break-word;
+    overflow-wrap: break-word;
     /* 不加 pre-wrap：段落换行交给渲染出的块结构（与浮窗正文一致），避免文本内残留换行被双倍显示 */
 
     // 条目内多段正文：段落节奏同 8px 律（D1 弹窗段距收口）
@@ -111,8 +110,7 @@
 [data-type='memos_view'] .memolist-wrapper .memo-content-text {
   .flex(column, flex-start, flex-start);
   width: 100%;
-  word-wrap: break-word;
-  word-break: break-word;
+  overflow-wrap: break-word;
   white-space: pre-wrap;
   color: var(--text-normal);
 
@@ -129,9 +127,11 @@
     height: auto;
     margin-bottom: 4px;
     margin-top: -2px;
-    font-size: 15px;
-    line-height: 24px;
-    min-height: 24px;
+    // 跟随 Obsidian 正文字号/行高（设置→外观→字体大小）——旧值 15px/24px 是网页版血统，
+    // 会比同一篇日记在笔记视图里小一号（x-height 肉眼可辨），2026-09-11 owner 报
+    font-size: var(--font-text-size, 16px);
+    line-height: var(--line-height-normal, 1.5);
+    min-height: 1.5em;
     white-space: pre-wrap;
 
     > a {
@@ -146,9 +146,9 @@
     display: block;
     width: 100%;
     margin: 0 0 2px;
-    font-size: 15px;
-    line-height: 24px;
-    min-height: 24px;
+    font-size: var(--font-text-size, 16px);
+    line-height: var(--line-height-normal, 1.5);
+    min-height: 1.5em;
     white-space: pre-wrap;
   }
 
@@ -224,7 +224,7 @@
     margin: 4px 0;
     padding: 8px 12px;
     border-radius: var(--radius-s, 4px);
-    font-size: 15px;
+    font-size: var(--font-text-size, 16px);
     line-height: 1.5;
     background-color: var(--background-modifier-hover);
     white-space: pre-wrap;
@@ -243,8 +243,8 @@
 
     > p {
       margin: 0;
-      font-size: 15px;
-      line-height: 24px;
+      font-size: var(--font-text-size, 16px);
+      line-height: var(--line-height-normal, 1.5);
       white-space: pre-wrap;
     }
 
@@ -274,15 +274,15 @@
 // 移动端放大型
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text {
   > p {
-    font-size: 15px;
-    line-height: 26px;
-    min-height: 26px;
+    font-size: var(--font-text-size, 16px);
+    line-height: 1.6;
+    min-height: 1.6em;
     white-space: pre-wrap;
   }
 
-  // 移动端引用段行高与段落同（26px）
+  // 移动端引用段行高与段落同（1.6）
   > blockquote > p {
-    line-height: 26px;
+    line-height: 1.6;
   }
 
   .tag-span {

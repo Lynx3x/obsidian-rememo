@@ -15,6 +15,9 @@ Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten
 | <img src="assets/screenshots/02-editor.png" alt="Editor in task mode"><br><sub>**Task mode** — the two-segment slider next to the send button turns what you type into a task card</sub> | <img src="assets/screenshots/03-tags.png" alt="Feed filtered by a tag"><br><sub>**Tag filter** — click any tag to filter the feed</sub> |
 | <img src="assets/screenshots/04-recycle.png" alt="Recycle bin"><br><sub>**Recycle bin** — deleted cards stay in your note and can be restored</sub> | <img src="assets/screenshots/05-references.png" alt="A memo and the memos referencing it"><br><sub>**References** — replies are reference cards, gathered under the memo they answer</sub> |
 
+<img src="assets/screenshots/06-rich-text.png" width="745" alt="The rest of the feed: a quote card, a card of inline formatting, a finished task, tags, wikilinks and a list">
+<sub>**The rest of the feed** — quote blocks, inline formatting (`**bold**`, `*italic*`, code), wikilinks, tag chips, finished tasks and plain lists all render from your own Markdown.</sub>
+
 ## Features
 
 - **Native-feeling editor** — built on Obsidian's own editor kernel: typing, IME, undo, live rendering of `==highlights==`, `#tag` and `[[wikilink]]` autocomplete. Press `Enter` or `Ctrl/Cmd+Enter` to send.

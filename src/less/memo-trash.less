@@ -38,10 +38,9 @@ div[data-type='memos_view'] .memo-trash-wrapper {
 
     > .memo-wrapper {
       > .memo-content-text {
-        font-size: 15px;
-        line-height: 24px;
-        word-wrap: break-word;
-        word-break: break-word;
+        font-size: var(--font-text-size, 16px);
+        line-height: var(--line-height-normal, 1.5);
+        overflow-wrap: break-word;
         white-space: pre-wrap;
 
         > p {
