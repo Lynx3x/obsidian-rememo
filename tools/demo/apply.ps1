@@ -39,7 +39,7 @@ Write-Output "backup=$bak ($($existing.Count) file(s))"
 
 # Root-level notes: link targets for the demo wikilinks (a book note, etc.).
 # Existing files of the same name are backed up too, never silently replaced.
-$rootSrc = Join-Path $PSScriptRoot 'vault'
+$rootSrc = Join-Path (Join-Path $PSScriptRoot 'vault') $Lang
 if (Test-Path $rootSrc) {
   $rootFiles = @(Get-ChildItem -Path $rootSrc -Filter *.md)
   foreach ($f in $rootFiles) {

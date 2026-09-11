@@ -5,6 +5,8 @@
 #   powershell -File tools/screenshots/render-overview.ps1
 param(
   [string]$Html = "$PSScriptRoot\overview.html",
+  [string]$Suffix = '',          # substituted for {SUFFIX} in the HTML image paths
+  [string]$Lang = 'en',          # which language's label pills {PILL1..4} get
   [string]$Out = '',
   [string]$Edge = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
   [int]$Width = 1500, [int]$Height = 1060, [int]$Scale = 2
@@ -12,7 +14,7 @@ param(
 $ErrorActionPreference = 'Stop'
 if (-not $Out) {
   $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-  $Out = Join-Path $repo 'assets\screenshots\00-overview.png'
+  $Out = Join-Path $repo "assets\screenshots\00-overview$Suffix.png"
 }
 if (-not (Test-Path $Edge)) { throw "Edge not found: $Edge" }
 
@@ -20,7 +22,20 @@ $raw = Join-Path $env:TEMP 'rememo-overview-2x.png'
 if (Test-Path $raw) { Remove-Item $raw -Force }
 $profileDir = Join-Path $env:TEMP 'rememo-edge-profile'
 
-$uri = ([uri]('file:///' + ($Html -replace '\\', '/'))).AbsoluteUri
+# {SUFFIX} lets one HTML serve every language (01-main{SUFFIX}.png); the substituted copy
+# must live next to the original so the relative image paths keep resolving
+$renderHtml = $Html
+if ((Get-Content -Raw $Html).Contains('{SUFFIX}')) {
+  $renderHtml = Join-Path $PSScriptRoot '_render_tmp.html'
+  # {PILL1..4} carry the label text so one layout serves every language
+  # (kept in pills.json: this script stays ASCII-only, PowerShell 5.1 would otherwise
+  # mis-read a BOM-less UTF-8 file as ANSI)
+  $pills = (Get-Content -Raw -Encoding UTF8 (Join-Path $PSScriptRoot 'pills.json') | ConvertFrom-Json).$Lang
+  $body = (Get-Content -Raw $Html).Replace('{SUFFIX}', $Suffix)
+  for ($i = 1; $i -le 4; $i++) { $body = $body.Replace("{PILL$i}", $pills[$i - 1]) }
+  $body | Set-Content -NoNewline -Encoding UTF8 $renderHtml
+}
+$uri = ([uri]('file:///' + ($renderHtml -replace '\\', '/'))).AbsoluteUri
 $edgeArgs = @(
   '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run',
   '--no-default-browser-check', "--user-data-dir=$profileDir",
@@ -41,4 +56,5 @@ $g.DrawImage($src, 0, 0, $bmp.Width, $bmp.Height)
 New-Item -ItemType Directory -Force -Path (Split-Path $Out) | Out-Null
 $bmp.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
 $g.Dispose(); $bmp.Dispose(); $src.Dispose()
+if ($renderHtml -ne $Html) { Remove-Item $renderHtml -Force }
 Write-Output "overview -> $Out ($Width x $h, rendered at ${Scale}x)"

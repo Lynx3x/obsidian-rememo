@@ -24,28 +24,31 @@ SPECS = [
 # The tail of the feed (quote → finished task → tags → wikilinks → list → pagination) does
 # not fit the normal viewport, so that one shot is taken in a 1300x1400 window and cropped
 # here — the list column only (the sidebar would show a tall empty area below its content).
-SPECS_1400 = [
-    ('06-feed', (470, 372, 1105, 1325)),   # keep the card's right edge and the list scrollbar in frame
-]
+SPECS_1400 = {
+    # the Chinese cards are shorter, so at the same scroll position the first card sits higher
+    '':    [('06-feed', (470, 372, 1105, 1325))],   # cut at the previous card's bottom edge: shows the full gap above 17:30
+    '.zh': [('06-feed', (470, 444, 1105, 1335))],   # same rule, measured on the Chinese layout
+}
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--raw', default=os.path.join(os.environ.get('TEMP', '/tmp'), 'rememo-shots'))
     ap.add_argument('--out', default=os.path.join(REPO, 'assets', 'screenshots'))
+    ap.add_argument('--suffix', default='', help="e.g. '.zh' -> reads 01-main.zh-raw.png, writes 01-main.zh.png")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
 
-    for specs in (SPECS, SPECS_1400):
+    for specs in (SPECS, SPECS_1400.get(args.suffix, SPECS_1400[''])):
         for name, box in specs:
-            src = os.path.join(args.raw, f'{name}-raw.png')
+            src = os.path.join(args.raw, f'{name}{args.suffix}-raw.png')
             if not os.path.exists(src):
                 print(f'skip {name}: no {src}')
                 continue
             img = Image.open(src).crop(box)
-            dst = os.path.join(args.out, f'{name}.png')
+            dst = os.path.join(args.out, f'{name}{args.suffix}.png')
             img.save(dst, 'PNG', optimize=True)
-            print(f'{name}.png  {img.width}x{img.height}  {os.path.getsize(dst) // 1024} KiB')
+            print(f'{name}{args.suffix}.png  {img.width}x{img.height}  {os.path.getsize(dst) // 1024} KiB')
 
 
 if __name__ == '__main__':

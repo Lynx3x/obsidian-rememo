@@ -35,6 +35,8 @@ Then reload the view in Obsidian — click the **Rememo** list title (or reopen 
 
 ## Adding a language
 
-Copy `en/` to `<lang>/` and translate the memo **bodies** — keep the dates, ids,
-card types, tags and `[@](file#^id)` links identical so both languages reproduce the
-same layout, heat map and reference counts.
+Copy `en/` to `<lang>/` and translate the memo **bodies** — keep the dates, ids, card types and
+`[@](file#^id)` links identical so both languages reproduce the same layout, heat map and
+reference counts. Tags are translated through a fixed map (`#ideas`→`#灵感`, `#life`→`#生活`,
+`#reading`→`#阅读`, `#work`→`#工作` — keep the leading space before `#`, the tag regex needs it).
+Root-level link targets go in `vault/<lang>/` (book notes etc.).

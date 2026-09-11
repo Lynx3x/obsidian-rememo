@@ -10,6 +10,8 @@
 param(
   [string]$OutDir = "$env:TEMP\rememo-shots",
   [string]$Only = '',
+  [string]$Suffix = '',          # e.g. '.zh' -> 01-main.zh-raw.png
+  [string]$Lang = 'en',          # which demo set the vault is showing (docs only)
   [int]$WinW = 1300, [int]$WinH = 980, [int]$WinX = 200, [int]$WinY = 50
 )
 $ErrorActionPreference = 'Stop'
@@ -22,7 +24,7 @@ function Run-Script([string]$file, [hashtable]$Extra) {
   foreach ($k in $Extra.Keys) { $argv += @("-$k", "$($Extra[$k])") }
   & $ps @argv | Out-Host
 }
-function Shot([string]$name)  { Run-Script 'shot.ps1'   @{ Out = (Join-Path $OutDir "$name.png") } }
+function Shot([string]$name)  { Run-Script 'shot.ps1'   @{ Out = (Join-Path $OutDir "$name$Suffix-raw.png") } }
 function Click([int]$x, [int]$y) { Run-Script 'click.ps1' @{ X = $x; Y = $y } }
 function Scroll([int]$n, [int]$x = 700, [int]$y = 600) { Run-Script 'scroll.ps1' @{ X = $x; Y = $y; Notches = $n } }
 function Want([string]$name)  { return ($Only -eq '' -or $Only -eq $name) }
@@ -47,18 +49,18 @@ Start-Sleep -Milliseconds 1500
 Scroll 25 $C.listArea[0] $C.listArea[1]          # re-read keeps the old scroll offset -> scroll to top after it
 Start-Sleep -Milliseconds 600
 
-if (Want '01-main')    { Shot '01-main-raw' }
+if (Want '01-main')    { Shot '01-main' }
 
 if (Want '02-editor') {
   Click $C.sliderTask[0] $C.sliderTask[1]
-  Shot '02-editor-raw'
+  Shot '02-editor'
   Click $C.sliderPlain[0] $C.sliderPlain[1]      # back to plain mode
 }
 
 if (Want '03-tags') {
   Click $C.tagReading[0] $C.tagReading[1]        # sidebar tag row -> filter by tag
   Start-Sleep -Milliseconds 900
-  Shot '03-tags-raw'
+  Shot '03-tags'
   Click $C.navHome[0] $C.navHome[1]              # clear the filter
   Start-Sleep -Milliseconds 900
 }
@@ -66,7 +68,7 @@ if (Want '03-tags') {
 if (Want '04-recycle') {
   Click $C.navRecycle[0] $C.navRecycle[1]
   Start-Sleep -Milliseconds 900
-  Shot '04-recycle-raw'
+  Shot '04-recycle'
   Click $C.navHome[0] $C.navHome[1]
   Start-Sleep -Milliseconds 900
 }
@@ -74,18 +76,18 @@ if (Want '04-recycle') {
 if (Want '05-references') {
   Click $C.refsBar[0] $C.refsBar[1]              # "N REFERENCES" bar -> memo dialog
   Start-Sleep -Milliseconds 900
-  Shot '05-references-raw'
+  Shot '05-references'
   Click 120 120                                  # click the dialog backdrop to close it
   Start-Sleep -Milliseconds 600
 }
 
-if (Want '06-rich-text') {
+if (Want '06-feed') {
   # The tail of the feed is taller than the normal viewport, so the window is grown for
   # this one shot (screen is 1440 tall) instead of stitching two captures.
   Run-Script 'resize.ps1' @{ Width = $WinW; Height = 1400; PosX = $WinX; PosY = 20 }
   Scroll -40 $C.listArea[0] 900                    # all the way down to the page footer
   Start-Sleep -Milliseconds 800
-  Shot '06-feed-raw'
+  Shot '06-feed'
   Run-Script 'resize.ps1' @{ Width = $WinW; Height = $WinH; PosX = $WinX; PosY = $WinY }
 }
 

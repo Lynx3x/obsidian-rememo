@@ -100,5 +100,20 @@ no personal content from the vault, and that the image still matches its README 
 
 `tools/demo/<lang>/` holds one set per language — same dates, ids, tags, card types and
 `[@](file#^id)` links, translated bodies only, so layout, heat map and reference counts are
-identical. Apply that set, then repeat steps 2–4 into the same `assets/screenshots/` names
-(a language-specific README can point at its own filenames if both sets must coexist).
+identical. Root-level link targets live in `tools/demo/vault/<lang>/`.
+
+Switch Obsidian's UI language first (Settings → About → Language) — the plugin reads the locale
+once at load — then run the same pipeline with a suffix, which keeps every language's images side
+by side:
+
+```powershell
+powershell -File tools/demo/apply.ps1 -Lang zh
+powershell -File tools/screenshots/shoot.ps1 -Suffix .zh -Lang zh
+python tools/screenshots/crop.py --suffix .zh                     # -> 01-main.zh.png ... 06-feed.zh.png
+powershell -File tools/screenshots/render-overview.ps1 -Suffix .zh
+powershell -File tools/screenshots/render-overview.ps1 -Html tools/screenshots/feed.html `
+  -Suffix .zh -Out assets/screenshots/06-rich-text.zh.png -Width 745 -Height 1055
+```
+
+The two HTML layouts carry `{SUFFIX}` in their image paths, so one file serves every language.
+Point each README at its own files (`README.zh.md` → `*-zh.png`).
