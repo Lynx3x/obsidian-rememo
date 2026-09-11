@@ -32,7 +32,7 @@ Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten
 
 ## Installation
 
-**From the community plugin directory** — search for “Rememo” in Settings → Community plugins → Browse. *(Available once the directory review is done.)*
+**From the community plugin directory** — search for “Rememo” in Settings → Community plugins → Browse.
 
 **Manually** — copy `main.js`, `styles.css` and `manifest.json` into `<your vault>/.obsidian/plugins/rememo/`, then enable **Rememo** in Settings → Community plugins.
 

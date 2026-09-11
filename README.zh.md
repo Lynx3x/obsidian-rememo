@@ -32,7 +32,7 @@ Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com
 
 ## 安装
 
-**从社区插件市场安装** —— 设置 → 第三方插件 → 浏览 → 搜索 “Rememo”。（目录审核通过后可用）
+**从社区插件市场安装** —— 设置 → 第三方插件 → 浏览 → 搜索 “Rememo”。
 
 **手动安装** —— 将 `main.js`、`styles.css`、`manifest.json` 放入
 `你的库/.obsidian/plugins/rememo/`，然后在 Obsidian 的第三方插件列表里启用 **Rememo**。
