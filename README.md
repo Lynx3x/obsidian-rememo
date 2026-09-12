@@ -36,7 +36,28 @@ Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten
 
 **Manually** — copy `main.js`, `styles.css` and `manifest.json` into `<your vault>/.obsidian/plugins/rememo/`, then enable **Rememo** in Settings → Community plugins.
 
-Requires Obsidian **1.5.0** or newer.
+Requires Obsidian **1.7.2** or newer.
+
+## Coming from Memos (or “Memos Plus”)? Read this first
+
+**Your memos are safe.** Rememo reads the memos that are already inside your daily notes — it never moves, rewrites or deletes anything on its own.
+
+One thing to know: memos written by the old Obsidian-Memos plugin use an **older line format**, and Rememo only renders the new card-block format. So right after you install, your existing memos won't appear in the feed yet — they are still sitting in your files, untouched.
+
+**To bring them back, run the built-in migration:**
+
+1. Open Rememo's settings → **Data tools** → **Audit data**.
+2. The audit scans your daily notes and lists every file containing old-format lines.
+3. Use the migrate button next to a file — or the migrate-all button to convert them in one go.
+4. Before writing anything, a copy of each file is saved to `.rememo-backup/`, so you can always restore by hand.
+
+What the migration does — and only inside the section under your memo heading:
+
+- Old single-line memos become card blocks (a heading line + an indented body).
+- Old indented comment threads become **reference cards**, matching Rememo's comment ≡ reference model.
+- The rest of the note is left alone.
+
+Your existing settings keep working: the **Memo heading** defaults to `## Memo`, the same heading the old plugin wrote to.
 
 ## Quick start
 
