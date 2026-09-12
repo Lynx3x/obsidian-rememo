@@ -5,6 +5,4685 @@ function _interopDefaultLegacy(e) {
 }
 var require$$0__default = /* @__PURE__ */ _interopDefaultLegacy(require$$0);
 const MEMOS_VIEW_TYPE = "memos_view";
+const SHOW_SIDERBAR_MOBILE_CLASSNAME = "mobile-show-sidebar";
+const ANIMATION_DURATION = 200;
+const DAILY_TIMESTAMP = 3600 * 24 * 1e3;
+const QUERY_FILE_NAME = "query";
+const TAG_REG = /\s#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
+const LINK_REG = /(\s|：|>|^)((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/g;
+const MD_LINK_REG = /\[([\s\S]*?)\]\(([\s\S]*?)\)/gu;
+const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg|webp|bmp))(\]\])?(\))?/g;
+const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\s*\))/g;
+const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
+const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
+const MEMO_LINK_REG = /\[@(.*?)\]\((.+?)\)/g;
+const NEW_TARGET_REG = /^([^#]+\.md)#\^([A-Za-z0-9]{6})$/;
+function parseLinkTarget(target) {
+  const t2 = (target != null ? target : "").trim();
+  if (!t2)
+    return null;
+  const m2 = NEW_TARGET_REG.exec(t2);
+  if (m2)
+    return { fileName: m2[1], id: m2[2], isLegacy: false };
+  return { id: t2, isLegacy: true };
+}
+function extractLinkTargets(content2) {
+  const set = /* @__PURE__ */ new Set();
+  for (const m2 of content2.matchAll(MEMO_LINK_REG)) {
+    if (m2[2])
+      set.add(m2[2]);
+  }
+  return [...set];
+}
+function stripMemoLinks(content2) {
+  return content2.replace(MEMO_LINK_REG, "");
+}
+function hasMemoReferences(content2) {
+  return content2.match(MEMO_LINK_REG) !== null;
+}
+function refPreview(content2, max2 = 30) {
+  const cleaned = stripMemoLinks(content2).replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
+  return cleaned.length > max2 ? `${cleaned.slice(0, Math.max(max2 - 1, 1)).trimEnd()}\u2026` : cleaned;
+}
+function refTimeLabel(createdAt, targetPath, currentPath) {
+  var _a2;
+  const t2 = createdAt != null ? createdAt : "";
+  const timePart = t2.slice(11, 16);
+  if (targetPath === currentPath)
+    return timePart;
+  const curYear = (_a2 = currentPath.match(/(\d{4})-(\d{2})-(\d{2})\.md$/)) == null ? void 0 : _a2[1];
+  const targetYear = t2.slice(0, 4);
+  const datePart = curYear && targetYear === curYear ? t2.slice(5, 10) : t2.slice(2, 10);
+  return `${datePart} ${timePart}`.trim();
+}
+function buildRefLink(memo2) {
+  var _a2;
+  const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
+  return memo2.hasId ? `[@](${fileName}#^${memo2.hasId})` : `[@](${memo2.id})`;
+}
+var main$1 = {};
+Object.defineProperty(main$1, "__esModule", { value: true });
+var obsidian = require$$0__default["default"];
+const DEFAULT_DAILY_NOTE_FORMAT = "YYYY-MM-DD";
+const DEFAULT_WEEKLY_NOTE_FORMAT = "gggg-[W]ww";
+const DEFAULT_MONTHLY_NOTE_FORMAT = "YYYY-MM";
+const DEFAULT_QUARTERLY_NOTE_FORMAT = "YYYY-[Q]Q";
+const DEFAULT_YEARLY_NOTE_FORMAT = "YYYY";
+function shouldUsePeriodicNotesSettings(periodicity) {
+  var _a2, _b;
+  const periodicNotes = window.app.plugins.getPlugin("periodic-notes");
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2[periodicity]) == null ? void 0 : _b.enabled);
+}
+function getDailyNoteSettings() {
+  var _a2, _b, _c, _d;
+  try {
+    const { internalPlugins, plugins } = window.app;
+    if (shouldUsePeriodicNotesSettings("daily")) {
+      const { format: format2, folder: folder2, template: template2 } = ((_b = (_a2 = plugins.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.daily) || {};
+      return {
+        format: format2 || DEFAULT_DAILY_NOTE_FORMAT,
+        folder: (folder2 == null ? void 0 : folder2.trim()) || "",
+        template: (template2 == null ? void 0 : template2.trim()) || ""
+      };
+    }
+    const { folder, format, template } = ((_d = (_c = internalPlugins.getPluginById("daily-notes")) == null ? void 0 : _c.instance) == null ? void 0 : _d.options) || {};
+    return {
+      format: format || DEFAULT_DAILY_NOTE_FORMAT,
+      folder: (folder == null ? void 0 : folder.trim()) || "",
+      template: (template == null ? void 0 : template.trim()) || ""
+    };
+  } catch (err) {
+    console.info("No custom daily note settings found!", err);
+  }
+}
+function getWeeklyNoteSettings() {
+  var _a2, _b, _c, _d, _e, _f, _g;
+  try {
+    const pluginManager = window.app.plugins;
+    const calendarSettings = (_a2 = pluginManager.getPlugin("calendar")) == null ? void 0 : _a2.options;
+    const periodicNotesSettings = (_c = (_b = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _b.settings) == null ? void 0 : _c.weekly;
+    if (shouldUsePeriodicNotesSettings("weekly")) {
+      return {
+        format: periodicNotesSettings.format || DEFAULT_WEEKLY_NOTE_FORMAT,
+        folder: ((_d = periodicNotesSettings.folder) == null ? void 0 : _d.trim()) || "",
+        template: ((_e = periodicNotesSettings.template) == null ? void 0 : _e.trim()) || ""
+      };
+    }
+    const settings = calendarSettings || {};
+    return {
+      format: settings.weeklyNoteFormat || DEFAULT_WEEKLY_NOTE_FORMAT,
+      folder: ((_f = settings.weeklyNoteFolder) == null ? void 0 : _f.trim()) || "",
+      template: ((_g = settings.weeklyNoteTemplate) == null ? void 0 : _g.trim()) || ""
+    };
+  } catch (err) {
+    console.info("No custom weekly note settings found!", err);
+  }
+}
+function getMonthlyNoteSettings() {
+  var _a2, _b, _c, _d;
+  const pluginManager = window.app.plugins;
+  try {
+    const settings = shouldUsePeriodicNotesSettings("monthly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.monthly) || {};
+    return {
+      format: settings.format || DEFAULT_MONTHLY_NOTE_FORMAT,
+      folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
+      template: ((_d = settings.template) == null ? void 0 : _d.trim()) || ""
+    };
+  } catch (err) {
+    console.info("No custom monthly note settings found!", err);
+  }
+}
+function getQuarterlyNoteSettings() {
+  var _a2, _b, _c, _d;
+  const pluginManager = window.app.plugins;
+  try {
+    const settings = shouldUsePeriodicNotesSettings("quarterly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.quarterly) || {};
+    return {
+      format: settings.format || DEFAULT_QUARTERLY_NOTE_FORMAT,
+      folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
+      template: ((_d = settings.template) == null ? void 0 : _d.trim()) || ""
+    };
+  } catch (err) {
+    console.info("No custom quarterly note settings found!", err);
+  }
+}
+function getYearlyNoteSettings() {
+  var _a2, _b, _c, _d;
+  const pluginManager = window.app.plugins;
+  try {
+    const settings = shouldUsePeriodicNotesSettings("yearly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.yearly) || {};
+    return {
+      format: settings.format || DEFAULT_YEARLY_NOTE_FORMAT,
+      folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
+      template: ((_d = settings.template) == null ? void 0 : _d.trim()) || ""
+    };
+  } catch (err) {
+    console.info("No custom yearly note settings found!", err);
+  }
+}
+function join(...partSegments) {
+  let parts = [];
+  for (let i2 = 0, l2 = partSegments.length; i2 < l2; i2++) {
+    parts = parts.concat(partSegments[i2].split("/"));
+  }
+  const newParts = [];
+  for (let i2 = 0, l2 = parts.length; i2 < l2; i2++) {
+    const part = parts[i2];
+    if (!part || part === ".")
+      continue;
+    else
+      newParts.push(part);
+  }
+  if (parts[0] === "")
+    newParts.unshift("");
+  return newParts.join("/");
+}
+function basename(fullPath) {
+  let base2 = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+  if (base2.lastIndexOf(".") != -1)
+    base2 = base2.substring(0, base2.lastIndexOf("."));
+  return base2;
+}
+async function ensureFolderExists(path) {
+  const dirs = path.replace(/\\/g, "/").split("/");
+  dirs.pop();
+  if (dirs.length) {
+    const dir = join(...dirs);
+    if (!window.app.vault.getAbstractFileByPath(dir)) {
+      await window.app.vault.createFolder(dir);
+    }
+  }
+}
+async function getNotePath(directory, filename) {
+  if (!filename.endsWith(".md")) {
+    filename += ".md";
+  }
+  const path = obsidian.normalizePath(join(directory, filename));
+  await ensureFolderExists(path);
+  return path;
+}
+async function getTemplateInfo(template) {
+  const { metadataCache, vault } = window.app;
+  const templatePath = obsidian.normalizePath(template);
+  if (templatePath === "/") {
+    return Promise.resolve(["", null]);
+  }
+  try {
+    const templateFile = metadataCache.getFirstLinkpathDest(templatePath, "");
+    const contents = await vault.cachedRead(templateFile);
+    const IFoldInfo = window.app.foldManager.load(templateFile);
+    return [contents, IFoldInfo];
+  } catch (err) {
+    console.error(`Failed to read the daily note template '${templatePath}'`, err);
+    new obsidian.Notice("Failed to read the daily note template");
+    return ["", null];
+  }
+}
+function getDateUID(date, granularity = "day") {
+  const ts = date.clone().startOf(granularity).format();
+  return `${granularity}-${ts}`;
+}
+function removeEscapedCharacters(format) {
+  return format.replace(/\[[^\]]*\]/g, "");
+}
+function isFormatAmbiguous(format, granularity) {
+  if (granularity === "week") {
+    const cleanFormat = removeEscapedCharacters(format);
+    return /w{1,2}/i.test(cleanFormat) && (/M{1,4}/.test(cleanFormat) || /D{1,4}/.test(cleanFormat));
+  }
+  return false;
+}
+function getDateFromFile(file, granularity) {
+  return getDateFromFilename(file.basename, granularity);
+}
+function getDateFromPath(path, granularity) {
+  return getDateFromFilename(basename(path), granularity);
+}
+function getDateFromFilename(filename, granularity) {
+  const getSettings = {
+    day: getDailyNoteSettings,
+    week: getWeeklyNoteSettings,
+    month: getMonthlyNoteSettings,
+    quarter: getQuarterlyNoteSettings,
+    year: getYearlyNoteSettings
+  };
+  const format = getSettings[granularity]().format.split("/").pop();
+  const noteDate = window.moment(filename, format, true);
+  if (!noteDate.isValid()) {
+    return null;
+  }
+  if (isFormatAmbiguous(format, granularity)) {
+    if (granularity === "week") {
+      const cleanFormat = removeEscapedCharacters(format);
+      if (/w{1,2}/i.test(cleanFormat)) {
+        return window.moment(
+          filename,
+          format.replace(/M{1,4}/g, "").replace(/D{1,4}/g, ""),
+          false
+        );
+      }
+    }
+  }
+  return noteDate;
+}
+class DailyNotesFolderMissingError$1 extends Error {
+}
+async function createDailyNote(date) {
+  const app2 = window.app;
+  const { vault } = app2;
+  const moment = window.moment;
+  const { template, format, folder } = getDailyNoteSettings();
+  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
+  const filename = date.format(format);
+  const normalizedPath = await getNotePath(folder, filename);
+  try {
+    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename).replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+      const now = moment();
+      const currentDate = date.clone().set({
+        hour: now.get("hour"),
+        minute: now.get("minute"),
+        second: now.get("second")
+      });
+      if (calc) {
+        currentDate.add(parseInt(timeDelta, 10), unit);
+      }
+      if (momentFormat) {
+        return currentDate.format(momentFormat.substring(1).trim());
+      }
+      return currentDate.format(format);
+    }).replace(/{{\s*yesterday\s*}}/gi, date.clone().subtract(1, "day").format(format)).replace(/{{\s*tomorrow\s*}}/gi, date.clone().add(1, "d").format(format)));
+    app2.foldManager.save(createdFile, IFoldInfo);
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${normalizedPath}'`, err);
+    new obsidian.Notice("Unable to create new file.");
+  }
+}
+function getDailyNote(date, dailyNotes) {
+  var _a2;
+  return (_a2 = dailyNotes[getDateUID(date, "day")]) != null ? _a2 : null;
+}
+function getAllDailyNotes() {
+  const { vault } = window.app;
+  const { folder } = getDailyNoteSettings();
+  const dailyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
+  if (!dailyNotesFolder) {
+    throw new DailyNotesFolderMissingError$1("Failed to find daily notes folder");
+  }
+  const dailyNotes = {};
+  obsidian.Vault.recurseChildren(dailyNotesFolder, (note) => {
+    if (note instanceof obsidian.TFile) {
+      const date = getDateFromFile(note, "day");
+      if (date) {
+        const dateString = getDateUID(date, "day");
+        dailyNotes[dateString] = note;
+      }
+    }
+  });
+  return dailyNotes;
+}
+class WeeklyNotesFolderMissingError extends Error {
+}
+function getDaysOfWeek() {
+  const { moment } = window;
+  let weekStart = moment.localeData()._week.dow;
+  const daysOfWeek = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ];
+  while (weekStart) {
+    daysOfWeek.push(daysOfWeek.shift());
+    weekStart--;
+  }
+  return daysOfWeek;
+}
+function getDayOfWeekNumericalValue(dayOfWeekName) {
+  return getDaysOfWeek().indexOf(dayOfWeekName.toLowerCase());
+}
+async function createWeeklyNote(date) {
+  const { vault } = window.app;
+  const { template, format, folder } = getWeeklyNoteSettings();
+  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
+  const filename = date.format(format);
+  const normalizedPath = await getNotePath(folder, filename);
+  try {
+    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+      const now = window.moment();
+      const currentDate = date.clone().set({
+        hour: now.get("hour"),
+        minute: now.get("minute"),
+        second: now.get("second")
+      });
+      if (calc) {
+        currentDate.add(parseInt(timeDelta, 10), unit);
+      }
+      if (momentFormat) {
+        return currentDate.format(momentFormat.substring(1).trim());
+      }
+      return currentDate.format(format);
+    }).replace(/{{\s*title\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s*:(.*?)}}/gi, (_, dayOfWeek, momentFormat) => {
+      const day = getDayOfWeekNumericalValue(dayOfWeek);
+      return date.weekday(day).format(momentFormat.trim());
+    }));
+    window.app.foldManager.save(createdFile, IFoldInfo);
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${normalizedPath}'`, err);
+    new obsidian.Notice("Unable to create new file.");
+  }
+}
+function getWeeklyNote(date, weeklyNotes) {
+  var _a2;
+  return (_a2 = weeklyNotes[getDateUID(date, "week")]) != null ? _a2 : null;
+}
+function getAllWeeklyNotes() {
+  const weeklyNotes = {};
+  if (!appHasWeeklyNotesPluginLoaded()) {
+    return weeklyNotes;
+  }
+  const { vault } = window.app;
+  const { folder } = getWeeklyNoteSettings();
+  const weeklyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
+  if (!weeklyNotesFolder) {
+    throw new WeeklyNotesFolderMissingError("Failed to find weekly notes folder");
+  }
+  obsidian.Vault.recurseChildren(weeklyNotesFolder, (note) => {
+    if (note instanceof obsidian.TFile) {
+      const date = getDateFromFile(note, "week");
+      if (date) {
+        const dateString = getDateUID(date, "week");
+        weeklyNotes[dateString] = note;
+      }
+    }
+  });
+  return weeklyNotes;
+}
+class MonthlyNotesFolderMissingError extends Error {
+}
+async function createMonthlyNote(date) {
+  const { vault } = window.app;
+  const { template, format, folder } = getMonthlyNoteSettings();
+  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
+  const filename = date.format(format);
+  const normalizedPath = await getNotePath(folder, filename);
+  try {
+    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+      const now = window.moment();
+      const currentDate = date.clone().set({
+        hour: now.get("hour"),
+        minute: now.get("minute"),
+        second: now.get("second")
+      });
+      if (calc) {
+        currentDate.add(parseInt(timeDelta, 10), unit);
+      }
+      if (momentFormat) {
+        return currentDate.format(momentFormat.substring(1).trim());
+      }
+      return currentDate.format(format);
+    }).replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename));
+    window.app.foldManager.save(createdFile, IFoldInfo);
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${normalizedPath}'`, err);
+    new obsidian.Notice("Unable to create new file.");
+  }
+}
+function getMonthlyNote(date, monthlyNotes) {
+  var _a2;
+  return (_a2 = monthlyNotes[getDateUID(date, "month")]) != null ? _a2 : null;
+}
+function getAllMonthlyNotes() {
+  const monthlyNotes = {};
+  if (!appHasMonthlyNotesPluginLoaded()) {
+    return monthlyNotes;
+  }
+  const { vault } = window.app;
+  const { folder } = getMonthlyNoteSettings();
+  const monthlyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
+  if (!monthlyNotesFolder) {
+    throw new MonthlyNotesFolderMissingError("Failed to find monthly notes folder");
+  }
+  obsidian.Vault.recurseChildren(monthlyNotesFolder, (note) => {
+    if (note instanceof obsidian.TFile) {
+      const date = getDateFromFile(note, "month");
+      if (date) {
+        const dateString = getDateUID(date, "month");
+        monthlyNotes[dateString] = note;
+      }
+    }
+  });
+  return monthlyNotes;
+}
+class QuarterlyNotesFolderMissingError extends Error {
+}
+async function createQuarterlyNote(date) {
+  const { vault } = window.app;
+  const { template, format, folder } = getQuarterlyNoteSettings();
+  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
+  const filename = date.format(format);
+  const normalizedPath = await getNotePath(folder, filename);
+  try {
+    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+      const now = window.moment();
+      const currentDate = date.clone().set({
+        hour: now.get("hour"),
+        minute: now.get("minute"),
+        second: now.get("second")
+      });
+      if (calc) {
+        currentDate.add(parseInt(timeDelta, 10), unit);
+      }
+      if (momentFormat) {
+        return currentDate.format(momentFormat.substring(1).trim());
+      }
+      return currentDate.format(format);
+    }).replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename));
+    window.app.foldManager.save(createdFile, IFoldInfo);
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${normalizedPath}'`, err);
+    new obsidian.Notice("Unable to create new file.");
+  }
+}
+function getQuarterlyNote(date, quarterly) {
+  var _a2;
+  return (_a2 = quarterly[getDateUID(date, "quarter")]) != null ? _a2 : null;
+}
+function getAllQuarterlyNotes() {
+  const quarterly = {};
+  if (!appHasQuarterlyNotesPluginLoaded()) {
+    return quarterly;
+  }
+  const { vault } = window.app;
+  const { folder } = getQuarterlyNoteSettings();
+  const quarterlyFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
+  if (!quarterlyFolder) {
+    throw new QuarterlyNotesFolderMissingError("Failed to find quarterly notes folder");
+  }
+  obsidian.Vault.recurseChildren(quarterlyFolder, (note) => {
+    if (note instanceof obsidian.TFile) {
+      const date = getDateFromFile(note, "quarter");
+      if (date) {
+        const dateString = getDateUID(date, "quarter");
+        quarterly[dateString] = note;
+      }
+    }
+  });
+  return quarterly;
+}
+class YearlyNotesFolderMissingError extends Error {
+}
+async function createYearlyNote(date) {
+  const { vault } = window.app;
+  const { template, format, folder } = getYearlyNoteSettings();
+  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
+  const filename = date.format(format);
+  const normalizedPath = await getNotePath(folder, filename);
+  try {
+    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+      const now = window.moment();
+      const currentDate = date.clone().set({
+        hour: now.get("hour"),
+        minute: now.get("minute"),
+        second: now.get("second")
+      });
+      if (calc) {
+        currentDate.add(parseInt(timeDelta, 10), unit);
+      }
+      if (momentFormat) {
+        return currentDate.format(momentFormat.substring(1).trim());
+      }
+      return currentDate.format(format);
+    }).replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename));
+    window.app.foldManager.save(createdFile, IFoldInfo);
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${normalizedPath}'`, err);
+    new obsidian.Notice("Unable to create new file.");
+  }
+}
+function getYearlyNote(date, yearlyNotes) {
+  var _a2;
+  return (_a2 = yearlyNotes[getDateUID(date, "year")]) != null ? _a2 : null;
+}
+function getAllYearlyNotes() {
+  const yearlyNotes = {};
+  if (!appHasYearlyNotesPluginLoaded()) {
+    return yearlyNotes;
+  }
+  const { vault } = window.app;
+  const { folder } = getYearlyNoteSettings();
+  const yearlyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
+  if (!yearlyNotesFolder) {
+    throw new YearlyNotesFolderMissingError("Failed to find yearly notes folder");
+  }
+  obsidian.Vault.recurseChildren(yearlyNotesFolder, (note) => {
+    if (note instanceof obsidian.TFile) {
+      const date = getDateFromFile(note, "year");
+      if (date) {
+        const dateString = getDateUID(date, "year");
+        yearlyNotes[dateString] = note;
+      }
+    }
+  });
+  return yearlyNotes;
+}
+function appHasDailyNotesPluginLoaded() {
+  var _a2, _b;
+  const { app: app2 } = window;
+  const dailyNotesPlugin = app2.internalPlugins.plugins["daily-notes"];
+  if (dailyNotesPlugin && dailyNotesPlugin.enabled) {
+    return true;
+  }
+  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.daily) == null ? void 0 : _b.enabled);
+}
+function appHasWeeklyNotesPluginLoaded() {
+  var _a2, _b;
+  const { app: app2 } = window;
+  if (app2.plugins.getPlugin("calendar")) {
+    return true;
+  }
+  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.weekly) == null ? void 0 : _b.enabled);
+}
+function appHasMonthlyNotesPluginLoaded() {
+  var _a2, _b;
+  const { app: app2 } = window;
+  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.monthly) == null ? void 0 : _b.enabled);
+}
+function appHasQuarterlyNotesPluginLoaded() {
+  var _a2, _b;
+  const { app: app2 } = window;
+  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.quarterly) == null ? void 0 : _b.enabled);
+}
+function appHasYearlyNotesPluginLoaded() {
+  var _a2, _b;
+  const { app: app2 } = window;
+  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
+  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.yearly) == null ? void 0 : _b.enabled);
+}
+function getPeriodicNoteSettings(granularity) {
+  const getSettings = {
+    day: getDailyNoteSettings,
+    week: getWeeklyNoteSettings,
+    month: getMonthlyNoteSettings,
+    quarter: getQuarterlyNoteSettings,
+    year: getYearlyNoteSettings
+  }[granularity];
+  return getSettings();
+}
+function createPeriodicNote(granularity, date) {
+  const createFn = {
+    day: createDailyNote,
+    month: createMonthlyNote,
+    week: createWeeklyNote
+  };
+  return createFn[granularity](date);
+}
+main$1.DEFAULT_DAILY_NOTE_FORMAT = DEFAULT_DAILY_NOTE_FORMAT;
+main$1.DEFAULT_MONTHLY_NOTE_FORMAT = DEFAULT_MONTHLY_NOTE_FORMAT;
+main$1.DEFAULT_QUARTERLY_NOTE_FORMAT = DEFAULT_QUARTERLY_NOTE_FORMAT;
+main$1.DEFAULT_WEEKLY_NOTE_FORMAT = DEFAULT_WEEKLY_NOTE_FORMAT;
+main$1.DEFAULT_YEARLY_NOTE_FORMAT = DEFAULT_YEARLY_NOTE_FORMAT;
+var appHasDailyNotesPluginLoaded_1 = main$1.appHasDailyNotesPluginLoaded = appHasDailyNotesPluginLoaded;
+main$1.appHasMonthlyNotesPluginLoaded = appHasMonthlyNotesPluginLoaded;
+main$1.appHasQuarterlyNotesPluginLoaded = appHasQuarterlyNotesPluginLoaded;
+main$1.appHasWeeklyNotesPluginLoaded = appHasWeeklyNotesPluginLoaded;
+main$1.appHasYearlyNotesPluginLoaded = appHasYearlyNotesPluginLoaded;
+var createDailyNote_1 = main$1.createDailyNote = createDailyNote;
+main$1.createMonthlyNote = createMonthlyNote;
+main$1.createPeriodicNote = createPeriodicNote;
+main$1.createQuarterlyNote = createQuarterlyNote;
+main$1.createWeeklyNote = createWeeklyNote;
+main$1.createYearlyNote = createYearlyNote;
+var getAllDailyNotes_1 = main$1.getAllDailyNotes = getAllDailyNotes;
+main$1.getAllMonthlyNotes = getAllMonthlyNotes;
+main$1.getAllQuarterlyNotes = getAllQuarterlyNotes;
+main$1.getAllWeeklyNotes = getAllWeeklyNotes;
+main$1.getAllYearlyNotes = getAllYearlyNotes;
+var getDailyNote_1 = main$1.getDailyNote = getDailyNote;
+var getDailyNoteSettings_1 = main$1.getDailyNoteSettings = getDailyNoteSettings;
+var getDateFromFile_1 = main$1.getDateFromFile = getDateFromFile;
+main$1.getDateFromPath = getDateFromPath;
+main$1.getDateUID = getDateUID;
+main$1.getMonthlyNote = getMonthlyNote;
+main$1.getMonthlyNoteSettings = getMonthlyNoteSettings;
+main$1.getPeriodicNoteSettings = getPeriodicNoteSettings;
+main$1.getQuarterlyNote = getQuarterlyNote;
+main$1.getQuarterlyNoteSettings = getQuarterlyNoteSettings;
+main$1.getTemplateInfo = getTemplateInfo;
+main$1.getWeeklyNote = getWeeklyNote;
+main$1.getWeeklyNoteSettings = getWeeklyNoteSettings;
+main$1.getYearlyNote = getYearlyNote;
+main$1.getYearlyNoteSettings = getYearlyNoteSettings;
+function combineReducers(reducers) {
+  const reducerKeys = Object.keys(reducers);
+  const finalReducersObj = {};
+  for (const key of reducerKeys) {
+    if (typeof reducers[key] === "function") {
+      finalReducersObj[key] = reducers[key];
+    }
+  }
+  return (state = {}, action) => {
+    let hasChanged = false;
+    const nextState = {};
+    for (const key of reducerKeys) {
+      const prevStateForKey = state[key];
+      const nextStateForKey = finalReducersObj[key](prevStateForKey, action);
+      nextState[key] = nextStateForKey;
+      hasChanged = hasChanged || nextStateForKey !== prevStateForKey;
+    }
+    return hasChanged ? nextState : state;
+  };
+}
+function createStore(preloadedState, reducer2) {
+  const listeners2 = [];
+  let currentState = preloadedState;
+  const dispatch = (action) => {
+    const nextState = reducer2(currentState, action);
+    const prevState = currentState;
+    currentState = nextState;
+    for (const cb2 of listeners2) {
+      cb2(currentState, prevState);
+    }
+  };
+  const subscribe = (listener) => {
+    let isSubscribed = true;
+    listeners2.push(listener);
+    return () => {
+      if (!isSubscribed) {
+        return;
+      }
+      const index = listeners2.indexOf(listener);
+      listeners2.splice(index, 1);
+      isSubscribed = false;
+    };
+  };
+  const getState = () => {
+    return currentState;
+  };
+  return {
+    dispatch,
+    getState,
+    subscribe
+  };
+}
+function reducer$8(state, action) {
+  switch (action.type) {
+    case "SET_MARK_MEMO_ID": {
+      const id2 = action.payload.markMemoId;
+      if (id2 === "") {
+        if (state.markMemoIds.length === 0)
+          return state;
+        return { ...state, markMemoIds: [] };
+      }
+      const has = state.markMemoIds.includes(id2);
+      return {
+        ...state,
+        markMemoIds: has ? state.markMemoIds.filter((x2) => x2 !== id2) : [...state.markMemoIds, id2]
+      };
+    }
+    case "SET_EDIT_MEMO_ID": {
+      if (action.payload.editMemoId === state.editMemoId) {
+        return state;
+      }
+      return {
+        ...state,
+        editMemoId: action.payload.editMemoId
+      };
+    }
+    case "SET_MOBILE_VIEW": {
+      if (action.payload.isMobileView === state.isMobileView) {
+        return state;
+      }
+      return {
+        ...state,
+        isMobileView: action.payload.isMobileView
+      };
+    }
+    case "SET_SHOW_SIDEBAR_IN_MOBILE_VIEW": {
+      if (action.payload.showSiderbarInMobileView === state.showSiderbarInMobileView) {
+        return state;
+      }
+      return {
+        ...state,
+        showSiderbarInMobileView: action.payload.showSiderbarInMobileView
+      };
+    }
+    case "SET_APP_SETTING": {
+      return {
+        ...state,
+        ...action.payload
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+const defaultState$6 = {
+  markMemoIds: [],
+  editMemoId: "",
+  shouldSplitMemoWord: true,
+  shouldHideImageUrl: true,
+  shouldUseMarkdownParser: true,
+  isMobileView: false,
+  showSiderbarInMobileView: false
+};
+function reducer$7(state, action) {
+  switch (action.type) {
+    case "SET_LOCATION": {
+      return action.payload;
+    }
+    case "SET_PATHNAME": {
+      if (action.payload.pathname === state.pathname) {
+        return state;
+      }
+      return {
+        ...state,
+        pathname: action.payload.pathname
+      };
+    }
+    case "SET_HASH": {
+      if (action.payload.hash === state.hash) {
+        return state;
+      }
+      return {
+        ...state,
+        hash: action.payload.hash
+      };
+    }
+    case "SET_QUERY": {
+      return {
+        ...state,
+        query: {
+          ...action.payload
+        }
+      };
+    }
+    case "SET_TAG_QUERY": {
+      if (action.payload.tag === state.query.tag) {
+        return state;
+      }
+      return {
+        ...state,
+        query: {
+          ...state.query,
+          tag: action.payload.tag
+        }
+      };
+    }
+    case "SET_DURATION_QUERY": {
+      if (action.payload.duration === state.query.duration) {
+        return state;
+      }
+      return {
+        ...state,
+        query: {
+          ...state.query,
+          duration: {
+            ...state.query.duration,
+            ...action.payload.duration
+          }
+        }
+      };
+    }
+    case "SET_TYPE": {
+      if (action.payload.type === state.query.type) {
+        return state;
+      }
+      return {
+        ...state,
+        query: {
+          ...state.query,
+          type: action.payload.type
+        }
+      };
+    }
+    case "SET_TEXT": {
+      if (action.payload.text === state.query.text) {
+        return state;
+      }
+      return {
+        ...state,
+        query: {
+          ...state.query,
+          text: action.payload.text
+        }
+      };
+    }
+    case "SET_QUERY_FILTER": {
+      if (action.payload === state.query.filter) {
+        return state;
+      }
+      return {
+        ...state,
+        query: {
+          ...state.query,
+          filter: action.payload
+        }
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+const defaultState$5 = {
+  pathname: "/",
+  hash: "",
+  query: {
+    tag: "",
+    duration: null,
+    type: "",
+    text: "",
+    filter: ""
+  }
+};
+var utils;
+((utils2) => {
+  function getNowTimeStamp() {
+    return parseInt(require$$0.moment().format("x"));
+  }
+  utils2.getNowTimeStamp = getNowTimeStamp;
+  function getTimeStampByDate(t2) {
+    if (typeof t2 === "string") {
+      t2 = t2.replaceAll("-", "/");
+    }
+    return new Date(t2).getTime();
+  }
+  utils2.getTimeStampByDate = getTimeStampByDate;
+  function getDateStampByDate(t2) {
+    const d = new Date(getTimeStampByDate(t2));
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }
+  utils2.getDateStampByDate = getDateStampByDate;
+  function getDateString(t2) {
+    const d = new Date(getTimeStampByDate(t2));
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const date = d.getDate();
+    return `${year}/${month}/${date}`;
+  }
+  utils2.getDateString = getDateString;
+  function getTimeString(t2, showSeconds = true) {
+    const d = new Date(getTimeStampByDate(t2));
+    const hours = d.getHours();
+    const mins = d.getMinutes();
+    const secs = d.getSeconds();
+    const hoursStr = hours < 10 ? "0" + hours : hours;
+    const minsStr = mins < 10 ? "0" + mins : mins;
+    const secsStr = secs < 10 ? "0" + secs : secs;
+    return `${hoursStr}:${minsStr}${showSeconds ? ":" + secsStr : ""}`;
+  }
+  utils2.getTimeString = getTimeString;
+  function getDateTimeString(t2, showSeconds = true) {
+    const d = new Date(getTimeStampByDate(t2));
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const date = d.getDate();
+    const hours = d.getHours();
+    const mins = d.getMinutes();
+    const secs = d.getSeconds();
+    const monthStr = month < 10 ? "0" + month : month;
+    const dateStr = date < 10 ? "0" + date : date;
+    const hoursStr = hours < 10 ? "0" + hours : hours;
+    const minsStr = mins < 10 ? "0" + mins : mins;
+    const secsStr = secs < 10 ? "0" + secs : secs;
+    return `${year}/${monthStr}/${dateStr} ${hoursStr}:${minsStr}${showSeconds ? ":" + secsStr : ""}`;
+  }
+  utils2.getDateTimeString = getDateTimeString;
+  function dedupe(data) {
+    return Array.from(new Set(data));
+  }
+  utils2.dedupe = dedupe;
+  function dedupeObjectWithId(data, getKey) {
+    const idSet = /* @__PURE__ */ new Set();
+    const result = [];
+    const keyOf = getKey || ((d) => d.id);
+    for (const d of data) {
+      const key = keyOf(d);
+      if (!idSet.has(key)) {
+        idSet.add(key);
+        result.push(d);
+      }
+    }
+    return result;
+  }
+  utils2.dedupeObjectWithId = dedupeObjectWithId;
+  function debounce2(fn2, delay) {
+    let timer = null;
+    return () => {
+      if (timer) {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(fn2, delay);
+      } else {
+        timer = window.setTimeout(fn2, delay);
+      }
+    };
+  }
+  utils2.debounce = debounce2;
+  function debouncePlus(fn2, delay, immdiate = false, resultCallback) {
+    let timer = null;
+    let isInvoke = false;
+    function _debounce(...arg) {
+      if (timer)
+        window.clearTimeout(timer);
+      if (immdiate && !isInvoke) {
+        const result = fn2.apply(this, arg);
+        if (resultCallback && typeof resultCallback === "function")
+          resultCallback(result);
+        isInvoke = true;
+      } else {
+        timer = window.setTimeout(() => {
+          const result = fn2.apply(this, arg);
+          if (resultCallback && typeof resultCallback === "function")
+            resultCallback(result);
+          isInvoke = false;
+          timer = null;
+        }, delay);
+      }
+    }
+    _debounce.cancel = function() {
+      if (timer)
+        window.clearTimeout(timer);
+      timer = null;
+      isInvoke = false;
+    };
+    return _debounce;
+  }
+  utils2.debouncePlus = debouncePlus;
+  function throttle(fn2, delay) {
+    let valid = true;
+    return () => {
+      if (!valid) {
+        return false;
+      }
+      valid = false;
+      window.setTimeout(() => {
+        fn2();
+        valid = true;
+      }, delay);
+    };
+  }
+  utils2.throttle = throttle;
+  function transformObjectToParamsString(object) {
+    const params = [];
+    const keys = Object.keys(object).sort();
+    for (const key of keys) {
+      const val = object[key];
+      if (val) {
+        if (typeof val === "object") {
+          params.push(...transformObjectToParamsString(val).split("&"));
+        } else {
+          params.push(`${key}=${String(val)}`);
+        }
+      }
+    }
+    return params.join("&");
+  }
+  utils2.transformObjectToParamsString = transformObjectToParamsString;
+  function transformParamsStringToObject(paramsString) {
+    const object = {};
+    const params = paramsString.split("&");
+    for (const p2 of params) {
+      const [key, val] = p2.split("=");
+      if (key && val) {
+        object[key] = val;
+      }
+    }
+    return object;
+  }
+  utils2.transformParamsStringToObject = transformParamsStringToObject;
+  function filterObjectNullKeys(object) {
+    if (!object) {
+      return {};
+    }
+    const finalObject = {};
+    const keys = Object.keys(object).sort();
+    for (const key of keys) {
+      const val = object[key];
+      if (typeof val === "object") {
+        const temp = filterObjectNullKeys(JSON.parse(JSON.stringify(val)));
+        if (temp && Object.keys(temp).length > 0) {
+          finalObject[key] = temp;
+        }
+      } else {
+        if (val) {
+          finalObject[key] = val;
+        }
+      }
+    }
+    return finalObject;
+  }
+  utils2.filterObjectNullKeys = filterObjectNullKeys;
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (error) {
+        console.warn("Copy to clipboard failed.", error);
+      }
+    } else {
+      console.warn("Copy to clipboard failed, methods not supports.");
+    }
+  }
+  utils2.copyTextToClipboard = copyTextToClipboard;
+  function getImageSize(src) {
+    return new Promise((resolve) => {
+      const imgEl = new Image();
+      imgEl.onload = () => {
+        const { width, height } = imgEl;
+        if (width > 0 && height > 0) {
+          resolve({ width, height });
+        } else {
+          resolve({ width: 0, height: 0 });
+        }
+      };
+      imgEl.onerror = () => {
+        resolve({ width: 0, height: 0 });
+      };
+      imgEl.className = "hidden";
+      imgEl.src = src;
+      document.body.appendChild(imgEl);
+      imgEl.remove();
+    });
+  }
+  utils2.getImageSize = getImageSize;
+  async function createDailyNoteCheck(date) {
+    return await createDailyNote_1(date);
+  }
+  utils2.createDailyNoteCheck = createDailyNoteCheck;
+})(utils || (utils = {}));
+function getDailyNotePath() {
+  return getDailyNoteSettings_1().folder || "";
+}
+var utils$1 = utils;
+function reducer$6(state, action) {
+  switch (action.type) {
+    case "SET_MEMOS": {
+      const memos = utils$1.dedupeObjectWithId(
+        action.payload.memos.sort(
+          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
+        ),
+        (m2) => m2.hasId || m2.id
+      );
+      return {
+        ...state,
+        memos: [...memos]
+      };
+    }
+    case "SET_TAGS": {
+      return {
+        ...state,
+        tags: action.payload.tags,
+        tagsNum: action.payload.tagsNum
+      };
+    }
+    case "INSERT_MEMO": {
+      const memos = utils$1.dedupeObjectWithId(
+        [action.payload.memo, ...state.memos].sort(
+          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
+        ),
+        (m2) => m2.hasId || m2.id
+      );
+      return {
+        ...state,
+        memos
+      };
+    }
+    case "DELETE_MEMO_BY_ID": {
+      return {
+        ...state,
+        memos: [...state.memos].filter((memo2) => memo2.id !== action.payload.id)
+      };
+    }
+    case "EDIT_MEMO": {
+      const memos = state.memos.map((m2) => {
+        if (m2.id === action.payload.id) {
+          return {
+            ...m2,
+            ...action.payload
+          };
+        } else {
+          return m2;
+        }
+      });
+      return {
+        ...state,
+        memos
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+const defaultState$4 = {
+  memos: [],
+  tags: [],
+  tagsNum: {}
+};
+function reducer$5(state, action) {
+  switch (action.type) {
+    case "SIGN_IN": {
+      return {
+        user: action.payload.user
+      };
+    }
+    case "SIGN_OUT": {
+      return {
+        user: null
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+const defaultState$3 = { user: null };
+function reducer$4(state, action) {
+  switch (action.type) {
+    case "SET_QUERIES": {
+      const queries = utils$1.dedupeObjectWithId(
+        action.payload.queries.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).sort((a, b) => {
+          var _a2, _b;
+          return utils$1.getTimeStampByDate((_a2 = b.pinnedAt) != null ? _a2 : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
+        })
+      );
+      return {
+        ...state,
+        queries
+      };
+    }
+    case "INSERT_QUERY": {
+      const queries = utils$1.dedupeObjectWithId(
+        [action.payload.query, ...state.queries].sort(
+          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
+        )
+      );
+      return {
+        ...state,
+        queries
+      };
+    }
+    case "DELETE_QUERY_BY_ID": {
+      return {
+        ...state,
+        queries: [...state.queries].filter((query) => query.id !== action.payload.id)
+      };
+    }
+    case "UPDATE_QUERY": {
+      const queries = state.queries.map((m2) => {
+        if (m2.id === action.payload.id) {
+          return {
+            ...m2,
+            ...action.payload
+          };
+        } else {
+          return m2;
+        }
+      });
+      return {
+        ...state,
+        queries
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+const defaultState$2 = {
+  queries: []
+};
+function reducer$3(state, action) {
+  switch (action.type) {
+    case "SET_DAILYNOTES": {
+      const dailyNotes = getAllDailyNotes_1();
+      return {
+        ...state,
+        dailyNotes
+      };
+    }
+    case "SET_APP": {
+      return {
+        ...state,
+        app: action.payload.app
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+const defaultState$1 = {
+  dailyNotes: null,
+  app: null
+};
+const defaultState = {
+  settings: {}
+};
+const reducer$2 = (state = defaultState, action) => {
+  switch (action.type) {
+    case "SET_SETTINGS":
+      return { ...state, settings: action.payload.settings };
+    default:
+      return state;
+  }
+};
+const appStore = createStore(
+  {
+    globalState: defaultState$6,
+    locationState: defaultState$5,
+    memoState: defaultState$4,
+    userState: defaultState$3,
+    queryState: defaultState$2,
+    dailyNotesState: defaultState$1,
+    settingsState: defaultState
+  },
+  combineReducers({
+    globalState: reducer$8,
+    locationState: reducer$7,
+    memoState: reducer$6,
+    userState: reducer$5,
+    queryState: reducer$4,
+    dailyNotesState: reducer$3,
+    settingsState: reducer$2
+  })
+);
+const DEFAULT_MEMO_HEADING = "## Memo";
+function getMemoSectionRule(heading2) {
+  const title = (heading2 != null ? heading2 : "").trim() || DEFAULT_MEMO_HEADING;
+  const m2 = /^(#{1,6})\s/.exec(title);
+  return { title, level: m2 ? m2[1].length : 0 };
+}
+function isMemoHeadingLine(line, rule) {
+  return line.trim() === rule.title;
+}
+function isMemoSectionBoundary(line, rule) {
+  const m2 = /^(#{1,6})\s/.exec(line);
+  if (!m2) {
+    return false;
+  }
+  return rule.level === 0 || m2[1].length <= rule.level;
+}
+function computeScope(lines, heading2) {
+  const rule = getMemoSectionRule(heading2);
+  const inScope = new Array(lines.length).fill(false);
+  let active = false;
+  for (let i2 = 0; i2 < lines.length; i2++) {
+    const line = lines[i2];
+    if (isMemoHeadingLine(line, rule)) {
+      active = true;
+      continue;
+    }
+    if (active && isMemoSectionBoundary(line, rule)) {
+      active = false;
+      continue;
+    }
+    if (active) {
+      inScope[i2] = true;
+    }
+  }
+  return inScope;
+}
+class DailyNotesService {
+  getState() {
+    return appStore.getState().dailyNotesState;
+  }
+  getApp(app2) {
+    appStore.dispatch({
+      type: "SET_APP",
+      payload: {
+        app: app2
+      }
+    });
+    return app2;
+  }
+  async getMyAllDailyNotes() {
+    const dailyNotes = getAllDailyNotes_1();
+    appStore.dispatch({
+      type: "SET_DAILYNOTES",
+      payload: {
+        dailyNotes
+      }
+    });
+    return dailyNotes;
+  }
+  async getDailyNoteByMemo(date) {
+    const { dailyNotes } = this.getState();
+    const dailyNote = getDailyNote_1(date, dailyNotes);
+    return dailyNote;
+  }
+}
+const dailyNotesService = new DailyNotesService();
+async function openMemoFile(memoId, path) {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  let file = null;
+  if (path) {
+    const f2 = vault.getAbstractFileByPath(require$$0.normalizePath(path));
+    if (f2 instanceof require$$0.TFile)
+      file = f2;
+  }
+  if (!file && /^\d{14,}/.test(memoId)) {
+    const date = require$$0.moment(memoId.slice(0, 14), "YYYYMMDDHHmmss");
+    const dailyNote = getDailyNote_1(date, dailyNotesService.getState().dailyNotes);
+    if (dailyNote instanceof require$$0.TFile)
+      file = dailyNote;
+  }
+  if (!file)
+    return null;
+  const content2 = await vault.read(file);
+  return { file, lines: content2.split(/\r?\n/) };
+}
+function findHeaderLineIdx(lines, hasId, lineHint = 0) {
+  if (hasId) {
+    const want = "^" + hasId;
+    let best = -1;
+    let bestDist = Infinity;
+    for (let i2 = 0; i2 < lines.length; i2++) {
+      const l2 = lines[i2];
+      if (/^[-*]\s.*\^[A-Za-z0-9]{6}\s*$/.test(l2) && l2.trimEnd().endsWith(want)) {
+        const d = Math.abs(i2 - lineHint);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i2;
+        }
+      }
+    }
+    if (best !== -1)
+      return best;
+  }
+  if (lineHint >= 0 && lineHint < lines.length && /^[-*]\s/.test(lines[lineHint])) {
+    return lineHint;
+  }
+  return -1;
+}
+function scanBodyEnd(lines, headerIdx) {
+  let last2 = headerIdx;
+  for (let i2 = headerIdx + 1; i2 < lines.length; i2++) {
+    const l2 = lines[i2];
+    if (l2.trim() === "")
+      continue;
+    if (l2.length - l2.trimStart().length >= 4) {
+      last2 = i2;
+      continue;
+    }
+    break;
+  }
+  return last2;
+}
+function contentToBodyLines(content2) {
+  if (content2 === "")
+    return [];
+  return content2.split("\n").map((l2) => l2 === "" ? "" : "    " + l2);
+}
+async function waitForInsert(MemoContent, isTASK, insertDate) {
+  const date = insertDate ? insertDate : require$$0.moment();
+  const timeText = date.format("HH:mm:ss");
+  const generatedId = Math.random().toString(36).slice(-6);
+  const header = `${isTASK ? "- [ ] " : "- "}${timeText} ^${generatedId}`;
+  const content2 = (MemoContent != null ? MemoContent : "").replace(/\n+$/, "");
+  const bodyLines = contentToBodyLines(content2);
+  const blockText = bodyLines.length > 0 ? [header, ...bodyLines].join("\n") : header;
+  const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
+  const memo2 = {
+    id: "",
+    content: content2,
+    deletedAt: "",
+    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    memoType,
+    path: "",
+    hasId: generatedId,
+    linkId: ""
+  };
+  await writeBlockToDailyNote(date, blockText, memo2);
+  return memo2;
+}
+async function writeBlockToDailyNote(date, blockText, memo2) {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  let headerIdx;
+  const dailyNotes = getAllDailyNotes_1();
+  const existingFile = getDailyNote_1(date, dailyNotes);
+  if (!existingFile) {
+    const file = await utils$1.createDailyNoteCheck(date);
+    const fileContents = await vault.read(file) || "";
+    const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
+    await vault.modify(file, inserted.content);
+    headerIdx = inserted.headerIdx;
+    memo2.path = file.path;
+  } else {
+    const fileContents = await vault.read(existingFile) || "";
+    const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
+    await vault.modify(existingFile, inserted.content);
+    headerIdx = inserted.headerIdx;
+    memo2.path = existingFile.path;
+  }
+  memo2.id = date.format("YYYYMMDDHHmmss") + headerIdx;
+}
+function insertMemoBlock(targetString, blockText, fileContent) {
+  const lines = fileContent.split(/\r?\n/);
+  const blockLines = blockText.split("\n");
+  const rule = getMemoSectionRule(targetString);
+  if (lines.length === 1 && lines[0].trim() === "") {
+    const out = [rule.title, ...blockLines];
+    return { content: out.join("\n"), headerIdx: 1 };
+  }
+  const targetIdx = lines.findIndex((line) => isMemoHeadingLine(line, rule));
+  if (targetIdx === -1) {
+    return insertWithNewHeading(lines, blockLines, rule.title);
+  }
+  let nextHeading = -1;
+  for (let i2 = targetIdx + 1; i2 < lines.length; i2++) {
+    if (isMemoSectionBoundary(lines[i2], rule)) {
+      nextHeading = i2;
+      break;
+    }
+  }
+  if (nextHeading !== -1) {
+    let anchor = targetIdx;
+    for (let i2 = nextHeading - 1; i2 > targetIdx; i2--) {
+      if (lines[i2].trim() !== "") {
+        anchor = i2;
+        break;
+      }
+    }
+    const out = [...lines.slice(0, anchor + 1), ...blockLines, ...lines.slice(anchor + 1)];
+    return { content: out.join("\n"), headerIdx: anchor + 1 };
+  }
+  return appendAtEnd(lines, blockLines);
+}
+function insertWithNewHeading(lines, blockLines, title) {
+  let end2 = lines.length;
+  while (end2 > 0 && lines[end2 - 1].trim() === "")
+    end2--;
+  const out = [...lines.slice(0, end2), "", title, ...blockLines, ""];
+  return { content: out.join("\n"), headerIdx: end2 + 1 };
+}
+function appendAtEnd(lines, blockLines) {
+  const last2 = lines.length - 1;
+  if (lines[last2] === "") {
+    const out2 = [...lines.slice(0, last2), ...blockLines, ""];
+    return { content: out2.join("\n"), headerIdx: last2 };
+  }
+  const out = [...lines, ...blockLines];
+  return { content: out.join("\n"), headerIdx: lines.length };
+}
+async function changeMemo(memoid, content2, memoType, path, hasId) {
+  const loc = await openMemoFile(memoid, path);
+  if (!loc) {
+    throw new Error("File not found");
+  }
+  const hint = parseInt(memoid.slice(14));
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+  if (headerIdx === -1) {
+    throw new Error("Memo header not found in file");
+  }
+  const normalized = (content2 != null ? content2 : "").replace(/\n+$/, "");
+  const bodyLines = contentToBodyLines(normalized);
+  const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
+  const before = loc.lines.slice(0, headerIdx + 1);
+  const after = loc.lines.slice(bodyEnd + 1);
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, [...before, ...bodyLines, ...after].join("\n"));
+  const date = require$$0.moment(memoid.slice(0, 14), "YYYYMMDDHHmmss");
+  return {
+    id: memoid,
+    content: normalized,
+    user_id: 1,
+    deletedAt: "",
+    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
+    memoType: memoType || "JOURNAL",
+    hasId: hasId || "",
+    linkId: "",
+    path: loc.file.path
+  };
+}
+const DELETED_AT_VALUE_REG = /\s+deletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
+const lineHintOf = (memoid) => {
+  const n2 = parseInt(memoid.slice(14));
+  return isNaN(n2) ? 0 : n2;
+};
+async function obHideMemo(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  if (DELETED_AT_VALUE_REG.test(line))
+    return null;
+  const now = require$$0.moment();
+  const deletedAtStr = " deletedAt: " + now.format("YYYY-MM-DD HH:mm:ss");
+  let newLine;
+  if (/\s*\^[A-Za-z0-9]{6}\s*$/.test(line)) {
+    newLine = line.replace(/\s*\^([A-Za-z0-9]{6})\s*$/, deletedAtStr + " ^$1");
+  } else {
+    newLine = line.trimEnd() + deletedAtStr;
+  }
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
+async function restoreMemo(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  const newLine = line.replace(DELETED_AT_VALUE_REG, "");
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
+async function deleteMemo(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
+  if (headerIdx === -1)
+    return null;
+  const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
+  const newLines = [...loc.lines.slice(0, headerIdx), ...loc.lines.slice(bodyEnd + 1)];
+  if (newLines.length === loc.lines.length)
+    return null;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, newLines.join("\n"));
+  return loc.file;
+}
+async function toggleMemoTask(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const hint = parseInt(memoid.slice(14));
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  const mark = /^[-*]\s\[([ xX])\]/.exec(line);
+  if (!mark)
+    return null;
+  const nextMark = mark[1] === " " ? "x" : " ";
+  const newLine = line.replace(/^([-*]\s)\[[ xX]\]/, `$1[${nextMark}]`);
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
+async function toggleMemoTaskType(memoid, hasId, path) {
+  if (!/\d{14,}/.test(memoid))
+    return null;
+  const loc = await openMemoFile(memoid, path);
+  if (!loc)
+    return null;
+  const hint = parseInt(memoid.slice(14));
+  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
+  if (headerIdx === -1)
+    return null;
+  const line = loc.lines[headerIdx];
+  let newLine;
+  if (/^[-*]\s\[[ xX]\]/.test(line)) {
+    newLine = line.replace(/^([-*]\s)\[[ xX]\]\s?/, "$1");
+  } else if (/^[-*]\s(?=\d)/.test(line)) {
+    newLine = line.replace(/^([-*]\s)(?=\d)/, "$1[ ] ");
+  } else {
+    return null;
+  }
+  if (newLine === line)
+    return null;
+  loc.lines[headerIdx] = newLine;
+  const { vault } = appStore.getState().dailyNotesState.app;
+  await vault.modify(loc.file, loc.lines.join("\n"));
+  return loc.file;
+}
+const perFile = /* @__PURE__ */ new Map();
+const listeners = /* @__PURE__ */ new Set();
+const notify = () => listeners.forEach((l2) => l2());
+const legacySignal = {
+  report(path, count) {
+    if (count === 0) {
+      if (!perFile.delete(path))
+        return;
+    } else {
+      if (perFile.get(path) === count)
+        return;
+      perFile.set(path, count);
+    }
+    notify();
+  },
+  reset() {
+    if (perFile.size === 0)
+      return;
+    perFile.clear();
+    notify();
+  },
+  total() {
+    let n2 = 0;
+    for (const v2 of perFile.values())
+      n2 += v2;
+    return n2;
+  },
+  subscribe(listener) {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }
+};
+var ar = {};
+var cz = {};
+var da$1 = {};
+var de$1 = {};
+var en = {
+  welcome: "Welcome to the Memos",
+  ribbonIconTitle: "Rememo",
+  to: "to",
+  months: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ],
+  monthsShort: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."],
+  weekDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  weekDaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  year: null,
+  month: null,
+  "Basic Options": "Basic Options",
+  "User name in Memos": "User name in Memos",
+  "Set your user name here. 'Memos \u{1F60F}' By default": "Set your user name here. 'Memos \u{1F60F}' By default",
+  "Insert after heading": "Insert after heading",
+  "You should set the same heading below if you want to insert and process memos below the same heading.": "You should set the same heading below if you want to insert and process memos below the same heading.",
+  "Allows admonitions to be created using ": "Allows admonitions to be created using ",
+  "Process Memos below": "Process Memos below",
+  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.",
+  "Save Memo button label": "Save Memo button label",
+  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": "The text shown on the save Memo button in the UI. 'NOTEIT' by default.",
+  "Focus on editor when open memos": "Focus on editor when open memos",
+  "Focus on editor when open memos. Focus by default.": "Focus on editor when open memos. Focus by default.",
+  "Open daily memos with open memos": "Open daily memos with open memos",
+  "Open daily memos with open memos. Open by default.": "Open daily memos with open memos. Open by default.",
+  "Open Memos when obsidian opens": "Open Memos when obsidian opens",
+  "When enable this, Memos will open when Obsidian opens. False by default.": "When enable this, Memos will open when Obsidian opens. False by default.",
+  "Hide done tasks in Memo list": "Hide done tasks in Memo list",
+  "Hide all done tasks in Memo list. Show done tasks by default.": "Hide all done tasks in Memo list. Show done tasks by default.",
+  "Send memo by Enter key": "Send memo by Enter key",
+  "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.": "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.",
+  "Advanced Options": "Advanced Options",
+  "UI language for date": "UI language for date",
+  "Translates the date UI language. Only 'en' and 'zh' are available.": "Translates the date UI language. Only 'en' and 'zh' are available.",
+  "Default prefix": "Default prefix",
+  "Time display format": "Time display format",
+  "Content font size": "Content font size",
+  "Font size of memo content inside Rememo only. Does not affect your notes.": "Font size of memo content inside Rememo only. Does not affect your notes.",
+  "Follow Obsidian": "Follow Obsidian",
+  "Time display format description": "Time in the UI: HH:mm:ss (with seconds, default) or HH:mm (without seconds). This option only affects display - data in your note files is never modified.",
+  "Set the default prefix when create memo, 'List' by default.": "Set the default prefix when create memo, 'List' by default.",
+  "Default insert date format": "Default insert date format",
+  "Set the default date format when insert date by @, 'Tasks' by default.": "Set the default date format when insert date by @, 'Tasks' by default.",
+  "Default editor position on mobile": "Default editor position on mobile",
+  "Set the default editor position on Mobile, 'Top' by default.": "Set the default editor position on Mobile, 'Top' by default.",
+  "Use button to show editor on mobile": "Use button to show editor on mobile",
+  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Set a float button to call editor on mobile. Only when editor located at the bottom works.",
+  "Show Time When Copy Results": "Show Time When Copy Results",
+  "Show time when you copy results, like 12:00. Copy time by default.": "Show time when you copy results, like 12:00. Copy time by default.",
+  "Show Date When Copy Results": "Show Date When Copy Results",
+  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": "Show date when you copy results, like [[2022-01-01]]. Copy date by default.",
+  "Add Blank Line Between Different Date": "Add Blank Line Between Different Date",
+  "Add blank line when copy result with date. No blank line by default.": "Add blank line when copy result with date. No blank line by default.",
+  "Share Options": "Share Options",
+  "Share Memos Image Footer Start": "Share Memos Image Footer Start",
+  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default",
+  "Share Memos Image Footer End": "Share Memos Image Footer End",
+  "Set anything you want here. '\u270D\uFE0F Rememo' By default": "Set anything you want here. '\u270D\uFE0F Rememo' By default",
+  "Save Shared Image To Folder For Mobile": "Save Shared Image To Folder For Mobile",
+  "Save image to folder for mobile. False by Default": "Save image to folder for mobile. False by Default",
+  "Say Thank You": "Say Thank You",
+  Donate: "Donate",
+  "If you like this plugin, consider donating to support continued development:": "If you like this plugin, consider donating to support continued development:",
+  "File Name of Recycle Bin": "File Name of Recycle Bin",
+  "Set the filename for recycle bin. 'delete' By default": "Set the filename for recycle bin. 'delete' By default",
+  "File Name of Query File": "File Name of Query File",
+  "Set the filename for query file. 'query' By default": "Set the filename for query file. 'query' By default",
+  "Use Tags In Vault": "Use Tags In Vault",
+  "Use tags in vault rather than only in Memos. False by default.": "Use tags in vault rather than only in Memos. False by default.",
+  "Hide Memos With References In List": "Hide Memos With References In List",
+  "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.",
+  REFS: "REFERENCES",
+  "Reference target deleted": "Reference target deleted",
+  Reply: "Reply",
+  "Reply to this memo": "Reply to this memo",
+  "Reply to": "Reply to",
+  "Reference a memo": "Reference a memo",
+  "Search memos...": "Search memos...",
+  "No memos found": "No memos found",
+  Cancel: "Cancel",
+  "Ready to convert image into background": "Ready to convert image into background",
+  List: "List",
+  Task: "Task",
+  Top: "Top",
+  Bottom: "Bottom",
+  TAG: "TAG",
+  MEMO: "MEMO",
+  DAY: "DAY",
+  QUERY: "QUERY",
+  EDIT: "EDIT",
+  PIN: "PIN",
+  UNPIN: "UNPIN",
+  DELETE: "DELETE",
+  "CONFIRM\uFF01": "CONFIRM\uFF01",
+  "CREATE FILTER": "CREATE FILTER",
+  Settings: "Settings",
+  "Recycle bin": "Recycle bin",
+  "Enable Recycle Bin": "Enable Recycle Bin",
+  "Memo": "Memo",
+  "List & Sidebar": "List & Sidebar",
+  "Startup & Opening": "Startup & Opening",
+  "Memo heading": "Memo heading",
+  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo",
+  "Show Heat Map": "Show Heat Map",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Whether to show the usage heat map in the sidebar. True by default.",
+  "Start day of week": "Start day of week",
+  "The first day of each column in the heat map. Sunday by default.": "The first day of each column in the heat map. Sunday by default.",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.",
+  "DELETE FOREVER?": "DELETE FOREVER?",
+  "Audit data": "Audit data",
+  "About Me": "About Me",
+  "Fetching data...": "Fetching data...",
+  "Here is No Zettels.": "Here is No Zettels.",
+  "Frequently Used Tags": "Frequently Used Tags",
+  "Flat view": "Flat view",
+  "Tree view": "Tree view",
+  "What do you think now...": "What do you think now...",
+  READ: "READ",
+  MARK: "MARK",
+  SHARE: "SHARE",
+  SOURCE: "SOURCE",
+  RESTORE: "RESTORE",
+  "Mark as done": "Mark as done",
+  "Mark as todo": "Mark as todo",
+  "TURN INTO TASK": "TURN INTO TASK",
+  "TURN INTO MEMO": "TURN INTO MEMO",
+  "DELETE AT": "DELETE AT",
+  "Noooop!": "Noooop!",
+  "All Data is Loaded \u{1F389}": "All caught up \u{1F389}",
+  "Quick filter": "Quick filter",
+  TYPE: "TYPE",
+  LINKED: "LINKED",
+  "NO TAGS": "NO TAGS",
+  "HAS LINKS": "HAS LINKS",
+  "HAS IMAGES": "HAS IMAGES",
+  INCLUDE: "INCLUDE",
+  EXCLUDE: "EXCLUDE",
+  TEXT: "TEXT",
+  IS: "IS",
+  ISNOT: "ISNOT",
+  SELECT: "SELECT",
+  "ADD FILTER TERMS": "ADD FILTER TERMS",
+  FILTER: "FILTER",
+  TITLE: "TITLE",
+  "CREATE QUERY": "CREATE QUERY",
+  "EDIT QUERY": "EDIT QUERY",
+  MATCH: "MATCH",
+  TIMES: "TIMES",
+  "Share Memo Image": "Share Memo Image",
+  "\u2197Click the button to save": "\u2197Click the button to save",
+  "Image is generating...": "Image is generating...",
+  "Image is loading...": "Image is loading...",
+  "Loading...": "Loading...",
+  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} Cannot load image, image link maybe broken",
+  "Daily Memos": "Daily Memos",
+  "CANCEL EDIT": "CANCEL EDIT",
+  "Write to date": "Write to date",
+  "Write on": "Write on",
+  "Back to now": "Back to now",
+  Home: "Home",
+  "Random memo": "Random memo",
+  "Data tools": "Data tools",
+  "Data Audit": "Data Audit",
+  "Open the audit page to inspect and migrate memo data in daily notes.": "Open the audit page to inspect and migrate memo data in daily notes.",
+  "Draw another": "Draw another",
+  "Open the daily note": "Open the daily note",
+  "No memo found": "No memo found",
+  Today: "Today",
+  Time: "Time",
+  "LINK TO THE": "LINK TO THE",
+  "Mobile Options": "Mobile Options",
+  "Experimental Options": "Experimental Options",
+  "Don't support web image yet, please input image path in vault": "Don't support web image yet, please input image path in vault",
+  "Background Image in Dark Theme": "Background Image in Dark Theme",
+  "Background Image in Light Theme": "Background Image in Light Theme",
+  'Set background image in dark theme. Set something like "Daily/one.png"': 'Set background image in dark theme. Set something like "Daily/one.png"',
+  'Set background image in light theme. Set something like "Daily/one.png"': 'Set background image in light theme. Set something like "Daily/one.png"',
+  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default',
+  "Default Memo Composition": "Default Memo Composition",
+  "Show tasks label near the time text. False by default": "Show tasks label near the time text. False by default",
+  "Please Open Memos First": "Please Open Memos First",
+  DATE: "DATE",
+  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
+  BEFORE: "BEFORE",
+  AFTER: "AFTER",
+  "You can comment on memos. False by default": "You can comment on memos. False by default",
+  Import: "Import",
+  "TITLE CANNOT BE NULL!": "TITLE CANNOT BE NULL!",
+  "FILTER CANNOT BE NULL!": "FILTER CANNOT BE NULL!",
+  "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "You should install Dataview Plugin ver 0.5.9 or later to use this feature.",
+  "Fetch Error": "\u{1F62D} Fetch Error",
+  "Copied to clipboard Successfully": "Copied to clipboard Successfully",
+  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin",
+  "Please finish the last filter setting first": "Please finish the last filter setting first",
+  "Close Memos Successfully": "Close Memos Successfully",
+  "Insert as Memo": "Insert as Memo",
+  "Insert file as memo content": "Insert file as memo content",
+  "Image load failed": "Image load failed",
+  "Content cannot be empty": "Content cannot be empty",
+  "Unable to create new file.": "Unable to create new file.",
+  "Failed to fetch deleted memos: ": "Failed to fetch deleted memos: ",
+  "RESTORE SUCCEED": "RESTORE SUCCEED",
+  "Save Memo button icon": "Save Memo button icon",
+  "The icon shown on the save Memo button in the UI.": "The icon shown on the save Memo button in the UI.",
+  "Fetch Memos From Particular Notes": "Fetch Memos From Particular Notes",
+  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default',
+  "Allow Memos to Fetch Memo from Notes": "Allow Memos to Fetch Memo from Notes",
+  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": "Use Memos to manage all memos in your notes, not only in daily notes. False by default",
+  "Always show memo comments on memos. False by default": "Always show memo comments on memos. False by default",
+  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.",
+  "Please check your daily note plugin OR periodic notes plugin settings": "Please check your daily note plugin OR periodic notes plugin settings",
+  "Use Which Plugin's Default Configuration": "Use Which Plugin's Default Configuration",
+  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.",
+  Daily: "Daily",
+  "Always Show Leaf Sidebar on PC": "Always Show Leaf Sidebar on PC",
+  "Show left sidebar on PC even when the leaf width is less than 875px. False by default.": "Show left sidebar on PC even when the leaf width is less than 875px. False by default.",
+  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.",
+  "Previous page": "Previous page",
+  "Next page": "Next page",
+  "Type Here": "Type Here",
+  TagTipFirst: "Input ",
+  TagTipSecond: "to create a tag...",
+  "Failed to save: ": "Failed to save: ",
+  "Auto-clean Recycle Bin": "Auto-clean Recycle Bin",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.",
+  "Never delete": "Never delete",
+  "7 days": "7 days",
+  "30 days": "30 days",
+  "90 days": "90 days",
+  "180 days": "180 days",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Auto-cleaned {N} expired memos from the recycle bin",
+  "Send sound": "Send sound",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.",
+  "Built-in (card deal)": "Built-in (card deal)",
+  "Custom path": "Custom path",
+  "Not played": "Not played",
+  "Sound file path": "Sound file path",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Enter a vault-relative path (e.g. assets/send.mp3).",
+  Preview: "Preview",
+  "Failed to play the sound: ": "Failed to play the sound: ",
+  "Tag position": "Tag position",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Show tags at the bottom of the card, or keep them where they appear in the text.",
+  "In place": "In place",
+  "What needs doing...": "What needs doing...",
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} Data health check",
+  "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.": "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.",
+  "Recently fixed": "\u2705 Recently fixed",
+  Clear: "Clear",
+  "Re-scan": "Re-scan",
+  "Migrate all legacy files ({n})": "Migrate all legacy files ({n})",
+  "Auto-fix all ({n})": "Auto-fix all ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} files \xB7 {lines} memos \xB7 {issues} issues",
+  " (incl. {n} legacy-format files)": " (incl. {n} legacy-format files)",
+  " ({n} auto-fixable)": " ({n} auto-fixable)",
+  "Scanning\u2026 {done}/{total}": "Scanning\u2026 {done}/{total}",
+  "Working\u2026": "Working\u2026",
+  "No problems found \u{1F389}": "No problems found \u{1F389}",
+  "{n} errors": "{n} errors",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrate file",
+  "Migrating\u2026": "Migrating\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 fix to:",
+  "Fix this line": "Fix this line",
+  View: "View",
+  Ignore: "Ignore",
+  "Fix all": "Fix all",
+  "Scan failed: ": "Scan failed: ",
+  "Migration failed: ": "Migration failed: ",
+  "no auto-fixable issues": "no auto-fixable issues",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "cannot auto-fix further \u2014 the remaining issues need manual work or a migration",
+  "fix-round limit reached; re-scan to check what is left": "fix-round limit reached; re-scan to check what is left",
+  "Migration done: {n} entries converted": "Migration done: {n} entries converted",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migrated all: {files} files \xB7 {n} entries converted",
+  ", {n} cross-day comments moved to their daily notes": ", {n} cross-day comments moved to their daily notes",
+  ", {n} deleted comments dropped": ", {n} deleted comments dropped",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entries kept as-is (could not be mapped)",
+  ", failed: {list}": ", failed: {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.",
+  ". Backups are in .rememo-backup/migrate-*.": ". Backups are in .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nothing to migrate ({n} lines lack a time and need manual work).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "This file has no legacy-format lines \u2014 no migration needed.",
+  "Legacy <br> line breaks": "Legacy <br> line breaks",
+  "Duplicate ^id": "Duplicate ^id",
+  "Legacy format row": "Legacy format row",
+  "Legacy 14-digit timestamp": "Legacy 14-digit timestamp",
+  "Missing ^id": "Missing ^id",
+  "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.": "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.",
+  "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.": "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.",
+  "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.": "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.",
+  "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.": "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.",
+  "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.": "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.",
+  "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file": "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file",
+  "legacy-format row: a whole-file migration converts it into a card block": "legacy-format row: a whole-file migration converts it into a card block",
+  "first seen at line {n}": "first seen at line {n}",
+  "Your old memos are still here": "Your old memos are still here",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.",
+  "Open data health check": "Open data health check"
+};
+var enGB = {};
+var es = {};
+var fr = {
+  welcome: "Bienvenue dans M\xE9mo !",
+  ribbonIconTitle: "M\xE9mos",
+  months: [
+    "Janvier",
+    "F\xE9vrier",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Aout",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "D\xE9cembre"
+  ],
+  monthsShort: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."],
+  weekDays: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+  weekDaysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+  to: "\xE0",
+  year: null,
+  month: null,
+  "Basic Options": "Options basique",
+  "User name in Memos": "Username dans M\xE9mos",
+  "Set your user name here. 'Memos \u{1F60F}' By default": "D\xE9finissez votre username ici. D\xE9faut : 'Memo \u{1F60F}'",
+  "Insert after heading": "Ins\xE9rer apr\xE8s le titre",
+  "You should set the same heading below if you want to insert and process memos below the same heading.": "Vous devez d\xE9finir le m\xEAme titre en-dessous si vous voulez ins\xE9rer et traiter des m\xE9mos sous le m\xEAme titre.",
+  "Allows admonitions to be created using ": "Permet de cr\xE9er des admonitions en utilisant",
+  "Process Memos below": "Ins\xE9rer M\xE9mo sous",
+  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Seulement les entr\xE9e sous cette section/phrase dans vos notes seront consid\xE9r\xE9s. S'il n'existe pas, aucune notes ne sera trait\xE9 pour ce fichier.",
+  "Save Memo button label": "Titre du bouton de sauvegarde",
+  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": "Le texte affich\xE9 sur le bouton de sauvegarde dans l'UI. D\xE9faut : 'NOTEIT'",
+  "Focus on editor when open memos": "Focus sur l'\xE9diteur lors de l'ouverture du m\xE9mo.",
+  "Focus on editor when open memos. Focus by default.": "Focus sur l'\xE9diteur lors de l'ouverture du m\xE9mo. Focus par d\xE9faut.",
+  "Open daily memos with open memos": "Ouvrir les m\xE9mos quotidiens quand m\xE9mo est ouvert.",
+  "Open daily memos with open memos. Open by default.": "Ouvrir les m\xE9mos quotidiens quand m\xE9mo est ouvert.",
+  "Open Memos when obsidian opens": "Ouvrir M\xE9mo quand Obsidian est ouvert.",
+  "When enable this, Memos will open when Obsidian opens. False by default.": "Quand activ\xE9, Memo sera ouvert quand Obsidian \xE0 l'ouverture d'Obsidian. D\xE9sactiv\xE9 par d\xE9faut.",
+  "Hide done tasks in Memo list": "Masquer les t\xE2ches accomplies dans la liste des m\xE9mos.",
+  "Hide all done tasks in Memo list. Show done tasks by default.": "Masquer les t\xE2ches accomplies dans les m\xE9mos. Affiche les t\xE2ches accomplies par d\xE9faut.",
+  "Advanced Options": "Options avanc\xE9es",
+  "UI language for date": "Langue de l'UI pour la date",
+  "Translates the date UI language. Only 'en' and 'zh' are available.": "Traduit la langue des dates dans l'UI. Seuls 'en', 'fr' et 'zh' sont disponibles. ",
+  "Default prefix": "Pr\xE9fix par d\xE9faut.",
+  "Set the default prefix when create memo, 'List' by default.": "D\xE9finit le pr\xE9fix par d\xE9faut lors de la cr\xE9ation d'un m\xE9mo. D\xE9fault : 'Liste'",
+  "Default insert date format": "Format de la date ins\xE9r\xE9e par d\xE9faut.",
+  "Default editor position on mobile": "Position par d\xE9faut de l'\xE9diteur sur mobile.",
+  "Set the default date format when insert date by @, 'Tasks' by default.": "D\xE9finit le format de la date par d\xE9faut lors de l'insertion de la date par @. D\xE9faut : 'T\xE2ches'.",
+  "Set the default editor position on Mobile, 'Top' by default.": "Position par d\xE9faut de l'\xE9diteur sur le mobile. D\xE9faut : 'Haut'.",
+  "Use button to show editor on mobile": "Utilisation du bouton pour afficher l'\xE9diteur sur le mobile.",
+  "Show Time When Copy Results": "Aficher l'heure quand les r\xE9sultats sont copi\xE9s",
+  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Place un bouton flottant pour appeler l'\xE9diteur sur mobile. Fonctionne uniquement quand l'\xE9diteur est plac\xE9 en bas.",
+  "Show time when you copy results, like 12:00. Copy time by default.": "Affiche l'heure quand les r\xE9sultats sont copi\xE9s, comme '12:00'. Copie l'heure par d\xE9faut",
+  "Show Date When Copy Results": "Affiche la date quand les r\xE9sultats sont copi\xE9s",
+  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": "Affiche la date quand les r\xE9sultats sont copi\xE9s, comme [[2022-01-01]]. Par d\xE9faut, copie la date.",
+  "Add Blank Line Between Different Date": "Ajoute une ligne entre les diff\xE9rentes dates.",
+  "Add blank line when copy result with date. No blank line by default.": "Ajoute une ligne lors de la copie du r\xE9sultat avec la date. Pas de ligne par d\xE9faut.",
+  "Share Options": "Options de partage",
+  "Share Memos Image Footer Start": "D\xE9but du pied de page \u2014 Partage de m\xE9mo de m\xE9mos",
+  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "D\xE9finissez ce que vous voulez ici, utilisez {MemosNum} pour afficher le nombre de m\xE9mos, {UsedDay} pour les jours. Par d\xE9faut : '{MemosNum} Memos {UsedDay} Days.",
+  "Share Memos Image Footer End": "Fin du pied de page \u2014 Partage de m\xE9mo",
+  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "D\xE9finissez ce que vous voulez ici. Utilisez {UserName} comme username. Par d\xE9faut : '\u270D\uFE0F By {UserName}'",
+  "Save Shared Image To Folder For Mobile": "Sauvegarde des images partag\xE9s dans un dossier sur mobile.",
+  "Save image to folder for mobile. False by Default": "Sauvegarder les images dans un dossier sur mobile. D\xE9sactiv\xE9 par d\xE9faut.",
+  "Say Thank You": "Dites Merci",
+  Donate: "Faire un don",
+  "If you like this plugin, consider donating to support continued development:": "Si vous aimez ce plugin, envisagez de faire un don pour soutenir le d\xE9veloppement continu :",
+  "File Name of Recycle Bin": "Nom de la corbeille",
+  "Set the filename for recycle bin. 'delete' By default": "D\xE9finition du nom de la poubelle. D\xE9faut : 'Delete'",
+  "Set the filename for query file. 'query' By default": "D\xE9finit le nom de fichier pour les requ\xEAte. D\xE9faut : 'Query'",
+  "Use Tags In Vault": "Utiliser des tags dans le Coffre",
+  "Use tags in vault rather than only in Memos. False by default.": "Utiliser des tags du coffre plut\xF4t que ceux que seulement dans M\xE9mo. D\xE9sactiv\xE9 par d\xE9faut.",
+  "Ready to convert image into background": "Pr\xEAt pour convertir des image en arri\xE8re-plan.",
+  List: "Liste",
+  Task: "T\xE2che",
+  Top: "Haut",
+  Bottom: "Bas",
+  TAG: "TAG",
+  MEMO: "MEMO",
+  DAY: "JOUR",
+  QUERY: "RECHERCHE",
+  EDIT: "EDITER",
+  PIN: "PIN",
+  UNPIN: "\xC9PINGLER",
+  DELETE: "DES\xC9PINGLER",
+  "CONFIRM\uFF01": "CONFIRMER \uFF01",
+  "CREATE FILTER": "CR\xC9ER FILTRE",
+  Settings: "Param\xE8tres",
+  "Recycle bin": "Corbeille",
+  "Enable Recycle Bin": "Activer la corbeille",
+  "Memo": "M\xE9mo",
+  "List & Sidebar": "Liste et barre lat\xE9rale",
+  "Startup & Opening": "D\xE9marrage et ouverture",
+  "Memo heading": "Titre de la section M\xE9mo",
+  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "Les nouveaux m\xE9mos sont \xE9crits sous ce titre, et seuls les \xE9l\xE9ments sous celui-ci sont lus. S'il est absent, il sera cr\xE9\xE9 automatiquement. Par d\xE9faut : ## Memo",
+  "Show Heat Map": "Afficher la carte de chaleur",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Afficher la carte de chaleur d'utilisation dans la barre lat\xE9rale. Activ\xE9 par d\xE9faut.",
+  "Start day of week": "Premier jour de la semaine",
+  "The first day of each column in the heat map. Sunday by default.": "Premier jour de chaque colonne de la carte de chaleur. Dimanche par d\xE9faut.",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Lorsque cette option est d\xE9sactiv\xE9e, supprimer un m\xE9mo le retire d\xE9finitivement au lieu de le d\xE9placer dans la corbeille. Les m\xE9mos d\xE9j\xE0 dans la corbeille sont conserv\xE9s et r\xE9apparaissent lorsque cette option est r\xE9activ\xE9e.",
+  "DELETE FOREVER?": "SUPPRIMER D\xC9FINITIVEMENT ?",
+  "About Me": "\xC0 propos de moi",
+  "Fetching data...": "R\xE9cup\xE9ration des donn\xE9es...",
+  "Here is No Zettels.": "Il n'y a pas de Zettels.",
+  "Frequently Used Tags": "Tags fr\xE9quemment utilis\xE9s",
+  "Flat view": "Vue \xE0 plat",
+  "Tree view": "Vue arborescente",
+  "What do you think now...": "Que pensez-vous maintenant...",
+  READ: "LU",
+  MARK: "MARQUER",
+  SHARE: "PARTAGER",
+  SOURCE: "SOURCE",
+  RESTORE: "RESTAURER",
+  "DELETE AT": "SUPPRIMER",
+  "Noooop!": "Noooop!",
+  "All Data is Loaded \u{1F389}": "C\u2019est tout \u{1F389}",
+  "Quick filter": "Filtre rapide",
+  TYPE: "TYPE",
+  LINKED: "LIEN",
+  "NO TAGS": "PAS DE TAGS",
+  "HAS LINKS": "A DES LIENS",
+  "HAS IMAGES": "A DES IMAGES",
+  INCLUDE: "INCLUS",
+  EXCLUDE: "EXCLUS",
+  TEXT: "TEXTE",
+  IS: "EST",
+  ISNOT: "N'EST PAS",
+  SELECT: "SELECTION",
+  "ADD FILTER TERMS": "AJOUTER DES TERMES FILTR\xC9",
+  FILTER: "FILTRE",
+  TITLE: "TITRE",
+  "CREATE QUERY": "CR\xC9ER UNE RECHERCHE",
+  "EDIT QUERY": "\xC9DITER UNE RECHERCHE",
+  MATCH: "MATCH",
+  TIMES: "HEURE",
+  "Share Memo Image": "Partager un m\xE9mo image",
+  "\u2197Click the button to save": "\u2197Clique pour sauvegarder",
+  "Image is generating...": "G\xE9n\xE9ration de l'image...",
+  "Image is loading...": "Image en chargement...",
+  "Loading...": "Chargement...",
+  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} Impossible de charger l'image, le lien peut \xEAtre bris\xE9",
+  "Daily Memos": "M\xE9mo quotidien",
+  "CANCEL EDIT": "ANNULER L'\xC9DITION",
+  "LINK TO THE": "LIENS \xC0",
+  "Mobile Options": "Options mobile",
+  "Don't support web image yet, please input image path in vault": "Ne supporte pas les images webs. Merci d'ins\xE9rer le chemin de l'image depuis le coffre.",
+  "Background Image in Dark Theme": "Image de fond en th\xE8me sombre",
+  "Background Image in Light Theme": "Image de fond en th\xE8me clair",
+  'Set background image in dark theme. Set something like "Daily/one.png"': "D\xE9finir l'image de fond en th\xE8me sombre. D\xE9finir 'Daily/one.png' par exemple.",
+  'Set background image in light theme. Set something like "Daily/one.png"': "D\xE9finir l'image de fond en th\xE8me clair. D\xE9finir 'Daily/one.png' par exemple.",
+  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'D\xE9finir la composition par d\xE9faut du m\xE9mo, vous devez utiliser {TIME} comme "HH:mm" et {CONTENT} comme contenu. "{TIME} {CONTENT}" par d\xE9faut',
+  "Default Memo Composition": "Composition par d\xE9faut du m\xE9mo",
+  "Show Tasks Label": "Afficher les \xE9tiquettes des t\xE2ches",
+  "Show tasks label near the time text. False by default": "Afficher les \xE9tiquettes des t\xE2ches \xE0 c\xF4t\xE9 du texte horaire. D\xE9sactiv\xE9 par d\xE9faut.",
+  "Please Open Memos First": "Merci d'ouvrir les m\xE9mos en premier",
+  "Previous page": "Page pr\xE9c\xE9dente",
+  "Next page": "Page suivante",
+  "Type Here": "Saisissez ici",
+  TagTipFirst: "Saisissez ",
+  TagTipSecond: "pour cr\xE9er une \xE9tiquette...",
+  "Failed to save: ": "\xC9chec de l'enregistrement : ",
+  "Auto-clean Recycle Bin": "Nettoyage auto de la corbeille",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Supprime d\xE9finitivement les m\xE9mos pr\xE9sents dans la corbeille au-del\xE0 de la p\xE9riode de conservation. Action irr\xE9versible.",
+  "Never delete": "Ne jamais supprimer",
+  "7 days": "7 jours",
+  "30 days": "30 jours",
+  "90 days": "90 jours",
+  "180 days": "180 jours",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Corbeille : {N} m\xE9mos expir\xE9s supprim\xE9s d\xE9finitivement",
+  "Send sound": "Son d'envoi",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Joue un son lorsqu'un nouveau m\xE9mo est envoy\xE9. Choisissez le son int\xE9gr\xE9 ou votre propre fichier audio.",
+  "Built-in (card deal)": "Int\xE9gr\xE9 (carte distribu\xE9e)",
+  "Custom path": "Chemin personnalis\xE9",
+  "Not played": "Aucun son",
+  "Sound file path": "Chemin du fichier son",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indiquez un chemin relatif au coffre (ex. : assets/send.mp3).",
+  Preview: "\xC9couter",
+  "Failed to play the sound: ": "Impossible de lire le son : ",
+  "Tag position": "Position des \xE9tiquettes",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Affiche les \xE9tiquettes en bas de la carte ou \xE0 leur emplacement d'origine dans le texte.",
+  "In place": "Sur place",
+  "What needs doing...": "Qu'y a-t-il \xE0 faire...",
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} V\xE9rification des donn\xE9es",
+  "Recently fixed": "\u2705 Corrig\xE9s r\xE9cemment",
+  Clear: "Effacer",
+  "Re-scan": "Relancer l'analyse",
+  "Migrate all legacy files ({n})": "Migrer tous les fichiers anciens ({n})",
+  "Auto-fix all ({n})": "Tout corriger automatiquement ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} fichiers \xB7 {lines} memos \xB7 {issues} probl\xE8mes",
+  " (incl. {n} legacy-format files)": " (dont {n} fichiers \xE0 l'ancien format)",
+  " ({n} auto-fixable)": " ({n} corrigeables)",
+  "Scanning\u2026 {done}/{total}": "Analyse\u2026 {done}/{total}",
+  "Working\u2026": "Traitement\u2026",
+  "No problems found \u{1F389}": "Aucun probl\xE8me trouv\xE9 \u{1F389}",
+  "{n} errors": "{n} erreurs",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrer le fichier",
+  "Migrating\u2026": "Migration\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Convertit les lignes \xE0 l'ancien format de ce fichier en blocs-cartes (sauvegarde automatique). Vos memos r\xE9apparaissent ensuite dans le fil.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 corriger en :",
+  "Fix this line": "Corriger cette ligne",
+  View: "Voir",
+  Ignore: "Ignorer",
+  "Fix all": "Tout corriger",
+  "Scan failed: ": "\xC9chec de l'analyse : ",
+  "Migration failed: ": "\xC9chec de la migration : ",
+  "no auto-fixable issues": "aucun probl\xE8me corrigeable automatiquement",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "correction automatique impossible \u2014 les probl\xE8mes restants demandent une intervention manuelle ou une migration",
+  "fix-round limit reached; re-scan to check what is left": "limite de cycles atteinte ; relancez l'analyse pour voir ce qu'il reste",
+  "Migration done: {n} entries converted": "Migration termin\xE9e : {n} entr\xE9es converties",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migration compl\xE8te : {files} fichiers \xB7 {n} entr\xE9es converties",
+  ", {n} cross-day comments moved to their daily notes": ", {n} commentaires inter-journ\xE9es d\xE9plac\xE9s dans leur note quotidienne",
+  ", {n} deleted comments dropped": ", {n} commentaires supprim\xE9s abandonn\xE9s",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entr\xE9es conserv\xE9es telles quelles (non mappables)",
+  ", failed: {list}": ", \xE9checs : {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Les sauvegardes sont dans .rememo-backup/migrate-*. Vos anciens memos sont maintenant des blocs-cartes.",
+  ". Backups are in .rememo-backup/migrate-*.": ". Les sauvegardes sont dans .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Rien \xE0 migrer ({n} lignes sans horaire, \xE0 traiter manuellement).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "Ce fichier ne contient pas de lignes \xE0 l'ancien format \u2014 aucune migration n\xE9cessaire.",
+  "Legacy <br> line breaks": "Sauts de ligne <br> h\xE9rit\xE9s",
+  "Duplicate ^id": "^id en double",
+  "Legacy format row": "Ligne \xE0 l ancien format",
+  "Legacy 14-digit timestamp": "Horodatage h\xE9rit\xE9 \xE0 14 chiffres",
+  "Missing ^id": "^id manquant",
+  "Your old memos are still here": "Vos anciens memos sont toujours l\xE0",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Ce coffre contient {n} lignes de memos \xE0 l'ancien format Memos, que Rememo n'affiche pas encore. Rien n'est perdu \u2014 lancez la v\xE9rification des donn\xE9es pour les convertir en blocs-cartes.",
+  "Open data health check": "Ouvrir la v\xE9rification des donn\xE9es"
+};
+var hi$1 = {};
+var id$1 = {};
+var it = {};
+var ja$1 = {};
+var ko = {};
+var nl = {};
+var no = {};
+var pl = {};
+var pt = {
+  welcome: "Bem-vindo ao Memos!",
+  ribbonIconTitle: "Rememo",
+  months: [
+    "Janeiro",
+    "Fevereiro",
+    "Mar\xE7o",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ],
+  monthsShort: ["Jan.", "Fev.", "Mar.", "Abr.", "Maio", "Jun.", "Jul.", "Ago.", "Set.", "Out.", "Nov.", "Dez."],
+  weekDays: ["Domingo", "Segunda", "Ter\xE7a", "Quarta", "Quinta", "Sexta", "S\xE1bado"],
+  weekDaysShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "S\xE1b"],
+  to: "para",
+  year: null,
+  month: null,
+  "Basic Options": "Op\xE7\xF5es B\xE1sicas",
+  "User name in Memos": "Nome de Usu\xE1rio no Memos",
+  "Set your user name here. 'Memos \u{1F60F}' By default": "Defina o nome de usu\xE1rio. Padr\xE3o: 'Memos \u{1F60F}'.",
+  "Insert after heading": "Inserir ap\xF3s o cabe\xE7alho",
+  "You should set the same heading below if you want to insert and process memos below the same heading.": "Deve definir o mesmo cabe\xE7alho na configura\xE7\xE3o posterior se pretende inserir e processar memorandos abaixo do cabe\xE7alho aqui definido.",
+  "Allows admonitions to be created using ": "Permitir que Admonitions sejam criadas usando ",
+  "Process Memos below": "Processar Memorandos abaixo do Cabe\xE7alho",
+  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Somente as entradas abaixo deste cabe\xE7alho ser\xE3o processadas nas suas notas. Se n\xE3o configurar esta funcionalidade, nenhuma nota ser\xE1 processada para o ficheiro respetivo.",
+  "Save Memo button label": "Legenda do Bot\xE3o de Guardar Memorandos",
+  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": 'Define o texto apresentado na UI do bot\xE3o guardar memorandos. Padr\xE3o: "NOTEIT".',
+  "Focus on editor when open memos": "Focar no Editor ao iniciar o Memos",
+  "Focus on Editor when open memos. Focus by default.": 'Focar no editor ao iniciar o Memos. Padr\xE3o: "Focar".',
+  "Open daily memos with open memos": "Abrir memorandos di\xE1rios ao iniciar o Memos",
+  "Open daily memos with open memos. Open by default.": 'Abrir memorandos di\xE1rios ao iniciar o Memos. Padr\xE3o: "Abrir".',
+  "Open Memos when obsidian opens": "Abrir Memos quando o Obsidian inicia",
+  "When enable this, Memos will open when Obsidian opens. False by default.": 'Quando esta op\xE7\xE3o est\xE1 activa, o Memos abrir\xE1 quando o Obsidian inicia. Padr\xE3o: "Falso".',
+  "Hide done tasks in Memo list": "Ocultar tarefas conclu\xEDdas na lista de memorandos",
+  "Hide all done tasks in Memo list. Show done tasks by default.": 'Ocultar todas as tarefas conclu\xEDdas na lista de memorandos. Padr\xE3o: "Mostrar tarefas conclu\xEDdas".',
+  "Advanced Options": "Op\xE7\xF5es Avan\xE7adas",
+  "UI language for date": "Idioma na UI da Data ",
+  "Translates the date UI language. Only 'en' and 'zh' are available.": "Define o idioma na UI da Data. De momento, apenas 'en', 'fr', 'pt' e 'zh' est\xE3o dispon\xEDveis.",
+  "Default prefix": "Prefixo Padr\xE3o",
+  "Set the default prefix when create memo, 'List' by default.": "Define o prefixo padr\xE3o quando um memorando \xE9 criado. Padr\xE3o: 'Lista'.",
+  "Default insert date format": "Formato Padr\xE3o para Inser\xE7\xE3o de Data",
+  "Set the default date format when insert date by @, 'Tasks' by default.": "Define o formato de Data padr\xE3o ao inserir a data usando '@'. Padr\xE3o: 'Tarefas'.",
+  "Default editor position on mobile": "Posi\xE7\xE3o Padr\xE3o do Editor de Memorandos na Vers\xE3o M\xF3vel",
+  "Set the default editor position on Mobile, 'Top' by default.": "Define a posi\xE7\xE3o padr\xE3o do editor de memorandos na vers\xE3o m\xF3vel. Padr\xE3o: 'Topo'.",
+  "Use button to show editor on mobile": "Usar Bot\xE3o para Mostrar o Editor na Vers\xE3o M\xF3vel",
+  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Define um bot\xE3o flutuante para abrir o editor na vers\xE3o m\xF3vel. Op\xE7\xE3o dispon\xEDvel somente quando a posi\xE7\xE3o do editor est\xE1 definida para 'Fundo'.",
+  "Show Time When Copy Results": "Mostrar a Hora ao Copiar os Resultados",
+  "Show time when you copy results, like 12:00. Copy time by default.": "Mostrar a Hora, no formato '12:00', ao copiar os resultados. Padr\xE3o: 'Copiar a hora'.",
+  "Show Date When Copy Results": "Mostrar a Data ao Copiar os Resultados",
+  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": 'Mostrar a Data, no formato [[2022-01-01]], ao copiar os resultados. Padr\xE3o: "Copiar a hora".',
+  "Add Blank Line Between Different Date": "Adicionar Linha em Branco entre Datas Diferentes.",
+  "Add blank line when copy result with date. No blank line by default.": 'Adicionar linha em branco ao copiar resultados com Data. Padr\xE3o: "N\xE3o adicionar linha."',
+  "Share Options": "Op\xE7\xF5es de Partilha",
+  "Share Memos Image Footer Start": "Partilhar a Imagem de um memorando - In\xEDcio do Rodap\xE9",
+  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Defina como preferir, use {MemosNum} para mostrar o n\xFAmero de memorandos e use {UsedDay} para dias. 'Padr\xE3o: {MemosNum} Memorandos {UsedDay} Dias'.",
+  "Share Memos Image Footer End": "Partilhar a Imagem de um memorando - Fim do Rodap\xE9",
+  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "Defina como preferir, use {UserName} como o seu nome de usu\xE1rio. Padr\xE3o: '\u270D\uFE0F Por {UserName}'.",
+  "Save Shared Image To Folder For Mobile": "Guardar a Imagem Partilhada para Pasta na Vers\xE3o M\xF3vel",
+  "Save image to folder for mobile. False by Default": 'Guardar a imagem partilhada para pasta na vers\xE3o m\xF3vel. Padr\xE3o: "Falso".',
+  "Say Thank You": "Agrade\xE7a",
+  Donate: "Doar",
+  "If you like this plugin, consider donating to support continued development:": "Se gosta deste plugin, considere doar para apoiar o seu desenvolvimento cont\xEDnuo:",
+  "File Name of Recycle Bin": "Nome da Reciclagem",
+  "Set the filename for recycle bin. 'delete' By default": "Define o nome do ficheiro para a Reciclagem. Padr\xE3o: 'delete'.",
+  "File Name of Query File": "Nome do Ficheiro de Query",
+  "Set the filename for query file. 'query' By default": "Define o nome do ficheiro de Query. Padr\xE3o: 'Query'.",
+  "Use Tags In Vault": "Usar Tags no Vault",
+  "Use tags in vault rather than only in Memos. False by default.": 'Usar as Tags do Vault e n\xE3o somente dos memorandos. Padr\xE3o: "Falso".',
+  "Ready to convert image into background": "Pronto para converter imagem em fundo",
+  List: "Lista",
+  Task: "Tarefa",
+  Top: "Topo",
+  Bottom: "Fundo",
+  TAG: "TAG",
+  MEMO: "MEMO",
+  DAY: "DIA",
+  QUERY: "QUERY",
+  EDIT: "EDITAR",
+  PIN: "FIXAR",
+  UNPIN: "DESAFIXAR",
+  DELETE: "ELIMINAR",
+  "CONFIRM\uFF01": "CONFIRMAR\uFF01",
+  "CREATE FILTER": "CRIAR FILTRO",
+  Settings: "Defini\xE7\xF5es",
+  "Recycle bin": "Reciclagem",
+  "Enable Recycle Bin": "Ativar a lixeira",
+  "Memo": "Memo",
+  "List & Sidebar": "Lista e barra lateral",
+  "Startup & Opening": "Inicializa\xE7\xE3o e abertura",
+  "Memo heading": "T\xEDtulo da se\xE7\xE3o de memos",
+  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "Novos memos s\xE3o gravados abaixo deste t\xEDtulo, e apenas os itens abaixo dele s\xE3o lidos. Se estiver ausente, ser\xE1 criado automaticamente. Padr\xE3o: ## Memo",
+  "Show Heat Map": "Mostrar mapa de calor",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Mostrar o mapa de calor de uso na barra lateral. Ativado por padr\xE3o.",
+  "Start day of week": "Primeiro dia da semana",
+  "The first day of each column in the heat map. Sunday by default.": "Primeiro dia de cada coluna do mapa de calor. Domingo por padr\xE3o.",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
+  "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
+  "About Me": "Acerca de mim",
+  "Fetching data...": "A obter dados...",
+  "Here is No Zettels.": "N\xE3o existem Zettels.",
+  "Frequently Used Tags": "Tags Usadas Frequentemente",
+  "Flat view": "Vis\xE3o plana",
+  "Tree view": "Vis\xE3o em \xE1rvore",
+  "What do you think now...": "Em que est\xE1 a pensar...",
+  READ: "LER",
+  MARK: "ASSINALAR",
+  SHARE: "PARTILHAR",
+  SOURCE: "ORIGEM",
+  RESTORE: "RESTAURAR",
+  "DELETE AT": "ELIMINADO EM",
+  "Noooop!": "Noooop!",
+  "All Data is Loaded \u{1F389}": "\xC9 s\xF3 isso \u{1F389}",
+  "Quick filter": "Filtro r\xE1pido",
+  TYPE: "TIPO",
+  LINKED: "LINKED",
+  "NO TAGS": "SEM TAGS",
+  "HAS LINKS": "TEM LINKS",
+  "HAS IMAGES": "TEM IMAGENS",
+  INCLUDE: "INCLUIR",
+  EXCLUDE: "EXCLUIR",
+  TEXT: "TEXTO",
+  IS: "\xC9",
+  ISNOT: "N\xC3O \xC9",
+  SELECT: "SELECCIONAR",
+  "ADD FILTER TERMS": "ADICIONAR TERMOS DE FILTRAGEM",
+  FILTER: "FILTRAR",
+  TITLE: "T\xCDTULO",
+  "CREATE QUERY": "CRIAR QUERY",
+  "EDIT QUERY": "EDITAR QUERY",
+  MATCH: "IGUALA",
+  TIMES: "VEZES",
+  "Share Memo Image": "Partilhar Imagem de Memo",
+  "\u2197Click the button to save": "\u2197Clique no bot\xE3o para guardar",
+  "Image is generating...": "A gerar Imagem..",
+  "Image is loading...": "A carregar Imagem...",
+  "Loading...": "Carregando...",
+  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} N\xE3o \xE9 poss\xEDvel carregar a imagem, o link da imagem pode estar incorrecto",
+  "Daily Memos": "Memos Di\xE1rios",
+  "CANCEL EDIT": "CANCELAR EDI\xC7\xC3O",
+  "LINK TO THE": "LINK PARA O",
+  "Mobile Options": "Op\xE7\xF5es M\xF3veis",
+  "Don't support web image yet, please input image path in vault": "Ainda n\xE3o existe suporte para imagens de web. Por favor, insira o link para uma imagem do vault",
+  "Experimental Options": "Op\xE7\xF5es Experimentais",
+  "Background Image in Dark Theme": "Imagem de Fundo no Tema Escuro",
+  "Background Image in Light Theme": "Imagem de Fundo no Tema Claro",
+  'Set background image in dark theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema escuro. Defina da seguinte forma: "Daily/one.png".',
+  'Set background image in light theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema claro. Defina da seguinte forma: "Daily/one.png".',
+  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Defina a composi\xE7\xE3o padr\xE3o do memorando, deve usar {TIME} como "HH:mm" e {CONTENT} como conte\xFAdo. Padr\xE3o: "{TIME} {CONTENT}".',
+  "Default Memo Composition": "Composi\xE7\xE3o Padr\xE3o de um Memorando",
+  "Show Tasks Label": "Mostrar Etiquetas de Tarefas",
+  "Show tasks label near the time text. False by default": 'Mostrar etiquetas de tarefas pr\xF3ximas do texto de tempo. Padr\xE3o: "Falso".',
+  "Please Open Memos First": "Por favor, abra o Memos primeiro",
+  DATE: "DATA",
+  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
+  BEFORE: "ANTES",
+  AFTER: "DEPOIS",
+  "Allow Comments On Memos": "Permitir Coment\xE1rios nos Memorandos",
+  "You can comment on memos. False by default": 'Permite que comente os memorandos. Padr\xE3o: "Falso".',
+  Import: "Importar",
+  "TITLE CANNOT BE NULL!": "O T\xCDTULO N\xC3O PODE SER NULO!",
+  "FILTER CANNOT BE NULL!": "O FILTRO N\xC3O PODE SER NULO!",
+  "Comments In Original DailyNotes/Notes": "Coment\xE1rios nas Notas/Notas Di\xE1rias Originais",
+  "You should install Dataview Plug-in ver 0.5.9 or later to use this feature.": "Deve instalar a vers\xE3o 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.",
+  "Fetch Error": "\u{1F62D} Erro de Fetch",
+  "Copied to clipboard Successfully": "Copiado para a \xE1rea de transfer\xEAncia com sucesso",
+  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Verifique se abriu o plugin de Notas Di\xE1rias ou de Notas Peri\xF3dicas",
+  "Please finish the last filter setting first": "Por favor, termine  primeiro a configura\xE7\xE3o do \xFAltimo filtro",
+  "Close Memos Successfully": "Memos Fechado com Sucesso",
+  "Insert as Memo": "Inserir como um Memorando",
+  "Insert file as memo content": "Inserir ficheiro como conte\xFAdo de um memorando",
+  "Image load failed": "Falha no carregamento da imagem",
+  "Content cannot be empty": "O Conte\xFAdo n\xE3o pode estar vazio",
+  "Unable to create new file.": "N\xE3o foi poss\xEDvel criar um novo ficheiro.",
+  "Failed to fetch deleted memos: ": "Falha no fetch dos memorandos removidos: ",
+  "RESTORE SUCCEED": "RESTAURO BEM SUCEDIDO",
+  "Save Memo button icon": "\xCDcone do Bot\xE3o para Guardar Memorandos",
+  "The icon shown on the save Memo button in the UI.": "O \xEDcone exibido na UI do bot\xE3o para guardar memorandos.",
+  "Fetch Memos From Particular Notes": "Obter Memorandos de Notas Espec\xEDficas",
+  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'Pode definir qualquer Query de Dataview para o Memos procurar. Todos os memorandos nessas notas ser\xE3o mostrados na lista. Padr\xE3o: "#memo".',
+  "Allow Memos to Fetch Memo from Notes": "Permitir que o Memos Obtenha memorandos das Notas",
+  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": 'Use o Memos para gerir todos os memorandos nas suas notas e n\xE3o apenas nas notas di\xE1rias. Padr\xE3o: "Falso".',
+  "Always Show Memo Comments": "Mostrar Coment\xE1rios dos Memorandos",
+  "Always show memo comments on memos. False by default": 'Mostrar sempre os coment\xE1rios dos memorandos. Padr\xE3o: "Falso".',
+  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "N\xE3o definiu a pasta para as notas di\xE1rias, quer no plugin the Notas Peri\xF3dicas ou de Notas Di\xE1rias.",
+  "Please check your daily note plugin OR periodic notes plugin settings": "Por favor, verifique as configura\xE7\xF5es dos plugins de Notas Di\xE1rias OU de Notas Peri\xF3dicas",
+  "Use Which Plugin's Default Configuration": "Usar a Configura\xE7\xE3o Padr\xE3o do Plugin",
+  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "O Memos usa a configura\xE7\xE3o padr\xE3o do plugin seleccionado para obter memorandos diariamente. Padr\xE3o: 'Notas Di\xE1rias'.",
+  Daily: "Di\xE1rio",
+  "Previous page": "P\xE1gina anterior",
+  "Next page": "Pr\xF3xima p\xE1gina",
+  "Type Here": "Digite aqui",
+  TagTipFirst: "Digite ",
+  TagTipSecond: "para criar uma etiqueta...",
+  "Failed to save: ": "Falha ao salvar: ",
+  "Auto-clean Recycle Bin": "Limpeza autom\xE1tica da reciclagem",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Elimina permanentemente os memorandos que est\xE3o na reciclagem h\xE1 mais tempo do que o per\xEDodo de reten\xE7\xE3o. N\xE3o pode ser anulado.",
+  "Never delete": "Nunca eliminar",
+  "7 days": "7 dias",
+  "30 days": "30 dias",
+  "90 days": "90 dias",
+  "180 days": "180 dias",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente",
+  "Send sound": "Som de envio",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Toca um som quando um novo memorando \xE9 enviado. Escolha o som integrado ou o seu pr\xF3prio ficheiro de \xE1udio.",
+  "Built-in (card deal)": "Integrado (cartas)",
+  "Custom path": "Caminho personalizado",
+  "Not played": "N\xE3o tocar",
+  "Sound file path": "Caminho do ficheiro de som",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
+  Preview: "Ouvir",
+  "Failed to play the sound: ": "Falha ao reproduzir o som: ",
+  "Tag position": "Posi\xE7\xE3o das etiquetas",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as etiquetas no fim do cart\xE3o ou no local original no texto.",
+  "In place": "No local",
+  "What needs doing...": "O que h\xE1 para fazer...",
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} Verifica\xE7\xE3o de dados",
+  "Recently fixed": "\u2705 Corrigidos recentemente",
+  Clear: "Limpar",
+  "Re-scan": "Reanalisar",
+  "Migrate all legacy files ({n})": "Migrar todos os ficheiros antigos ({n})",
+  "Auto-fix all ({n})": "Corrigir tudo automaticamente ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} ficheiros \xB7 {lines} memos \xB7 {issues} problemas",
+  " (incl. {n} legacy-format files)": " (incl. {n} ficheiros em formato antigo)",
+  " ({n} auto-fixable)": " ({n} corrig\xEDveis)",
+  "Scanning\u2026 {done}/{total}": "A analisar\u2026 {done}/{total}",
+  "Working\u2026": "A processar\u2026",
+  "No problems found \u{1F389}": "Nenhum problema encontrado \u{1F389}",
+  "{n} errors": "{n} erros",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrar ficheiro",
+  "Migrating\u2026": "A migrar\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Converte as linhas em formato antigo deste ficheiro em blocos-cart\xE3o (c\xF3pia de seguran\xE7a autom\xE1tica). Os seus memos voltam a aparecer na lista.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 corrigir para:",
+  "Fix this line": "Corrigir esta linha",
+  View: "Ver",
+  Ignore: "Ignorar",
+  "Fix all": "Corrigir tudo",
+  "Scan failed: ": "Falha na an\xE1lise: ",
+  "Migration failed: ": "Falha na migra\xE7\xE3o: ",
+  "no auto-fixable issues": "sem problemas corrig\xEDveis automaticamente",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "n\xE3o \xE9 poss\xEDvel continuar a corre\xE7\xE3o autom\xE1tica \u2014 os problemas restantes exigem interven\xE7\xE3o manual ou migra\xE7\xE3o",
+  "fix-round limit reached; re-scan to check what is left": "limite de ciclos atingido; reanalise para ver o que falta",
+  "Migration done: {n} entries converted": "Migra\xE7\xE3o conclu\xEDda: {n} entradas convertidas",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migra\xE7\xE3o completa: {files} ficheiros \xB7 {n} entradas convertidas",
+  ", {n} cross-day comments moved to their daily notes": ", {n} coment\xE1rios entre dias movidos para as respetivas notas di\xE1rias",
+  ", {n} deleted comments dropped": ", {n} coment\xE1rios eliminados descartados",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entradas mantidas como estavam (n\xE3o mape\xE1veis)",
+  ", failed: {list}": ", falhas: {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". As c\xF3pias est\xE3o em .rememo-backup/migrate-*. Os seus memos antigos s\xE3o agora blocos-cart\xE3o.",
+  ". Backups are in .rememo-backup/migrate-*.": ". As c\xF3pias est\xE3o em .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nada a migrar ({n} linhas sem hora, requerem trabalho manual).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "Este ficheiro n\xE3o tem linhas em formato antigo \u2014 n\xE3o \xE9 precisa migra\xE7\xE3o.",
+  "Legacy <br> line breaks": "Quebras de linha <br> antigas",
+  "Duplicate ^id": "^id duplicado",
+  "Legacy format row": "Linha em formato antigo",
+  "Legacy 14-digit timestamp": "Data/hora antiga de 14 d\xEDgitos",
+  "Missing ^id": "^id em falta",
+  "Your old memos are still here": "Os seus memos antigos continuam aqui",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Este cofre cont\xE9m {n} linhas de memos no formato antigo do Memos, que o Rememo ainda n\xE3o apresenta. Nada foi perdido \u2014 execute a verifica\xE7\xE3o de dados para as converter em blocos-cart\xE3o.",
+  "Open data health check": "Abrir verifica\xE7\xE3o de dados"
+};
+var ptBR = {
+  welcome: "Bem-vindo ao Memos!",
+  ribbonIconTitle: "Rememo",
+  months: [
+    "Janeiro",
+    "Fevereiro",
+    "Mar\xE7o",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ],
+  monthsShort: ["Jan.", "Fev.", "Mar.", "Abr.", "Maio", "Jun.", "Jul.", "Ago.", "Set.", "Out.", "Nov.", "Dez."],
+  weekDays: ["Domingo", "Segunda", "Ter\xE7a", "Quarta", "Quinta", "Sexta", "S\xE1bado"],
+  weekDaysShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "S\xE1b"],
+  to: "para",
+  year: null,
+  month: null,
+  "Basic Options": "Op\xE7\xF5es B\xE1sicas",
+  "User name in Memos": "Nome de Usu\xE1rio no Memos",
+  "Set your user name here. 'Memos \u{1F60F}' By default": "Defina o nome de usu\xE1rio. Padr\xE3o: 'Memos \u{1F60F}'.",
+  "Insert after heading": "Inserir ap\xF3s o cabe\xE7alho",
+  "You should set the same heading below if you want to insert and process memos below the same heading.": "Deve definir o mesmo cabe\xE7alho na configura\xE7\xE3o posterior se pretende inserir e processar memorandos abaixo do cabe\xE7alho aqui definido.",
+  "Allows admonitions to be created using ": "Permitir que Admonitions sejam criadas usando ",
+  "Process Memos below": "Processar Memorandos abaixo do Cabe\xE7alho",
+  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Somente as entradas abaixo deste cabe\xE7alho ser\xE3o processadas nas suas notas. Se n\xE3o configurar esta funcionalidade, nenhuma nota ser\xE1 processada para o ficheiro respetivo.",
+  "Save Memo button label": "Legenda do Bot\xE3o de Guardar Memorandos",
+  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": 'Define o texto apresentado na UI do bot\xE3o guardar memorandos. Padr\xE3o: "NOTEIT".',
+  "Focus on editor when open memos": "Focar no Editor ao iniciar o Memos",
+  "Focus on Editor when open memos. Focus by default.": 'Focar no editor ao iniciar o Memos. Padr\xE3o: "Focar".',
+  "Open daily memos with open memos": "Abrir memorandos di\xE1rios ao iniciar o Memos",
+  "Open daily memos with open memos. Open by default.": 'Abrir memorandos di\xE1rios ao iniciar o Memos. Padr\xE3o: "Abrir".',
+  "Open Memos when obsidian opens": "Abrir Memos quando o Obsidian inicia",
+  "When enable this, Memos will open when Obsidian opens. False by default.": 'Quando esta op\xE7\xE3o est\xE1 activa, o Memos abrir\xE1 quando o Obsidian inicia. Padr\xE3o: "Falso".',
+  "Hide done tasks in Memo list": "Ocultar tarefas conclu\xEDdas na lista de memorandos",
+  "Hide all done tasks in Memo list. Show done tasks by default.": 'Ocultar todas as tarefas conclu\xEDdas na lista de memorandos. Padr\xE3o: "Mostrar tarefas conclu\xEDdas".',
+  "Advanced Options": "Op\xE7\xF5es Avan\xE7adas",
+  "UI language for date": "Idioma na UI da Data ",
+  "Translates the date UI language. Only 'en' and 'zh' are available.": "Define o idioma na UI da Data. De momento, apenas 'en', 'fr', 'pt' e 'zh' est\xE3o dispon\xEDveis.",
+  "Default prefix": "Prefixo Padr\xE3o",
+  "Set the default prefix when create memo, 'List' by default.": "Define o prefixo padr\xE3o quando um memorando \xE9 criado. Padr\xE3o: 'Lista'.",
+  "Default insert date format": "Formato Padr\xE3o para Inser\xE7\xE3o de Data",
+  "Set the default date format when insert date by @, 'Tasks' by default.": "Define o formato de Data padr\xE3o ao inserir a data usando '@'. Padr\xE3o: 'Tarefas'.",
+  "Default editor position on mobile": "Posi\xE7\xE3o Padr\xE3o do Editor de Memorandos na Vers\xE3o M\xF3vel",
+  "Set the default editor position on Mobile, 'Top' by default.": "Define a posi\xE7\xE3o padr\xE3o do editor de memorandos na vers\xE3o m\xF3vel. Padr\xE3o: 'Topo'.",
+  "Use button to show editor on mobile": "Usar Bot\xE3o para Mostrar o Editor na Vers\xE3o M\xF3vel",
+  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Define um bot\xE3o flutuante para abrir o editor na vers\xE3o m\xF3vel. Op\xE7\xE3o dispon\xEDvel somente quando a posi\xE7\xE3o do editor est\xE1 definida para 'Fundo'.",
+  "Show Time When Copy Results": "Mostrar a Hora ao Copiar os Resultados",
+  "Show time when you copy results, like 12:00. Copy time by default.": "Mostrar a Hora, no formato '12:00', ao copiar os resultados. Padr\xE3o: 'Copiar a hora'.",
+  "Show Date When Copy Results": "Mostrar a Data ao Copiar os Resultados",
+  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": 'Mostrar a Data, no formato [[2022-01-01]], ao copiar os resultados. Padr\xE3o: "Copiar a hora".',
+  "Add Blank Line Between Different Date": "Adicionar Linha em Branco entre Datas Diferentes.",
+  "Add blank line when copy result with date. No blank line by default.": 'Adicionar linha em branco ao copiar resultados com Data. Padr\xE3o: "N\xE3o adicionar linha."',
+  "Share Options": "Op\xE7\xF5es de Partilha",
+  "Share Memos Image Footer Start": "Partilhar a Imagem de um memorando - In\xEDcio do Rodap\xE9",
+  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Defina como preferir, use {MemosNum} para mostrar o n\xFAmero de memorandos e use {UsedDay} para dias. 'Padr\xE3o: {MemosNum} Memorandos {UsedDay} Dias'.",
+  "Share Memos Image Footer End": "Partilhar a Imagem de um memorando - Fim do Rodap\xE9",
+  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "Defina como preferir, use {UserName} como o seu nome de usu\xE1rio. Padr\xE3o: '\u270D\uFE0F Por {UserName}'.",
+  "Save Shared Image To Folder For Mobile": "Guardar a Imagem Partilhada para Pasta na Vers\xE3o M\xF3vel",
+  "Save image to folder for mobile. False by Default": 'Guardar a imagem partilhada para pasta na vers\xE3o m\xF3vel. Padr\xE3o: "Falso".',
+  "Say Thank You": "Agrade\xE7a",
+  Donate: "Doar",
+  "If you like this plugin, consider donating to support continued development:": "Se gosta deste plugin, considere doar para apoiar o seu desenvolvimento cont\xEDnuo:",
+  "File Name of Recycle Bin": "Nome da Reciclagem",
+  "Set the filename for recycle bin. 'delete' By default": "Define o nome do ficheiro para a Reciclagem. Padr\xE3o: 'delete'.",
+  "File Name of Query File": "Nome do Ficheiro de Query",
+  "Set the filename for query file. 'query' By default": "Define o nome do ficheiro de Query. Padr\xE3o: 'Query'.",
+  "Use Tags In Vault": "Usar Tags no Vault",
+  "Use tags in vault rather than only in Memos. False by default.": 'Usar as Tags do Vault e n\xE3o somente dos memorandos. Padr\xE3o: "Falso".',
+  "Ready to convert image into background": "Pronto para converter imagem em fundo",
+  List: "Lista",
+  Task: "Tarefa",
+  Top: "Topo",
+  Bottom: "Fundo",
+  TAG: "TAG",
+  MEMO: "MEMO",
+  DAY: "DIA",
+  QUERY: "QUERY",
+  EDIT: "EDITAR",
+  PIN: "FIXAR",
+  UNPIN: "DESAFIXAR",
+  DELETE: "ELIMINAR",
+  "CONFIRM\uFF01": "CONFIRMAR\uFF01",
+  "CREATE FILTER": "CRIAR FILTRO",
+  Settings: "Defini\xE7\xF5es",
+  "Recycle bin": "Reciclagem",
+  "Enable Recycle Bin": "Ativar a lixeira",
+  "Memo": "Memo",
+  "List & Sidebar": "Lista e barra lateral",
+  "Startup & Opening": "Inicializa\xE7\xE3o e abertura",
+  "Memo heading": "T\xEDtulo da se\xE7\xE3o de memos",
+  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "Novos memos s\xE3o gravados abaixo deste t\xEDtulo, e apenas os itens abaixo dele s\xE3o lidos. Se estiver ausente, ser\xE1 criado automaticamente. Padr\xE3o: ## Memo",
+  "Show Heat Map": "Mostrar mapa de calor",
+  "Whether to show the usage heat map in the sidebar. True by default.": "Mostrar o mapa de calor de uso na barra lateral. Ativado por padr\xE3o.",
+  "Start day of week": "Primeiro dia da semana",
+  "The first day of each column in the heat map. Sunday by default.": "Primeiro dia de cada coluna do mapa de calor. Domingo por padr\xE3o.",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
+  "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
+  "About Me": "Acerca de mim",
+  "Fetching data...": "A obter dados...",
+  "Here is No Zettels.": "N\xE3o existem Zettels.",
+  "Frequently Used Tags": "Tags Usadas Frequentemente",
+  "Flat view": "Vis\xE3o plana",
+  "Tree view": "Vis\xE3o em \xE1rvore",
+  "What do you think now...": "Em que est\xE1 a pensar...",
+  READ: "LER",
+  MARK: "ASSINALAR",
+  SHARE: "PARTILHAR",
+  SOURCE: "ORIGEM",
+  RESTORE: "RESTAURAR",
+  "DELETE AT": "ELIMINADO EM",
+  "Noooop!": "Noooop!",
+  "All Data is Loaded \u{1F389}": "\xC9 s\xF3 isso \u{1F389}",
+  "Quick filter": "Filtro r\xE1pido",
+  TYPE: "TIPO",
+  LINKED: "LINKED",
+  "NO TAGS": "SEM TAGS",
+  "HAS LINKS": "TEM LINKS",
+  "HAS IMAGES": "TEM IMAGENS",
+  INCLUDE: "INCLUIR",
+  EXCLUDE: "EXCLUIR",
+  TEXT: "TEXTO",
+  IS: "\xC9",
+  ISNOT: "N\xC3O \xC9",
+  SELECT: "SELECCIONAR",
+  "ADD FILTER TERMS": "ADICIONAR TERMOS DE FILTRAGEM",
+  FILTER: "FILTRAR",
+  TITLE: "T\xCDTULO",
+  "CREATE QUERY": "CRIAR QUERY",
+  "EDIT QUERY": "EDITAR QUERY",
+  MATCH: "IGUALA",
+  TIMES: "VEZES",
+  "Share Memo Image": "Partilhar Imagem de Memo",
+  "\u2197Click the button to save": "\u2197Clique no bot\xE3o para guardar",
+  "Image is generating...": "A gerar Imagem..",
+  "Image is loading...": "A carregar Imagem...",
+  "Loading...": "Carregando...",
+  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} N\xE3o \xE9 poss\xEDvel carregar a imagem, o link da imagem pode estar incorrecto",
+  "Daily Memos": "Memos Di\xE1rios",
+  "CANCEL EDIT": "CANCELAR EDI\xC7\xC3O",
+  "LINK TO THE": "LINK PARA O",
+  "Mobile Options": "Op\xE7\xF5es M\xF3veis",
+  "Don't support web image yet, please input image path in vault": "Ainda n\xE3o existe suporte para imagens de web. Por favor, insira o link para uma imagem do vault",
+  "Experimental Options": "Op\xE7\xF5es Experimentais",
+  "Background Image in Dark Theme": "Imagem de Fundo no Tema Escuro",
+  "Background Image in Light Theme": "Imagem de Fundo no Tema Claro",
+  'Set background image in dark theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema escuro. Defina da seguinte forma: "Daily/one.png".',
+  'Set background image in light theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema claro. Defina da seguinte forma: "Daily/one.png".',
+  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Defina a composi\xE7\xE3o padr\xE3o do memorando, deve usar {TIME} como "HH:mm" e {CONTENT} como conte\xFAdo. Padr\xE3o: "{TIME} {CONTENT}".',
+  "Default Memo Composition": "Composi\xE7\xE3o Padr\xE3o de um Memorando",
+  "Show Tasks Label": "Mostrar Etiquetas de Tarefas",
+  "Show tasks label near the time text. False by default": 'Mostrar etiquetas de tarefas pr\xF3ximas do texto de tempo. Padr\xE3o: "Falso".',
+  "Please Open Memos First": "Por favor, abra o Memos primeiro",
+  DATE: "DATA",
+  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
+  BEFORE: "ANTES",
+  AFTER: "DEPOIS",
+  "Allow Comments On Memos": "Permitir Coment\xE1rios nos Memorandos",
+  "You can comment on memos. False by default": 'Permite que comente os memorandos. Padr\xE3o: "Falso".',
+  Import: "Importar",
+  "TITLE CANNOT BE NULL!": "O T\xCDTULO N\xC3O PODE SER NULO!",
+  "FILTER CANNOT BE NULL!": "O FILTRO N\xC3O PODE SER NULO!",
+  "Comments In Original DailyNotes/Notes": "Coment\xE1rios nas Notas/Notas Di\xE1rias Originais",
+  "You should install Dataview Plug-in ver 0.5.9 or later to use this feature.": "Deve instalar a vers\xE3o 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.",
+  "Fetch Error": "\u{1F62D} Erro de Fetch",
+  "Copied to clipboard Successfully": "Copiado para a \xE1rea de transfer\xEAncia com sucesso",
+  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Verifique se abriu o plugin de Notas Di\xE1rias ou de Notas Peri\xF3dicas",
+  "Please finish the last filter setting first": "Por favor, termine  primeiro a configura\xE7\xE3o do \xFAltimo filtro",
+  "Close Memos Successfully": "Memos Fechado com Sucesso",
+  "Insert as Memo": "Inserir como um Memorando",
+  "Insert file as memo content": "Inserir ficheiro como conte\xFAdo de um memorando",
+  "Image load failed": "Falha no carregamento da imagem",
+  "Content cannot be empty": "O Conte\xFAdo n\xE3o pode estar vazio",
+  "Unable to create new file.": "N\xE3o foi poss\xEDvel criar um novo ficheiro.",
+  "Failed to fetch deleted memos: ": "Falha no fetch dos memorandos removidos: ",
+  "RESTORE SUCCEED": "RESTAURO BEM SUCEDIDO",
+  "Save Memo button icon": "\xCDcone do Bot\xE3o para Guardar Memorandos",
+  "The icon shown on the save Memo button in the UI.": "O \xEDcone exibido na UI do bot\xE3o para guardar memorandos.",
+  "Fetch Memos From Particular Notes": "Obter Memorandos de Notas Espec\xEDficas",
+  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'Pode definir qualquer Query de Dataview para o Memos procurar. Todos os memorandos nessas notas ser\xE3o mostrados na lista. Padr\xE3o: "#memo".',
+  "Allow Memos to Fetch Memo from Notes": "Permitir que o Memos Obtenha memorandos das Notas",
+  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": 'Use o Memos para gerir todos os memorandos nas suas notas e n\xE3o apenas nas notas di\xE1rias. Padr\xE3o: "Falso".',
+  "Always Show Memo Comments": "Mostrar Coment\xE1rios dos Memorandos",
+  "Always show memo comments on memos. False by default": 'Mostrar sempre os coment\xE1rios dos memorandos. Padr\xE3o: "Falso".',
+  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "N\xE3o definiu a pasta para as notas di\xE1rias, quer no plugin the Notas Peri\xF3dicas ou de Notas Di\xE1rias.",
+  "Please check your daily note plugin OR periodic notes plugin settings": "Por favor, verifique as configura\xE7\xF5es dos plugins de Notas Di\xE1rias OU de Notas Peri\xF3dicas",
+  "Use Which Plugin's Default Configuration": "Usar a Configura\xE7\xE3o Padr\xE3o do Plugin",
+  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "O Memos usa a configura\xE7\xE3o padr\xE3o do plugin seleccionado para obter memorandos diariamente. Padr\xE3o: 'Notas Di\xE1rias'.",
+  Daily: "Di\xE1rio",
+  "Previous page": "P\xE1gina anterior",
+  "Next page": "Pr\xF3xima p\xE1gina",
+  "Type Here": "Digite aqui",
+  TagTipFirst: "Digite ",
+  TagTipSecond: "para criar uma etiqueta...",
+  "Failed to save: ": "Falha ao salvar: ",
+  "Auto-clean Recycle Bin": "Limpeza autom\xE1tica da reciclagem",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Elimina permanentemente os memorandos que est\xE3o na reciclagem h\xE1 mais tempo do que o per\xEDodo de reten\xE7\xE3o. N\xE3o pode ser anulado.",
+  "Never delete": "Nunca eliminar",
+  "7 days": "7 dias",
+  "30 days": "30 dias",
+  "90 days": "90 dias",
+  "180 days": "180 dias",
+  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente",
+  "Send sound": "Som de envio",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Toca um som quando um novo memorando \xE9 enviado. Escolha o som integrado ou o seu pr\xF3prio arquivo de \xE1udio.",
+  "Built-in (card deal)": "Integrado (cartas)",
+  "Custom path": "Caminho personalizado",
+  "Not played": "N\xE3o tocar",
+  "Sound file path": "Caminho do arquivo de som",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
+  Preview: "Ouvir",
+  "Failed to play the sound: ": "Falha ao reproduzir o som: ",
+  "Tag position": "Posi\xE7\xE3o das tags",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as tags no fim do cart\xE3o ou no local original no texto.",
+  "In place": "No local",
+  "What needs doing...": "O que h\xE1 para fazer...",
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} Verifica\xE7\xE3o de dados",
+  "Recently fixed": "\u2705 Corrigidos recentemente",
+  Clear: "Limpar",
+  "Re-scan": "Verificar novamente",
+  "Migrate all legacy files ({n})": "Migrar todos os arquivos antigos ({n})",
+  "Auto-fix all ({n})": "Corrigir tudo automaticamente ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} arquivos \xB7 {lines} memos \xB7 {issues} problemas",
+  " (incl. {n} legacy-format files)": " (incl. {n} arquivos em formato antigo)",
+  " ({n} auto-fixable)": " ({n} corrig\xEDveis)",
+  "Scanning\u2026 {done}/{total}": "Verificando\u2026 {done}/{total}",
+  "Working\u2026": "Processando\u2026",
+  "No problems found \u{1F389}": "Nenhum problema encontrado \u{1F389}",
+  "{n} errors": "{n} erros",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrar arquivo",
+  "Migrating\u2026": "Migrando\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Converte as linhas em formato antigo deste arquivo em blocos-cart\xE3o (backup autom\xE1tico). Seus memos voltam a aparecer na lista depois disso.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 corrigir para:",
+  "Fix this line": "Corrigir esta linha",
+  View: "Ver",
+  Ignore: "Ignorar",
+  "Fix all": "Corrigir tudo",
+  "Scan failed: ": "Falha na verifica\xE7\xE3o: ",
+  "Migration failed: ": "Falha na migra\xE7\xE3o: ",
+  "no auto-fixable issues": "nenhum problema corrig\xEDvel automaticamente",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "n\xE3o \xE9 poss\xEDvel continuar a corre\xE7\xE3o autom\xE1tica \u2014 os problemas restantes exigem trabalho manual ou migra\xE7\xE3o",
+  "fix-round limit reached; re-scan to check what is left": "limite de rodadas atingido; verifique novamente para ver o que resta",
+  "Migration done: {n} entries converted": "Migra\xE7\xE3o conclu\xEDda: {n} entradas convertidas",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migra\xE7\xE3o completa: {files} arquivos \xB7 {n} entradas convertidas",
+  ", {n} cross-day comments moved to their daily notes": ", {n} coment\xE1rios entre dias movidos para as respectivas notas di\xE1rias",
+  ", {n} deleted comments dropped": ", {n} coment\xE1rios exclu\xEDdos descartados",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entradas mantidas como estavam (n\xE3o mape\xE1veis)",
+  ", failed: {list}": ", falhas: {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Os backups est\xE3o em .rememo-backup/migrate-*. Seus memos antigos agora s\xE3o blocos-cart\xE3o.",
+  ". Backups are in .rememo-backup/migrate-*.": ". Os backups est\xE3o em .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nada a migrar ({n} linhas sem hor\xE1rio, precisam de trabalho manual).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "Este arquivo n\xE3o tem linhas em formato antigo \u2014 n\xE3o \xE9 necess\xE1ria migra\xE7\xE3o.",
+  "Legacy <br> line breaks": "Quebras de linha <br> antigas",
+  "Duplicate ^id": "^id duplicado",
+  "Legacy format row": "Linha em formato antigo",
+  "Legacy 14-digit timestamp": "Data/hora antiga de 14 d\xEDgitos",
+  "Missing ^id": "^id ausente",
+  "Your old memos are still here": "Seus memos antigos continuam aqui",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Este cofre cont\xE9m {n} linhas de memos no formato antigo do Memos, que o Rememo ainda n\xE3o exibe. Nada foi perdido \u2014 rode a verifica\xE7\xE3o de dados para convert\xEA-las em blocos-cart\xE3o.",
+  "Open data health check": "Abrir verifica\xE7\xE3o de dados"
+};
+var ro = {};
+var ru = {};
+var tr = {};
+var zhCN = {
+  welcome: "\u6B22\u8FCE\u4F7F\u7528 Memos ",
+  ribbonIconTitle: "Rememo",
+  months: ["\u4E00\u6708", "\u4E8C\u6708", "\u4E09\u6708", "\u56DB\u6708", "\u4E94\u6708", "\u516D\u6708", "\u4E03\u6708", "\u516B\u6708", "\u4E5D\u6708", "\u5341\u6708", "\u5341\u4E00\u6708", "\u5341\u4E8C\u6708"],
+  monthsShort: [null, null, null, null, null, null, null, null, null, null, null, null],
+  weekDays: ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"],
+  weekDaysShort: ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"],
+  to: "\u81F3",
+  year: "\u5E74",
+  month: "\u6708",
+  "Basic Options": "\u57FA\u7840\u9009\u9879",
+  "User name in Memos": "\u5728 Memos \u4E2D\u663E\u793A\u7684\u7528\u6237\u540D",
+  "Set your user name here. 'Memos \u{1F60F}' By default": "\u5728\u8FD9\u91CC\u8BBE\u7F6E\u4F60\u559C\u6B22\u7684\u7528\u6237\u540D\u3002 \u9ED8\u8BA4\u4E3A 'Memos \u{1F60F}'",
+  "Insert after heading": "\u5728\u6307\u5B9A\u6807\u9898\u540E\u63D2\u5165 Memo",
+  "You should set the same heading below if you want to insert and process memos below the same heading.": "\u4F60\u5982\u679C\u60F3\u8981\u63D2\u5165\u6807\u9898\u7684\u540C\u65F6\u663E\u793A\u5BF9\u5E94\u6807\u9898\u4E0B\u7684 Memo\uFF0C\u4F60\u5FC5\u987B\u4FDD\u8BC1\u5F53\u524D\u8BBE\u7F6E\u4E0E\u4E0B\u65B9\u7684\u89E3\u6790\u8BBE\u7F6E\u662F\u4E00\u81F4\u7684\u3002\u5F53\u4E3A\u7A7A\u65F6\u63D2\u5165\u5230\u6587\u672B",
+  "Process Memos below": "\u89E3\u6790\u6307\u5B9A\u6807\u9898\u540E\u7684 Memo",
+  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "\u53EA\u6709\u5728\u8BBE\u7F6E\u7684\u6807\u9898\u540E\u7684 Memo \u624D\u4F1A\u88AB\u89E3\u6790\u3002\u5F53\u4E3A\u7A7A\u65F6\u89E3\u6790\u5168\u6587\u7684 Memo",
+  "Save Memo button label": "\u4FDD\u5B58\u6309\u94AE\u4E0A\u7684\u6587\u672C",
+  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": "\u5728\u4FDD\u5B58\u6309\u94AE\u4E0A\u5C55\u793A\u7684\u6587\u672C\u3002\u9ED8\u8BA4\u4E3A 'NOTEIT'",
+  "Focus on editor when open memos": "\u81EA\u52A8\u805A\u7126\u5230 Memos \u8F93\u5165\u6846",
+  "Focus on editor when open memos. Focus by default.": "\u5F53\u6253\u5F00 Memos \u7684\u65F6\u5019\u81EA\u52A8\u805A\u7126\u5230 Memos \u8F93\u5165\u6846\u3002\u9ED8\u8BA4\u5F00\u542F",
+  "Open daily memos with open memos": "\u6253\u5F00\u6BCF\u65E5 Memo \u7684\u65F6\u5019\u6253\u5F00 Memos \u754C\u9762",
+  "Open daily memos with open memos. Open by default.": "\u6253\u5F00\u6BCF\u65E5 Memo \u7684\u65F6\u5019\u6253\u5F00 Memos \u754C\u9762\u3002\u9ED8\u8BA4\u5F00\u542F",
+  "Open Memos when obsidian opens": "\u5F53\u5F00\u542F Obsidian \u7684\u65F6\u5019\u81EA\u52A8\u6253\u5F00 Memos",
+  "When enable this, Memos will open when Obsidian opens. False by default.": "\u5F53\u5F00\u542F\u8BE5\u9009\u9879, Memos \u4F1A\u5728 Obsidian \u6253\u5F00\u65F6\u81EA\u52A8\u6253\u5F00\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F\u3002",
+  "Hide done tasks in Memo list": "\u5728 memo \u5217\u8868\u4E2D\u9690\u85CF\u5DF2\u5B8C\u6210 memo",
+  "Hide all done tasks in Memo list. Show done tasks by default.": "\u5728 memo \u5217\u8868\u4E2D\u9690\u85CF\u5DF2\u5B8C\u6210 memo\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F",
+  "Send memo by Enter key": "\u6309 Enter \u76F4\u63A5\u53D1\u9001",
+  "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.": "\u5F00\u542F\u540E\u6309 Enter \u76F4\u63A5\u53D1\u9001 memo\uFF0CCtrl/Cmd+Enter \u6362\u884C\u3002\u9ED8\u8BA4\u5173\u95ED\uFF08Enter \u6362\u884C\u3001Ctrl+Enter \u53D1\u9001\uFF09\u3002",
+  "Advanced Options": "\u8FDB\u9636\u9009\u9879",
+  "UI language for date": "\u9488\u5BF9\u65E5\u671F\u5C55\u793A\u7684\u8BED\u8A00\u754C\u9762",
+  "Translates the date UI language. Only 'en' and 'zh' are available.": "\u5BF9\u65E5\u671F\u7684\u4E0D\u540C\u7FFB\u8BD1\u3002\u76EE\u524D\u53EA\u80FD\u9009\u62E9 'en' \u548C 'zh'\uFF08\u672A\u6765\u4F1A\u5E9F\u7F6E\uFF09",
+  "Default prefix": "\u9ED8\u8BA4\u524D\u7F00",
+  "Time display format": "\u65F6\u95F4\u663E\u793A\u683C\u5F0F",
+  "Content font size": "\u6B63\u6587\u4E0E\u8F93\u5165\u5B57\u53F7",
+  "Font size of memo content inside Rememo only. Does not affect your notes.": "\u53EA\u5F71\u54CD Rememo \u91CC\u6B63\u6587\u548C\u8F93\u5165\u6846\u7684\u5B57\u53F7\uFF0C\u4E0D\u6539\u52A8\u4F60\u7684\u5168\u5C40\u7B14\u8BB0\u8BBE\u7F6E\u3002",
+  "Follow Obsidian": "\u8DDF\u968F Obsidian",
+  "Time display format description": "\u754C\u9762\u65F6\u95F4\u663E\u793A HH:mm:ss\uFF08\u5E26\u79D2\uFF0C\u9ED8\u8BA4\uFF09\u6216 HH:mm\uFF08\u4E0D\u5E26\u79D2\uFF09\u3002\u8BE5\u9009\u9879\u53EA\u5F71\u54CD\u663E\u793A\uFF0C\u4E0D\u4F1A\u4FEE\u6539\u65E5\u8BB0\u6587\u4EF6\u91CC\u7684\u6570\u636E\u3002",
+  "Set the default prefix when create memo, 'List' by default.": "\u8BBE\u7F6E\u9ED8\u8BA4\u7684\u524D\u7F00\u6837\u5F0F\u3002\u9ED8\u8BA4\u4E3A\u5217\u8868",
+  "Default insert date format": "\u63D2\u5165\u65E5\u671F\u9644\u5E26\u7684\u6837\u5F0F",
+  "Set the default date format when insert date by @, 'Tasks' by default.": "\u5F53\u4F7F\u7528 @ \u6765\u5FEB\u901F\u63D2\u5165\u65E5\u671F\u65F6\uFF0C\u63D2\u5165\u65E5\u671F\u9644\u5E26\u7684\u6837\u5F0F\uFF0C\u9ED8\u8BA4\u4E3A 'Tasks' \u6837\u5F0F",
+  "Default editor position on mobile": "\u5728\u79FB\u52A8\u7AEF\u4E0A\u7684\u9ED8\u8BA4\u7F16\u8F91\u5668\u4F4D\u7F6E",
+  "Set the default editor position on Mobile, 'Top' by default.": "\u8BBE\u7F6E\u5728\u79FB\u52A8\u7AEF\u4E0A\u7684\u9ED8\u8BA4\u7F16\u8F91\u5668\u4F4D\u7F6E\uFF0C\u9ED8\u8BA4\u5728\u9876\u90E8\u3002",
+  "Use button to show editor on mobile": "\u5F53\u7F16\u8F91\u5668\u4F4D\u7F6E\u5728\u5E95\u90E8\u65F6\uFF0C\u7528\u6309\u94AE\u6765\u5524\u51FA\u7F16\u8F91\u5668",
+  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "\u8BBE\u7F6E\u4E00\u4E2A\u6D6E\u52A8\u6309\u94AE\u6765\u5524\u51FA\u7F16\u8F91\u5668\u3002\u5F53\u5728\u79FB\u52A8\u7AEF\u4E0A\u542F\u7528\u8BE5\u9009\u9879\u624D\u4F1A\u751F\u6548",
+  "Show Time When Copy Results": "\u5F53\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u65F6\u95F4",
+  "Show time when you copy results, like 12:00. Copy time by default.": "\u5728\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u5176\u65F6\u95F4\uFF0C\u4F8B\u5982 12:00 \u3002\u9ED8\u8BA4\u5F00\u542F",
+  "Show Date When Copy Results": "\u5F53\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u65E5\u671F",
+  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": "\u5728\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u5176\u65E5\u671F\uFF0C\u4F8B\u5982 [[2022-01-01]]\u3002\u9ED8\u8BA4\u5F00\u542F",
+  "Add Blank Line Between Different Date": "\u5728\u590D\u5236\u65E5\u671F\u7684\u65F6\u5019\u52A0\u4E0A\u7A7A\u884C",
+  "Add blank line when copy result with date. No blank line by default.": "\u5728\u590D\u5236\u65E5\u671F\u7684\u65F6\u5019\u5728\u76F8\u90BB\u7684\u65E5\u671F\u4E4B\u95F4\u52A0\u4E0A\u7A7A\u884C\u3002\u9ED8\u8BA4\u65E0\u7A7A\u884C",
+  "Share Options": "\u5206\u4EAB\u9009\u9879",
+  "Share Memos Image Footer Start": "\u5206\u4EAB memo \u56FE\u7247\u7684\u5DE6\u8FB9\u9875\u811A",
+  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "\u4F60\u53EF\u4EE5\u5728\u8FD9\u91CC\u8BBE\u7F6E\u4F60\u60F3\u8981\u7684\u4EFB\u610F\u6587\u672C\uFF0C\u7528 {MemosNum} \u6765\u5C55\u793A\u4F60\u8BB0\u5F55\u7684 memo \u6570\u91CF\uFF0C{UsedDay} \u6765\u5C55\u793A\u4F7F\u7528\u65E5\u671F\u3002\u9ED8\u8BA4\u4E3A'{MemosNum} Memos {UsedDay} Days'",
+  "Share Memos Image Footer End": "\u5206\u4EAB memo \u56FE\u7247\u7684\u53F3\u8FB9\u9875\u811A",
+  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "\u4F60\u53EF\u4EE5\u5728\u8FD9\u91CC\u8BBE\u7F6E\u4F60\u60F3\u8981\u7684\u4EFB\u610F\u6587\u672C\uFF0C\u7528 {UserName} \u6765\u5C55\u793A\u4F60\u7684\u7528\u6237\u540D\u3002\u9ED8\u8BA4\u4E3A '\u270D\uFE0F By {UserName}'",
+  "Save Shared Image To Folder For Mobile": "\u5F53\u5728\u79FB\u52A8\u7AEF\u4E0A\u65F6\u4FDD\u5B58\u56FE\u7247\u5230\u6587\u4EF6\u5939",
+  "Save image to folder for mobile. False by Default": "\u5F53\u5728\u79FB\u52A8\u7AEF\u4E0A\u65F6\uFF0C\u4FDD\u5B58\u751F\u6210\u7684\u56FE\u7247\u5230\u6587\u4EF6\u5939",
+  "Say Thank You": "\u611F\u8C22\u5F00\u53D1",
+  Donate: "\u6350\u8D60",
+  "If you like this plugin, consider donating to support continued development:": "\u5982\u679C\u4F60\u559C\u6B22\u8FD9\u4E2A\u63D2\u4EF6\uFF0C\u800C\u4E14\u4E5F\u5E0C\u671B\u7ED9\u6211\u4E70\u9E21\u817F\uFF0C\u90A3\u4E48\u53EF\u4EE5\u8003\u8651 Github \u9875\u9762\u53F3\u8FB9\u7684 Sponsor~",
+  "File Name of Recycle Bin": "\u56DE\u6536\u7AD9\u7684\u6587\u4EF6\u540D",
+  "Set the filename for recycle bin. 'delete' By default": "\u7ED9\u56DE\u6536\u7AD9\u8BBE\u7F6E\u4E00\u4E2A\u6587\u4EF6\u540D\u3002\u9ED8\u8BA4\u4E3A'delete'",
+  "File Name of Query File": "\u68C0\u7D22\u6587\u4EF6\u7684\u6587\u4EF6\u540D",
+  "Set the filename for query file. 'query' By default": "\u8BBE\u7F6E\u5B58\u653E\u68C0\u7D22\u5F0F\u7684\u6587\u4EF6\u7684\u6587\u4EF6\u540D\u3002\u9ED8\u8BA4\u4E3A'query'",
+  "Use Tags In Vault": "\u4F7F\u7528\u5728\u5E93\u5185\u7684\u6240\u6709\u6807\u7B7E",
+  "Use tags in vault rather than only in Memos. False by default.": "\u4F7F\u7528\u5728\u5E93\u5185\u7684\u800C\u4E0D\u662F Memos \u5185\u7684\u6807\u7B7E\u3002\u9ED8\u8BA4\u5173\u95ED",
+  "Hide Memos With References In List": "\u5728\u4E3B\u5217\u8868\u9690\u85CF\u5F15\u7528\u5361",
+  "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "\u4E3B\u5217\u8868\u4E0D\u663E\u793A\u5F15\u7528\u5361\uFF08\u5B83\u4EEC\u663E\u793A\u5728\u88AB\u5F15\u7528 memo \u7684\u805A\u5408\u533A\uFF09\u3002\u641C\u7D22/\u7B5B\u9009\u65F6\u4ECD\u53EF\u89C1\u3002\u9ED8\u8BA4\u5F00\u542F",
+  REFS: "\u5F15\u7528",
+  "Reference target deleted": "\u5F15\u7528\u76EE\u6807\u5DF2\u5220\u9664",
+  Reply: "\u56DE\u590D",
+  "Reply to this memo": "\u56DE\u590D\u8FD9\u6761 memo",
+  "Reply to": "\u56DE\u590D",
+  "Reference a memo": "\u5F15\u7528\u4E00\u6761 memo",
+  "Search memos...": "\u641C\u7D22 memo...",
+  "No memos found": "\u6CA1\u6709\u5339\u914D\u7684 memo",
+  Cancel: "\u53D6\u6D88",
+  "Don't support web image yet, please input image path in vault": "\u6682\u4E0D\u652F\u6301\u7F51\u7EDC\u56FE\u7247\uFF0C\u8BF7\u4F7F\u7528\u672C\u5730\u56FE\u7247",
+  "Ready to convert image into background": "\u6B63\u5728\u5C06\u56FE\u7247\u8F6C\u6362\u4E3A\u80CC\u666F\u56FE",
+  List: "\u5217\u8868",
+  Task: "\u4EFB\u52A1",
+  Top: "\u9876\u90E8",
+  Bottom: "\u5E95\u90E8",
+  TAG: "\u6807\u7B7E",
+  MEMO: "MEMO",
+  DAY: "\u5929",
+  QUERY: "\u68C0\u7D22\u5F0F",
+  EDIT: "\u7F16\u8F91",
+  PIN: "\u7F6E\u9876",
+  UNPIN: "\u53D6\u6D88\u7F6E\u9876",
+  DELETE: "\u5220\u9664",
+  "CONFIRM\uFF01": "\u786E\u5B9A\u5220\u9664",
+  "CREATE FILTER": "\u521B\u5EFA\u68C0\u7D22\u5F0F",
+  Settings: "\u8BBE\u7F6E",
+  "Recycle bin": "\u56DE\u6536\u7AD9",
+  "Enable Recycle Bin": "\u542F\u7528\u56DE\u6536\u7AD9",
+  "Memo": "Memo \u8BB0\u5F55",
+  "List & Sidebar": "\u5217\u8868\u4E0E\u4FA7\u680F",
+  "Startup & Opening": "\u542F\u52A8\u4E0E\u6253\u5F00",
+  "Memo heading": "Memo \u533A\u6807\u9898",
+  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "\u65B0\u95EA\u5FF5\u5199\u5165\u8BE5\u6807\u9898\u4E0B\uFF0C\u4E14\u53EA\u8BFB\u53D6\u8BE5\u6807\u9898\u4E0B\u7684\u5185\u5BB9\uFF1B\u6807\u9898\u4E0D\u5B58\u5728\u65F6\u4F1A\u81EA\u52A8\u521B\u5EFA\u3002\u9ED8\u8BA4\uFF1A## Memo",
+  "Show Heat Map": "\u663E\u793A\u70ED\u529B\u56FE",
+  "Whether to show the usage heat map in the sidebar. True by default.": "\u662F\u5426\u5728\u4FA7\u680F\u663E\u793A\u6D3B\u8DC3\u70ED\u529B\u56FE\u3002\u9ED8\u8BA4\u5F00\u542F\u3002",
+  "Start day of week": "\u5468\u8D77\u59CB\u65E5",
+  "The first day of each column in the heat map. Sunday by default.": "\u70ED\u529B\u56FE\u6BCF\u5217\u4EE5\u5468\u51E0\u5F00\u59CB\u3002\u9ED8\u8BA4\u5468\u65E5\u3002",
+  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "\u5173\u95ED\u540E\uFF0C\u5220\u9664\u95EA\u5FF5\u4F1A\u76F4\u63A5\u6C38\u4E45\u79FB\u9664\uFF0C\u4E0D\u518D\u79FB\u5165\u56DE\u6536\u7AD9\u3002\u5DF2\u5728\u56DE\u6536\u7AD9\u4E2D\u7684\u95EA\u5FF5\u4F1A\u4FDD\u7559\uFF0C\u91CD\u65B0\u6253\u5F00\u6B64\u5F00\u5173\u540E\u6062\u590D\u3002",
+  "DELETE FOREVER?": "\u6C38\u4E45\u5220\u9664?",
+  "Audit data": "\u6570\u636E\u4F53\u68C0",
+  "About Me": "\u5173\u4E8E",
+  "Fetching data...": "\u83B7\u53D6\u6570\u636E\u4E2D...",
+  "Here is No Zettels.": "\u6CA1\u6709\u627E\u5230 memo",
+  "Frequently Used Tags": "\u5E38\u7528\u6807\u7B7E",
+  "Flat view": "\u5E73\u94FA\u89C6\u56FE",
+  "Tree view": "\u6811\u72B6\u89C6\u56FE",
+  "What do you think now...": "\u4F60\u73B0\u5728\u5728\u60F3\u4EC0\u4E48\uFF1F",
+  READ: "\u9605\u8BFB",
+  MARK: "\u5F15\u7528",
+  SHARE: "\u5206\u4EAB",
+  SOURCE: "\u6765\u6E90",
+  RESTORE: "\u6062\u590D",
+  "Mark as done": "\u6807\u8BB0\u4E3A\u5DF2\u5B8C\u6210",
+  "Mark as todo": "\u6807\u8BB0\u4E3A\u672A\u5B8C\u6210",
+  "TURN INTO TASK": "\u8BBE\u4E3A\u4EFB\u52A1\u5361",
+  "TURN INTO MEMO": "\u53D6\u6D88\u4EFB\u52A1\u5361",
+  "DELETE AT": "\u5220\u9664\u4E8E",
+  "Noooop!": "\u5565\u90FD\u6CA1\u6709\uFF01",
+  "All Data is Loaded \u{1F389}": "\u5C31\u8FD9\u4E9B\u5566 \u{1F389}",
+  "Quick filter": "\u5FEB\u901F\u7B5B\u9009",
+  TYPE: "\u7C7B\u578B",
+  LINKED: "\u94FE\u63A5",
+  "NO TAGS": "\u65E0\u6807\u7B7E",
+  "HAS LINKS": "\u6709\u8D85\u94FE\u63A5",
+  "HAS IMAGES": "\u6709\u56FE\u7247",
+  INCLUDE: "\u5305\u62EC",
+  EXCLUDE: "\u6392\u9664",
+  TEXT: "\u6587\u672C",
+  IS: "\u662F",
+  ISNOT: "\u4E0D\u662F",
+  SELECT: "\u9009\u62E9",
+  "ADD FILTER TERMS": "\u6DFB\u52A0\u68C0\u7D22\u6761\u4EF6",
+  FILTER: "\u68C0\u7D22\u5668",
+  TITLE: "\u6807\u9898",
+  "CREATE QUERY": "\u521B\u5EFA\u68C0\u7D22\u5F0F",
+  "EDIT QUERY": "\u7F16\u8F91\u68C0\u7D22\u5F0F",
+  MATCH: "\u5339\u914D",
+  TIMES: "\u6B21",
+  "Share Memo Image": "\u5206\u4EAB Memo \u56FE\u7247",
+  "\u2197Click the button to save": "\u2197\u70B9\u51FB\u53F3\u4E0A\u89D2\u7684\u6309\u94AE\u6765\u4FDD\u5B58",
+  "Image is generating...": "\u56FE\u7247\u6B63\u5728\u751F\u6210\u4E2D...",
+  "Image is loading...": "\u56FE\u7247\u6B63\u5728\u52A0\u8F7D\u4E2D...",
+  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} \u65E0\u6CD5\u52A0\u8F7D\u56FE\u7247\uFF0C\u56FE\u7247\u94FE\u63A5\u4E5F\u8BB8\u4E0D\u5B58\u5728",
+  "Loading...": "\u52AA\u529B\u52A0\u8F7D\u4E2D...",
+  "Daily Memos": "\u6BCF\u65E5 Memos",
+  "CANCEL EDIT": "\u53D6\u6D88\u7F16\u8F91",
+  "Write to date": "\u8BBE\u7F6E\u5199\u5165\u65E5\u671F",
+  "Write on": "\u5199\u5165",
+  "Back to now": "\u6062\u590D\u73B0\u5728",
+  Home: "\u4E3B\u9875",
+  "Random memo": "\u968F\u673A\u8BBF\u95EE",
+  "Draw another": "\u518D\u62BD\u4E00\u5F20",
+  "Open the daily note": "\u6253\u5F00\u5F53\u5929\u65E5\u8BB0",
+  "No memo found": "\u6CA1\u6709\u627E\u5230 memo",
+  "Data tools": "\u6570\u636E\u5DE5\u5177",
+  "Data Audit": "\u6570\u636E\u5BA1\u8BA1",
+  "Open the audit page to inspect and migrate memo data in daily notes.": "\u6253\u5F00\u5BA1\u8BA1\u9875\u68C0\u67E5\u4E0E\u8FC1\u79FB\u65E5\u8BB0\u4E2D\u7684 memo \u6570\u636E\u3002",
+  Today: "\u4ECA\u5929",
+  Time: "\u65F6\u95F4",
+  "LINK TO THE": "\u94FE\u63A5\u5230",
+  "Mobile Options": "\u79FB\u52A8\u7AEF\u9009\u9879",
+  "Experimental Options": "\u5B9E\u9A8C\u6027\u9009\u9879",
+  "Background Image in Dark Theme": "\u6DF1\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE",
+  "Background Image in Light Theme": "\u6D45\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE",
+  'Set background image in dark theme. Set something like "Daily/one.png"': '\u8BBE\u7F6E\u6DF1\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE\u3002\u8BF7\u8BBE\u7F6E\u7C7B\u4F3C"Daily/one.png"\u7684\u8DEF\u5F84',
+  'Set background image in light theme. Set something like "Daily/one.png"': '\u8BBE\u7F6E\u6D45\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE\u3002\u8BF7\u8BBE\u7F6E\u7C7B\u4F3C"Daily/one.png"\u7684\u8DEF\u5F84',
+  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': '\u8BBE\u7F6E\u9ED8\u8BA4 Memo \u7EC4\u6210\uFF0C\u4F60\u5FC5\u987B\u8981\u4F7F\u7528 {TIME} \u4F5C\u4E3A "HH:mm" \u800C\u4E14\u8981\u8BBE\u7F6E {CONTENT} \u4F5C\u4E3A\u5185\u5BB9\u8BC6\u522B\u3002\u9ED8\u8BA4\u60C5\u51B5\u4E0B\uFF0C Memo \u57FA\u4E8E "{TIME} {CONTENT}" \u8BC6\u522B',
+  "Default Memo Composition": "\u9ED8\u8BA4 Memo \u7EC4\u6210",
+  "Show tasks label near the time text. False by default": "\u5728 Memo \u7684\u65F6\u95F4\u65C1\u5C55\u793A\u4EFB\u52A1\u6807\u7B7E\u3002\u9ED8\u8BA4\u60C5\u51B5\u4E0B\u4E0D\u5C55\u793A",
+  "Please Open Memos First": "\u8BF7\u5148\u6253\u5F00 Memos",
+  DATE: "\u65E5\u671F",
+  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "Obsidian Natrual DATES language \u63D2\u4EF6\u6CA1\u542F\u52A8",
+  BEFORE: "\u5728\u4E4B\u524D",
+  AFTER: "\u5728\u4E4B\u540E",
+  "You can comment on memos. False by default": "\u4F60\u53EF\u4EE5\u5728 Memos \u70B9\u51FB\u56FE\u6807\u8FDB\u884C\u8BC4\u8BBA\u4E86\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F",
+  Import: "\u5BFC\u5165",
+  "TITLE CANNOT BE NULL!": "\u6807\u9898\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
+  "FILTER CANNOT BE NULL!": "\u7B5B\u9009\u5668\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
+  "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "\u4F60\u9700\u8981\u5B89\u88C5 0.5.9 \u7248\u672C\u4EE5\u4E0A\u7684 Dataview \u63D2\u4EF6\u6765\u4F7F\u7528\u8BE5\u529F\u80FD",
+  "Fetch Error": "\u{1F62D} Memos \u83B7\u53D6\u5931\u8D25",
+  "Copied to clipboard Successfully": "\u590D\u5236\u6210\u529F",
+  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "\u8BF7\u68C0\u67E5\u4F60\u6709\u6CA1\u6709\u5F00\u542F\u65E5\u8BB0\u63D2\u4EF6\u6216\u8005 Periodic Notes \u63D2\u4EF6\u4E14\u542F\u7528\u4E86\u65E5\u8BB0\u6A21\u5F0F",
+  "Please finish the last filter setting first": "\u5148\u5B8C\u5584\u4E0A\u4E00\u4E2A\u8FC7\u6EE4\u5668\u5427",
+  "Close Memos Successfully": "\u6210\u529F\u5173\u95ED Memos ",
+  "Insert as Memo": "\u63D2\u5165\u5185\u5BB9\u4E3A Memo",
+  "Insert file as memo content": "\u63D2\u5165\u6587\u4EF6\u4E3A Memo",
+  "Image load failed": "\u6709\u4E2A\u56FE\u7247\u52A0\u8F7D\u5931\u8D25\u4E86\u{1F61F}",
+  "Content cannot be empty": "\u5185\u5BB9\u4E0D\u80FD\u4E3A\u7A7A\u5440",
+  "Unable to create new file.": "\u65E0\u6CD5\u65B0\u5EFA\u6587\u4EF6",
+  "Failed to fetch deleted memos: ": "\u65E0\u6CD5\u83B7\u53D6\u5DF2\u5220\u9664\u7684 Memos \uFF1A",
+  "RESTORE SUCCEED": "\u6210\u529F\u6062\u590D Memo",
+  "Save Memo button icon": "\u4FDD\u5B58\u6309\u94AE\u4E0A\u7684\u56FE\u6807",
+  "The icon shown on the save Memo button in the UI.": "\u4F60\u53EF\u4EE5\u8BBE\u7F6E\u4FDD\u5B58\u6309\u94AE\u4E0A\u7684\u56FE\u6807",
+  "Fetch Memos From Particular Notes": "\u4ECE\u6307\u5B9A\u7684\u6587\u4EF6\u4E2D\u83B7\u53D6 Memos",
+  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': '\u4F60\u53EF\u4EE5\u7ED9\u7B14\u8BB0\u8BBE\u7F6E\u6307\u5B9A\u68C0\u7D22\u5F0F\u6765\u8BA9 Memos \u53EF\u4EE5\u7D22\u5F15\u5230\u5B83\u3002\u9ED8\u8BA4\u4E3A "#memo" ',
+  "Allow Memos to Fetch Memo from Notes": "\u5141\u8BB8 Memos \u4ECE\u7B14\u8BB0\u4E2D\u83B7\u53D6 Memo",
+  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": "\u4F7F\u7528 Memos \u6765\u7BA1\u7406\u4F60\u7B14\u8BB0\u4E2D\u7684 Memos\uFF0C\u4E0D\u5355\u53EA DailyNotes \u4E2D\u7684\u5185\u5BB9\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
+  "Always show memo comments on memos. False by default": "\u5F53\u5F00\u542F\u540E\u8BC4\u8BBA\u603B\u662F\u4F1A\u5728 Memo \u7684\u4E0B\u65B9\u5C55\u793A\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
+  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u6240\u5728\u6587\u4EF6\u5939",
+  "Please check your daily note plugin OR periodic notes plugin settings": "\u8BF7\u68C0\u67E5\u4F60\u7684\u65E5\u8BB0\u63D2\u4EF6\u548C/\u6216 Periodic Notes \u63D2\u4EF6\u7684\u8BBE\u7F6E",
+  "Use Which Plugin's Default Configuration": "\u4F7F\u7528\u54EA\u4E2A\u63D2\u4EF6\u7684\u9ED8\u8BA4\u65E5\u8BB0\u914D\u7F6E",
+  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "Memos \u91C7\u7528\u6307\u5B9A\u63D2\u4EF6\u7684\u9ED8\u8BA4\u914D\u7F6E\u6765\u83B7\u53D6 Memos\u3002\u9ED8\u8BA4\u4E3A\u65E5\u8BB0\u63D2\u4EF6\u3002",
+  Daily: "\u65E5\u8BB0\u63D2\u4EF6",
+  "Always Show Leaf Sidebar on PC": "\u5728 PC \u4E0A\u603B\u662F\u5C55\u793A\u5DE6\u4FA7\u680F",
+  "Show left sidebar on PC even when the leaf width is less than 875px. False by default.": "\u5728 PC \u4E0A\u5373\u4F7F\u9875\u9762\u5BBD\u5EA6\u5C0F\u4E8E 875px \u65F6\u90FD\u5C55\u793A\u5DE6\u4FA7\u680F\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
+  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u683C\u5F0F",
+  "Previous page": "\u4E0A\u4E00\u9875",
+  "Next page": "\u4E0B\u4E00\u9875",
+  "Type Here": "\u8F93\u5165\u4EE5\u8FC7\u6EE4",
+  TagTipFirst: "\u8F93\u5165 ",
+  TagTipSecond: "\u5373\u53EF\u521B\u5EFA\u4E00\u4E2A\u6807\u7B7E",
+  "Failed to save: ": "\u4FDD\u5B58\u5931\u8D25\uFF1A",
+  "Auto-clean Recycle Bin": "\u81EA\u52A8\u6E05\u7406\u56DE\u6536\u7AD9",
+  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "\u8D85\u8FC7\u4FDD\u7559\u671F\u7684\u5DF2\u5220\u5361\u4F1A\u88AB\u6574\u5757\u6C38\u4E45\u5220\u9664\uFF0C\u4E0D\u53EF\u6062\u590D\u3002",
+  "Never delete": "\u6C38\u4E0D\u5220\u9664",
+  "7 days": "7 \u5929",
+  "30 days": "30 \u5929",
+  "90 days": "90 \u5929",
+  "180 days": "180 \u5929",
+  "Auto-cleaned {N} expired memos from the recycle bin": "\u56DE\u6536\u7AD9\u81EA\u52A8\u6E05\u7406\uFF1A\u5DF2\u6C38\u4E45\u5220\u9664 {N} \u6761\u8FC7\u671F\u5361",
+  "Send sound": "\u53D1\u9001\u97F3\u6548",
+  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "\u53D1\u51FA\u4E00\u6761\u65B0\u95EA\u5FF5\u65F6\u64AD\u653E\u97F3\u6548\u3002\u53EF\u9009\u63D2\u4EF6\u81EA\u5E26\u7684\u53D1\u724C\u58F0\uFF0C\u6216\u4F60\u81EA\u5DF1\u7684\u97F3\u9891\u6587\u4EF6\u3002",
+  "Built-in (card deal)": "\u5185\u7F6E\xB7\u53D1\u724C\u58F0",
+  "Custom path": "\u81EA\u5B9A\u4E49\u8DEF\u5F84",
+  "Not played": "\u4E0D\u64AD\u653E",
+  "Sound file path": "\u97F3\u6548\u6587\u4EF6\u8DEF\u5F84",
+  "Enter a vault-relative path (e.g. assets/send.mp3).": "\u586B\u5E93\u5185\u76F8\u5BF9\u8DEF\u5F84\uFF08\u5982 assets/send.mp3\uFF09\u3002",
+  Preview: "\u8BD5\u542C",
+  "Failed to play the sound: ": "\u97F3\u6548\u64AD\u653E\u5931\u8D25\uFF1A",
+  "Tag position": "\u6807\u7B7E\u4F4D\u7F6E",
+  "Show tags at the bottom of the card, or keep them where they appear in the text.": "\u6807\u7B7E\u62BD\u5230\u5361\u7247\u6B63\u6587\u672B\u5C3E\uFF0C\u8FD8\u662F\u4FDD\u7559\u5728\u53E5\u5B50\u91CC\u539F\u6765\u7684\u4F4D\u7F6E\u3002",
+  "In place": "\u539F\u4F4D",
+  "What needs doing...": "\u8981\u505A\u4EC0\u4E48\uFF1F\u5199\u4E0B\u6765\u2026",
+  Afdian: "\u7231\u53D1\u7535",
+  "Data health check": "\u{1FA7A} \u6570\u636E\u4F53\u68C0",
+  "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.": "\u68C0\u6D4B\u65E5\u8BB0\u6587\u4EF6\u4E2D\u7684\u6570\u636E\u7ED3\u6784\u95EE\u9898\uFF0C\u4EE5\u53CA\u65E7\u7248 Memos \u63D2\u4EF6\u5199\u4E0B\u7684 memo\u3002\u4FEE\u590D\u524D\u4F1A\u81EA\u52A8\u5907\u4EFD\u5230 .rememo-backup/\uFF0C\u53EF\u653E\u5FC3\u64CD\u4F5C\u3002",
+  "Recently fixed": "\u2705 \u6700\u8FD1\u4FEE\u590D",
+  Clear: "\u6E05\u7A7A",
+  "Re-scan": "\u91CD\u65B0\u4F53\u68C0",
+  "Migrate all legacy files ({n})": "\u4E00\u952E\u8FC1\u79FB\u5168\u90E8\u65E7\u6587\u4EF6\uFF08{n} \u4E2A\uFF09",
+  "Auto-fix all ({n})": "\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08{n} \u6761\uFF09",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "\u6709\u95EE\u9898\u6587\u4EF6 {files} \xB7 memo {lines} \u6761 \xB7 \u95EE\u9898 {issues} \u4E2A",
+  " (incl. {n} legacy-format files)": "\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 {n} \u4E2A\uFF09",
+  " ({n} auto-fixable)": "\uFF08\u53EF\u4FEE {n} \u6761\uFF09",
+  "Scanning\u2026 {done}/{total}": "\u626B\u63CF\u4E2D\u2026 {done}/{total}",
+  "Working\u2026": "\u5904\u7406\u4E2D\u2026",
+  "No problems found \u{1F389}": "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}",
+  "{n} errors": "{n} \u5904\u9519\u8BEF",
+  "{n} memos": "{n} \u6761 memo",
+  "Migrate file": "\u6574\u6587\u4EF6\u8FC1\u79FB",
+  "Migrating\u2026": "\u8FC1\u79FB\u4E2D\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "\u628A\u672C\u6587\u4EF6\u7684\u65E7\u683C\u5F0F\u884C\u6574\u4F53\u8FC1\u79FB\u4E3A\u65B0\u5361\u7247\u5757\uFF08\u81EA\u52A8\u5907\u4EFD\uFF09\uFF0C\u8FC1\u79FB\u540E\u65E7\u6570\u636E\u6062\u590D\u6E32\u67D3\u3002",
+  "{rule} \u2014 fix to:": "\u300C{rule}\u300D\u4FEE\u590D\u4E3A\uFF1A",
+  "Fix this line": "\u4FEE\u590D\u8FD9\u6761",
+  View: "\u67E5\u770B",
+  Ignore: "\u5FFD\u7565",
+  "Fix all": "\u4E00\u952E\u4FEE\u590D",
+  "Scan failed: ": "\u626B\u63CF\u5931\u8D25\uFF1A",
+  "Migration failed: ": "\u8FC1\u79FB\u5931\u8D25\uFF1A",
+  "no auto-fixable issues": "\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5\u5904\u7406\u6216\u8FC1\u79FB\uFF09",
+  "fix-round limit reached; re-scan to check what is left": "\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879",
+  "Migration done: {n} entries converted": "\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 {n} \u4E2A\u65E7\u5355\u4F4D",
+  "Migrated all: {files} files \xB7 {n} entries converted": "\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A{files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 {n} \u4E2A\u65E7\u5355\u4F4D",
+  ", {n} cross-day comments moved to their daily notes": "\uFF0C{n} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0",
+  ", {n} deleted comments dropped": "\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA {n} \u884C",
+  ", {n} entries kept as-is (could not be mapped)": "\uFF0C{n} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559",
+  ", failed: {list}": "\uFF0C\u5931\u8D25\uFF1A{list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002",
+  ". Backups are in .rememo-backup/migrate-*.": "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "\u6CA1\u6709\u53EF\u8FC1\u79FB\u7684\u65E7\u5355\u4F4D\uFF08{n} \u884C\u7F3A\u65F6\u95F4\u7B49\uFF0C\u9700\u4EBA\u5DE5\u5904\u7406\uFF09\u3002",
+  "This file has no legacy-format lines \u2014 no migration needed.": "\u8FD9\u4E2A\u6587\u4EF6\u6CA1\u6709\u65E7\u683C\u5F0F\u884C\uFF0C\u65E0\u9700\u8FC1\u79FB\u3002",
+  "Legacy <br> line breaks": "\u65E7 <br> \u6362\u884C\u7F16\u7801",
+  "Duplicate ^id": "\u91CD\u590D ^id",
+  "Legacy format row": "\u65E7\u683C\u5F0F\u884C",
+  "Legacy 14-digit timestamp": "\u65E7 14 \u4F4D\u65F6\u95F4\u6233",
+  "Missing ^id": "\u7F3A\u5C11 ^id",
+  "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.": "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\u3002",
+  "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.": "\u9876\u5C42\u884C\u4E0D\u662F\u65B0\u683C\u5F0F\u7684\u7EAF\u6807\u8BC6\u5934\uFF08\u65E7\u5355\u884C\u6570\u636E/\u624B\u5199\u6DF7\u5165\uFF09\uFF0C\u8BFB\u53D6\u7AEF\u4E0D\u6E32\u67D3\u5B83\u3002\u4FEE\u590D\uFF1A\u70B9\u672C\u6587\u4EF6\u7684\u300C\u6574\u6587\u4EF6\u8FC1\u79FB\u300D\u7EDF\u4E00\u8F6C\u6362\uFF08\u81EA\u52A8\u5907\u4EFD\uFF0C\u65E7\u8BC4\u8BBA\u5B50\u6811\u4F1A\u6298\u53E0\u8FDB\u7236\u5361\u6B63\u6587\uFF09\u3002",
+  "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.": "\u540C\u4E00\u6587\u4EF6\u91CC\u51FA\u73B0\u91CD\u590D\u7684 ^id\u3002^id \u662F memo/\u8BC4\u8BBA\u7684\u6301\u4E45\u4E3B\u952E\uFF0C\u91CD\u590D\u4F1A\u4F7F\u8BC4\u8BBA\u5F52\u5C5E\u3001\u56DE\u6536\u7AD9\u3001\u5F15\u7528\u5168\u90E8\u6B67\u4E49\u3002\u4FEE\u590D\uFF1A\u4FDD\u7559\u7B2C\u4E00\u4E2A\u51FA\u73B0\u7684 id\uFF0C\u540E\u7EED\u91CD\u590D\u884C\u6362\u6210\u4E00\u4E2A\u65B0\u7684\u968F\u673A ^id\u3002",
+  "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.": "\u884C\u9996\u662F\u65E7\u7248 14 \u4F4D\u65F6\u95F4\u6233\uFF08YYYYMMDDHHmmss\uFF09\u3002\u65F6\u95F4\u5E94\u7EDF\u4E00\u4E3A HH:mm:ss\uFF08\u5E26\u79D2\uFF09\u3002\u4FEE\u590D\uFF1A\u53EA\u66FF\u6362\u65F6\u95F4\u4F4D\u4E3A HH:mm:ss\uFF0C\u5185\u5BB9\u4E0E ^id \u4E0D\u52A8\u3002",
+  "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.": "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
+  "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file": "\u8BE5\u884C\u542B {n} \u5904 <br>\uFF1B\u672C\u6587\u4EF6\u5171 {m} \u884C\u53D7\u5F71\u54CD\uFF0C\u5EFA\u8BAE\u6574\u4F53\u8FC1\u79FB",
+  "legacy-format row: a whole-file migration converts it into a card block": "\u65E7\u683C\u5F0F\u884C\uFF1A\u6574\u6587\u4EF6\u8FC1\u79FB\u53EF\u5C06\u5176\u8F6C\u6210\u65B0\u683C\u5F0F\u5361\u7247\u5757",
+  "first seen at line {n}": "\u9996\u6B21\u51FA\u73B0\u5728\u7B2C {n} \u884C",
+  "Your old memos are still here": "\u4F60\u7684\u65E7 memo \u8FD8\u5728",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "\u5E93\u91CC\u68C0\u6D4B\u5230 {n} \u884C\u65E7\u7248 Memos \u683C\u5F0F\u7684 memo\uFF0CRememo \u76EE\u524D\u4E0D\u6E32\u67D3\u5B83\u4EEC\u3002\u6570\u636E\u6CA1\u6709\u4E22\u2014\u2014\u8DD1\u4E00\u6B21\u300C\u6570\u636E\u4F53\u68C0\u300D\u5373\u53EF\u628A\u5B83\u4EEC\u8F6C\u6210\u5361\u7247\u5757\u3002",
+  "Open data health check": "\u6253\u5F00\u6570\u636E\u4F53\u68C0"
+};
+var zhTW = {};
+const localeMap = {
+  ar,
+  cs: cz,
+  da: da$1,
+  de: de$1,
+  en,
+  "en-gb": enGB,
+  es,
+  fr,
+  hi: hi$1,
+  id: id$1,
+  it,
+  ja: ja$1,
+  ko,
+  nl,
+  nn: no,
+  pl,
+  pt,
+  "pt-br": ptBR,
+  ro,
+  ru,
+  tr,
+  "zh-cn": zhCN,
+  "zh-tw": zhTW
+};
+const locale = localeMap[require$$0.moment.locale()];
+function t$3(str) {
+  return locale && locale[str] || en[str] || str;
+}
+function tf$1(str, vars) {
+  const template = t$3(str);
+  return typeof template === "string" ? template.replace(/\{(\w+)\}/g, (_, k) => {
+    var _a2;
+    return String((_a2 = vars[k]) != null ? _a2 : "");
+  }) : String(str);
+}
+function extractDeletedAt(content2) {
+  const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content2);
+  if (m2) {
+    const value = m2[1].trim();
+    if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
+      return {
+        isDeleted: true,
+        deletedAt: value,
+        rest: content2.slice(0, m2.index).trimEnd()
+      };
+    }
+  }
+  return { isDeleted: false, deletedAt: "", rest: content2 };
+}
+function parseDeletedAtMs(value) {
+  const m2 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(value) || /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
+  if (!m2)
+    return null;
+  const y2 = Number(m2[1]);
+  const mo = Number(m2[2]);
+  const d = Number(m2[3]);
+  const h2 = Number(m2[4]);
+  const mi2 = Number(m2[5]);
+  const s = Number(m2[6]);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h2 > 23 || mi2 > 59 || s > 59)
+    return null;
+  const t2 = new Date(y2, mo - 1, d, h2, mi2, s).getTime();
+  return Number.isNaN(t2) ? null : t2;
+}
+function extractMemoTaskTypeFromLine(line) {
+  const match = /^[\s-*]*\[(.{1})\]/.exec(line);
+  return match ? match[1] : "";
+}
+const getTaskType = (memoTaskType) => {
+  if (memoTaskType === " ")
+    return "TASK-TODO";
+  if (memoTaskType === "x" || memoTaskType === "X")
+    return "TASK-DONE";
+  return "TASK-" + memoTaskType;
+};
+function extractMemoTime(rawContent) {
+  const t2 = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(rawContent);
+  if (t2) {
+    return {
+      time: t2[3] ? `${t2[1]}:${t2[2]}:${t2[3]}` : `${t2[1]}:${t2[2]}`,
+      isOld: !t2[3],
+      rest: rawContent.slice(t2[0].length).replace(/^ /, "")
+    };
+  }
+  const ts = /^(\d{14})\s?(.*)$/.exec(rawContent);
+  if (ts) {
+    const hh2 = ts[1].slice(8, 10);
+    const mm = ts[1].slice(10, 12);
+    const ss = ts[1].slice(12, 14);
+    return { time: `${hh2}:${mm}:${ss}`, isOld: true, rest: ts[2].trim() };
+  }
+  return { time: "", isOld: false, rest: rawContent.trim() };
+}
+const INDENT_UNIT = 4;
+function getIndentWidth(line) {
+  let width = 0;
+  for (const ch2 of line) {
+    if (ch2 === " ")
+      width += 1;
+    else if (ch2 === "	")
+      width += INDENT_UNIT;
+    else
+      break;
+  }
+  return width;
+}
+function unindentContentLine(line) {
+  return line.length >= 4 ? line.slice(4) : line;
+}
+const TIME_TEXT = String.raw`(?:\d{1,2}:\d{2}(?::\d{2})?|\d{14})`;
+const DELETED_AT_VALUE = String.raw`(?:\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`;
+const PURE_HEADER_LINE = new RegExp(
+  String.raw`^[-*]\s(\[[^\]]{1}\]\s?)?${TIME_TEXT}(\s+deletedAt:\s*${DELETED_AT_VALUE})?\s*(\^[A-Za-z0-9]{6})?\s*$`
+);
+const TOP_BULLET_LINE = /^[-*]\s/;
+function classifyMemoRow(line) {
+  if (!TOP_BULLET_LINE.test(line))
+    return "other";
+  return PURE_HEADER_LINE.test(line) ? "pure-header" : "old-top-row";
+}
+function detectFileEra(lines) {
+  for (const line of lines) {
+    if (TOP_BULLET_LINE.test(line)) {
+      return PURE_HEADER_LINE.test(line) ? "new" : "old";
+    }
+  }
+  return "unknown";
+}
+class DailyNotesFolderMissingError extends Error {
+}
+async function getMemosFromDailyNote(dailyNote, allMemos) {
+  if (!dailyNote) {
+    return [];
+  }
+  const { vault } = appStore.getState().dailyNotesState.app;
+  let fileContents = await vault.read(dailyNote);
+  let fileLines = getAllLinesFromFile$5(fileContents);
+  const baseDate = getDateFromFile_1(dailyNote, "day");
+  parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate);
+  return allMemos;
+}
+function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
+  const rule = getMemoSectionRule(MemoHeading);
+  let active = false;
+  let current = null;
+  let pendingBlanks = 0;
+  let legacyRows = 0;
+  const flush = () => {
+    if (!current) {
+      pendingBlanks = 0;
+      return;
+    }
+    const memoDate = require$$0.moment(baseDate);
+    if (current.time) {
+      const [h2, m2, s] = current.time.split(":").map((x2) => parseInt(x2));
+      memoDate.hours(h2).minutes(m2);
+      if (!isNaN(s))
+        memoDate.seconds(s);
+    }
+    const content2 = current.body.join("\n");
+    allMemos.push({
+      id: memoDate.format("YYYYMMDDHHmmss") + current.idx,
+      content: content2,
+      user_id: 1,
+      createdAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
+      updatedAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
+      memoType: current.memoType,
+      hasId: current.hasId,
+      linkId: "",
+      isDeleted: current.isDeleted,
+      deletedAt: current.deletedAt,
+      path: dailyNote.path,
+      blockStart: current.idx,
+      blockEnd: current.bodyEnd
+    });
+    current = null;
+    pendingBlanks = 0;
+  };
+  const parseHeader = (line, i2) => {
+    const memoType = /^[-*]\s\[(.{1})\]\s?/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
+    const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s?)?/, "");
+    const { time, rest } = extractMemoTime(stripped);
+    let content2 = rest;
+    let hasId;
+    const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content2);
+    if (idMatch) {
+      hasId = idMatch[1];
+      content2 = content2.slice(0, idMatch.index).trimEnd();
+    } else {
+      hasId = Math.random().toString(36).slice(-6);
+    }
+    const delMatch = extractDeletedAt(content2);
+    let isDeleted = false;
+    let deletedAt = "";
+    if (delMatch.isDeleted) {
+      isDeleted = true;
+      deletedAt = delMatch.deletedAt;
+    }
+    return {
+      idx: i2,
+      hasId,
+      time: time || "",
+      deletedAt,
+      isDeleted,
+      memoType,
+      body: [],
+      bodyEnd: i2
+    };
+  };
+  for (let i2 = 0; i2 < fileLines.length; i2++) {
+    const line = fileLines[i2];
+    if (isMemoHeadingLine(line, rule)) {
+      flush();
+      active = true;
+      continue;
+    }
+    if (active && isMemoSectionBoundary(line, rule)) {
+      active = false;
+      flush();
+      continue;
+    }
+    if (!active)
+      continue;
+    const cls = classifyMemoRow(line);
+    if (cls === "pure-header") {
+      flush();
+      current = parseHeader(line, i2);
+      continue;
+    }
+    if (cls === "old-top-row") {
+      legacyRows++;
+      flush();
+      continue;
+    }
+    if (!current) {
+      continue;
+    }
+    if (line.trim() === "") {
+      pendingBlanks++;
+      continue;
+    }
+    if (getIndentWidth(line) >= 4) {
+      if (pendingBlanks > 0) {
+        for (let b = 0; b < pendingBlanks; b++)
+          current.body.push("");
+        pendingBlanks = 0;
+      }
+      current.body.push(unindentContentLine(line));
+      current.bodyEnd = i2;
+      continue;
+    }
+    flush();
+  }
+  flush();
+  legacySignal.report(dailyNote.path, legacyRows);
+}
+async function getMemos(onBatch) {
+  const memos = [];
+  const { vault } = appStore.getState().dailyNotesState.app;
+  const folder = getDailyNotePath();
+  if (folder === "" || folder === void 0) {
+    new require$$0.Notice(t$3("Please check your daily note plugin OR periodic notes plugin settings"));
+    return memos;
+  }
+  const dailyNotesFolder = vault.getAbstractFileByPath(require$$0.normalizePath(folder));
+  if (!(dailyNotesFolder instanceof require$$0.TFolder)) {
+    throw new DailyNotesFolderMissingError("Failed to find daily notes folder");
+  }
+  const dailyNotes = getAllDailyNotes_1();
+  const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").sort((a, b) => b[0].localeCompare(a[0]));
+  legacySignal.reset();
+  const BATCH_SIZE = 5;
+  for (let i2 = 0; i2 < files.length; i2++) {
+    await getMemosFromDailyNote(files[i2][1], memos);
+    if (onBatch && (i2 + 1) % BATCH_SIZE === 0) {
+      await onBatch([...memos]);
+    }
+  }
+  if (onBatch && files.length > 0) {
+    await onBatch([...memos]);
+  }
+  return memos;
+}
+const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
+class MemoService {
+  constructor() {
+    this.initialized = false;
+    this.autoCleaning = false;
+  }
+  getState() {
+    return appStore.getState().memoState;
+  }
+  get isInitialized() {
+    return this.initialized;
+  }
+  invalidate() {
+    this.initialized = false;
+  }
+  async fetchAllMemos(options) {
+    const accumulatedMemos = [];
+    await getMemos(async (batchMemos) => {
+      accumulatedMemos.push(...batchMemos);
+      if (!(options == null ? void 0 : options.silent)) {
+        this.updateMemoStore(accumulatedMemos);
+      }
+    });
+    if (options == null ? void 0 : options.silent) {
+      this.updateMemoStore(accumulatedMemos);
+    }
+    if (!this.initialized) {
+      this.initialized = true;
+    }
+    await this.autoCleanRecycleBin();
+    return accumulatedMemos;
+  }
+  async fetchMemosFromFile(file) {
+    const memos = [];
+    await getMemosFromDailyNote(file, memos);
+    const { memoState } = appStore.getState();
+    const others = memoState.memos.filter((m2) => m2.path !== file.path);
+    this.updateMemoStore([...others, ...memos]);
+  }
+  async fetchDeletedMemos() {
+    const deletedMemos = this.getState().memos.filter((m2) => m2.isDeleted);
+    return deletedMemos.sort(
+      (a, b) => new Date(b.deletedAt || "").getTime() - new Date(a.deletedAt || "").getTime()
+    );
+  }
+  async autoCleanRecycleBin() {
+    if (this.autoCleaning)
+      return;
+    this.autoCleaning = true;
+    try {
+      const { settings } = appStore.getState().settingsState;
+      if (!settings.EnableRecycleBin || settings.RecycleBinRetention === "never")
+        return;
+      const days = Number(settings.RecycleBinRetention);
+      if (!Number.isFinite(days) || days <= 0)
+        return;
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1e3;
+      const expired = this.getState().memos.filter((m2) => {
+        if (!m2.isDeleted)
+          return false;
+        const deletedAtMs = parseDeletedAtMs(m2.deletedAt);
+        return deletedAtMs !== null && deletedAtMs <= cutoff;
+      });
+      if (expired.length === 0)
+        return;
+      let cleaned = 0;
+      for (const memo2 of expired) {
+        try {
+          await this.deleteMemoById(memo2.id, memo2.hasId, memo2.path);
+          cleaned += 1;
+        } catch (error) {
+          console.error("[rememo] auto-clean failed:", memo2.id, error);
+        }
+      }
+      if (cleaned > 0) {
+        new require$$0.Notice(
+          t$3("Auto-cleaned {N} expired memos from the recycle bin").replace("{N}", String(cleaned)),
+          8e3
+        );
+      }
+    } catch (error) {
+      console.error("[rememo] auto-clean error:", error);
+    } finally {
+      this.autoCleaning = false;
+    }
+  }
+  pushMemo(memo2) {
+    appStore.dispatch({
+      type: "INSERT_MEMO",
+      payload: { memo: { ...memo2 } }
+    });
+  }
+  pushCommentMemo(memo2) {
+    appStore.dispatch({
+      type: "INSERT_MEMO",
+      payload: { memo: { ...memo2 } }
+    });
+  }
+  getMemoById(id2) {
+    return this.getState().memos.find((m2) => m2.id === id2) || null;
+  }
+  getMemoByLinkTarget(target) {
+    const parsed = parseLinkTarget(target);
+    if (!parsed)
+      return null;
+    if (!parsed.isLegacy && parsed.fileName) {
+      return this.getState().memos.find(
+        (m2) => m2.hasId === parsed.id && (m2.path === parsed.fileName || m2.path.endsWith("/" + parsed.fileName))
+      ) || null;
+    }
+    return this.getMemoById(parsed.id) || null;
+  }
+  async hideMemoById(id2, hasId, path) {
+    const file = await obHideMemo(id2, hasId, path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  async restoreMemoById(id2, hasId, path) {
+    const file = await restoreMemo(id2, hasId, path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  async deleteMemoById(id2, hasId, path) {
+    const file = await deleteMemo(id2, hasId, path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  async toggleMemoTask(memo2) {
+    const file = await toggleMemoTask(memo2.id, memo2.hasId, memo2.path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  async toggleMemoTaskType(memo2) {
+    const file = await toggleMemoTaskType(memo2.id, memo2.hasId, memo2.path);
+    if (file) {
+      await this.fetchMemosFromFile(file);
+    }
+  }
+  editMemo(memo2) {
+    appStore.dispatch({
+      type: "EDIT_MEMO",
+      payload: memo2
+    });
+  }
+  updateTagsState() {
+    const { memos } = this.getState();
+    const uniqueTags = /* @__PURE__ */ new Set();
+    const tagCounts = {};
+    memos.filter((memo2) => !memo2.isDeleted).forEach((memo2) => {
+      const tags2 = this.extractTagsFromContent(memo2.content);
+      tags2.forEach((tag) => {
+        uniqueTags.add(tag);
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    });
+    appStore.dispatch({
+      type: "SET_TAGS",
+      payload: {
+        tags: Array.from(uniqueTags),
+        tagsNum: tagCounts
+      }
+    });
+  }
+  clearMemos() {
+    appStore.dispatch({
+      type: "SET_MEMOS",
+      payload: { memos: [] }
+    });
+  }
+  getLinkedMemos(memo2) {
+    var _a2;
+    const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
+    const targets = memo2.hasId ? [`${fileName}#^${memo2.hasId}`] : [];
+    return this.getState().memos.filter(
+      (m2) => m2.id !== memo2.id && !m2.isDeleted && (targets.some((t2) => m2.content.includes(t2)) || m2.content.includes(memo2.id))
+    );
+  }
+  async createMemo(text, isTask, date) {
+    return await waitForInsert(text, isTask, date);
+  }
+  async importMemos(text, isList2, date) {
+    return await waitForInsert(text, isList2, date);
+  }
+  async updateMemo(params) {
+    return await changeMemo(
+      params.memoId,
+      params.text,
+      params.type,
+      params.path,
+      params.hasId
+    );
+  }
+  extractTagsFromContent(content2) {
+    const tags2 = /* @__PURE__ */ new Set();
+    const matches = [
+      ...content2.match(TAG_REG) || [],
+      ...content2.match(NOP_FIRST_TAG_REG) || [],
+      ...content2.match(FIRST_TAG_REG) || []
+    ];
+    matches.forEach((match) => {
+      if (TAG_REG.test(match)) {
+        tags2.add(match.replace(TAG_REG, "$1").trim());
+      } else if (NOP_FIRST_TAG_REG.test(match)) {
+        tags2.add(match.replace(NOP_FIRST_TAG_REG, "$1").trim());
+      } else if (FIRST_TAG_REG.test(match)) {
+        tags2.add(match.replace(FIRST_TAG_REG, "$2").trim());
+      }
+    });
+    return Array.from(tags2).filter((tag) => !tag.endsWith("/") && !tag.startsWith("/"));
+  }
+  updateMemoStore(memos) {
+    appStore.dispatch({
+      type: "SET_MEMOS",
+      payload: { memos }
+    });
+  }
+}
+const memoService = new MemoService();
+class LocationService {
+  constructor() {
+    this.updateStateWithLocation = () => {
+      var _a2, _b, _c, _d, _e, _f;
+      const { pathname, search, hash: hash2 } = window.location;
+      const urlParams = new URLSearchParams(search);
+      const state = {
+        pathname: "/",
+        hash: "",
+        query: {
+          tag: "",
+          duration: null,
+          text: "",
+          type: "",
+          filter: ""
+        }
+      };
+      state.query.tag = (_a2 = urlParams.get("tag")) != null ? _a2 : "";
+      state.query.type = (_b = urlParams.get("type")) != null ? _b : "";
+      state.query.text = (_c = urlParams.get("text")) != null ? _c : "";
+      state.query.filter = (_d = urlParams.get("filter")) != null ? _d : "";
+      const from = parseInt((_e = urlParams.get("from")) != null ? _e : "0");
+      const to = parseInt((_f = urlParams.get("to")) != null ? _f : "0");
+      if (to > from && to !== 0) {
+        state.query.duration = {
+          from,
+          to
+        };
+      }
+      state.hash = hash2;
+      state.pathname = this.getValidPathname(pathname);
+      appStore.dispatch({
+        type: "SET_LOCATION",
+        payload: state
+      });
+    };
+    this.getState = () => {
+      return appStore.getState().locationState;
+    };
+    this.clearQuery = () => {
+      appStore.dispatch({
+        type: "SET_QUERY",
+        payload: {
+          tag: "",
+          duration: null,
+          text: "",
+          type: "",
+          filter: ""
+        }
+      });
+    };
+    this.setQuery = (query) => {
+      appStore.dispatch({
+        type: "SET_QUERY",
+        payload: query
+      });
+    };
+    this.setHash = (hash2) => {
+      appStore.dispatch({
+        type: "SET_HASH",
+        payload: {
+          hash: hash2
+        }
+      });
+    };
+    this.setPathname = (pathname) => {
+      appStore.dispatch({
+        type: "SET_PATHNAME",
+        payload: {
+          pathname
+        }
+      });
+    };
+    this.pushHistory = (pathname) => {
+      appStore.dispatch({
+        type: "SET_PATHNAME",
+        payload: {
+          pathname
+        }
+      });
+    };
+    this.replaceHistory = (pathname) => {
+      appStore.dispatch({
+        type: "SET_PATHNAME",
+        payload: {
+          pathname
+        }
+      });
+    };
+    this.setMemoTypeQuery = (type = "") => {
+      appStore.dispatch({
+        type: "SET_TYPE",
+        payload: {
+          type
+        }
+      });
+    };
+    this.setMemoFilter = (filterId) => {
+      appStore.dispatch({
+        type: "SET_QUERY_FILTER",
+        payload: filterId
+      });
+    };
+    this.setTextQuery = (text) => {
+      appStore.dispatch({
+        type: "SET_TEXT",
+        payload: {
+          text
+        }
+      });
+    };
+    this.setTimeQuery = (duration) => {
+      appStore.dispatch({
+        type: "SET_DURATION_QUERY",
+        payload: {
+          duration
+        }
+      });
+    };
+    this.setTagQuery = (tag) => {
+      appStore.dispatch({
+        type: "SET_TAG_QUERY",
+        payload: {
+          tag
+        }
+      });
+    };
+    this.setFromAndToQuery = (from, to) => {
+      appStore.dispatch({
+        type: "SET_DURATION_QUERY",
+        payload: {
+          duration: { from, to }
+        }
+      });
+    };
+    this.getValidPathname = (pathname) => {
+      if (["/", "/homeboard", "/recycle", "/audit"].includes(pathname)) {
+        return pathname;
+      } else {
+        return "/";
+      }
+    };
+    this.updateStateWithLocation();
+    window.onpopstate = () => {
+      this.updateStateWithLocation();
+    };
+  }
+}
+const locationService = new LocationService();
+var storage;
+((storage2) => {
+  function get(keys) {
+    const data = {};
+    for (const key of keys) {
+      try {
+        const stringifyValue = localStorage.getItem(key);
+        if (stringifyValue !== null) {
+          const val = JSON.parse(stringifyValue);
+          data[key] = val;
+        }
+      } catch (error) {
+        console.error("Get storage failed in ", key, error);
+      }
+    }
+    return data;
+  }
+  storage2.get = get;
+  function set(data) {
+    for (const key in data) {
+      try {
+        const stringifyValue = JSON.stringify(data[key]);
+        localStorage.setItem(key, stringifyValue);
+      } catch (error) {
+        console.error("Save storage failed in ", key, error);
+      }
+    }
+  }
+  storage2.set = set;
+  function remove2(keys) {
+    for (const key of keys) {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.error("Remove storage failed in ", key, error);
+      }
+    }
+  }
+  storage2.remove = remove2;
+  function removeRaw(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error("Remove storage failed in ", key, error);
+    }
+  }
+  storage2.removeRaw = removeRaw;
+})(storage || (storage = {}));
+class GlobalStateService {
+  constructor() {
+    var _a2, _b, _c;
+    this.getState = () => {
+      return appStore.getState().globalState;
+    };
+    this.setEditMemoId = (editMemoId) => {
+      appStore.dispatch({
+        type: "SET_EDIT_MEMO_ID",
+        payload: {
+          editMemoId
+        }
+      });
+    };
+    this.setMarkMemoId = (markMemoId) => {
+      appStore.dispatch({
+        type: "SET_MARK_MEMO_ID",
+        payload: {
+          markMemoId
+        }
+      });
+    };
+    this.setIsMobileView = (isMobileView) => {
+      appStore.dispatch({
+        type: "SET_MOBILE_VIEW",
+        payload: {
+          isMobileView
+        }
+      });
+    };
+    this.setShowSiderbarInMobileView = (showSiderbarInMobileView) => {
+      appStore.dispatch({
+        type: "SET_SHOW_SIDEBAR_IN_MOBILE_VIEW",
+        payload: {
+          showSiderbarInMobileView
+        }
+      });
+    };
+    this.setAppSetting = (appSetting) => {
+      appStore.dispatch({
+        type: "SET_APP_SETTING",
+        payload: appSetting
+      });
+      storage.set(appSetting);
+    };
+    const cachedSetting = storage.get([
+      "shouldSplitMemoWord",
+      "shouldHideImageUrl",
+      "shouldUseMarkdownParser"
+    ]);
+    const defaultAppSetting = {
+      shouldSplitMemoWord: (_a2 = cachedSetting.shouldSplitMemoWord) != null ? _a2 : true,
+      shouldHideImageUrl: (_b = cachedSetting.shouldHideImageUrl) != null ? _b : true,
+      shouldUseMarkdownParser: (_c = cachedSetting.shouldUseMarkdownParser) != null ? _c : true
+    };
+    storage.removeRaw("useTinyUndoHistoryCache");
+    storage.removeRaw("tinyUndoActionsCache");
+    storage.removeRaw("tinyUndoIndexCache");
+    this.setAppSetting(defaultAppSetting);
+  }
+}
+const globalStateService = new GlobalStateService();
+const findQuery = async () => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const queryList2 = [];
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (queryFile instanceof require$$0.TFile) {
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile$4(fileContents);
+    if (fileLines && fileLines.length != 0) {
+      for (let i2 = 0; i2 < fileLines.length; i2++) {
+        if (fileLines[i2] === "")
+          continue;
+        const createdDateString = getCreatedDateFromLine(fileLines[i2]);
+        const createdDate = require$$0.moment(createdDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
+        const updatedDate = createdDate;
+        const id2 = createdDateString + getIDFromLine$1(fileLines[i2]);
+        const querystring = getStringFromLine(fileLines[i2]);
+        const title = getTitleFromLine(fileLines[i2]);
+        let pinnedDate;
+        if (/^(.+)pinnedAt(.+)$/.test(fileLines[i2])) {
+          pinnedDate = require$$0.moment(getPinnedDateFromLine$1(fileLines[i2]), "YYYYMMDDHHmmss");
+          queryList2.push({
+            createdAt: createdDate,
+            id: id2,
+            pinnedAt: pinnedDate.format("YYYY/MM/DD HH:mm:ss"),
+            querystring,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          });
+        } else if (/^(.+)\[\](.+)?$/.test(fileLines[i2])) {
+          queryList2.push({
+            createdAt: createdDate,
+            id: id2,
+            pinnedAt: "",
+            querystring: "",
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          });
+        } else {
+          queryList2.push({
+            createdAt: createdDate,
+            id: id2,
+            pinnedAt: "",
+            querystring,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          });
+        }
+      }
+    }
+  }
+  return queryList2;
+};
+const getAllLinesFromFile$4 = (cache) => cache.split(/\r?\n/);
+const getCreatedDateFromLine = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})/.exec(line)) == null ? void 0 : _a2[1];
+};
+const getIDFromLine$1 = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s/.exec(line)) == null ? void 0 : _a2[2];
+};
+const getStringFromLine = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)) == null ? void 0 : _a2[4];
+};
+const getTitleFromLine = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)) == null ? void 0 : _a2[3];
+};
+const getPinnedDateFromLine$1 = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)) == null ? void 0 : _a2[7];
+};
+async function deleteQueryForever(queryID) {
+  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
+  if (/\d{14,}/.test(queryID)) {
+    const filePath = getDailyNotePath();
+    const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
+    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+    if (queryFile instanceof require$$0.TFile) {
+      let fileContents = await vault.read(queryFile);
+      let fileLines = getAllLinesFromFile$3(fileContents);
+      if (fileLines.length === 0) {
+        return;
+      } else {
+        const lineNum = parseInt(queryID.slice(14));
+        const line = fileLines[lineNum - 1];
+        if (/^\d{14,}(.+)$/.test(line)) {
+          const newFileContent = fileContents.replace(line, "");
+          await vault.modify(queryFile, newFileContent);
+        }
+      }
+    }
+  }
+}
+const getAllLinesFromFile$3 = (cache) => cache.split(/\r?\n/);
+const createObsidianQuery = async (title, querystring) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (queryFile instanceof require$$0.TFile) {
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile$2(fileContents);
+    const date = require$$0.moment();
+    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
+    const updatedDate = createdDate;
+    let lineNum;
+    if (fileLines.length === 1 && fileLines[0] === "") {
+      lineNum = 1;
+    } else {
+      lineNum = fileLines.length + 1;
+    }
+    const id2 = date.format("YYYYMMDDHHmmss") + lineNum;
+    await createQueryInFile(queryFile, fileContents, id2, title, querystring);
+    return [
+      {
+        createdAt: createdDate,
+        id: id2,
+        pinnedAt: "",
+        querystring,
+        title,
+        updatedAt: updatedDate,
+        userId: ""
+      }
+    ];
+  } else {
+    const queryFilePath = require$$0.normalizePath(absolutePath);
+    const file = await createQueryFile(queryFilePath);
+    const fileContents = await vault.read(file);
+    const date = require$$0.moment();
+    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
+    const updatedDate = createdDate;
+    const id2 = date.format("YYYYMMDDHHmmss") + 1;
+    await createQueryInFile(file, fileContents, id2, title, querystring);
+    return [
+      {
+        createdAt: createdDate,
+        id: id2,
+        pinnedAt: "",
+        querystring,
+        title,
+        updatedAt: updatedDate,
+        userId: ""
+      }
+    ];
+  }
+};
+const createQueryInFile = async (file, fileContent, id2, title, queryString) => {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  let newContent;
+  if (fileContent === "") {
+    newContent = id2 + " " + title + " " + queryString;
+  } else {
+    newContent = fileContent + "\n" + id2 + " " + title + " " + queryString;
+  }
+  await vault.modify(file, newContent);
+  return true;
+};
+const createQueryFile = async (path) => {
+  const { vault } = appStore.getState().dailyNotesState.app;
+  try {
+    const createdFile = await vault.create(path, "");
+    return createdFile;
+  } catch (err) {
+    console.error(`Failed to create file: '${path}'`, err);
+    new require$$0.Notice(t("Unable to create new file."));
+  }
+};
+const getAllLinesFromFile$2 = (cache) => cache.split(/\r?\n/);
+const updateObsidianQuery = async (queryId, title, queryString) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (queryFile instanceof require$$0.TFile) {
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile$1(fileContents);
+    let lineID;
+    if (/^\d{1,3}$/.test(queryId)) {
+      lineID = queryId;
+    } else {
+      lineID = getIDFromLine(queryId);
+    }
+    const lineNum = parseInt(lineID) - 1;
+    if (fileLines && fileLines.length != 0) {
+      const oldContent = fileLines[lineNum];
+      const date = require$$0.moment();
+      const updatedDateString = date.format("YYYYMMDDHHmmss");
+      const updatedDate = date.format("YYYY/MM/DD HH:mm:ss");
+      const newLineNum = lineNum + 1;
+      const id2 = updatedDateString + newLineNum;
+      if (/^(.+)pinnedAt(.+)$/.test(oldContent)) {
+        const pinnedString = getPinnedStringFromLine(oldContent);
+        const pinnedDateString = getPinnedDateFromLine(oldContent);
+        const newContent = id2 + " " + title + " " + queryString + " " + pinnedString;
+        const pinnedAtDate = require$$0.moment(pinnedDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
+        const newFileContents = fileContents.replace(oldContent, newContent);
+        await vault.modify(queryFile, newFileContents);
+        return [
+          {
+            createdAt: updatedDate,
+            id: id2,
+            pinnedAt: pinnedAtDate,
+            querystring: queryString,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          }
+        ];
+      } else {
+        const newContent = id2 + " " + title + " " + queryString;
+        const newFileContents = fileContents.replace(oldContent, newContent);
+        await vault.modify(queryFile, newFileContents);
+        return [
+          {
+            createdAt: updatedDate,
+            id: id2,
+            pinnedAt: "",
+            querystring: queryString,
+            title,
+            updatedAt: updatedDate,
+            userId: ""
+          }
+        ];
+      }
+    }
+  }
+};
+const getAllLinesFromFile$1 = (cache) => cache.split(/\r?\n/);
+const getIDFromLine = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})/.exec(line)) == null ? void 0 : _a2[2];
+};
+const getPinnedStringFromLine = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a2[6];
+};
+const getPinnedDateFromLine = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a2[7];
+};
+const pinQueryInFile = async (queryID) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  if (/\d{14,}/.test(queryID)) {
+    const filePath = getDailyNotePath();
+    const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
+    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+    if (!(queryFile instanceof require$$0.TFile)) {
+      return;
+    }
+    const fileContents = await vault.read(queryFile);
+    const fileLines = getAllLinesFromFile(fileContents);
+    const date = require$$0.moment();
+    const originalLineNum = parseInt(queryID.slice(14));
+    const originalContent = fileLines[originalLineNum - 1];
+    const pinnedAtDate = date.format("YYYY/MM/DD HH:mm:ss");
+    let lineNum;
+    if (fileLines.length === 1 && fileLines[0] === "") {
+      lineNum = 1;
+    } else {
+      lineNum = fileLines.length + 1;
+    }
+    const pinnedAtDateID = date.format("YYYYMMDDHHmmss") + lineNum;
+    const newQuery = originalContent + " pinnedAt: " + pinnedAtDateID;
+    const newContent = fileContents.replace(originalContent, newQuery);
+    await vault.modify(queryFile, newContent);
+    return pinnedAtDate;
+  }
+};
+const unpinQueryInFile = async (queryID) => {
+  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
+  const filePath = getDailyNotePath();
+  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
+  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
+  if (!(queryFile instanceof require$$0.TFile)) {
+    return;
+  }
+  const fileContents = await vault.read(queryFile);
+  const fileLines = getAllLinesFromFile(fileContents);
+  const originalLineNum = parseInt(queryID.slice(14));
+  const originalContent = fileLines[originalLineNum - 1];
+  const pinnedAtString = extractPinnedAtfromText(originalContent);
+  const newFileContents = fileContents.replace(pinnedAtString, "");
+  await vault.modify(queryFile, newFileContents);
+  return;
+};
+const getAllLinesFromFile = (cache) => cache.split(/\r?\n/);
+const extractPinnedAtfromText = (line) => {
+  var _a2;
+  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)) == null ? void 0 : _a2[6];
+};
+class QueryService {
+  getState() {
+    return appStore.getState().queryState;
+  }
+  async getMyAllQueries() {
+    const data = await findQuery();
+    appStore.dispatch({
+      type: "SET_QUERIES",
+      payload: {
+        queries: data
+      }
+    });
+    return data;
+  }
+  getQueryById(id2) {
+    for (const q2 of this.getState().queries) {
+      if (q2.id === id2) {
+        return q2;
+      }
+    }
+  }
+  pushQuery(query) {
+    appStore.dispatch({
+      type: "INSERT_QUERY",
+      payload: {
+        query: {
+          ...query
+        }
+      }
+    });
+  }
+  editQuery(query) {
+    appStore.dispatch({
+      type: "UPDATE_QUERY",
+      payload: query
+    });
+  }
+  async deleteQuery(queryId) {
+    await deleteQueryForever(queryId);
+    appStore.dispatch({
+      type: "DELETE_QUERY_BY_ID",
+      payload: {
+        id: queryId
+      }
+    });
+  }
+  async createQuery(title, querystring) {
+    const data = await createObsidianQuery(title, querystring);
+    return data;
+  }
+  async updateQuery(queryId, title, querystring) {
+    const data = await updateObsidianQuery(queryId, title, querystring);
+    return data;
+  }
+  async pinQuery(queryId) {
+    await pinQueryInFile(queryId);
+  }
+  async unpinQuery(queryId) {
+    await unpinQueryInFile(queryId);
+  }
+}
+const queryService = new QueryService();
+class ResourceService {
+  async upload(file) {
+    const { vault, fileManager } = appStore.getState().dailyNotesState.app;
+    const fileArray = await file.arrayBuffer();
+    const ext = getExt(file.type);
+    const dailyNotes = getAllDailyNotes_1();
+    const date = require$$0.moment();
+    const existingFile = getDailyNote_1(date, dailyNotes);
+    let newFile;
+    if (!existingFile) {
+      const dailyFile = await createDailyNote_1(date);
+      newFile = await vault.createBinary(
+        await vault.getAvailablePathForAttachments(`Pasted Image ${require$$0.moment().format("YYYYMMDDHHmmss")}`, ext, dailyFile),
+        fileArray
+      );
+    } else if (existingFile instanceof require$$0.TFile) {
+      newFile = await vault.createBinary(
+        await vault.getAvailablePathForAttachments(
+          `Pasted Image ${require$$0.moment().format("YYYYMMDDHHmmss")}`,
+          ext,
+          existingFile
+        ),
+        fileArray
+      );
+    }
+    return fileManager.generateMarkdownLink(newFile, newFile.path, "", "");
+  }
+}
+const getExt = (line) => {
+  var _a2;
+  return (_a2 = /^image\/(.+)$/.exec(line)) == null ? void 0 : _a2[1];
+};
+const resourceService = new ResourceService();
+function errorMessage(e) {
+  var _a2;
+  if (e instanceof Error)
+    return e.message;
+  if (typeof e === "string")
+    return e;
+  if (typeof e === "number" || typeof e === "boolean")
+    return String(e);
+  try {
+    return (_a2 = JSON.stringify(e)) != null ? _a2 : "Unknown error";
+  } catch {
+    return "Unknown error";
+  }
+}
+const BUILTIN_SEND_SOUND_URI = "data:audio/wav;base64,UklGRjQrAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YRArAABc/w8JsfOz45kQjv+MBOMvQdb13Ik5Xv8l4Jj93g18EX7de/0qC8vxsgNeDyL8sgCIDejyn+tvD1gSkvKv9a8IFgMU+LwOl/st9scNkviP+kYJ4vvh97cG7QjE8owCYgor9m8GGgR99OMEAgZl+NEAHgM7/p0CfP7N/wACff4C/88BgAIJALD/TP1H/1UC4Pyw/zUD6v5f/kP/7/+k/wwA3/4N/+oANP9w/9YAmACg/yQA7ABdAMP+7v2q/kf/z/6O/gL/hP/E/7z/yv8cAEoALAAAADMAkwBvAOv/df8t/2H/CADCANQAxv/v/mr/UwC5AHcAJQAuACEAAwDl/yYAVQFxAcr/Nv8WAPMAHQFgAKgAKgJwAi0BUP8V/7gAMgAF/1QAnABt/z3/4P8eAasA//6h/2UAFwD0/3H/rwCUAcP+8v1xAEUBBgB7/isATAMqAYX+BQEJA3kBHv+r/38CsAGB/6ABhwNUAb/9y/xwAN0CW/+C/Pz+rgFWAOj9l/6/AKkAPf/q/qH/7QCoAff/iv5WAJoBhABY/xr+nP4eAYkBaQCI/wL/d//t/uz+twAO/+j8wf62/0f/wf5A/sX/a/9q/kgB8QDt/Vz/HAG5AGf/tv7+ALQAdv5mAPgA0P9zABv/d/80AtkAsf4S/9wAHAILAIT/DwEf/9r+3gBT/4H9mv0j/+AAQP8A/qz/cgABALH++P68ATEBwf6r/qz/jwFdAVH/3P8zAJgAjQJrAT3/YP9XARoENwKm/uv/LAHWASkCyP4n/zUEUgTU/xr9NwA9A1X/R/67AfX/FP4i/xT/4f+P/4T+nf8j/+j+j/8R/kT/EQH1/n3+mf93AIABIf9E/kgCfwKD/6f/pwBFACr/6v4NAIX/Bf4p/zIB+wDh/ub93/9bAUYA3P+y/2T+DP/K/0r+7P4YAL7+8P5kAJEBSAHh/C39FgMjAPT6yv7JAboAAwCz/9MA5ADJALoBpf8wAMICgf/Z/vgAaP+QAekCCACoAncDS//BAHQDqQIuAb7/6AC6AQsBPwJFAKX9kQB3Aav/UwDe/zH+wv7uAXIDsf95/usBYAE9AJ0BBgBL/q/+IgBrBNkCIfWN7wwBgQo57/bZKvIFEV8MZPg78Hv6mgvZCn3+3wAUCPgBYfwNAVYDZ//l/cP+iv0c/pEC9QMRAf8ApgOYBM4EyQN4Ad4CKAUtApsAvQSABWsBRgHNA8sCzgGnAhAB9//JAYgBEAAEAI//qQDtAT3/L//RA74DHQAlAHIBXwH9AIgAEAGRAWQAf/82/+z+Xf+y//AA3QHv/pT+lwJnAaf/kQKx/8T6CP1K/kf99f05+wL5vPpk+3D/6QLa+/n3bP3R/5kBkgCw97H5IgQwAQL9k//M+zL8kQR/AiD8O/67AAEAT/8d/6sAfgEFAIr/4wB3A+MDzf9s/8wDggJc/w0BuwBg/zsBNgCD/tj/Xf7e/bMACv+V/osCUgD5/Lz/TABw/xgB5v/8/qUBmwDp/HX+CAIjADL8df06AbMBH/8G/OL7Rf8fAY7/tf3d/lQCpAHr/f3+EwE6AK4AGABF/joAWQG8/2QAYQCi/k3/LQC/AEsCGQA5/egAGATdAfwA1gDs/+kBOgEU/iYBngKb/ZL9LwGWAKX+L/41AM8BXP+1/lYAJACJARgBO/6MAXQDtv7j/lEBqv9cAIEBMwC8AEQAmP6sAPUBzP+I/10AEwAzAd0B2QD+Aa0CgACeAJsBmQATAQcBHQCbAez/e/xl/4YC7QDe/gr99/0nAbX/9fxV/tz/1f9M/03+7P42ABr/MP4jAMwAtf4B/6wA4f/s/4MAYv8NAJsADP8IADYBlv8t/0wARAHwAAT/oP9tASAAe/+hAJoAAABB//H/egEjAFP/uwANAKr/qACU/0v/oAAmAFD/dv8WABEBJgCS/sz/7f+Q/ef+wQAq/lP/cwIA/tv8vgO/Ayz/Yv9IAPQB1wKc/6H/YgGj/3EASQHy/9sC+AJb/d/95QHlABr/a//h/zUANwCe/9z+aP+uAPr/2P6U/0MA9v/e/ygAPAAEAPf/0//W/4YAcwDG/wUAGQDb/94ADwI7AEb9NgB0BEUAhvw/AN4B5QAOAA/9U//qBCIC6v12/x0BkAEcACX+VgDZABf9T/1kAOP/wP32/cb/8f/S/tL+Kf+9/40A2v+S/ygBpgGRAEQAVQHvAZwAuP+ZAfYCQQB5/bP/qAIsAjgBpP/w/QIA7wHsAKQAeQD5/3T/t/44AZwBNvxW/UoCAf/+/PT/rf6p/eb/5v9K/2b/J/8yAAoBGAAk/+b+ef+pAJQAC//O/xMDYAIL/rv9SgBiAJX/3f+P/5T+mf/xAMT9N/sF/xwB6/3x/Ef/YgH8AZIAPv8PAIIBVQEvAJ0AEgEvAMkAdgGlANz/9f2z/hAD7wGp/nsA6gAZACYBGABEALAB1/9zAF0Ckv/u/ZX/QgEJAlD/1/0nAdcA5f5vAbAA7/2SABoAw/vB/iEC+f3F/Dv/lv5yALYC9f48/cX+4P6RASYCpP0j/QD+M/4uA7MDvP0s/mACGAKm/iv9TALGBPz9D/2lA90D1wCo/67+9f+nAGz/gv8D/08AZANfAO39ugJpAo38sf7iBMoD/P6Y/pgAhADGAJ8Ai/wu/AAC4AAl+83+aAKE/IL7WwE8AeH+Gv8v/ikA+gJp/7H9bQGhAT0AlQGzAcwAIQHwAZoCEgKAAOT+W/9XA6gDif4q/2wCMf+G/sEBRQBk/53/Ff3R/wMDqf7n/sUCj/8T/rP/oP3S/pMB3/9r/xn+evyAAXYCKP1z/zgCSP7V/rwBFADF/04AQ/4A/5YBWf+//Hn/cQAf/cf99wDxACoAxf4i/iYBSACf+7z+pwQvArD9//5QAcv/3v0O//QAigCW/if+PQAxAiECcf+n/M//fwT8AST+mf5HAEkCugG6/50BqwFY/60BJgIy/wYBHgI//k/9lwDCAiQB4/zt+jL+WAKTApkBSAAj/bb/DQUVAUL+fQGx/Wj8sgOrAy7/0v1c/VgBWALo/Pf++gOHAQX+l/2xAO0CnP+U/mL/fP1KAFMDgwArAMYAOP8mAWcDrQHA/sH9JAC0AmoClf9a/XgADwK7/U7/2AIZ/1YASQRv/qX7cQJHBFz/jv6OAjwCQv5kAO4Dsv/c+1f/IgLK/5n+FADV/lL9Xv/Q/xX/agEpAWD8SfzoAr8DDfxf/OICov73+08DZwBR+VP/cgIa/j0BCwMl/V7+RQNw/+X9vANIA63+0P4v/20APwKc/qr+owSIAcv67f3MAYP/FQAuA63+cvlU/94DQQBoAlMDBvu9/AkFGgGW/fYAGf5q/FYCQQMaALf/Z/36+wUAwAIKAbP8Jfps/6ADXf+B/mYBD/+e/VcAYgIBAk7/v/56APQAuAHp/r78dQPeAwz9Uf93AAT/YAOt/5z7CwIgAF39RQSpAAn7hQJqA5b8NQBqBW//xvvAAr8D+/wv/jkC0gH7AX4ANv9SAccBxADA/fP87QLlAJ76oAApA2z+gf8n/Sr8PATYAjH7Cf0lAfQBTAFqAOz/wf1g/rkBkwBu/sX94/9rBfMBRPuEAKgDBwC///r8mvz2As0BAv6iABYAwf0CAdIDav9S+qUAvggzAjn7NQBhAnH+/f8LBB8A4fkb/5YGhACx+6oCaAMK/jQByAMS//r9LAAs/7X+WwG6AhP/1vvk/ywDSwBy/4X+V/zZAHYCOv39/moBb/78AK8CWP67/iMBPgAR/2H9SP64ASEBXP56/Q7/HAI8ATP9Q/3OAJoB6v5x/+sCpACV/fkAigHw/KL8LQEHAxn/hv2oAfMAnf3/ABoDBAEmAm4BFfzT/G0DUwNs/rD+cf8N/lIArAGiAMIAMf3R+z4CVwMO/mT9xgEQBXv/mvjp/kgGhgJk/QD9MwGtA0//+/7SAc39Pf2oARr/t/w+AUgCk/0G/hUEGQS7/mL9vf9rAmQBoPyy/Y0C7wHb/xL/PP7v/ygDdAMO/sr6RACJAYv+LgPCAlL7u/zgACsBZgA3/5UBkf9G+jABUgQC/aYBIgYU/nb72/2tAOAEpQAv/IoBLAKU+5X8vwQSBWf+pv97AXn8S//sART7Vf/9BuH93fjxAnIGV/4v+r79XAAnA6YFeP5k+20FLARP+8b/BwOqATUE0f7P/N0G5AJJ+8kEPQP69mr+5AYe/xn9fQGZ/24AoQSgAMv6TP40BCgDiv0Q+1UAkAIT+wb+pAe3/sT4aAEC/uX9hAfq/qX6QQM6/F382gezAHz6Dv5d/2MGOgPE9z7+cgMEAKcBTv0t/IYBqv3A/00CvfhV/e0FKP6b/KsBaQIUAv38Vf6rBNn+I/5NA/L82v5cBcf7HvvSBt0Dnf3i/9v/jgEaBbgCXQHt/xT8CwF2A5b7eQADCO/9NPvMAg3/9/v6AMcDXAHu+o7+3gZN/HP29QWkCGP8kvks/pgC5AFN/vP/cAGiAD4Aff5eADkBU/1DAQ8EJvxi/bUF/gBK+u8A3AU8/Vv6gQPkAtn8YQALATb9uP7J/yr/OAHVA64BC/sM/oEHgAOG+xv7GP2ZBToIEvws+l8C/wK6Ab/9Lvx2BPkAhPfRAFkG9vyP/MIBlgEo/7z7CAIWC5MAGPfL/7kA/fu5AtMEpf2h+Av5mQIYCXIC0/3o/C78EQJ0BBABu//4+y39DAL8/DD+OQciA2n9K/8aAfUEagGb+a3/iwTL/bn9DQPNAb/9bP70A2wDE/ss+2ED/AOaANwBuQA//LT77v79A7kBuPnQAxcM+PeI9dkGuvuk+BwLzgCa9R4CeQMcAewAAvoe/q0Bb/39AyQFUvyq+rH9QQYLCLP9+v9jApz5HP4+BL8C8gQF/On14QUCCSv6TvujBeECkfxW/+j/8f7xB+oFkviZ/icF4PvY+yoA0f6+/p38zgDPA633Wvl3Bm4C/wCmA9j7Ov92BYr+xwA/BHv7yPxDA/7/gv/K/2/8dgAeBNMAcgCi/0L+TQJjAez+7QOLAHT4rf39AQ78DPkL/VEEmweoBNkAb/p0+CwBHQXMAtoA+flA+74GOwQ9+8L+HQQGAp/9Yv57A9ABgPx0/i0BYP9hAYwHBAQ597/4CQdwBgr+EwE4Abv6l/4+BRcDbABc/f36cALTBGj7H/zRAGD9nv/w/wP8qwNfBMn7wABtAm38dAGoAyX+bf3V/q4AAgFAAb4A6feT+z4LAQIV91QE/gV6+2X8FQJrBygD5Pcv/OEGEgZD/CvzjPz7CnkBu/ZkACUF3/pa+zoKpQbX+I0EwArr+B/7/Qax/zT7bvoU+RQBLQLs/Tr/Tvlv+3kMGgi+9Uv8KAq2ADf4NgM5BJr5nf6kBYgAS/1y/ToBDAZNAK38dgNjAw/9yf4QBv4D6fmL/OkD5PyG+9MEagCb9zf+uAgRBnn8yfywAXoC8gSf/0v3+gFYCF37MfpeAnoBQgI4A4H+K/26/wMD6QOhATgCUf3j85H+Ewxy+7nvewMhC+D7aPwvCHwFFP5PAGkGSwUN/Nj2f/yTA9z/HvgE//QI5v9y95j/ZQTU/278nfxM/1MBUwH0/E34vgFYC3oA7Pac/7AKPghz/NP+UAes/YH9pQiN+xD1egayBqP8T/xB+mP7zQFIBhoFA/rN+C8GYwZ3//D9mfks/S4F6gCG/isDhAJA/4f7G/wqByoI4/aX9FIE0QRxAOQGOwGr+nsCdf5M+/oGygHF91z9Wv/xAVsE8fxG/O37//q5CP8IIPqn+9sA+QM/CHf9WPb7/vYAwv/b/9P7hv/MBewAaPtWAeMJNQNh9xz71gDn/00BSwA/Ai4HHf4r9mj/0giBB3v8FffPBPYKqv4U/L3/efxIAWUHzP5b+Uv/hv+O/Hz/iwCf/2P98vZQ+/YFAf/9+LUDrANx+10C8QVG+yL96goKB/P47Pt5BjwGxgDt/BD+hwMhAwX/WwCsAND7+/sPBEIFg/ka9bcBHgk3/8L4LgEDAqn5JASHDWf8lPbyAWf/0wE1CTH9kPrFB+4EwP30/SH6nftaA2EDU/9s/BH6J/xYATAESAIV+mX1HwJBD1YGHftv/owAe/9jBDYIBwDe8QP4uQxWCj/+UwC9/Sf9IwYHAQv5Iv1aAZcFdQJP+Tr9sAFGAKYD5v6a9xb8EgBaAsMCgP/YA24C5/iQAGYIJf/S+/H+df64AKgBC/70+9oAzAtsCYX2qPKoAuQIPACJ+v78VgAp/m/6hv9KBwwDdPpc+Zn9EwYCB3v4QvQ3AoQJjAZE/lD04vrqCFQF2fyV/nQAoP/UAO8BYQCK/iH/f/6y/McAWAbeA/z9ev74A3wDj/yl/NIC0AKH/03+5/zD/cb/gP7X/i0Bj/55+yX+wgCC/zr+If+xAcYCEv/z+k39+APeBskCev0E/ukBcQKMAFwAhwHuAdkAIQATAn0D8P9h+3j81AF/BA0BdPwB/pwDkwTP/2z8DP79AHkB/QDsAdgCjQEG/2T+pQB2ApkA6vxA/L3/lwJmAbP/hAA9ASQAKP/T/xABOgC7/VX+JgMyBjkDpv18+/v91wBsAIb+lf5bAHsBeAGDAX0B5v+L/a39kAD/AUr/afto+7D/6wIrAZj9cP1xAD4CwQBw/oz+XQCZANz+5P3v/kgAVQDs/6MAHAKHAjMBd//K/tT+Y/6U/cr9Vv92ANH/mf7S/oIAQQFx/yj9nv2OAHICDAEs/j79I/+NAQsC4QAKAHgAZAHHAaoBTwFXAE3/mv8kAR8CVwHm/9v/RgFnAtsBFADl/jj/WgAqARIBbwCR/+v+i//XAA4BGQAm/1f/SQBUAHz/Ff+c/4UABQFTAbwBUwHh/6z+3f4WABQBTgFaAL3+av4B/9D+Y/6r/l7/u//d/1gAWADC/87/CwBf/+/9OP0Y/gz/GgDgAc4Bxf/g/jr/Bv88/kX+J/8KAF4BpQJ1An4AYf4O/9wATQFuAuEBPv68/ff/xv9d/gv/kgHDAX3/Wv9sAIwAIACp/18A8P/H/h4A5P98/qz/GAGTA4AELQAL/RT9wP5cAUEBfAGoAUv/uQHIBHsC7gHNAHn9y/5KAez/QP3I/a8BHgRIBNkC9ABb/gb5IfzLBUUCP/wT/pT8Jf6hAHr8yv5fAgIAwgDo/mb77/4VAxwDkv3p9/j7KwK3AXP9r/vNAPoEyQEf/Hz6VwH9B0YFgP4N+rD+0QMK/X37yQAk/60A2v8y+SP+kgPyA1QHcf6W8yz86QW6BHABRP9V/m39cP0/ADADHgEc+279FAWaA9n/4f1m+8YAuQWIApYAPv7D/G8BLQYbBxQBPftr/rP+9/7UBOT/svoeArsDX//8/34ClAIR/RH8kAOGAXb6GAAUBmb8bfQxA7QO0v5k9NL8zv8bAq8I9AWc/QL5NfuAAaYEvwRBARX6T/ktA6gKCQNM+uT94//YAsUM3Amh/iH5+PVd/EgDJfsI9kP9qwORAE76KwARBjX+8/80D70POfs76SrydgkYDtr9PPWI//gHSQWOAND5+/wnCIUBO/s/A8n/kfc/9N/vbfUnAXcNQhOf+1zfue2oF18qYQ0N6zny+vx666vtnxT0HPPw1dZm5Wv7Yhd9FXfuJOvwBpIFKPrkBGQUrwkV8xj3Hf+Z/aoOXhXv/RvuY/ZDDZAXrgGr7wX/IBU5EYf7a/Y0B+YSKAgW/M0PSx07Arn3pwtcCdr5AfrpB6sL3/Qh6r/42wDTBooC/e5J9w0Lpf+b9vkDQgMC9db7xQWa+Z74uwP8/vYA1gj9AI3/EAhEB5ACxQeECl73GPvMHccNDO/KAkMHlQF/DXz2Hu+9F9oXHfdc9gUJVAc1+KIEUhMUA8D67PYQ8p4Fuwho/JIF+//j8qD8FQIw/eT8PwV9A9j0CwFtCSf4NQQxB6TzRAVTBLHvqQRmA13r9vcFBp4C7PbV8qMBzf5q/lwLJPVh9XgXaQE05+z+0AgS/137IPu9/kr8Xvqw/VT8CAN2CBr7JvWN/qH9GPi1BNcKCvY69TsI5PtX9C0J/ARk9zoHww7T+UfvxQAmCn/+UQEKCycB1/le+Zz1wQJND/b+Y/qVDBoAE+gc9v4HugetBff5RPb4ALj9bf0GAoD7d/7I/XH6fwjKA976RAQE/BMALQ4P+UT2tQOl+M4FExTP+/jywP+HAh358vNvBU0Fp+36+qINq/qt7in6m/7a70D2fBah/QfZ0xS+Ozj2zNMBESoZy+mODmExCt/ly3cx3UOgJaobOM1UxJJEpkNYvkPs63H7J6+VUtq8NDr5HvZPK4Pmkqr61uv5agu+LMQpWxDnCgMQ9v5R71YKOy+AI7QEAP8G96bYp9hf82vwWuRaBiwlyRRc9OPQAMgS7YAN3uYoz+gDjit5Cp/hE+S6/SP7lt3N90ZBYzlJDisgLSkB3pbFvfYUAqf4BRHcCVDlm+GC5hfduN0R64IDNSGGId4N0w1gEs4EMRAdJiQXuRc2MB8ZKfvfGjUpChJnGXoiog6yDBQGVtop29QE4fLoxUrbbPYZ0sO5Wc5F2ojP7NoX7PLKBqqfvqPikt0S3IoDQQkb7XD9ERrIDQwEABEeF9EZPxbGB9cQOB1y/Gzo/wjpEaoGDCIJJT74RfUDGOMOAv6fB/oFcgp0IRwYiAGBEGEc7BBZGoYkdRPeDfYRP/rh6lL8LQI7+OH+ighMAGz1uvpTCWEC7eV/56QGGgWN6ZDtd/1i9v/10gnnEFUDBvjm/gMMRQR69ksGhBUUAm71IQGq/rD1GPi97ljqpwKjCb3z1PWfAJfyffDd+7vyOfI7Ak/18Obp/i4J3vOp91sJ+gG/ABYPYwnP/KD/Uf6w+aYAKgRaAuMJgwsuAXMFVBHJBz780whzFY8MXgI4CrEURhEzDXwPWArbAwsJqAkx/9UBJhIgFIoJUAdrCWUHQgasBJECMAVwCPYIDgryCCUCK/9+BisK2gNPAHEC4AX/CCgFO/3w/fgF/QdUAIb7MP9pAaP+kPr1+cv/3AKA/TX5Gf7iBp8E2PqN++EDVQmbBfj5s/ofBz8JkgEc+qD+7wvsCAr9VvsS/owFEgjd/FT4GP4MAsoAPfnb9mT8gf4G/qP9/P7k/uT4VfpVA5MEQf+Y+Hn3Wv1LACT/rvrK+mgF5gbh/an55vYc9WD1X/1kClAADvB0+/MHmQCK8rby9QbHA1Tnqe8ZCzkDafG79sv8hvXZ+GEI0wnn/8j66/6CBGr3WuXa75sNTx2ZDo/vY+Hs9/sR4vFXxP7n9in5I5ACLPZK9VPvI+Wr+I8Z+Ax39Mn78Q2OEvgHfwMICbYGzwYgDesNFAoQAoX/wwVgCS8Hzfs29gYCrAWQ/aP86QQYCYv9EP94EOsGA/3mCCoFhvhO7qvsNgPOCRn5n/s6BLoIjweP+Yz7aQIR9sTyb/d6+Bf/yP9K/KQA7gawBnr6APQt/Lb+cwEBCNsDMgHYAFf3+/Mn+mn5hfU5//4HU/sY9Y/7E/Im8ZgBEwCh+Sf5xPJb+A0At/gX+icElQbLA0H/7/44/pX65v8zBaQEvgRu/p392QbzAiH92AE2AVIAngHW/uMATwB0+vr/eQYbAMf5F/0YBeAGMwG8/5cDRwReAbIBhQa1Bev/ZgE/BEoApP6cAfYAlf0H/1gBHvyN+bf/0v9o+r76sPw0/n3/zf34/hoCrv9Z/D/+iQPuAzT8hPpgAzAIQgXX/zz+/gO8BLn+JP8RANf9FAHdA9UCwgHC/X37Ov8WA10DXQDNAOIFygQp/0T90/9UBY0EZv/bAgAFlv9I/48C+QPUAuX9Jf26AAICYAJ2/6z9DwE5//H91gJqAav+AQBn/0gCUwRnAAAB3wKsAX0BYP4i/i8F7gYgAHP5R/3kBkkC3vtaB18LpvyI9jH/mAM4/Wv8CAj6CT7/fP0EAr0AjP6hAEIDtwDA/kkC1gDn/UEDQQXWAE7+0/zB/jwBDP2/+u//dASiAAb5OfwlA5T97Po2A7QDuvyw+70AWwK3+xn7EAShA679kf8UAaj/UACTAMH+Rv0eAfUEcQBh/ksBqf4F/sMBSwDf/qQBowI7/8z7n//8Agz+Pf4WA/H+nfpo/zUE5gAh/JAAugSo/vr7kADGAQYAY/7c/q0A7P4F/pX/8f4AAP8BvAE9AVn9bvu5AIgAXfuC/RwCXgFa/Sr98QDs/rT8UgNvBQT/of1bAsMDXv6P+3kAcAGg/jcAbP9r/bQAagPkAkL/wPtY/ov/kf0ZAMIAJ/44/pD94P3j//f/awIHBN//8/xr/WL/GQFdAMgAFgAW/cv/mQKZ/6X+tf9PAEkAVP8fA3oEIf36/DUCE//D/MP/SQG1AGf+7/7nAX0ARAAIA3AB0v6f/z4CowNzAYb/Ev71+2z+AAFcAOUB+AAX/6oBp/87/Dj/KgGGAl8D9/5p/Zz+yfzb/fb/7P4k/zUAVgB9/5T+zP+8AH4BmQG6/XD9OAHkAIMBxQFP/r//7ACm/qgAoP+5/LMABALT/1cAK/9q/o//ev+BAHMBNwEzAXoA6P+E/iH/aAMgAjf/gwCZ/Z79fgM2AyIDQQN//RX++wB2/1YDZwRj/0QA3gDR/ZH+HwHnAdwAUAEcAmj+sP3DAJIAuQHdAIb9XgHVAZ383P4SAbIAHAP8ALD+IgF9AOf+qf5X/vsAvwFL/nn9G//4/ygBywLeAS3+if3H/wgBAwPfAeP9FQCLAUz+t/8u/kX6wgKkCIMCDQKCAkv8Rvw1AfgC7gDl/Ev+7AHI/9z7hfn6/V4FUAIb/sv9LPySAvoDaPrQ/jgF6QB6AXD///zI/yD9XAP7CG38tPsQATr8jwPpBhf+jf+6/rn9GgStAHr+bADW/GT/WgAt/igA/frB/SIH4P7p+rz/v/10AiIDQPyyABoCXf4//x/90v8gAzv9yftu/uICLAbp/CD6pAP1An//hwH9AboB5/8VAQACFfwa/wwGGQEH/8YAnvxb/BoAIQJXA7cAJP4gAToBuPs8/TQDvQCx/zwCJPwH+/YCIAKM/Kr7TABLAzn8gPzxAkf8AP6MB6MAr/wK/9H70QANBoIDIwBB+NP5FQTDAVr/BgC1+hv9MwG2/00BN/+G/30ELv3O+R8EaAVqAAkARAEUA87+NfvHAj8Fzf7J/UEBqQQvA2j9xP96BK4BQwJlBF3+Y/zGAxMEHvz2/CsEzQN5ACf/Gf1x/zsD1f/L/Q8DlgSL/iD62/v/ArgIjwAo+MgBpgPe9/n9QAes/7D7Cf1V/0EGAgNA+bf89AJC+9v2igXRB+722fuuA035ogEXBlX1dAFHEHv8t/VZAwYFqf9E/P391gBe/NX7DAKeAN/6nfzDAAsAQADpAMX+KALbBDr+T/zVA/gHOwD4+ZUFRAmO/IEAhwTO+jkBnwZc/ur+f/4PADoGS/sN+dgFkP2i+KYFHgFW+OQAagQB/7T+tv8N/2IA5QDfAAUCBv8n/On/1ANlA9z9/vyRBg0C/vb3Ao8GHvfu+oAEDQCD/Wv/iwIe/g73hgPeCf758vkWBXkAE/uA//4CkP+x/rsDov/c+tsBCwN3/wgAnvuF+5kEewRH/Aj93AKC/yL+XQZLAhP6HgJEA5/7CQG+A679gv9eAMH7XgG6B7r/pPxwA/kA1ACUBRX9RPsrBA8A9/5CBBr+A/5+BbMB5/wTAGwEzwP//Z792wFIAIn/8QEU/qf7fALtA778Vv04A1oC7P5P/gMANwCp/Tf+av4k/UwBEAHr+6z9Z/6A/+0Evf+p+Z4AHgR8AFQAewBP/p3+twBY/yL+ZgBnABYALABs/vQBGgNJ/af/yQEM/QkAGgLD/vMAsQC2/T//MQCbAcwCsQAz/z3+IwAqAzcBPwBq/7j9dAKaAgT9XABJA7X/Kv8sAeECDAAN/CQBjwS//4b+gACFAA7+sPxMAWgCvf7a/mT9lP8iBZr+I/vzAAv+dP4hBNr+NPxDAe8CEAIW/ZH6NQGTBAYB0Pz/+wMAcAAi/mf//v7J/wICCf99/ukAgQFEA8IAl/1yAdsC/gHbAdz++gB5Ayn+p/6AA70BZwA3AFn+UABCAvj+cv2tAfQC0P2k/WoDQgL8+wX8nAI2BnUAS/s//0IB7/4XAF/+LPxbAh8D0/vp/AkA+P0BAcED0/3v+lUBbgQK/tH7vQFTAmP/iP8I/rP+cAP0Ak77VvfeAVAK1P3D9R4AHAQQ/9D/kARyAcT2Svq9Bz8DFvpKAOwGSAIy+QH76gQ8A1L/jQS4AQT5ZP4xCpgFGvpWAPYFvPw+/+wFHP7l/N8AWfxf/vIEUQEM/DH+AwKOAYT+jf7RAcL/b/pCACEGPvyH+coDxgBq+oUBFQQrAWgD/PsO9B0Eyw0o/fD5OgTQ/uf5SP91A9wDOf7O/m0IxwBN78r48BGrC8vxDvgXCU/+xvkZBmMDWfZ095gI7AkV9Vj4aQuyAzT45QD+CWoEXvyBAEkAXvxuBigEMPc6AN4GYPr290sFVgaT9GH5ARG7BJzvI/7/C2MEB/tA+Tz/EgWaBGr9AfgG/i0B6v2jAqgHGwT++hb4zgXxC/37ovaSCOQLKPSr8+0PIArp7gj20QnxBm732/hLCg4GQvad/r8ID/5C+WEKmwpe87z74gn59l7/KxG4+cLv1P60BcwGlPtS9CcClg0CAgPt2P1mF37+xPIuA6X53QLDEFj4GvTxApABjwAO/w0Hrwll7gHyhxiUB0zd4QNPKdLg29K1MNcgFsAf8S9ClQYJxmn58TT4FITiMPSCE48D2vSO9pv20P77/XTtg/FwBTsD7uzl71gO8QoM68P4aBJTBWv5sfrmBr0Rnfeb7PoNBhFB+OX5GgzQB3v7Cw2pB7rtuA0cFq30zgIrB3D8cRDvBa763wYyC/0SMPnh64kWQRFH/6r8+e4oFAMSuuhwIcIidNAw4K9C+js08PG2QeKNOQDwG83I50gfqhZD727+D94K3forriQd+Pjv4dt97n4wAhgn7L7iU/2vExYELQVA8rTlfxACBTnuzBCQ+Invjg3q+YIBmgpA66DyVwi7EQoB3eeCAC8AfPO6GgwKQuSZ+3oHQhAICbzk1/oVFugAXv4E/qP3sALiA0T5svqvDYYHKuq9/WUTIvwN/3UF2vXN/q8DMAA5CNH8OPIF/24M8Ar69bnvXgVTBu3+IAka+ODmdAV2HpQDhOyL9uIAKQzZDOD6mPFp/K0J1QpC+gLx4gBBDcQCBPaf9k7+MQhRClb7dvCV/sAMWgPl9VD8hgZY/3n9qASN/9sABAUs+SH8lAhRApX+9v66+z4DqQeqAQz9c/g1/pAMTwe99qL5jwibBHT2a/2+Cp4CCfhw/3QH3v85+KsAGggkAb366/xVA3MFV/0E+yYC5AAeALwEwP4O+6oBPgAw/vsCdwBH/eUA+P+2/SkC6QRq/3/5VP01BRUFh/9b/Er9uQBkA5wC9/0M+4MA2QUDAeT6W/15AooBz/4bAKH+5PyUArECFvzS/lgCcf8SAYQBx/xW/pUCigE3ACoAzf6v/mEBwgK0ADf/N/+O/gUABQNpAZz9i/5RAY0AUv9OAIYAl/8d/xP/OABIAUUA6v58/nH/pgFWAd3+3v73/yEAvQB5AHP/DgA9ABr/wv9NAc0Adf8Q/2L//f+JAKMA8P/9/kH/NgB5AIAAHgBb/7n/VQAxAKIA3gDz/6j/SwCpALUAmgA4AMj/7/9/AJgAeAAtAGD/UP83AKIAWgC3/yj/a/8OAEYAGgC+/3P/g//d//r/9/9NABIARf9s/x8AeQCGAOj/Uf+B/+n/bwCcAOr/R/9P/+f/cQA6AMz/aP8V/7r/pgB/AM3/e/+r//P/KQB+AG8A5f+l/wAAtADDABYA6/8TAAcARAB9AGsALwDl//7/IQADAC4AXAAkALT/gP/4/18ANgANALH/Uv/R/5IAagCz/4X/zv8GAFMAQwDA/9H/+f/M/x0AOgC0/6H/4P/b/+7/IQD9/6L/mf/Q//7/HgD3/9r/IAAPAKv/4v9JADMAFwDs/6P/HQCZAPb/uv8iAOH/+P9nAPv/xP8YABwA8P/T/woALwDM/9P/IgALAAcA8P/G/+z/JAAvAO3/7P85AOT/5/9wAAwAz/8UANP/FQB7APf/rf/i/x0AQADg/6r/OQBoAMT/j/8VAE8APwAMAKP/9/92APn/yP8mACQABQDi/wEAUAAWAND/3/8CADQADgDj/wAA7v8CABYAFAAbAJz/sv9xABMAx/8eANf/7f9LAAgA2P/Z/x0ARADR/+z/OwDw//r/AgDk/yEA9P/d/yoA3P+o/woANQAQAMj/wP8SAA8Axv/K/xEAIADa/8L/7v8JAAoA6P/E/9X/AQAeAP3/zf/r/xEABAD1//b/CAAMAPn/+P8FAA0ABAANACsAAADh/xQAEgAQACwA+P/t/yQAGAALABAAAAACAAYADwAUAPH/8f8TAAwA+f/6/wIA+f/o/wIAGgD9/+v/8/8DABIA+P/j//v/BAD8/wYA/P/s//n/BAAAAAEA+v/0//3/BgAEAAAA+//8/wQABgAHAPv/8v8BAAkAAQD8//3/AwAEAPf/+v8IAAEA+f/+//7/AAACAP3/+/8AAP7//f8AAP7/+//+/wAA/v/9//7/AAAAAP3/AQABAPz//v8CAAAA/f8AAAAAAAAAAP7/AAAAAAAAAAAAAAAA/v/+/wAAAAAAAP7//v8AAAAA/v8AAA==";
+const AUDIO_MIME = {
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  m4a: "audio/mp4",
+  aac: "audio/aac",
+  flac: "audio/flac",
+  webm: "audio/webm"
+};
+const AUDIO_EXT = new Set(Object.keys(AUDIO_MIME));
+const isAudioPath = (p2) => {
+  var _a2, _b;
+  return AUDIO_EXT.has((_b = (_a2 = p2.split(".").pop()) == null ? void 0 : _a2.toLowerCase()) != null ? _b : "");
+};
+const AbstractInputSuggestCtor = require$$0.AbstractInputSuggest;
+function attachAudioPathSuggest(app2, inputEl, onPick) {
+  if (!AbstractInputSuggestCtor)
+    return;
+  class AudioPathSuggest extends AbstractInputSuggestCtor {
+    constructor() {
+      super(app2, inputEl);
+    }
+    getSuggestions(query) {
+      const q2 = (query != null ? query : "").trim().toLowerCase();
+      const files = app2.vault.getFiles().filter((f2) => isAudioPath(f2.path));
+      const matched = q2 ? files.filter((f2) => f2.path.toLowerCase().includes(q2)) : files;
+      return matched.sort((a, b) => a.path.localeCompare(b.path)).slice(0, 50);
+    }
+    renderSuggestion(file, el) {
+      el.setText(file.path);
+    }
+    selectSuggestion(file) {
+      onPick(file.path);
+      this.close();
+    }
+  }
+  new AudioPathSuggest();
+}
+function targetOf(settings) {
+  var _a2;
+  if (settings.SendSoundSource === "builtin") {
+    return { key: "__builtin__", uri: BUILTIN_SEND_SOUND_URI };
+  }
+  if (settings.SendSoundSource === "custom") {
+    const path = ((_a2 = settings.SendSoundPath) != null ? _a2 : "").trim();
+    return path ? { key: path, vaultPath: path } : null;
+  }
+  return null;
+}
+let cachedKey = "";
+let cachedBlobUrl = "";
+let cachedAudio = null;
+let warnedKey = "";
+async function ensureAudio(target) {
+  var _a2, _b, _c;
+  if (cachedKey === target.key && cachedAudio)
+    return cachedAudio;
+  let url = (_a2 = target.uri) != null ? _a2 : "";
+  if (!url && target.vaultPath) {
+    const { app: app2 } = dailyNotesService.getState();
+    const buffer = await app2.vault.adapter.readBinary(target.vaultPath);
+    const ext = (_c = (_b = target.vaultPath.split(".").pop()) == null ? void 0 : _b.toLowerCase()) != null ? _c : "";
+    const mime = AUDIO_MIME[ext];
+    if (cachedBlobUrl)
+      URL.revokeObjectURL(cachedBlobUrl);
+    cachedBlobUrl = URL.createObjectURL(
+      new Blob([new Uint8Array(buffer)], mime ? { type: mime } : void 0)
+    );
+    url = cachedBlobUrl;
+  }
+  const audio = new Audio(url);
+  audio.preload = "auto";
+  audio.load();
+  cachedKey = target.key;
+  cachedAudio = audio;
+  return audio;
+}
+function preloadSendSound(settings) {
+  const target = targetOf(settings);
+  if (!target)
+    return;
+  void ensureAudio(target).catch((error) => {
+    console.error("[rememo] send sound preload failed:", target.key, error);
+  });
+}
+async function playSendSound(settings, options) {
+  const target = targetOf(settings);
+  if (!target)
+    return false;
+  try {
+    const audio = await ensureAudio(target);
+    const volume = settings.SendSoundVolume;
+    audio.volume = Math.max(0, Math.min(1, (typeof volume === "number" ? volume : 100) / 100));
+    if (audio.readyState > 0)
+      audio.currentTime = 0;
+    await audio.play();
+    return true;
+  } catch (error) {
+    if ((options == null ? void 0 : options.manual) || warnedKey !== target.key) {
+      new require$$0.Notice(t$3("Failed to play the sound: ") + errorMessage(error), 8e3);
+      warnedKey = target.key;
+    }
+    console.error("[rememo] send sound failed:", target.key, error);
+    return false;
+  }
+}
+const TIME_FORMAT_OPTIONS = [
+  { value: "HH:mm", label: "HH:mm" },
+  { value: "HH:mm:ss", label: "HH:mm:ss" }
+];
+const DONATE_AFDIAN_URL = "";
+const DONATE_KOFI_URL = "";
+const DEFAULT_SETTINGS = {
+  MemoHeading: "## Memo",
+  ShareFooterStart: "{MemosNum} Memos {UsedDay} Day",
+  ShareFooterEnd: "\u270D\uFE0F Rememo",
+  DefaultPrefix: "List",
+  DefaultEditorLocation: "Top",
+  UseButtonToShowEditor: false,
+  FocusOnEditor: true,
+  HideDoneTasks: false,
+  HideRefMemosInList: true,
+  EnableRecycleBin: true,
+  RecycleBinRetention: "never",
+  TagListView: "flat",
+  TagRenderPosition: "bottom",
+  HeatMapStartDay: "sunday",
+  ShowHeatMap: true,
+  EnterToSend: false,
+  SendSoundSource: "builtin",
+  SendSoundPath: "",
+  SendSoundVolume: 25,
+  OpenMemosAutomatically: false,
+  AutoSaveWhenOnMobile: false,
+  DefaultLightBackgroundImage: "",
+  DefaultDarkBackgroundImage: "",
+  ShowLeftSideBar: false,
+  TimeFormat: "HH:mm",
+  ContentFontSize: "16"
+};
+function applyContentFontSize(settings) {
+  const els = document.querySelectorAll(`div[data-type='${MEMOS_VIEW_TYPE}']`);
+  els.forEach((el) => {
+    if (settings.ContentFontSize) {
+      el.style.setProperty("--memo-content-font-size", `${settings.ContentFontSize}px`);
+    } else {
+      el.style.removeProperty("--memo-content-font-size");
+    }
+  });
+}
+class MemosSettingTab extends require$$0.PluginSettingTab {
+  constructor(app2, plugin) {
+    super(app2, plugin);
+    this.applyDebounceTimer = 0;
+    this.plugin = plugin;
+  }
+  applySettingsUpdate() {
+    window.clearTimeout(this.applyDebounceTimer);
+    const plugin = this.plugin;
+    this.applyDebounceTimer = window.setTimeout(() => {
+      void plugin.saveSettings();
+    }, 100);
+    memoService.updateTagsState();
+  }
+  async display() {
+    await this.plugin.loadSettings();
+    const { containerEl } = this;
+    this.containerEl.empty();
+    new require$$0.Setting(containerEl).setName(t$3("Memo")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Memo heading")).setDesc(
+      t$3(
+        "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo"
+      )
+    ).addText(
+      (text) => text.setPlaceholder(DEFAULT_SETTINGS.MemoHeading).setValue(this.plugin.settings.MemoHeading).onChange(async (value) => {
+        this.plugin.settings.MemoHeading = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Default prefix")).setDesc(t$3("Set the default prefix when create memo, 'List' by default.")).addDropdown(async (d) => {
+      d.addOption("List", t$3("List"));
+      d.addOption("Task", t$3("Task"));
+      d.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
+        this.plugin.settings.DefaultPrefix = value;
+        this.applySettingsUpdate();
+      });
+    });
+    new require$$0.Setting(containerEl).setName(t$3("Time display format")).setDesc(t$3("Time display format description")).addDropdown(async (d) => {
+      for (const opt of TIME_FORMAT_OPTIONS)
+        d.addOption(opt.value, opt.label);
+      d.setValue(this.plugin.settings.TimeFormat).onChange(async (value) => {
+        this.plugin.settings.TimeFormat = value;
+        this.applySettingsUpdate();
+      });
+    });
+    new require$$0.Setting(containerEl).setName(t$3("Content font size")).setDesc(t$3("Font size of memo content inside Rememo only. Does not affect your notes.")).addDropdown(async (d) => {
+      d.addOption("", t$3("Follow Obsidian"));
+      for (const size of ["14", "15", "16", "17", "18", "20"]) {
+        d.addOption(size, `${size}px`);
+      }
+      d.setValue(this.plugin.settings.ContentFontSize).onChange(async (value) => {
+        this.plugin.settings.ContentFontSize = value;
+        this.applySettingsUpdate();
+      });
+    });
+    new require$$0.Setting(containerEl).setName(t$3("Send memo by Enter key")).setDesc(t$3("When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.EnterToSend).onChange(async (value) => {
+        this.plugin.settings.EnterToSend = value;
+        this.applySettingsUpdate();
+      })
+    );
+    const sendSoundRow = new require$$0.Setting(containerEl).setName(t$3("Send sound")).setDesc(t$3("Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.")).addDropdown((d) => {
+      d.addOption("builtin", t$3("Built-in (card deal)"));
+      d.addOption("custom", t$3("Custom path"));
+      d.addOption("none", t$3("Not played"));
+      d.setValue(this.plugin.settings.SendSoundSource).onChange(
+        async (value) => {
+          this.plugin.settings.SendSoundSource = value;
+          await this.plugin.saveSettings();
+          void this.display();
+        }
+      );
+    });
+    if (this.plugin.settings.SendSoundSource !== "none") {
+      sendSoundRow.addSlider(
+        (slider) => slider.setLimits(0, 100, 5).setValue(this.plugin.settings.SendSoundVolume).setDynamicTooltip().onChange(async (value) => {
+          this.plugin.settings.SendSoundVolume = value;
+          this.applySettingsUpdate();
+        })
+      );
+    }
+    if (this.plugin.settings.SendSoundSource === "custom") {
+      new require$$0.Setting(containerEl).setName(t$3("Sound file path")).setDesc(t$3("Enter a vault-relative path (e.g. assets/send.mp3).")).addText((text) => {
+        text.setPlaceholder("assets/send.mp3").setValue(this.plugin.settings.SendSoundPath).onChange(async (value) => {
+          this.plugin.settings.SendSoundPath = value;
+          this.applySettingsUpdate();
+        });
+        attachAudioPathSuggest(this.app, text.inputEl, (picked) => {
+          text.setValue(picked);
+          this.plugin.settings.SendSoundPath = picked;
+          this.applySettingsUpdate();
+        });
+      }).addExtraButton(
+        (button) => button.setIcon("play").setTooltip(t$3("Preview")).onClick(async () => {
+          await playSendSound(this.plugin.settings, { manual: true });
+        })
+      );
+    }
+    new require$$0.Setting(containerEl).setName(t$3("Focus on editor when open memos")).setDesc(t$3("Focus on editor when open memos. Focus by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.FocusOnEditor).onChange(async (value) => {
+        this.plugin.settings.FocusOnEditor = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("List & Sidebar")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Tag position")).setDesc(t$3("Show tags at the bottom of the card, or keep them where they appear in the text.")).addDropdown((d) => {
+      d.addOption("bottom", t$3("Bottom"));
+      d.addOption("inline", t$3("In place"));
+      d.setValue(this.plugin.settings.TagRenderPosition).onChange(
+        async (value) => {
+          this.plugin.settings.TagRenderPosition = value;
+          this.applySettingsUpdate();
+        }
+      );
+    });
+    new require$$0.Setting(containerEl).setName(t$3("Hide done tasks in Memo list")).setDesc(t$3("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
+        this.plugin.settings.HideDoneTasks = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Hide Memos With References In List")).setDesc(
+      t$3(
+        "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default."
+      )
+    ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
+        this.plugin.settings.HideRefMemosInList = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Show Heat Map")).setDesc(t$3("Whether to show the usage heat map in the sidebar. True by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.ShowHeatMap).onChange(async (value) => {
+        this.plugin.settings.ShowHeatMap = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Start day of week")).setDesc(t$3("The first day of each column in the heat map. Sunday by default.")).addDropdown(async (d) => {
+      d.addOption("sunday", t$3("weekDays")[0]);
+      d.addOption("monday", t$3("weekDays")[1]);
+      d.setValue(this.plugin.settings.HeatMapStartDay).onChange(async (value) => {
+        this.plugin.settings.HeatMapStartDay = value;
+        this.applySettingsUpdate();
+      });
+    });
+    new require$$0.Setting(containerEl).setName(t$3("Always Show Leaf Sidebar on PC")).setDesc(t$3("Show left sidebar on PC even when the leaf width is less than 875px. False by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.ShowLeftSideBar).onChange(async (value) => {
+        this.plugin.settings.ShowLeftSideBar = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Recycle bin")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Enable Recycle Bin")).setDesc(
+      t$3(
+        "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled."
+      )
+    ).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
+        this.plugin.settings.EnableRecycleBin = value;
+        await this.plugin.saveSettings();
+        void this.display();
+      })
+    );
+    if (this.plugin.settings.EnableRecycleBin) {
+      new require$$0.Setting(containerEl).setName(t$3("Auto-clean Recycle Bin")).setDesc(
+        t$3(
+          "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone."
+        )
+      ).addDropdown(async (d) => {
+        d.addOption("never", t$3("Never delete"));
+        d.addOption("7", t$3("7 days"));
+        d.addOption("30", t$3("30 days"));
+        d.addOption("90", t$3("90 days"));
+        d.addOption("180", t$3("180 days"));
+        d.setValue(this.plugin.settings.RecycleBinRetention).onChange(
+          async (value) => {
+            this.plugin.settings.RecycleBinRetention = value;
+            this.applySettingsUpdate();
+          }
+        );
+      });
+    }
+    new require$$0.Setting(containerEl).setName(t$3("Startup & Opening")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Open Memos when obsidian opens")).setDesc(t$3("When enable this, Memos will open when Obsidian opens. False by default.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.OpenMemosAutomatically).onChange(async (value) => {
+        this.plugin.settings.OpenMemosAutomatically = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Share Options")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Share Memos Image Footer Start")).setDesc(
+      t$3(
+        "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default"
+      )
+    ).addText(
+      (text) => text.setPlaceholder(DEFAULT_SETTINGS.ShareFooterStart).setValue(this.plugin.settings.ShareFooterStart).onChange(async (value) => {
+        this.plugin.settings.ShareFooterStart = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Share Memos Image Footer End")).setDesc(t$3("Set anything you want here. '\u270D\uFE0F Rememo' By default")).addText(
+      (text) => text.setPlaceholder(DEFAULT_SETTINGS.ShareFooterEnd).setValue(this.plugin.settings.ShareFooterEnd).onChange(async (value) => {
+        this.plugin.settings.ShareFooterEnd = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Background Image in Light Theme")).setDesc(t$3('Set background image in light theme. Set something like "Daily/one.png"')).addText(
+      (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultLightBackgroundImage).setValue(this.plugin.settings.DefaultLightBackgroundImage).onChange(async (value) => {
+        this.plugin.settings.DefaultLightBackgroundImage = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Background Image in Dark Theme")).setDesc(t$3('Set background image in dark theme. Set something like "Daily/one.png"')).addText(
+      (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultDarkBackgroundImage).setValue(this.plugin.settings.DefaultDarkBackgroundImage).onChange(async (value) => {
+        this.plugin.settings.DefaultDarkBackgroundImage = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Mobile Options")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Default editor position on mobile")).setDesc(t$3("Set the default editor position on Mobile, 'Top' by default.")).addDropdown(async (d) => {
+      d.addOption("Top", t$3("Top"));
+      d.addOption("Bottom", t$3("Bottom"));
+      d.setValue(this.plugin.settings.DefaultEditorLocation).onChange(async (value) => {
+        this.plugin.settings.DefaultEditorLocation = value;
+        this.applySettingsUpdate();
+      });
+    });
+    new require$$0.Setting(containerEl).setName(t$3("Use button to show editor on mobile")).setDesc(t$3("Set a float button to call editor on mobile. Only when editor located at the bottom works.")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.UseButtonToShowEditor).onChange(async (value) => {
+        this.plugin.settings.UseButtonToShowEditor = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Save Shared Image To Folder For Mobile")).setDesc(t$3("Save image to folder for mobile. False by Default")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.AutoSaveWhenOnMobile).onChange(async (value) => {
+        this.plugin.settings.AutoSaveWhenOnMobile = value;
+        this.applySettingsUpdate();
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Data tools")).setHeading();
+    new require$$0.Setting(containerEl).setName(t$3("Data Audit")).setDesc(t$3("Open the audit page to inspect and migrate memo data in daily notes.")).addButton(
+      (bt) => bt.setButtonText(t$3("Audit data")).onClick(async () => {
+        const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
+        if (leaves.length === 0) {
+          await this.plugin.openMemos();
+        } else {
+          this.app.workspace.setActiveLeaf(leaves[0]);
+        }
+        locationService.pushHistory("/audit");
+      })
+    );
+    new require$$0.Setting(containerEl).setName(t$3("Say Thank You")).setHeading();
+    const donateLinks = [
+      [t$3("Afdian"), DONATE_AFDIAN_URL],
+      ["Ko-fi", DONATE_KOFI_URL]
+    ].filter(([, url]) => url !== "");
+    if (donateLinks.length > 0) {
+      const donateSetting = new require$$0.Setting(containerEl).setName(t$3("Donate")).setDesc(t$3("If you like this plugin, consider donating to support continued development:"));
+      for (const [label2, url] of donateLinks) {
+        donateSetting.addButton((bt) => bt.setButtonText(label2).onClick(() => window.open(url, "_blank")));
+      }
+    }
+  }
+}
 var react = { exports: {} };
 var react_production_min = {};
 /*
@@ -87,7 +4766,7 @@ var l = objectAssign, n$1 = 60103, p$1 = 60106;
 react_production_min.Fragment = 60107;
 react_production_min.StrictMode = 60108;
 react_production_min.Profiler = 60114;
-var q$1 = 60109, r$1 = 60110, t$3 = 60112;
+var q$1 = 60109, r$1 = 60110, t$2 = 60112;
 react_production_min.Suspense = 60113;
 var u = 60115, v = 60116;
 if ("function" === typeof Symbol && Symbol.for) {
@@ -99,7 +4778,7 @@ if ("function" === typeof Symbol && Symbol.for) {
   react_production_min.Profiler = w("react.profiler");
   q$1 = w("react.provider");
   r$1 = w("react.context");
-  t$3 = w("react.forward_ref");
+  t$2 = w("react.forward_ref");
   react_production_min.Suspense = w("react.suspense");
   u = w("react.memo");
   v = w("react.lazy");
@@ -325,7 +5004,7 @@ react_production_min.createRef = function() {
   return { current: null };
 };
 react_production_min.forwardRef = function(a) {
-  return { $$typeof: t$3, render: a };
+  return { $$typeof: t$2, render: a };
 };
 react_production_min.isValidElement = L;
 react_production_min.lazy = function(a) {
@@ -673,7 +5352,7 @@ function y(a) {
 if (!aa)
   throw Error(y(227));
 var ba = /* @__PURE__ */ new Set(), ca = {};
-function da$1(a, b) {
+function da(a, b) {
   ea(a, b);
   ea(a + "Capture", b);
 }
@@ -682,15 +5361,15 @@ function ea(a, b) {
   for (a = 0; a < b.length; a++)
     ba.add(b[a]);
 }
-var fa = !("undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement), ha = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/, ia = Object.prototype.hasOwnProperty, ja$1 = {}, ka = {};
+var fa = !("undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement), ha = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/, ia = Object.prototype.hasOwnProperty, ja = {}, ka = {};
 function la(a) {
   if (ia.call(ka, a))
     return true;
-  if (ia.call(ja$1, a))
+  if (ia.call(ja, a))
     return false;
   if (ha.test(a))
     return ka[a] = true;
-  ja$1[a] = true;
+  ja[a] = true;
   return false;
 }
 function ma(a, b, c, d) {
@@ -1750,7 +6429,7 @@ function Pc(a, b) {
     e = "on" + (e[0].toUpperCase() + e.slice(1));
     Nc.set(d, b);
     Mc.set(d, e);
-    da$1(e, [d]);
+    da(e, [d]);
   }
 }
 var Qc = r.unstable_now;
@@ -1919,7 +6598,7 @@ function gd(a, b, c, d) {
     (Kb = f2) || Mb();
   }
 }
-function id$1(a, b, c, d) {
+function id(a, b, c, d) {
   ed(dd, hd.bind(null, a, b, c, d));
 }
 function hd(a, b, c, d) {
@@ -2116,7 +6795,7 @@ var Qd = m$1({}, ud, { key: function(a) {
   deltaMode: 0
 }), Zd = rd(Yd), $d = [9, 13, 27, 32], ae = fa && "CompositionEvent" in window, be = null;
 fa && "documentMode" in document && (be = document.documentMode);
-var ce = fa && "TextEvent" in window && !be, de$1 = fa && (!ae || be && 8 < be && 11 >= be), ee = String.fromCharCode(32), fe = false;
+var ce = fa && "TextEvent" in window && !be, de = fa && (!ae || be && 8 < be && 11 >= be), ee = String.fromCharCode(32), fe = false;
 function ge(a, b) {
   switch (a) {
     case "keyup":
@@ -2166,7 +6845,7 @@ function ke(a, b) {
       }
       return null;
     case "compositionend":
-      return de$1 && "ko" !== b.locale ? null : b.data;
+      return de && "ko" !== b.locale ? null : b.data;
     default:
       return null;
   }
@@ -2328,12 +7007,12 @@ ea("onMouseEnter", ["mouseout", "mouseover"]);
 ea("onMouseLeave", ["mouseout", "mouseover"]);
 ea("onPointerEnter", ["pointerout", "pointerover"]);
 ea("onPointerLeave", ["pointerout", "pointerover"]);
-da$1("onChange", "change click focusin focusout input keydown keyup selectionchange".split(" "));
-da$1("onSelect", "focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange".split(" "));
-da$1("onBeforeInput", ["compositionend", "keypress", "textInput", "paste"]);
-da$1("onCompositionEnd", "compositionend focusout keydown keypress keyup mousedown".split(" "));
-da$1("onCompositionStart", "compositionstart focusout keydown keypress keyup mousedown".split(" "));
-da$1("onCompositionUpdate", "compositionupdate focusout keydown keypress keyup mousedown".split(" "));
+da("onChange", "change click focusin focusout input keydown keyup selectionchange".split(" "));
+da("onSelect", "focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange".split(" "));
+da("onBeforeInput", ["compositionend", "keypress", "textInput", "paste"]);
+da("onCompositionEnd", "compositionend focusout keydown keypress keyup mousedown".split(" "));
+da("onCompositionStart", "compositionstart focusout keydown keypress keyup mousedown".split(" "));
+da("onCompositionUpdate", "compositionupdate focusout keydown keypress keyup mousedown".split(" "));
 var Xe = "abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange seeked seeking stalled suspend timeupdate volumechange waiting".split(" "), Ye = new Set("cancel close invalid load scroll toggle".split(" ").concat(Xe));
 function Ze(a, b, c) {
   var d = a.type || "unknown-event";
@@ -2403,7 +7082,7 @@ function af(a, b, c, d) {
       e = gd;
       break;
     case 1:
-      e = id$1;
+      e = id;
       break;
     default:
       e = hd;
@@ -2666,7 +7345,7 @@ function jd(a, b, c, d, e) {
         }
       else
         ie$2 ? ge(a, c) && (L2 = "onCompositionEnd") : "keydown" === a && 229 === c.keyCode && (L2 = "onCompositionStart");
-      L2 && (de$1 && "ko" !== c.locale && (ie$2 || "onCompositionStart" !== L2 ? "onCompositionEnd" === L2 && ie$2 && (Q2 = nd()) : (kd = e2, ld = "value" in kd ? kd.value : kd.textContent, ie$2 = true)), K2 = oe(d2, L2), 0 < K2.length && (L2 = new Ld(L2, a, null, c, e2), g3.push({ event: L2, listeners: K2 }), Q2 ? L2.data = Q2 : (Q2 = he(c), null !== Q2 && (L2.data = Q2))));
+      L2 && (de && "ko" !== c.locale && (ie$2 || "onCompositionStart" !== L2 ? "onCompositionEnd" === L2 && ie$2 && (Q2 = nd()) : (kd = e2, ld = "value" in kd ? kd.value : kd.textContent, ie$2 = true)), K2 = oe(d2, L2), 0 < K2.length && (L2 = new Ld(L2, a, null, c, e2), g3.push({ event: L2, listeners: K2 }), Q2 ? L2.data = Q2 : (Q2 = he(c), null !== Q2 && (L2.data = Q2))));
       if (Q2 = ce ? je(a, c) : ke(a, c))
         d2 = oe(d2, "onBeforeInput"), 0 < d2.length && (e2 = new Ld(
           "onBeforeInput",
@@ -2752,7 +7431,7 @@ function sf(a) {
   }
   return null;
 }
-var tf$1 = 0;
+var tf = 0;
 function uf(a) {
   return { $$typeof: Ga, toString: a, valueOf: a };
 }
@@ -4022,20 +8701,20 @@ var Gh = { readContext: vg, useCallback: Ah, useContext: Ah, useEffect: Ah, useI
 }, useOpaqueIdentifier: function() {
   if (lh) {
     var a = false, b = uf(function() {
-      a || (a = true, c("r:" + (tf$1++).toString(36)));
+      a || (a = true, c("r:" + (tf++).toString(36)));
       throw Error(y(355));
     }), c = Qh(b)[1];
     0 === (R.mode & 2) && (R.flags |= 516, Rh(
       5,
       function() {
-        c("r:" + (tf$1++).toString(36));
+        c("r:" + (tf++).toString(36));
       },
       void 0,
       null
     ));
     return b;
   }
-  b = "r:" + (tf$1++).toString(36);
+  b = "r:" + (tf++).toString(36);
   Qh(b);
   return b;
 }, unstable_isNewReconciler: false }, Eh = { readContext: vg, useCallback: bi, useContext: vg, useEffect: Xh, useImperativeHandle: $h, useLayoutEffect: Yh, useMemo: ci, useReducer: Kh, useRef: Th, useState: function() {
@@ -4092,7 +8771,7 @@ function gi(a, b, c, d, e) {
   tg(b, e);
   d = Ch(a, b, c, d, f2, e);
   if (null !== a && !ug)
-    return b.updateQueue = a.updateQueue, b.flags &= -517, a.lanes &= ~e, hi$1(a, b, e);
+    return b.updateQueue = a.updateQueue, b.flags &= -517, a.lanes &= ~e, hi(a, b, e);
   b.flags |= 1;
   fi(a, b, d, e);
   return b.child;
@@ -4109,7 +8788,7 @@ function ii(a, b, c, d, e, f2) {
   }
   g2 = a.child;
   if (0 === (e & f2) && (e = g2.memoizedProps, c = c.compare, c = null !== c ? c : Je, c(e, d) && a.ref === b.ref))
-    return hi$1(a, b, f2);
+    return hi(a, b, f2);
   b.flags |= 1;
   a = Tg(g2, d);
   a.ref = b.ref;
@@ -4121,7 +8800,7 @@ function ki(a, b, c, d, e, f2) {
     if (ug = false, 0 !== (f2 & e))
       0 !== (a.flags & 16384) && (ug = true);
     else
-      return b.lanes = a.lanes, hi$1(a, b, f2);
+      return b.lanes = a.lanes, hi(a, b, f2);
   return li(a, b, c, d, f2);
 }
 function mi(a, b, c) {
@@ -4149,7 +8828,7 @@ function li(a, b, c, d, e) {
   tg(b, e);
   c = Ch(a, b, c, d, f2, e);
   if (null !== a && !ug)
-    return b.updateQueue = a.updateQueue, b.flags &= -517, a.lanes &= ~e, hi$1(a, b, e);
+    return b.updateQueue = a.updateQueue, b.flags &= -517, a.lanes &= ~e, hi(a, b, e);
   b.flags |= 1;
   fi(a, b, c, e);
   return b.child;
@@ -4205,7 +8884,7 @@ function qi(a, b, c, d, e, f2) {
   oi(a, b);
   var g2 = 0 !== (b.flags & 64);
   if (!d && !g2)
-    return e && Kf(b, c, false), hi$1(a, b, f2);
+    return e && Kf(b, c, false), hi(a, b, f2);
   d = b.stateNode;
   ei.current = b;
   var h2 = g2 && "function" !== typeof c.getDerivedStateFromError ? null : d.render();
@@ -4362,7 +9041,7 @@ function Ai(a, b, c) {
     }
   return b.child;
 }
-function hi$1(a, b, c) {
+function hi(a, b, c) {
   null !== a && (b.dependencies = a.dependencies);
   Dg |= b.lanes;
   if (0 !== (c & b.childLanes)) {
@@ -6178,7 +10857,7 @@ ck = function(a, b, c) {
             if (0 !== (c & b.child.childLanes))
               return ti(a, b, c);
             I(P, P.current & 1);
-            b = hi$1(a, b, c);
+            b = hi(a, b, c);
             return null !== b ? b.sibling : null;
           }
           I(P, P.current & 1);
@@ -6201,7 +10880,7 @@ ck = function(a, b, c) {
         case 24:
           return b.lanes = 0, mi(a, b, c);
       }
-      return hi$1(a, b, c);
+      return hi(a, b, c);
     }
   else
     ug = false;
@@ -6279,7 +10958,7 @@ ck = function(a, b, c) {
       Cg(b, d, null, c);
       d = b.memoizedState.element;
       if (d === e)
-        sh(), b = hi$1(a, b, c);
+        sh(), b = hi(a, b, c);
       else {
         e = b.stateNode;
         if (f2 = e.hydrate)
@@ -6330,7 +11009,7 @@ ck = function(a, b, c) {
         if (null !== g2)
           if (h2 = g2.value, f2 = He(h2, f2) ? 0 : ("function" === typeof d._calculateChangedBits ? d._calculateChangedBits(h2, f2) : 1073741823) | 0, 0 === f2) {
             if (g2.children === e.children && !N.current) {
-              b = hi$1(a, b, c);
+              b = hi(a, b, c);
               break a;
             }
           } else
@@ -6906,1246 +11585,6 @@ const Provider = (props) => {
     children
   });
 };
-function combineReducers(reducers) {
-  const reducerKeys = Object.keys(reducers);
-  const finalReducersObj = {};
-  for (const key of reducerKeys) {
-    if (typeof reducers[key] === "function") {
-      finalReducersObj[key] = reducers[key];
-    }
-  }
-  return (state = {}, action) => {
-    let hasChanged = false;
-    const nextState = {};
-    for (const key of reducerKeys) {
-      const prevStateForKey = state[key];
-      const nextStateForKey = finalReducersObj[key](prevStateForKey, action);
-      nextState[key] = nextStateForKey;
-      hasChanged = hasChanged || nextStateForKey !== prevStateForKey;
-    }
-    return hasChanged ? nextState : state;
-  };
-}
-function createStore(preloadedState, reducer2) {
-  const listeners2 = [];
-  let currentState = preloadedState;
-  const dispatch = (action) => {
-    const nextState = reducer2(currentState, action);
-    const prevState = currentState;
-    currentState = nextState;
-    for (const cb2 of listeners2) {
-      cb2(currentState, prevState);
-    }
-  };
-  const subscribe = (listener) => {
-    let isSubscribed = true;
-    listeners2.push(listener);
-    return () => {
-      if (!isSubscribed) {
-        return;
-      }
-      const index = listeners2.indexOf(listener);
-      listeners2.splice(index, 1);
-      isSubscribed = false;
-    };
-  };
-  const getState = () => {
-    return currentState;
-  };
-  return {
-    dispatch,
-    getState,
-    subscribe
-  };
-}
-function reducer$8(state, action) {
-  switch (action.type) {
-    case "SET_MARK_MEMO_ID": {
-      const id2 = action.payload.markMemoId;
-      if (id2 === "") {
-        if (state.markMemoIds.length === 0)
-          return state;
-        return { ...state, markMemoIds: [] };
-      }
-      const has = state.markMemoIds.includes(id2);
-      return {
-        ...state,
-        markMemoIds: has ? state.markMemoIds.filter((x2) => x2 !== id2) : [...state.markMemoIds, id2]
-      };
-    }
-    case "SET_EDIT_MEMO_ID": {
-      if (action.payload.editMemoId === state.editMemoId) {
-        return state;
-      }
-      return {
-        ...state,
-        editMemoId: action.payload.editMemoId
-      };
-    }
-    case "SET_MOBILE_VIEW": {
-      if (action.payload.isMobileView === state.isMobileView) {
-        return state;
-      }
-      return {
-        ...state,
-        isMobileView: action.payload.isMobileView
-      };
-    }
-    case "SET_SHOW_SIDEBAR_IN_MOBILE_VIEW": {
-      if (action.payload.showSiderbarInMobileView === state.showSiderbarInMobileView) {
-        return state;
-      }
-      return {
-        ...state,
-        showSiderbarInMobileView: action.payload.showSiderbarInMobileView
-      };
-    }
-    case "SET_APP_SETTING": {
-      return {
-        ...state,
-        ...action.payload
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-const defaultState$6 = {
-  markMemoIds: [],
-  editMemoId: "",
-  shouldSplitMemoWord: true,
-  shouldHideImageUrl: true,
-  shouldUseMarkdownParser: true,
-  isMobileView: false,
-  showSiderbarInMobileView: false
-};
-function reducer$7(state, action) {
-  switch (action.type) {
-    case "SET_LOCATION": {
-      return action.payload;
-    }
-    case "SET_PATHNAME": {
-      if (action.payload.pathname === state.pathname) {
-        return state;
-      }
-      return {
-        ...state,
-        pathname: action.payload.pathname
-      };
-    }
-    case "SET_HASH": {
-      if (action.payload.hash === state.hash) {
-        return state;
-      }
-      return {
-        ...state,
-        hash: action.payload.hash
-      };
-    }
-    case "SET_QUERY": {
-      return {
-        ...state,
-        query: {
-          ...action.payload
-        }
-      };
-    }
-    case "SET_TAG_QUERY": {
-      if (action.payload.tag === state.query.tag) {
-        return state;
-      }
-      return {
-        ...state,
-        query: {
-          ...state.query,
-          tag: action.payload.tag
-        }
-      };
-    }
-    case "SET_DURATION_QUERY": {
-      if (action.payload.duration === state.query.duration) {
-        return state;
-      }
-      return {
-        ...state,
-        query: {
-          ...state.query,
-          duration: {
-            ...state.query.duration,
-            ...action.payload.duration
-          }
-        }
-      };
-    }
-    case "SET_TYPE": {
-      if (action.payload.type === state.query.type) {
-        return state;
-      }
-      return {
-        ...state,
-        query: {
-          ...state.query,
-          type: action.payload.type
-        }
-      };
-    }
-    case "SET_TEXT": {
-      if (action.payload.text === state.query.text) {
-        return state;
-      }
-      return {
-        ...state,
-        query: {
-          ...state.query,
-          text: action.payload.text
-        }
-      };
-    }
-    case "SET_QUERY_FILTER": {
-      if (action.payload === state.query.filter) {
-        return state;
-      }
-      return {
-        ...state,
-        query: {
-          ...state.query,
-          filter: action.payload
-        }
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-const defaultState$5 = {
-  pathname: "/",
-  hash: "",
-  query: {
-    tag: "",
-    duration: null,
-    type: "",
-    text: "",
-    filter: ""
-  }
-};
-var main$1 = {};
-Object.defineProperty(main$1, "__esModule", { value: true });
-var obsidian = require$$0__default["default"];
-const DEFAULT_DAILY_NOTE_FORMAT = "YYYY-MM-DD";
-const DEFAULT_WEEKLY_NOTE_FORMAT = "gggg-[W]ww";
-const DEFAULT_MONTHLY_NOTE_FORMAT = "YYYY-MM";
-const DEFAULT_QUARTERLY_NOTE_FORMAT = "YYYY-[Q]Q";
-const DEFAULT_YEARLY_NOTE_FORMAT = "YYYY";
-function shouldUsePeriodicNotesSettings(periodicity) {
-  var _a2, _b;
-  const periodicNotes = window.app.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2[periodicity]) == null ? void 0 : _b.enabled);
-}
-function getDailyNoteSettings() {
-  var _a2, _b, _c, _d;
-  try {
-    const { internalPlugins, plugins } = window.app;
-    if (shouldUsePeriodicNotesSettings("daily")) {
-      const { format: format2, folder: folder2, template: template2 } = ((_b = (_a2 = plugins.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.daily) || {};
-      return {
-        format: format2 || DEFAULT_DAILY_NOTE_FORMAT,
-        folder: (folder2 == null ? void 0 : folder2.trim()) || "",
-        template: (template2 == null ? void 0 : template2.trim()) || ""
-      };
-    }
-    const { folder, format, template } = ((_d = (_c = internalPlugins.getPluginById("daily-notes")) == null ? void 0 : _c.instance) == null ? void 0 : _d.options) || {};
-    return {
-      format: format || DEFAULT_DAILY_NOTE_FORMAT,
-      folder: (folder == null ? void 0 : folder.trim()) || "",
-      template: (template == null ? void 0 : template.trim()) || ""
-    };
-  } catch (err) {
-    console.info("No custom daily note settings found!", err);
-  }
-}
-function getWeeklyNoteSettings() {
-  var _a2, _b, _c, _d, _e, _f, _g;
-  try {
-    const pluginManager = window.app.plugins;
-    const calendarSettings = (_a2 = pluginManager.getPlugin("calendar")) == null ? void 0 : _a2.options;
-    const periodicNotesSettings = (_c = (_b = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _b.settings) == null ? void 0 : _c.weekly;
-    if (shouldUsePeriodicNotesSettings("weekly")) {
-      return {
-        format: periodicNotesSettings.format || DEFAULT_WEEKLY_NOTE_FORMAT,
-        folder: ((_d = periodicNotesSettings.folder) == null ? void 0 : _d.trim()) || "",
-        template: ((_e = periodicNotesSettings.template) == null ? void 0 : _e.trim()) || ""
-      };
-    }
-    const settings = calendarSettings || {};
-    return {
-      format: settings.weeklyNoteFormat || DEFAULT_WEEKLY_NOTE_FORMAT,
-      folder: ((_f = settings.weeklyNoteFolder) == null ? void 0 : _f.trim()) || "",
-      template: ((_g = settings.weeklyNoteTemplate) == null ? void 0 : _g.trim()) || ""
-    };
-  } catch (err) {
-    console.info("No custom weekly note settings found!", err);
-  }
-}
-function getMonthlyNoteSettings() {
-  var _a2, _b, _c, _d;
-  const pluginManager = window.app.plugins;
-  try {
-    const settings = shouldUsePeriodicNotesSettings("monthly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.monthly) || {};
-    return {
-      format: settings.format || DEFAULT_MONTHLY_NOTE_FORMAT,
-      folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
-      template: ((_d = settings.template) == null ? void 0 : _d.trim()) || ""
-    };
-  } catch (err) {
-    console.info("No custom monthly note settings found!", err);
-  }
-}
-function getQuarterlyNoteSettings() {
-  var _a2, _b, _c, _d;
-  const pluginManager = window.app.plugins;
-  try {
-    const settings = shouldUsePeriodicNotesSettings("quarterly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.quarterly) || {};
-    return {
-      format: settings.format || DEFAULT_QUARTERLY_NOTE_FORMAT,
-      folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
-      template: ((_d = settings.template) == null ? void 0 : _d.trim()) || ""
-    };
-  } catch (err) {
-    console.info("No custom quarterly note settings found!", err);
-  }
-}
-function getYearlyNoteSettings() {
-  var _a2, _b, _c, _d;
-  const pluginManager = window.app.plugins;
-  try {
-    const settings = shouldUsePeriodicNotesSettings("yearly") && ((_b = (_a2 = pluginManager.getPlugin("periodic-notes")) == null ? void 0 : _a2.settings) == null ? void 0 : _b.yearly) || {};
-    return {
-      format: settings.format || DEFAULT_YEARLY_NOTE_FORMAT,
-      folder: ((_c = settings.folder) == null ? void 0 : _c.trim()) || "",
-      template: ((_d = settings.template) == null ? void 0 : _d.trim()) || ""
-    };
-  } catch (err) {
-    console.info("No custom yearly note settings found!", err);
-  }
-}
-function join(...partSegments) {
-  let parts = [];
-  for (let i2 = 0, l2 = partSegments.length; i2 < l2; i2++) {
-    parts = parts.concat(partSegments[i2].split("/"));
-  }
-  const newParts = [];
-  for (let i2 = 0, l2 = parts.length; i2 < l2; i2++) {
-    const part = parts[i2];
-    if (!part || part === ".")
-      continue;
-    else
-      newParts.push(part);
-  }
-  if (parts[0] === "")
-    newParts.unshift("");
-  return newParts.join("/");
-}
-function basename(fullPath) {
-  let base2 = fullPath.substring(fullPath.lastIndexOf("/") + 1);
-  if (base2.lastIndexOf(".") != -1)
-    base2 = base2.substring(0, base2.lastIndexOf("."));
-  return base2;
-}
-async function ensureFolderExists(path) {
-  const dirs = path.replace(/\\/g, "/").split("/");
-  dirs.pop();
-  if (dirs.length) {
-    const dir = join(...dirs);
-    if (!window.app.vault.getAbstractFileByPath(dir)) {
-      await window.app.vault.createFolder(dir);
-    }
-  }
-}
-async function getNotePath(directory, filename) {
-  if (!filename.endsWith(".md")) {
-    filename += ".md";
-  }
-  const path = obsidian.normalizePath(join(directory, filename));
-  await ensureFolderExists(path);
-  return path;
-}
-async function getTemplateInfo(template) {
-  const { metadataCache, vault } = window.app;
-  const templatePath = obsidian.normalizePath(template);
-  if (templatePath === "/") {
-    return Promise.resolve(["", null]);
-  }
-  try {
-    const templateFile = metadataCache.getFirstLinkpathDest(templatePath, "");
-    const contents = await vault.cachedRead(templateFile);
-    const IFoldInfo = window.app.foldManager.load(templateFile);
-    return [contents, IFoldInfo];
-  } catch (err) {
-    console.error(`Failed to read the daily note template '${templatePath}'`, err);
-    new obsidian.Notice("Failed to read the daily note template");
-    return ["", null];
-  }
-}
-function getDateUID(date, granularity = "day") {
-  const ts = date.clone().startOf(granularity).format();
-  return `${granularity}-${ts}`;
-}
-function removeEscapedCharacters(format) {
-  return format.replace(/\[[^\]]*\]/g, "");
-}
-function isFormatAmbiguous(format, granularity) {
-  if (granularity === "week") {
-    const cleanFormat = removeEscapedCharacters(format);
-    return /w{1,2}/i.test(cleanFormat) && (/M{1,4}/.test(cleanFormat) || /D{1,4}/.test(cleanFormat));
-  }
-  return false;
-}
-function getDateFromFile(file, granularity) {
-  return getDateFromFilename(file.basename, granularity);
-}
-function getDateFromPath(path, granularity) {
-  return getDateFromFilename(basename(path), granularity);
-}
-function getDateFromFilename(filename, granularity) {
-  const getSettings = {
-    day: getDailyNoteSettings,
-    week: getWeeklyNoteSettings,
-    month: getMonthlyNoteSettings,
-    quarter: getQuarterlyNoteSettings,
-    year: getYearlyNoteSettings
-  };
-  const format = getSettings[granularity]().format.split("/").pop();
-  const noteDate = window.moment(filename, format, true);
-  if (!noteDate.isValid()) {
-    return null;
-  }
-  if (isFormatAmbiguous(format, granularity)) {
-    if (granularity === "week") {
-      const cleanFormat = removeEscapedCharacters(format);
-      if (/w{1,2}/i.test(cleanFormat)) {
-        return window.moment(
-          filename,
-          format.replace(/M{1,4}/g, "").replace(/D{1,4}/g, ""),
-          false
-        );
-      }
-    }
-  }
-  return noteDate;
-}
-class DailyNotesFolderMissingError$1 extends Error {
-}
-async function createDailyNote(date) {
-  const app2 = window.app;
-  const { vault } = app2;
-  const moment = window.moment;
-  const { template, format, folder } = getDailyNoteSettings();
-  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
-  const filename = date.format(format);
-  const normalizedPath = await getNotePath(folder, filename);
-  try {
-    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename).replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
-      const now = moment();
-      const currentDate = date.clone().set({
-        hour: now.get("hour"),
-        minute: now.get("minute"),
-        second: now.get("second")
-      });
-      if (calc) {
-        currentDate.add(parseInt(timeDelta, 10), unit);
-      }
-      if (momentFormat) {
-        return currentDate.format(momentFormat.substring(1).trim());
-      }
-      return currentDate.format(format);
-    }).replace(/{{\s*yesterday\s*}}/gi, date.clone().subtract(1, "day").format(format)).replace(/{{\s*tomorrow\s*}}/gi, date.clone().add(1, "d").format(format)));
-    app2.foldManager.save(createdFile, IFoldInfo);
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${normalizedPath}'`, err);
-    new obsidian.Notice("Unable to create new file.");
-  }
-}
-function getDailyNote(date, dailyNotes) {
-  var _a2;
-  return (_a2 = dailyNotes[getDateUID(date, "day")]) != null ? _a2 : null;
-}
-function getAllDailyNotes() {
-  const { vault } = window.app;
-  const { folder } = getDailyNoteSettings();
-  const dailyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
-  if (!dailyNotesFolder) {
-    throw new DailyNotesFolderMissingError$1("Failed to find daily notes folder");
-  }
-  const dailyNotes = {};
-  obsidian.Vault.recurseChildren(dailyNotesFolder, (note) => {
-    if (note instanceof obsidian.TFile) {
-      const date = getDateFromFile(note, "day");
-      if (date) {
-        const dateString = getDateUID(date, "day");
-        dailyNotes[dateString] = note;
-      }
-    }
-  });
-  return dailyNotes;
-}
-class WeeklyNotesFolderMissingError extends Error {
-}
-function getDaysOfWeek() {
-  const { moment } = window;
-  let weekStart = moment.localeData()._week.dow;
-  const daysOfWeek = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday"
-  ];
-  while (weekStart) {
-    daysOfWeek.push(daysOfWeek.shift());
-    weekStart--;
-  }
-  return daysOfWeek;
-}
-function getDayOfWeekNumericalValue(dayOfWeekName) {
-  return getDaysOfWeek().indexOf(dayOfWeekName.toLowerCase());
-}
-async function createWeeklyNote(date) {
-  const { vault } = window.app;
-  const { template, format, folder } = getWeeklyNoteSettings();
-  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
-  const filename = date.format(format);
-  const normalizedPath = await getNotePath(folder, filename);
-  try {
-    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
-      const now = window.moment();
-      const currentDate = date.clone().set({
-        hour: now.get("hour"),
-        minute: now.get("minute"),
-        second: now.get("second")
-      });
-      if (calc) {
-        currentDate.add(parseInt(timeDelta, 10), unit);
-      }
-      if (momentFormat) {
-        return currentDate.format(momentFormat.substring(1).trim());
-      }
-      return currentDate.format(format);
-    }).replace(/{{\s*title\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s*:(.*?)}}/gi, (_, dayOfWeek, momentFormat) => {
-      const day = getDayOfWeekNumericalValue(dayOfWeek);
-      return date.weekday(day).format(momentFormat.trim());
-    }));
-    window.app.foldManager.save(createdFile, IFoldInfo);
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${normalizedPath}'`, err);
-    new obsidian.Notice("Unable to create new file.");
-  }
-}
-function getWeeklyNote(date, weeklyNotes) {
-  var _a2;
-  return (_a2 = weeklyNotes[getDateUID(date, "week")]) != null ? _a2 : null;
-}
-function getAllWeeklyNotes() {
-  const weeklyNotes = {};
-  if (!appHasWeeklyNotesPluginLoaded()) {
-    return weeklyNotes;
-  }
-  const { vault } = window.app;
-  const { folder } = getWeeklyNoteSettings();
-  const weeklyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
-  if (!weeklyNotesFolder) {
-    throw new WeeklyNotesFolderMissingError("Failed to find weekly notes folder");
-  }
-  obsidian.Vault.recurseChildren(weeklyNotesFolder, (note) => {
-    if (note instanceof obsidian.TFile) {
-      const date = getDateFromFile(note, "week");
-      if (date) {
-        const dateString = getDateUID(date, "week");
-        weeklyNotes[dateString] = note;
-      }
-    }
-  });
-  return weeklyNotes;
-}
-class MonthlyNotesFolderMissingError extends Error {
-}
-async function createMonthlyNote(date) {
-  const { vault } = window.app;
-  const { template, format, folder } = getMonthlyNoteSettings();
-  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
-  const filename = date.format(format);
-  const normalizedPath = await getNotePath(folder, filename);
-  try {
-    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
-      const now = window.moment();
-      const currentDate = date.clone().set({
-        hour: now.get("hour"),
-        minute: now.get("minute"),
-        second: now.get("second")
-      });
-      if (calc) {
-        currentDate.add(parseInt(timeDelta, 10), unit);
-      }
-      if (momentFormat) {
-        return currentDate.format(momentFormat.substring(1).trim());
-      }
-      return currentDate.format(format);
-    }).replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename));
-    window.app.foldManager.save(createdFile, IFoldInfo);
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${normalizedPath}'`, err);
-    new obsidian.Notice("Unable to create new file.");
-  }
-}
-function getMonthlyNote(date, monthlyNotes) {
-  var _a2;
-  return (_a2 = monthlyNotes[getDateUID(date, "month")]) != null ? _a2 : null;
-}
-function getAllMonthlyNotes() {
-  const monthlyNotes = {};
-  if (!appHasMonthlyNotesPluginLoaded()) {
-    return monthlyNotes;
-  }
-  const { vault } = window.app;
-  const { folder } = getMonthlyNoteSettings();
-  const monthlyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
-  if (!monthlyNotesFolder) {
-    throw new MonthlyNotesFolderMissingError("Failed to find monthly notes folder");
-  }
-  obsidian.Vault.recurseChildren(monthlyNotesFolder, (note) => {
-    if (note instanceof obsidian.TFile) {
-      const date = getDateFromFile(note, "month");
-      if (date) {
-        const dateString = getDateUID(date, "month");
-        monthlyNotes[dateString] = note;
-      }
-    }
-  });
-  return monthlyNotes;
-}
-class QuarterlyNotesFolderMissingError extends Error {
-}
-async function createQuarterlyNote(date) {
-  const { vault } = window.app;
-  const { template, format, folder } = getQuarterlyNoteSettings();
-  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
-  const filename = date.format(format);
-  const normalizedPath = await getNotePath(folder, filename);
-  try {
-    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
-      const now = window.moment();
-      const currentDate = date.clone().set({
-        hour: now.get("hour"),
-        minute: now.get("minute"),
-        second: now.get("second")
-      });
-      if (calc) {
-        currentDate.add(parseInt(timeDelta, 10), unit);
-      }
-      if (momentFormat) {
-        return currentDate.format(momentFormat.substring(1).trim());
-      }
-      return currentDate.format(format);
-    }).replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename));
-    window.app.foldManager.save(createdFile, IFoldInfo);
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${normalizedPath}'`, err);
-    new obsidian.Notice("Unable to create new file.");
-  }
-}
-function getQuarterlyNote(date, quarterly) {
-  var _a2;
-  return (_a2 = quarterly[getDateUID(date, "quarter")]) != null ? _a2 : null;
-}
-function getAllQuarterlyNotes() {
-  const quarterly = {};
-  if (!appHasQuarterlyNotesPluginLoaded()) {
-    return quarterly;
-  }
-  const { vault } = window.app;
-  const { folder } = getQuarterlyNoteSettings();
-  const quarterlyFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
-  if (!quarterlyFolder) {
-    throw new QuarterlyNotesFolderMissingError("Failed to find quarterly notes folder");
-  }
-  obsidian.Vault.recurseChildren(quarterlyFolder, (note) => {
-    if (note instanceof obsidian.TFile) {
-      const date = getDateFromFile(note, "quarter");
-      if (date) {
-        const dateString = getDateUID(date, "quarter");
-        quarterly[dateString] = note;
-      }
-    }
-  });
-  return quarterly;
-}
-class YearlyNotesFolderMissingError extends Error {
-}
-async function createYearlyNote(date) {
-  const { vault } = window.app;
-  const { template, format, folder } = getYearlyNoteSettings();
-  const [templateContents, IFoldInfo] = await getTemplateInfo(template);
-  const filename = date.format(format);
-  const normalizedPath = await getNotePath(folder, filename);
-  try {
-    const createdFile = await vault.create(normalizedPath, templateContents.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
-      const now = window.moment();
-      const currentDate = date.clone().set({
-        hour: now.get("hour"),
-        minute: now.get("minute"),
-        second: now.get("second")
-      });
-      if (calc) {
-        currentDate.add(parseInt(timeDelta, 10), unit);
-      }
-      if (momentFormat) {
-        return currentDate.format(momentFormat.substring(1).trim());
-      }
-      return currentDate.format(format);
-    }).replace(/{{\s*date\s*}}/gi, filename).replace(/{{\s*time\s*}}/gi, window.moment().format("HH:mm")).replace(/{{\s*title\s*}}/gi, filename));
-    window.app.foldManager.save(createdFile, IFoldInfo);
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${normalizedPath}'`, err);
-    new obsidian.Notice("Unable to create new file.");
-  }
-}
-function getYearlyNote(date, yearlyNotes) {
-  var _a2;
-  return (_a2 = yearlyNotes[getDateUID(date, "year")]) != null ? _a2 : null;
-}
-function getAllYearlyNotes() {
-  const yearlyNotes = {};
-  if (!appHasYearlyNotesPluginLoaded()) {
-    return yearlyNotes;
-  }
-  const { vault } = window.app;
-  const { folder } = getYearlyNoteSettings();
-  const yearlyNotesFolder = vault.getAbstractFileByPath(obsidian.normalizePath(folder));
-  if (!yearlyNotesFolder) {
-    throw new YearlyNotesFolderMissingError("Failed to find yearly notes folder");
-  }
-  obsidian.Vault.recurseChildren(yearlyNotesFolder, (note) => {
-    if (note instanceof obsidian.TFile) {
-      const date = getDateFromFile(note, "year");
-      if (date) {
-        const dateString = getDateUID(date, "year");
-        yearlyNotes[dateString] = note;
-      }
-    }
-  });
-  return yearlyNotes;
-}
-function appHasDailyNotesPluginLoaded() {
-  var _a2, _b;
-  const { app: app2 } = window;
-  const dailyNotesPlugin = app2.internalPlugins.plugins["daily-notes"];
-  if (dailyNotesPlugin && dailyNotesPlugin.enabled) {
-    return true;
-  }
-  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.daily) == null ? void 0 : _b.enabled);
-}
-function appHasWeeklyNotesPluginLoaded() {
-  var _a2, _b;
-  const { app: app2 } = window;
-  if (app2.plugins.getPlugin("calendar")) {
-    return true;
-  }
-  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.weekly) == null ? void 0 : _b.enabled);
-}
-function appHasMonthlyNotesPluginLoaded() {
-  var _a2, _b;
-  const { app: app2 } = window;
-  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.monthly) == null ? void 0 : _b.enabled);
-}
-function appHasQuarterlyNotesPluginLoaded() {
-  var _a2, _b;
-  const { app: app2 } = window;
-  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.quarterly) == null ? void 0 : _b.enabled);
-}
-function appHasYearlyNotesPluginLoaded() {
-  var _a2, _b;
-  const { app: app2 } = window;
-  const periodicNotes = app2.plugins.getPlugin("periodic-notes");
-  return periodicNotes && ((_b = (_a2 = periodicNotes.settings) == null ? void 0 : _a2.yearly) == null ? void 0 : _b.enabled);
-}
-function getPeriodicNoteSettings(granularity) {
-  const getSettings = {
-    day: getDailyNoteSettings,
-    week: getWeeklyNoteSettings,
-    month: getMonthlyNoteSettings,
-    quarter: getQuarterlyNoteSettings,
-    year: getYearlyNoteSettings
-  }[granularity];
-  return getSettings();
-}
-function createPeriodicNote(granularity, date) {
-  const createFn = {
-    day: createDailyNote,
-    month: createMonthlyNote,
-    week: createWeeklyNote
-  };
-  return createFn[granularity](date);
-}
-main$1.DEFAULT_DAILY_NOTE_FORMAT = DEFAULT_DAILY_NOTE_FORMAT;
-main$1.DEFAULT_MONTHLY_NOTE_FORMAT = DEFAULT_MONTHLY_NOTE_FORMAT;
-main$1.DEFAULT_QUARTERLY_NOTE_FORMAT = DEFAULT_QUARTERLY_NOTE_FORMAT;
-main$1.DEFAULT_WEEKLY_NOTE_FORMAT = DEFAULT_WEEKLY_NOTE_FORMAT;
-main$1.DEFAULT_YEARLY_NOTE_FORMAT = DEFAULT_YEARLY_NOTE_FORMAT;
-var appHasDailyNotesPluginLoaded_1 = main$1.appHasDailyNotesPluginLoaded = appHasDailyNotesPluginLoaded;
-main$1.appHasMonthlyNotesPluginLoaded = appHasMonthlyNotesPluginLoaded;
-main$1.appHasQuarterlyNotesPluginLoaded = appHasQuarterlyNotesPluginLoaded;
-main$1.appHasWeeklyNotesPluginLoaded = appHasWeeklyNotesPluginLoaded;
-main$1.appHasYearlyNotesPluginLoaded = appHasYearlyNotesPluginLoaded;
-var createDailyNote_1 = main$1.createDailyNote = createDailyNote;
-main$1.createMonthlyNote = createMonthlyNote;
-main$1.createPeriodicNote = createPeriodicNote;
-main$1.createQuarterlyNote = createQuarterlyNote;
-main$1.createWeeklyNote = createWeeklyNote;
-main$1.createYearlyNote = createYearlyNote;
-var getAllDailyNotes_1 = main$1.getAllDailyNotes = getAllDailyNotes;
-main$1.getAllMonthlyNotes = getAllMonthlyNotes;
-main$1.getAllQuarterlyNotes = getAllQuarterlyNotes;
-main$1.getAllWeeklyNotes = getAllWeeklyNotes;
-main$1.getAllYearlyNotes = getAllYearlyNotes;
-var getDailyNote_1 = main$1.getDailyNote = getDailyNote;
-var getDailyNoteSettings_1 = main$1.getDailyNoteSettings = getDailyNoteSettings;
-var getDateFromFile_1 = main$1.getDateFromFile = getDateFromFile;
-main$1.getDateFromPath = getDateFromPath;
-main$1.getDateUID = getDateUID;
-main$1.getMonthlyNote = getMonthlyNote;
-main$1.getMonthlyNoteSettings = getMonthlyNoteSettings;
-main$1.getPeriodicNoteSettings = getPeriodicNoteSettings;
-main$1.getQuarterlyNote = getQuarterlyNote;
-main$1.getQuarterlyNoteSettings = getQuarterlyNoteSettings;
-main$1.getTemplateInfo = getTemplateInfo;
-main$1.getWeeklyNote = getWeeklyNote;
-main$1.getWeeklyNoteSettings = getWeeklyNoteSettings;
-main$1.getYearlyNote = getYearlyNote;
-main$1.getYearlyNoteSettings = getYearlyNoteSettings;
-var utils;
-((utils2) => {
-  function getNowTimeStamp() {
-    return parseInt(require$$0.moment().format("x"));
-  }
-  utils2.getNowTimeStamp = getNowTimeStamp;
-  function getTimeStampByDate(t2) {
-    if (typeof t2 === "string") {
-      t2 = t2.replaceAll("-", "/");
-    }
-    return new Date(t2).getTime();
-  }
-  utils2.getTimeStampByDate = getTimeStampByDate;
-  function getDateStampByDate(t2) {
-    const d = new Date(getTimeStampByDate(t2));
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  }
-  utils2.getDateStampByDate = getDateStampByDate;
-  function getDateString(t2) {
-    const d = new Date(getTimeStampByDate(t2));
-    const year = d.getFullYear();
-    const month = d.getMonth() + 1;
-    const date = d.getDate();
-    return `${year}/${month}/${date}`;
-  }
-  utils2.getDateString = getDateString;
-  function getTimeString(t2, showSeconds = true) {
-    const d = new Date(getTimeStampByDate(t2));
-    const hours = d.getHours();
-    const mins = d.getMinutes();
-    const secs = d.getSeconds();
-    const hoursStr = hours < 10 ? "0" + hours : hours;
-    const minsStr = mins < 10 ? "0" + mins : mins;
-    const secsStr = secs < 10 ? "0" + secs : secs;
-    return `${hoursStr}:${minsStr}${showSeconds ? ":" + secsStr : ""}`;
-  }
-  utils2.getTimeString = getTimeString;
-  function getDateTimeString(t2, showSeconds = true) {
-    const d = new Date(getTimeStampByDate(t2));
-    const year = d.getFullYear();
-    const month = d.getMonth() + 1;
-    const date = d.getDate();
-    const hours = d.getHours();
-    const mins = d.getMinutes();
-    const secs = d.getSeconds();
-    const monthStr = month < 10 ? "0" + month : month;
-    const dateStr = date < 10 ? "0" + date : date;
-    const hoursStr = hours < 10 ? "0" + hours : hours;
-    const minsStr = mins < 10 ? "0" + mins : mins;
-    const secsStr = secs < 10 ? "0" + secs : secs;
-    return `${year}/${monthStr}/${dateStr} ${hoursStr}:${minsStr}${showSeconds ? ":" + secsStr : ""}`;
-  }
-  utils2.getDateTimeString = getDateTimeString;
-  function dedupe(data) {
-    return Array.from(new Set(data));
-  }
-  utils2.dedupe = dedupe;
-  function dedupeObjectWithId(data, getKey) {
-    const idSet = /* @__PURE__ */ new Set();
-    const result = [];
-    const keyOf = getKey || ((d) => d.id);
-    for (const d of data) {
-      const key = keyOf(d);
-      if (!idSet.has(key)) {
-        idSet.add(key);
-        result.push(d);
-      }
-    }
-    return result;
-  }
-  utils2.dedupeObjectWithId = dedupeObjectWithId;
-  function debounce2(fn2, delay) {
-    let timer = null;
-    return () => {
-      if (timer) {
-        window.clearTimeout(timer);
-        timer = window.setTimeout(fn2, delay);
-      } else {
-        timer = window.setTimeout(fn2, delay);
-      }
-    };
-  }
-  utils2.debounce = debounce2;
-  function debouncePlus(fn2, delay, immdiate = false, resultCallback) {
-    let timer = null;
-    let isInvoke = false;
-    function _debounce(...arg) {
-      if (timer)
-        window.clearTimeout(timer);
-      if (immdiate && !isInvoke) {
-        const result = fn2.apply(this, arg);
-        if (resultCallback && typeof resultCallback === "function")
-          resultCallback(result);
-        isInvoke = true;
-      } else {
-        timer = window.setTimeout(() => {
-          const result = fn2.apply(this, arg);
-          if (resultCallback && typeof resultCallback === "function")
-            resultCallback(result);
-          isInvoke = false;
-          timer = null;
-        }, delay);
-      }
-    }
-    _debounce.cancel = function() {
-      if (timer)
-        window.clearTimeout(timer);
-      timer = null;
-      isInvoke = false;
-    };
-    return _debounce;
-  }
-  utils2.debouncePlus = debouncePlus;
-  function throttle(fn2, delay) {
-    let valid = true;
-    return () => {
-      if (!valid) {
-        return false;
-      }
-      valid = false;
-      window.setTimeout(() => {
-        fn2();
-        valid = true;
-      }, delay);
-    };
-  }
-  utils2.throttle = throttle;
-  function transformObjectToParamsString(object) {
-    const params = [];
-    const keys = Object.keys(object).sort();
-    for (const key of keys) {
-      const val = object[key];
-      if (val) {
-        if (typeof val === "object") {
-          params.push(...transformObjectToParamsString(val).split("&"));
-        } else {
-          params.push(`${key}=${String(val)}`);
-        }
-      }
-    }
-    return params.join("&");
-  }
-  utils2.transformObjectToParamsString = transformObjectToParamsString;
-  function transformParamsStringToObject(paramsString) {
-    const object = {};
-    const params = paramsString.split("&");
-    for (const p2 of params) {
-      const [key, val] = p2.split("=");
-      if (key && val) {
-        object[key] = val;
-      }
-    }
-    return object;
-  }
-  utils2.transformParamsStringToObject = transformParamsStringToObject;
-  function filterObjectNullKeys(object) {
-    if (!object) {
-      return {};
-    }
-    const finalObject = {};
-    const keys = Object.keys(object).sort();
-    for (const key of keys) {
-      const val = object[key];
-      if (typeof val === "object") {
-        const temp = filterObjectNullKeys(JSON.parse(JSON.stringify(val)));
-        if (temp && Object.keys(temp).length > 0) {
-          finalObject[key] = temp;
-        }
-      } else {
-        if (val) {
-          finalObject[key] = val;
-        }
-      }
-    }
-    return finalObject;
-  }
-  utils2.filterObjectNullKeys = filterObjectNullKeys;
-  async function copyTextToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch (error) {
-        console.warn("Copy to clipboard failed.", error);
-      }
-    } else {
-      console.warn("Copy to clipboard failed, methods not supports.");
-    }
-  }
-  utils2.copyTextToClipboard = copyTextToClipboard;
-  function getImageSize(src) {
-    return new Promise((resolve) => {
-      const imgEl = new Image();
-      imgEl.onload = () => {
-        const { width, height } = imgEl;
-        if (width > 0 && height > 0) {
-          resolve({ width, height });
-        } else {
-          resolve({ width: 0, height: 0 });
-        }
-      };
-      imgEl.onerror = () => {
-        resolve({ width: 0, height: 0 });
-      };
-      imgEl.className = "hidden";
-      imgEl.src = src;
-      document.body.appendChild(imgEl);
-      imgEl.remove();
-    });
-  }
-  utils2.getImageSize = getImageSize;
-  async function createDailyNoteCheck(date) {
-    return await createDailyNote_1(date);
-  }
-  utils2.createDailyNoteCheck = createDailyNoteCheck;
-})(utils || (utils = {}));
-function getDailyNotePath() {
-  return getDailyNoteSettings_1().folder || "";
-}
-var utils$1 = utils;
-function reducer$6(state, action) {
-  switch (action.type) {
-    case "SET_MEMOS": {
-      const memos = utils$1.dedupeObjectWithId(
-        action.payload.memos.sort(
-          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        ),
-        (m2) => m2.hasId || m2.id
-      );
-      return {
-        ...state,
-        memos: [...memos]
-      };
-    }
-    case "SET_TAGS": {
-      return {
-        ...state,
-        tags: action.payload.tags,
-        tagsNum: action.payload.tagsNum
-      };
-    }
-    case "INSERT_MEMO": {
-      const memos = utils$1.dedupeObjectWithId(
-        [action.payload.memo, ...state.memos].sort(
-          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        ),
-        (m2) => m2.hasId || m2.id
-      );
-      return {
-        ...state,
-        memos
-      };
-    }
-    case "DELETE_MEMO_BY_ID": {
-      return {
-        ...state,
-        memos: [...state.memos].filter((memo2) => memo2.id !== action.payload.id)
-      };
-    }
-    case "EDIT_MEMO": {
-      const memos = state.memos.map((m2) => {
-        if (m2.id === action.payload.id) {
-          return {
-            ...m2,
-            ...action.payload
-          };
-        } else {
-          return m2;
-        }
-      });
-      return {
-        ...state,
-        memos
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-const defaultState$4 = {
-  memos: [],
-  tags: [],
-  tagsNum: {}
-};
-function reducer$5(state, action) {
-  switch (action.type) {
-    case "SIGN_IN": {
-      return {
-        user: action.payload.user
-      };
-    }
-    case "SIGN_OUT": {
-      return {
-        user: null
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-const defaultState$3 = { user: null };
-function reducer$4(state, action) {
-  switch (action.type) {
-    case "SET_QUERIES": {
-      const queries = utils$1.dedupeObjectWithId(
-        action.payload.queries.sort((a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)).sort((a, b) => {
-          var _a2, _b;
-          return utils$1.getTimeStampByDate((_a2 = b.pinnedAt) != null ? _a2 : 0) - utils$1.getTimeStampByDate((_b = a.pinnedAt) != null ? _b : 0);
-        })
-      );
-      return {
-        ...state,
-        queries
-      };
-    }
-    case "INSERT_QUERY": {
-      const queries = utils$1.dedupeObjectWithId(
-        [action.payload.query, ...state.queries].sort(
-          (a, b) => utils$1.getTimeStampByDate(b.createdAt) - utils$1.getTimeStampByDate(a.createdAt)
-        )
-      );
-      return {
-        ...state,
-        queries
-      };
-    }
-    case "DELETE_QUERY_BY_ID": {
-      return {
-        ...state,
-        queries: [...state.queries].filter((query) => query.id !== action.payload.id)
-      };
-    }
-    case "UPDATE_QUERY": {
-      const queries = state.queries.map((m2) => {
-        if (m2.id === action.payload.id) {
-          return {
-            ...m2,
-            ...action.payload
-          };
-        } else {
-          return m2;
-        }
-      });
-      return {
-        ...state,
-        queries
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-const defaultState$2 = {
-  queries: []
-};
-function reducer$3(state, action) {
-  switch (action.type) {
-    case "SET_DAILYNOTES": {
-      const dailyNotes = getAllDailyNotes_1();
-      return {
-        ...state,
-        dailyNotes
-      };
-    }
-    case "SET_APP": {
-      return {
-        ...state,
-        app: action.payload.app
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-const defaultState$1 = {
-  dailyNotes: null,
-  app: null
-};
-const defaultState = {
-  settings: {}
-};
-const reducer$2 = (state = defaultState, action) => {
-  switch (action.type) {
-    case "SET_SETTINGS":
-      return { ...state, settings: action.payload.settings };
-    default:
-      return state;
-  }
-};
-const appStore = createStore(
-  {
-    globalState: defaultState$6,
-    locationState: defaultState$5,
-    memoState: defaultState$4,
-    userState: defaultState$3,
-    queryState: defaultState$2,
-    dailyNotesState: defaultState$1,
-    settingsState: defaultState
-  },
-  combineReducers({
-    globalState: reducer$8,
-    locationState: reducer$7,
-    memoState: reducer$6,
-    userState: reducer$5,
-    queryState: reducer$4,
-    dailyNotesState: reducer$3,
-    settingsState: reducer$2
-  })
-);
 const appContext = react.exports.createContext(appStore.getState());
 (() => {
   if (!String.prototype.replaceAll) {
@@ -8158,3009 +11597,6 @@ const appContext = react.exports.createContext(appStore.getState());
   }
 })();
 var global = "";
-const SHOW_SIDERBAR_MOBILE_CLASSNAME = "mobile-show-sidebar";
-const ANIMATION_DURATION = 200;
-const DAILY_TIMESTAMP = 3600 * 24 * 1e3;
-const QUERY_FILE_NAME = "query";
-const TAG_REG = /\s#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
-const FIRST_TAG_REG = /(<p>|<br>)#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
-const NOP_FIRST_TAG_REG = /^#([\p{Letter}\p{Emoji_Presentation}\p{Number}/_-]+)/gu;
-const LINK_REG = /(\s|：|>|^)((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/g;
-const MD_LINK_REG = /\[([\s\S]*?)\]\(([\s\S]*?)\)/gu;
-const IMAGE_URL_REG = /([^\s<\\*>']+\.(jpeg|jpg|gif|png|svg|webp|bmp))(\]\])?(\))?/g;
-const MARKDOWN_URL_REG = /(!\[([^\]]*)(\|)?(.*?)\]\((.*?)("(?:.*[^"])")?\s*\))/g;
-const MARKDOWN_WEB_URL_REG = /(\s|：|^)(http[s]?:\/\/)([^/\s]+\/)(\S*?\.(?:jpeg|jpg|gif|png|svg|bmp|webp)(?:[?#][^\s)]*)?)(?!\))/g;
-const WIKI_IMAGE_URL_REG = /!\[\[((.*?)\.(jpeg|jpg|gif|png|svg|bmp|webp))?(\|)?(.*?)\]\]/g;
-const MEMO_LINK_REG = /\[@(.*?)\]\((.+?)\)/g;
-class DailyNotesService {
-  getState() {
-    return appStore.getState().dailyNotesState;
-  }
-  getApp(app2) {
-    appStore.dispatch({
-      type: "SET_APP",
-      payload: {
-        app: app2
-      }
-    });
-    return app2;
-  }
-  async getMyAllDailyNotes() {
-    const dailyNotes = getAllDailyNotes_1();
-    appStore.dispatch({
-      type: "SET_DAILYNOTES",
-      payload: {
-        dailyNotes
-      }
-    });
-    return dailyNotes;
-  }
-  async getDailyNoteByMemo(date) {
-    const { dailyNotes } = this.getState();
-    const dailyNote = getDailyNote_1(date, dailyNotes);
-    return dailyNote;
-  }
-}
-const dailyNotesService = new DailyNotesService();
-var storage;
-((storage2) => {
-  function get(keys) {
-    const data = {};
-    for (const key of keys) {
-      try {
-        const stringifyValue = localStorage.getItem(key);
-        if (stringifyValue !== null) {
-          const val = JSON.parse(stringifyValue);
-          data[key] = val;
-        }
-      } catch (error) {
-        console.error("Get storage failed in ", key, error);
-      }
-    }
-    return data;
-  }
-  storage2.get = get;
-  function set(data) {
-    for (const key in data) {
-      try {
-        const stringifyValue = JSON.stringify(data[key]);
-        localStorage.setItem(key, stringifyValue);
-      } catch (error) {
-        console.error("Save storage failed in ", key, error);
-      }
-    }
-  }
-  storage2.set = set;
-  function remove2(keys) {
-    for (const key of keys) {
-      try {
-        localStorage.removeItem(key);
-      } catch (error) {
-        console.error("Remove storage failed in ", key, error);
-      }
-    }
-  }
-  storage2.remove = remove2;
-  function removeRaw(key) {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.error("Remove storage failed in ", key, error);
-    }
-  }
-  storage2.removeRaw = removeRaw;
-})(storage || (storage = {}));
-class GlobalStateService {
-  constructor() {
-    var _a2, _b, _c;
-    this.getState = () => {
-      return appStore.getState().globalState;
-    };
-    this.setEditMemoId = (editMemoId) => {
-      appStore.dispatch({
-        type: "SET_EDIT_MEMO_ID",
-        payload: {
-          editMemoId
-        }
-      });
-    };
-    this.setMarkMemoId = (markMemoId) => {
-      appStore.dispatch({
-        type: "SET_MARK_MEMO_ID",
-        payload: {
-          markMemoId
-        }
-      });
-    };
-    this.setIsMobileView = (isMobileView) => {
-      appStore.dispatch({
-        type: "SET_MOBILE_VIEW",
-        payload: {
-          isMobileView
-        }
-      });
-    };
-    this.setShowSiderbarInMobileView = (showSiderbarInMobileView) => {
-      appStore.dispatch({
-        type: "SET_SHOW_SIDEBAR_IN_MOBILE_VIEW",
-        payload: {
-          showSiderbarInMobileView
-        }
-      });
-    };
-    this.setAppSetting = (appSetting) => {
-      appStore.dispatch({
-        type: "SET_APP_SETTING",
-        payload: appSetting
-      });
-      storage.set(appSetting);
-    };
-    const cachedSetting = storage.get([
-      "shouldSplitMemoWord",
-      "shouldHideImageUrl",
-      "shouldUseMarkdownParser"
-    ]);
-    const defaultAppSetting = {
-      shouldSplitMemoWord: (_a2 = cachedSetting.shouldSplitMemoWord) != null ? _a2 : true,
-      shouldHideImageUrl: (_b = cachedSetting.shouldHideImageUrl) != null ? _b : true,
-      shouldUseMarkdownParser: (_c = cachedSetting.shouldUseMarkdownParser) != null ? _c : true
-    };
-    storage.removeRaw("useTinyUndoHistoryCache");
-    storage.removeRaw("tinyUndoActionsCache");
-    storage.removeRaw("tinyUndoIndexCache");
-    this.setAppSetting(defaultAppSetting);
-  }
-}
-const globalStateService = new GlobalStateService();
-class LocationService {
-  constructor() {
-    this.updateStateWithLocation = () => {
-      var _a2, _b, _c, _d, _e, _f;
-      const { pathname, search, hash: hash2 } = window.location;
-      const urlParams = new URLSearchParams(search);
-      const state = {
-        pathname: "/",
-        hash: "",
-        query: {
-          tag: "",
-          duration: null,
-          text: "",
-          type: "",
-          filter: ""
-        }
-      };
-      state.query.tag = (_a2 = urlParams.get("tag")) != null ? _a2 : "";
-      state.query.type = (_b = urlParams.get("type")) != null ? _b : "";
-      state.query.text = (_c = urlParams.get("text")) != null ? _c : "";
-      state.query.filter = (_d = urlParams.get("filter")) != null ? _d : "";
-      const from = parseInt((_e = urlParams.get("from")) != null ? _e : "0");
-      const to = parseInt((_f = urlParams.get("to")) != null ? _f : "0");
-      if (to > from && to !== 0) {
-        state.query.duration = {
-          from,
-          to
-        };
-      }
-      state.hash = hash2;
-      state.pathname = this.getValidPathname(pathname);
-      appStore.dispatch({
-        type: "SET_LOCATION",
-        payload: state
-      });
-    };
-    this.getState = () => {
-      return appStore.getState().locationState;
-    };
-    this.clearQuery = () => {
-      appStore.dispatch({
-        type: "SET_QUERY",
-        payload: {
-          tag: "",
-          duration: null,
-          text: "",
-          type: "",
-          filter: ""
-        }
-      });
-    };
-    this.setQuery = (query) => {
-      appStore.dispatch({
-        type: "SET_QUERY",
-        payload: query
-      });
-    };
-    this.setHash = (hash2) => {
-      appStore.dispatch({
-        type: "SET_HASH",
-        payload: {
-          hash: hash2
-        }
-      });
-    };
-    this.setPathname = (pathname) => {
-      appStore.dispatch({
-        type: "SET_PATHNAME",
-        payload: {
-          pathname
-        }
-      });
-    };
-    this.pushHistory = (pathname) => {
-      appStore.dispatch({
-        type: "SET_PATHNAME",
-        payload: {
-          pathname
-        }
-      });
-    };
-    this.replaceHistory = (pathname) => {
-      appStore.dispatch({
-        type: "SET_PATHNAME",
-        payload: {
-          pathname
-        }
-      });
-    };
-    this.setMemoTypeQuery = (type = "") => {
-      appStore.dispatch({
-        type: "SET_TYPE",
-        payload: {
-          type
-        }
-      });
-    };
-    this.setMemoFilter = (filterId) => {
-      appStore.dispatch({
-        type: "SET_QUERY_FILTER",
-        payload: filterId
-      });
-    };
-    this.setTextQuery = (text) => {
-      appStore.dispatch({
-        type: "SET_TEXT",
-        payload: {
-          text
-        }
-      });
-    };
-    this.setTimeQuery = (duration) => {
-      appStore.dispatch({
-        type: "SET_DURATION_QUERY",
-        payload: {
-          duration
-        }
-      });
-    };
-    this.setTagQuery = (tag) => {
-      appStore.dispatch({
-        type: "SET_TAG_QUERY",
-        payload: {
-          tag
-        }
-      });
-    };
-    this.setFromAndToQuery = (from, to) => {
-      appStore.dispatch({
-        type: "SET_DURATION_QUERY",
-        payload: {
-          duration: { from, to }
-        }
-      });
-    };
-    this.getValidPathname = (pathname) => {
-      if (["/", "/homeboard", "/recycle", "/audit"].includes(pathname)) {
-        return pathname;
-      } else {
-        return "/";
-      }
-    };
-    this.updateStateWithLocation();
-    window.onpopstate = () => {
-      this.updateStateWithLocation();
-    };
-  }
-}
-const locationService = new LocationService();
-const NEW_TARGET_REG = /^([^#]+\.md)#\^([A-Za-z0-9]{6})$/;
-function parseLinkTarget(target) {
-  const t2 = (target != null ? target : "").trim();
-  if (!t2)
-    return null;
-  const m2 = NEW_TARGET_REG.exec(t2);
-  if (m2)
-    return { fileName: m2[1], id: m2[2], isLegacy: false };
-  return { id: t2, isLegacy: true };
-}
-function extractLinkTargets(content2) {
-  const set = /* @__PURE__ */ new Set();
-  for (const m2 of content2.matchAll(MEMO_LINK_REG)) {
-    if (m2[2])
-      set.add(m2[2]);
-  }
-  return [...set];
-}
-function stripMemoLinks(content2) {
-  return content2.replace(MEMO_LINK_REG, "");
-}
-function hasMemoReferences(content2) {
-  return content2.match(MEMO_LINK_REG) !== null;
-}
-function refPreview(content2, max2 = 30) {
-  const cleaned = stripMemoLinks(content2).replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
-  return cleaned.length > max2 ? `${cleaned.slice(0, Math.max(max2 - 1, 1)).trimEnd()}\u2026` : cleaned;
-}
-function refTimeLabel(createdAt, targetPath, currentPath) {
-  var _a2;
-  const t2 = createdAt != null ? createdAt : "";
-  const timePart = t2.slice(11, 16);
-  if (targetPath === currentPath)
-    return timePart;
-  const curYear = (_a2 = currentPath.match(/(\d{4})-(\d{2})-(\d{2})\.md$/)) == null ? void 0 : _a2[1];
-  const targetYear = t2.slice(0, 4);
-  const datePart = curYear && targetYear === curYear ? t2.slice(5, 10) : t2.slice(2, 10);
-  return `${datePart} ${timePart}`.trim();
-}
-function buildRefLink(memo2) {
-  var _a2;
-  const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
-  return memo2.hasId ? `[@](${fileName}#^${memo2.hasId})` : `[@](${memo2.id})`;
-}
-const DEFAULT_MEMO_HEADING = "## Memo";
-function getMemoSectionRule(heading2) {
-  const title = (heading2 != null ? heading2 : "").trim() || DEFAULT_MEMO_HEADING;
-  const m2 = /^(#{1,6})\s/.exec(title);
-  return { title, level: m2 ? m2[1].length : 0 };
-}
-function isMemoHeadingLine(line, rule) {
-  return line.trim() === rule.title;
-}
-function isMemoSectionBoundary(line, rule) {
-  const m2 = /^(#{1,6})\s/.exec(line);
-  if (!m2) {
-    return false;
-  }
-  return rule.level === 0 || m2[1].length <= rule.level;
-}
-function computeScope(lines, heading2) {
-  const rule = getMemoSectionRule(heading2);
-  const inScope = new Array(lines.length).fill(false);
-  let active = false;
-  for (let i2 = 0; i2 < lines.length; i2++) {
-    const line = lines[i2];
-    if (isMemoHeadingLine(line, rule)) {
-      active = true;
-      continue;
-    }
-    if (active && isMemoSectionBoundary(line, rule)) {
-      active = false;
-      continue;
-    }
-    if (active) {
-      inScope[i2] = true;
-    }
-  }
-  return inScope;
-}
-async function openMemoFile(memoId, path) {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let file = null;
-  if (path) {
-    const f2 = vault.getAbstractFileByPath(require$$0.normalizePath(path));
-    if (f2 instanceof require$$0.TFile)
-      file = f2;
-  }
-  if (!file && /^\d{14,}/.test(memoId)) {
-    const date = require$$0.moment(memoId.slice(0, 14), "YYYYMMDDHHmmss");
-    const dailyNote = getDailyNote_1(date, dailyNotesService.getState().dailyNotes);
-    if (dailyNote instanceof require$$0.TFile)
-      file = dailyNote;
-  }
-  if (!file)
-    return null;
-  const content2 = await vault.read(file);
-  return { file, lines: content2.split(/\r?\n/) };
-}
-function findHeaderLineIdx(lines, hasId, lineHint = 0) {
-  if (hasId) {
-    const want = "^" + hasId;
-    let best = -1;
-    let bestDist = Infinity;
-    for (let i2 = 0; i2 < lines.length; i2++) {
-      const l2 = lines[i2];
-      if (/^[-*]\s.*\^[A-Za-z0-9]{6}\s*$/.test(l2) && l2.trimEnd().endsWith(want)) {
-        const d = Math.abs(i2 - lineHint);
-        if (d < bestDist) {
-          bestDist = d;
-          best = i2;
-        }
-      }
-    }
-    if (best !== -1)
-      return best;
-  }
-  if (lineHint >= 0 && lineHint < lines.length && /^[-*]\s/.test(lines[lineHint])) {
-    return lineHint;
-  }
-  return -1;
-}
-function scanBodyEnd(lines, headerIdx) {
-  let last2 = headerIdx;
-  for (let i2 = headerIdx + 1; i2 < lines.length; i2++) {
-    const l2 = lines[i2];
-    if (l2.trim() === "")
-      continue;
-    if (l2.length - l2.trimStart().length >= 4) {
-      last2 = i2;
-      continue;
-    }
-    break;
-  }
-  return last2;
-}
-function contentToBodyLines(content2) {
-  if (content2 === "")
-    return [];
-  return content2.split("\n").map((l2) => l2 === "" ? "" : "    " + l2);
-}
-async function waitForInsert(MemoContent, isTASK, insertDate) {
-  const date = insertDate ? insertDate : require$$0.moment();
-  const timeText = date.format("HH:mm:ss");
-  const generatedId = Math.random().toString(36).slice(-6);
-  const header = `${isTASK ? "- [ ] " : "- "}${timeText} ^${generatedId}`;
-  const content2 = (MemoContent != null ? MemoContent : "").replace(/\n+$/, "");
-  const bodyLines = contentToBodyLines(content2);
-  const blockText = bodyLines.length > 0 ? [header, ...bodyLines].join("\n") : header;
-  const memoType = isTASK ? "TASK-TODO" : "JOURNAL";
-  const memo2 = {
-    id: "",
-    content: content2,
-    deletedAt: "",
-    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    memoType,
-    path: "",
-    hasId: generatedId,
-    linkId: ""
-  };
-  await writeBlockToDailyNote(date, blockText, memo2);
-  return memo2;
-}
-async function writeBlockToDailyNote(date, blockText, memo2) {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let headerIdx;
-  const dailyNotes = getAllDailyNotes_1();
-  const existingFile = getDailyNote_1(date, dailyNotes);
-  if (!existingFile) {
-    const file = await utils$1.createDailyNoteCheck(date);
-    const fileContents = await vault.read(file) || "";
-    const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
-    await vault.modify(file, inserted.content);
-    headerIdx = inserted.headerIdx;
-    memo2.path = file.path;
-  } else {
-    const fileContents = await vault.read(existingFile) || "";
-    const inserted = insertMemoBlock(MemoHeading, blockText, fileContents);
-    await vault.modify(existingFile, inserted.content);
-    headerIdx = inserted.headerIdx;
-    memo2.path = existingFile.path;
-  }
-  memo2.id = date.format("YYYYMMDDHHmmss") + headerIdx;
-}
-function insertMemoBlock(targetString, blockText, fileContent) {
-  const lines = fileContent.split(/\r?\n/);
-  const blockLines = blockText.split("\n");
-  const rule = getMemoSectionRule(targetString);
-  if (lines.length === 1 && lines[0].trim() === "") {
-    const out = [rule.title, ...blockLines];
-    return { content: out.join("\n"), headerIdx: 1 };
-  }
-  const targetIdx = lines.findIndex((line) => isMemoHeadingLine(line, rule));
-  if (targetIdx === -1) {
-    return insertWithNewHeading(lines, blockLines, rule.title);
-  }
-  let nextHeading = -1;
-  for (let i2 = targetIdx + 1; i2 < lines.length; i2++) {
-    if (isMemoSectionBoundary(lines[i2], rule)) {
-      nextHeading = i2;
-      break;
-    }
-  }
-  if (nextHeading !== -1) {
-    let anchor = targetIdx;
-    for (let i2 = nextHeading - 1; i2 > targetIdx; i2--) {
-      if (lines[i2].trim() !== "") {
-        anchor = i2;
-        break;
-      }
-    }
-    const out = [...lines.slice(0, anchor + 1), ...blockLines, ...lines.slice(anchor + 1)];
-    return { content: out.join("\n"), headerIdx: anchor + 1 };
-  }
-  return appendAtEnd(lines, blockLines);
-}
-function insertWithNewHeading(lines, blockLines, title) {
-  let end2 = lines.length;
-  while (end2 > 0 && lines[end2 - 1].trim() === "")
-    end2--;
-  const out = [...lines.slice(0, end2), "", title, ...blockLines, ""];
-  return { content: out.join("\n"), headerIdx: end2 + 1 };
-}
-function appendAtEnd(lines, blockLines) {
-  const last2 = lines.length - 1;
-  if (lines[last2] === "") {
-    const out2 = [...lines.slice(0, last2), ...blockLines, ""];
-    return { content: out2.join("\n"), headerIdx: last2 };
-  }
-  const out = [...lines, ...blockLines];
-  return { content: out.join("\n"), headerIdx: lines.length };
-}
-async function changeMemo(memoid, content2, memoType, path, hasId) {
-  const loc = await openMemoFile(memoid, path);
-  if (!loc) {
-    throw new Error("File not found");
-  }
-  const hint = parseInt(memoid.slice(14));
-  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
-  if (headerIdx === -1) {
-    throw new Error("Memo header not found in file");
-  }
-  const normalized = (content2 != null ? content2 : "").replace(/\n+$/, "");
-  const bodyLines = contentToBodyLines(normalized);
-  const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
-  const before = loc.lines.slice(0, headerIdx + 1);
-  const after = loc.lines.slice(bodyEnd + 1);
-  const { vault } = appStore.getState().dailyNotesState.app;
-  await vault.modify(loc.file, [...before, ...bodyLines, ...after].join("\n"));
-  const date = require$$0.moment(memoid.slice(0, 14), "YYYYMMDDHHmmss");
-  return {
-    id: memoid,
-    content: normalized,
-    user_id: 1,
-    deletedAt: "",
-    createdAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    updatedAt: date.format("YYYY/MM/DD HH:mm:ss"),
-    memoType: memoType || "JOURNAL",
-    hasId: hasId || "",
-    linkId: "",
-    path: loc.file.path
-  };
-}
-const DELETED_AT_VALUE_REG = /\s+deletedAt:\s*(\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/;
-const lineHintOf = (memoid) => {
-  const n2 = parseInt(memoid.slice(14));
-  return isNaN(n2) ? 0 : n2;
-};
-async function obHideMemo(memoid, hasId, path) {
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const loc = await openMemoFile(memoid, path);
-  if (!loc)
-    return null;
-  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
-  if (headerIdx === -1)
-    return null;
-  const line = loc.lines[headerIdx];
-  if (DELETED_AT_VALUE_REG.test(line))
-    return null;
-  const now = require$$0.moment();
-  const deletedAtStr = " deletedAt: " + now.format("YYYY-MM-DD HH:mm:ss");
-  let newLine;
-  if (/\s*\^[A-Za-z0-9]{6}\s*$/.test(line)) {
-    newLine = line.replace(/\s*\^([A-Za-z0-9]{6})\s*$/, deletedAtStr + " ^$1");
-  } else {
-    newLine = line.trimEnd() + deletedAtStr;
-  }
-  if (newLine === line)
-    return null;
-  loc.lines[headerIdx] = newLine;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  await vault.modify(loc.file, loc.lines.join("\n"));
-  return loc.file;
-}
-async function restoreMemo(memoid, hasId, path) {
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const loc = await openMemoFile(memoid, path);
-  if (!loc)
-    return null;
-  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
-  if (headerIdx === -1)
-    return null;
-  const line = loc.lines[headerIdx];
-  const newLine = line.replace(DELETED_AT_VALUE_REG, "");
-  if (newLine === line)
-    return null;
-  loc.lines[headerIdx] = newLine;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  await vault.modify(loc.file, loc.lines.join("\n"));
-  return loc.file;
-}
-async function deleteMemo(memoid, hasId, path) {
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const loc = await openMemoFile(memoid, path);
-  if (!loc)
-    return null;
-  const headerIdx = findHeaderLineIdx(loc.lines, hasId, lineHintOf(memoid));
-  if (headerIdx === -1)
-    return null;
-  const bodyEnd = scanBodyEnd(loc.lines, headerIdx);
-  const newLines = [...loc.lines.slice(0, headerIdx), ...loc.lines.slice(bodyEnd + 1)];
-  if (newLines.length === loc.lines.length)
-    return null;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  await vault.modify(loc.file, newLines.join("\n"));
-  return loc.file;
-}
-async function toggleMemoTask(memoid, hasId, path) {
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const loc = await openMemoFile(memoid, path);
-  if (!loc)
-    return null;
-  const hint = parseInt(memoid.slice(14));
-  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
-  if (headerIdx === -1)
-    return null;
-  const line = loc.lines[headerIdx];
-  const mark = /^[-*]\s\[([ xX])\]/.exec(line);
-  if (!mark)
-    return null;
-  const nextMark = mark[1] === " " ? "x" : " ";
-  const newLine = line.replace(/^([-*]\s)\[[ xX]\]/, `$1[${nextMark}]`);
-  if (newLine === line)
-    return null;
-  loc.lines[headerIdx] = newLine;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  await vault.modify(loc.file, loc.lines.join("\n"));
-  return loc.file;
-}
-async function toggleMemoTaskType(memoid, hasId, path) {
-  if (!/\d{14,}/.test(memoid))
-    return null;
-  const loc = await openMemoFile(memoid, path);
-  if (!loc)
-    return null;
-  const hint = parseInt(memoid.slice(14));
-  const headerIdx = findHeaderLineIdx(loc.lines, hasId, isNaN(hint) ? 0 : hint);
-  if (headerIdx === -1)
-    return null;
-  const line = loc.lines[headerIdx];
-  let newLine;
-  if (/^[-*]\s\[[ xX]\]/.test(line)) {
-    newLine = line.replace(/^([-*]\s)\[[ xX]\]\s?/, "$1");
-  } else if (/^[-*]\s(?=\d)/.test(line)) {
-    newLine = line.replace(/^([-*]\s)(?=\d)/, "$1[ ] ");
-  } else {
-    return null;
-  }
-  if (newLine === line)
-    return null;
-  loc.lines[headerIdx] = newLine;
-  const { vault } = appStore.getState().dailyNotesState.app;
-  await vault.modify(loc.file, loc.lines.join("\n"));
-  return loc.file;
-}
-const perFile = /* @__PURE__ */ new Map();
-const listeners = /* @__PURE__ */ new Set();
-const notify = () => listeners.forEach((l2) => l2());
-const legacySignal = {
-  report(path, count) {
-    if (count === 0) {
-      if (!perFile.delete(path))
-        return;
-    } else {
-      if (perFile.get(path) === count)
-        return;
-      perFile.set(path, count);
-    }
-    notify();
-  },
-  reset() {
-    if (perFile.size === 0)
-      return;
-    perFile.clear();
-    notify();
-  },
-  total() {
-    let n2 = 0;
-    for (const v2 of perFile.values())
-      n2 += v2;
-    return n2;
-  },
-  subscribe(listener) {
-    listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
-  }
-};
-var ar = {};
-var cz = {};
-var da = {};
-var de = {};
-var en = {
-  welcome: "Welcome to the Memos",
-  ribbonIconTitle: "Rememo",
-  to: "to",
-  months: [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ],
-  monthsShort: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."],
-  weekDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-  weekDaysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  year: null,
-  month: null,
-  "Basic Options": "Basic Options",
-  "User name in Memos": "User name in Memos",
-  "Set your user name here. 'Memos \u{1F60F}' By default": "Set your user name here. 'Memos \u{1F60F}' By default",
-  "Insert after heading": "Insert after heading",
-  "You should set the same heading below if you want to insert and process memos below the same heading.": "You should set the same heading below if you want to insert and process memos below the same heading.",
-  "Allows admonitions to be created using ": "Allows admonitions to be created using ",
-  "Process Memos below": "Process Memos below",
-  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.",
-  "Save Memo button label": "Save Memo button label",
-  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": "The text shown on the save Memo button in the UI. 'NOTEIT' by default.",
-  "Focus on editor when open memos": "Focus on editor when open memos",
-  "Focus on editor when open memos. Focus by default.": "Focus on editor when open memos. Focus by default.",
-  "Open daily memos with open memos": "Open daily memos with open memos",
-  "Open daily memos with open memos. Open by default.": "Open daily memos with open memos. Open by default.",
-  "Open Memos when obsidian opens": "Open Memos when obsidian opens",
-  "When enable this, Memos will open when Obsidian opens. False by default.": "When enable this, Memos will open when Obsidian opens. False by default.",
-  "Hide done tasks in Memo list": "Hide done tasks in Memo list",
-  "Hide all done tasks in Memo list. Show done tasks by default.": "Hide all done tasks in Memo list. Show done tasks by default.",
-  "Send memo by Enter key": "Send memo by Enter key",
-  "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.": "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.",
-  "Advanced Options": "Advanced Options",
-  "UI language for date": "UI language for date",
-  "Translates the date UI language. Only 'en' and 'zh' are available.": "Translates the date UI language. Only 'en' and 'zh' are available.",
-  "Default prefix": "Default prefix",
-  "Time display format": "Time display format",
-  "Time display format description": "Time in the UI: HH:mm:ss (with seconds, default) or HH:mm (without seconds). This option only affects display - data in your note files is never modified.",
-  "Set the default prefix when create memo, 'List' by default.": "Set the default prefix when create memo, 'List' by default.",
-  "Default insert date format": "Default insert date format",
-  "Set the default date format when insert date by @, 'Tasks' by default.": "Set the default date format when insert date by @, 'Tasks' by default.",
-  "Default editor position on mobile": "Default editor position on mobile",
-  "Set the default editor position on Mobile, 'Top' by default.": "Set the default editor position on Mobile, 'Top' by default.",
-  "Use button to show editor on mobile": "Use button to show editor on mobile",
-  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Set a float button to call editor on mobile. Only when editor located at the bottom works.",
-  "Show Time When Copy Results": "Show Time When Copy Results",
-  "Show time when you copy results, like 12:00. Copy time by default.": "Show time when you copy results, like 12:00. Copy time by default.",
-  "Show Date When Copy Results": "Show Date When Copy Results",
-  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": "Show date when you copy results, like [[2022-01-01]]. Copy date by default.",
-  "Add Blank Line Between Different Date": "Add Blank Line Between Different Date",
-  "Add blank line when copy result with date. No blank line by default.": "Add blank line when copy result with date. No blank line by default.",
-  "Share Options": "Share Options",
-  "Share Memos Image Footer Start": "Share Memos Image Footer Start",
-  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default",
-  "Share Memos Image Footer End": "Share Memos Image Footer End",
-  "Set anything you want here. '\u270D\uFE0F Rememo' By default": "Set anything you want here. '\u270D\uFE0F Rememo' By default",
-  "Save Shared Image To Folder For Mobile": "Save Shared Image To Folder For Mobile",
-  "Save image to folder for mobile. False by Default": "Save image to folder for mobile. False by Default",
-  "Say Thank You": "Say Thank You",
-  Donate: "Donate",
-  "If you like this plugin, consider donating to support continued development:": "If you like this plugin, consider donating to support continued development:",
-  "File Name of Recycle Bin": "File Name of Recycle Bin",
-  "Set the filename for recycle bin. 'delete' By default": "Set the filename for recycle bin. 'delete' By default",
-  "File Name of Query File": "File Name of Query File",
-  "Set the filename for query file. 'query' By default": "Set the filename for query file. 'query' By default",
-  "Use Tags In Vault": "Use Tags In Vault",
-  "Use tags in vault rather than only in Memos. False by default.": "Use tags in vault rather than only in Memos. False by default.",
-  "Hide Memos With References In List": "Hide Memos With References In List",
-  "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.",
-  REFS: "REFERENCES",
-  "Reference target deleted": "Reference target deleted",
-  Reply: "Reply",
-  "Reply to this memo": "Reply to this memo",
-  "Reply to": "Reply to",
-  "Reference a memo": "Reference a memo",
-  "Search memos...": "Search memos...",
-  "No memos found": "No memos found",
-  Cancel: "Cancel",
-  "Ready to convert image into background": "Ready to convert image into background",
-  List: "List",
-  Task: "Task",
-  Top: "Top",
-  Bottom: "Bottom",
-  TAG: "TAG",
-  MEMO: "MEMO",
-  DAY: "DAY",
-  QUERY: "QUERY",
-  EDIT: "EDIT",
-  PIN: "PIN",
-  UNPIN: "UNPIN",
-  DELETE: "DELETE",
-  "CONFIRM\uFF01": "CONFIRM\uFF01",
-  "CREATE FILTER": "CREATE FILTER",
-  Settings: "Settings",
-  "Recycle bin": "Recycle bin",
-  "Enable Recycle Bin": "Enable Recycle Bin",
-  "Memo": "Memo",
-  "List & Sidebar": "List & Sidebar",
-  "Startup & Opening": "Startup & Opening",
-  "Memo heading": "Memo heading",
-  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo",
-  "Show Heat Map": "Show Heat Map",
-  "Whether to show the usage heat map in the sidebar. True by default.": "Whether to show the usage heat map in the sidebar. True by default.",
-  "Start day of week": "Start day of week",
-  "The first day of each column in the heat map. Sunday by default.": "The first day of each column in the heat map. Sunday by default.",
-  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.",
-  "DELETE FOREVER?": "DELETE FOREVER?",
-  "Audit data": "Audit data",
-  "About Me": "About Me",
-  "Fetching data...": "Fetching data...",
-  "Here is No Zettels.": "Here is No Zettels.",
-  "Frequently Used Tags": "Frequently Used Tags",
-  "Flat view": "Flat view",
-  "Tree view": "Tree view",
-  "What do you think now...": "What do you think now...",
-  READ: "READ",
-  MARK: "MARK",
-  SHARE: "SHARE",
-  SOURCE: "SOURCE",
-  RESTORE: "RESTORE",
-  "Mark as done": "Mark as done",
-  "Mark as todo": "Mark as todo",
-  "TURN INTO TASK": "TURN INTO TASK",
-  "TURN INTO MEMO": "TURN INTO MEMO",
-  "DELETE AT": "DELETE AT",
-  "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "All caught up \u{1F389}",
-  "Quick filter": "Quick filter",
-  TYPE: "TYPE",
-  LINKED: "LINKED",
-  "NO TAGS": "NO TAGS",
-  "HAS LINKS": "HAS LINKS",
-  "HAS IMAGES": "HAS IMAGES",
-  INCLUDE: "INCLUDE",
-  EXCLUDE: "EXCLUDE",
-  TEXT: "TEXT",
-  IS: "IS",
-  ISNOT: "ISNOT",
-  SELECT: "SELECT",
-  "ADD FILTER TERMS": "ADD FILTER TERMS",
-  FILTER: "FILTER",
-  TITLE: "TITLE",
-  "CREATE QUERY": "CREATE QUERY",
-  "EDIT QUERY": "EDIT QUERY",
-  MATCH: "MATCH",
-  TIMES: "TIMES",
-  "Share Memo Image": "Share Memo Image",
-  "\u2197Click the button to save": "\u2197Click the button to save",
-  "Image is generating...": "Image is generating...",
-  "Image is loading...": "Image is loading...",
-  "Loading...": "Loading...",
-  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} Cannot load image, image link maybe broken",
-  "Daily Memos": "Daily Memos",
-  "CANCEL EDIT": "CANCEL EDIT",
-  "Write to date": "Write to date",
-  "Write on": "Write on",
-  "Back to now": "Back to now",
-  Home: "Home",
-  "Random memo": "Random memo",
-  "Data tools": "Data tools",
-  "Data Audit": "Data Audit",
-  "Open the audit page to inspect and migrate memo data in daily notes.": "Open the audit page to inspect and migrate memo data in daily notes.",
-  "Draw another": "Draw another",
-  "Open the daily note": "Open the daily note",
-  "No memo found": "No memo found",
-  Today: "Today",
-  Time: "Time",
-  "LINK TO THE": "LINK TO THE",
-  "Mobile Options": "Mobile Options",
-  "Experimental Options": "Experimental Options",
-  "Don't support web image yet, please input image path in vault": "Don't support web image yet, please input image path in vault",
-  "Background Image in Dark Theme": "Background Image in Dark Theme",
-  "Background Image in Light Theme": "Background Image in Light Theme",
-  'Set background image in dark theme. Set something like "Daily/one.png"': 'Set background image in dark theme. Set something like "Daily/one.png"',
-  'Set background image in light theme. Set something like "Daily/one.png"': 'Set background image in light theme. Set something like "Daily/one.png"',
-  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default',
-  "Default Memo Composition": "Default Memo Composition",
-  "Show tasks label near the time text. False by default": "Show tasks label near the time text. False by default",
-  "Please Open Memos First": "Please Open Memos First",
-  DATE: "DATE",
-  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
-  BEFORE: "BEFORE",
-  AFTER: "AFTER",
-  "You can comment on memos. False by default": "You can comment on memos. False by default",
-  Import: "Import",
-  "TITLE CANNOT BE NULL!": "TITLE CANNOT BE NULL!",
-  "FILTER CANNOT BE NULL!": "FILTER CANNOT BE NULL!",
-  "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "You should install Dataview Plugin ver 0.5.9 or later to use this feature.",
-  "Fetch Error": "\u{1F62D} Fetch Error",
-  "Copied to clipboard Successfully": "Copied to clipboard Successfully",
-  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin",
-  "Please finish the last filter setting first": "Please finish the last filter setting first",
-  "Close Memos Successfully": "Close Memos Successfully",
-  "Insert as Memo": "Insert as Memo",
-  "Insert file as memo content": "Insert file as memo content",
-  "Image load failed": "Image load failed",
-  "Content cannot be empty": "Content cannot be empty",
-  "Unable to create new file.": "Unable to create new file.",
-  "Failed to fetch deleted memos: ": "Failed to fetch deleted memos: ",
-  "RESTORE SUCCEED": "RESTORE SUCCEED",
-  "Save Memo button icon": "Save Memo button icon",
-  "The icon shown on the save Memo button in the UI.": "The icon shown on the save Memo button in the UI.",
-  "Fetch Memos From Particular Notes": "Fetch Memos From Particular Notes",
-  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default',
-  "Allow Memos to Fetch Memo from Notes": "Allow Memos to Fetch Memo from Notes",
-  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": "Use Memos to manage all memos in your notes, not only in daily notes. False by default",
-  "Always show memo comments on memos. False by default": "Always show memo comments on memos. False by default",
-  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.",
-  "Please check your daily note plugin OR periodic notes plugin settings": "Please check your daily note plugin OR periodic notes plugin settings",
-  "Use Which Plugin's Default Configuration": "Use Which Plugin's Default Configuration",
-  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.",
-  Daily: "Daily",
-  "Always Show Leaf Sidebar on PC": "Always Show Leaf Sidebar on PC",
-  "Show left sidebar on PC even when the leaf width is less than 875px. False by default.": "Show left sidebar on PC even when the leaf width is less than 875px. False by default.",
-  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.",
-  "Previous page": "Previous page",
-  "Next page": "Next page",
-  "Type Here": "Type Here",
-  TagTipFirst: "Input ",
-  TagTipSecond: "to create a tag...",
-  "Failed to save: ": "Failed to save: ",
-  "Auto-clean Recycle Bin": "Auto-clean Recycle Bin",
-  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.",
-  "Never delete": "Never delete",
-  "7 days": "7 days",
-  "30 days": "30 days",
-  "90 days": "90 days",
-  "180 days": "180 days",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Auto-cleaned {N} expired memos from the recycle bin",
-  "Send sound": "Send sound",
-  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.",
-  "Built-in (card deal)": "Built-in (card deal)",
-  "Custom path": "Custom path",
-  "Not played": "Not played",
-  "Sound file path": "Sound file path",
-  "Enter a vault-relative path (e.g. assets/send.mp3).": "Enter a vault-relative path (e.g. assets/send.mp3).",
-  Preview: "Preview",
-  "Failed to play the sound: ": "Failed to play the sound: ",
-  "Tag position": "Tag position",
-  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Show tags at the bottom of the card, or keep them where they appear in the text.",
-  "In place": "In place",
-  "What needs doing...": "What needs doing...",
-  Afdian: "Afdian",
-  "Data health check": "\u{1FA7A} Data health check",
-  "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.": "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.",
-  "Recently fixed": "\u2705 Recently fixed",
-  Clear: "Clear",
-  "Re-scan": "Re-scan",
-  "Migrate all legacy files ({n})": "Migrate all legacy files ({n})",
-  "Auto-fix all ({n})": "Auto-fix all ({n})",
-  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} files \xB7 {lines} memos \xB7 {issues} issues",
-  " (incl. {n} legacy-format files)": " (incl. {n} legacy-format files)",
-  " ({n} auto-fixable)": " ({n} auto-fixable)",
-  "Scanning\u2026 {done}/{total}": "Scanning\u2026 {done}/{total}",
-  "Working\u2026": "Working\u2026",
-  "No problems found \u{1F389}": "No problems found \u{1F389}",
-  "{n} errors": "{n} errors",
-  "{n} memos": "{n} memos",
-  "Migrate file": "Migrate file",
-  "Migrating\u2026": "Migrating\u2026",
-  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.",
-  "{rule} \u2014 fix to:": "{rule} \u2014 fix to:",
-  "Fix this line": "Fix this line",
-  View: "View",
-  Ignore: "Ignore",
-  "Fix all": "Fix all",
-  "Scan failed: ": "Scan failed: ",
-  "Migration failed: ": "Migration failed: ",
-  "no auto-fixable issues": "no auto-fixable issues",
-  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "cannot auto-fix further \u2014 the remaining issues need manual work or a migration",
-  "fix-round limit reached; re-scan to check what is left": "fix-round limit reached; re-scan to check what is left",
-  "Migration done: {n} entries converted": "Migration done: {n} entries converted",
-  "Migrated all: {files} files \xB7 {n} entries converted": "Migrated all: {files} files \xB7 {n} entries converted",
-  ", {n} cross-day comments moved to their daily notes": ", {n} cross-day comments moved to their daily notes",
-  ", {n} deleted comments dropped": ", {n} deleted comments dropped",
-  ", {n} entries kept as-is (could not be mapped)": ", {n} entries kept as-is (could not be mapped)",
-  ", failed: {list}": ", failed: {list}",
-  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.",
-  ". Backups are in .rememo-backup/migrate-*.": ". Backups are in .rememo-backup/migrate-*.",
-  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nothing to migrate ({n} lines lack a time and need manual work).",
-  "This file has no legacy-format lines \u2014 no migration needed.": "This file has no legacy-format lines \u2014 no migration needed.",
-  "Legacy <br> line breaks": "Legacy <br> line breaks",
-  "Duplicate ^id": "Duplicate ^id",
-  "Legacy format row": "Legacy format row",
-  "Legacy 14-digit timestamp": "Legacy 14-digit timestamp",
-  "Missing ^id": "Missing ^id",
-  "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.": "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.",
-  "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.": "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.",
-  "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.": "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.",
-  "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.": "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.",
-  "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.": "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.",
-  "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file": "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file",
-  "legacy-format row: a whole-file migration converts it into a card block": "legacy-format row: a whole-file migration converts it into a card block",
-  "first seen at line {n}": "first seen at line {n}",
-  "Your old memos are still here": "Your old memos are still here",
-  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.",
-  "Open data health check": "Open data health check"
-};
-var enGB = {};
-var es = {};
-var fr = {
-  welcome: "Bienvenue dans M\xE9mo !",
-  ribbonIconTitle: "M\xE9mos",
-  months: [
-    "Janvier",
-    "F\xE9vrier",
-    "Mars",
-    "Avril",
-    "Mai",
-    "Juin",
-    "Juillet",
-    "Aout",
-    "Septembre",
-    "Octobre",
-    "Novembre",
-    "D\xE9cembre"
-  ],
-  monthsShort: ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."],
-  weekDays: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
-  weekDaysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
-  to: "\xE0",
-  year: null,
-  month: null,
-  "Basic Options": "Options basique",
-  "User name in Memos": "Username dans M\xE9mos",
-  "Set your user name here. 'Memos \u{1F60F}' By default": "D\xE9finissez votre username ici. D\xE9faut : 'Memo \u{1F60F}'",
-  "Insert after heading": "Ins\xE9rer apr\xE8s le titre",
-  "You should set the same heading below if you want to insert and process memos below the same heading.": "Vous devez d\xE9finir le m\xEAme titre en-dessous si vous voulez ins\xE9rer et traiter des m\xE9mos sous le m\xEAme titre.",
-  "Allows admonitions to be created using ": "Permet de cr\xE9er des admonitions en utilisant",
-  "Process Memos below": "Ins\xE9rer M\xE9mo sous",
-  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Seulement les entr\xE9e sous cette section/phrase dans vos notes seront consid\xE9r\xE9s. S'il n'existe pas, aucune notes ne sera trait\xE9 pour ce fichier.",
-  "Save Memo button label": "Titre du bouton de sauvegarde",
-  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": "Le texte affich\xE9 sur le bouton de sauvegarde dans l'UI. D\xE9faut : 'NOTEIT'",
-  "Focus on editor when open memos": "Focus sur l'\xE9diteur lors de l'ouverture du m\xE9mo.",
-  "Focus on editor when open memos. Focus by default.": "Focus sur l'\xE9diteur lors de l'ouverture du m\xE9mo. Focus par d\xE9faut.",
-  "Open daily memos with open memos": "Ouvrir les m\xE9mos quotidiens quand m\xE9mo est ouvert.",
-  "Open daily memos with open memos. Open by default.": "Ouvrir les m\xE9mos quotidiens quand m\xE9mo est ouvert.",
-  "Open Memos when obsidian opens": "Ouvrir M\xE9mo quand Obsidian est ouvert.",
-  "When enable this, Memos will open when Obsidian opens. False by default.": "Quand activ\xE9, Memo sera ouvert quand Obsidian \xE0 l'ouverture d'Obsidian. D\xE9sactiv\xE9 par d\xE9faut.",
-  "Hide done tasks in Memo list": "Masquer les t\xE2ches accomplies dans la liste des m\xE9mos.",
-  "Hide all done tasks in Memo list. Show done tasks by default.": "Masquer les t\xE2ches accomplies dans les m\xE9mos. Affiche les t\xE2ches accomplies par d\xE9faut.",
-  "Advanced Options": "Options avanc\xE9es",
-  "UI language for date": "Langue de l'UI pour la date",
-  "Translates the date UI language. Only 'en' and 'zh' are available.": "Traduit la langue des dates dans l'UI. Seuls 'en', 'fr' et 'zh' sont disponibles. ",
-  "Default prefix": "Pr\xE9fix par d\xE9faut.",
-  "Set the default prefix when create memo, 'List' by default.": "D\xE9finit le pr\xE9fix par d\xE9faut lors de la cr\xE9ation d'un m\xE9mo. D\xE9fault : 'Liste'",
-  "Default insert date format": "Format de la date ins\xE9r\xE9e par d\xE9faut.",
-  "Default editor position on mobile": "Position par d\xE9faut de l'\xE9diteur sur mobile.",
-  "Set the default date format when insert date by @, 'Tasks' by default.": "D\xE9finit le format de la date par d\xE9faut lors de l'insertion de la date par @. D\xE9faut : 'T\xE2ches'.",
-  "Set the default editor position on Mobile, 'Top' by default.": "Position par d\xE9faut de l'\xE9diteur sur le mobile. D\xE9faut : 'Haut'.",
-  "Use button to show editor on mobile": "Utilisation du bouton pour afficher l'\xE9diteur sur le mobile.",
-  "Show Time When Copy Results": "Aficher l'heure quand les r\xE9sultats sont copi\xE9s",
-  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Place un bouton flottant pour appeler l'\xE9diteur sur mobile. Fonctionne uniquement quand l'\xE9diteur est plac\xE9 en bas.",
-  "Show time when you copy results, like 12:00. Copy time by default.": "Affiche l'heure quand les r\xE9sultats sont copi\xE9s, comme '12:00'. Copie l'heure par d\xE9faut",
-  "Show Date When Copy Results": "Affiche la date quand les r\xE9sultats sont copi\xE9s",
-  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": "Affiche la date quand les r\xE9sultats sont copi\xE9s, comme [[2022-01-01]]. Par d\xE9faut, copie la date.",
-  "Add Blank Line Between Different Date": "Ajoute une ligne entre les diff\xE9rentes dates.",
-  "Add blank line when copy result with date. No blank line by default.": "Ajoute une ligne lors de la copie du r\xE9sultat avec la date. Pas de ligne par d\xE9faut.",
-  "Share Options": "Options de partage",
-  "Share Memos Image Footer Start": "D\xE9but du pied de page \u2014 Partage de m\xE9mo de m\xE9mos",
-  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "D\xE9finissez ce que vous voulez ici, utilisez {MemosNum} pour afficher le nombre de m\xE9mos, {UsedDay} pour les jours. Par d\xE9faut : '{MemosNum} Memos {UsedDay} Days.",
-  "Share Memos Image Footer End": "Fin du pied de page \u2014 Partage de m\xE9mo",
-  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "D\xE9finissez ce que vous voulez ici. Utilisez {UserName} comme username. Par d\xE9faut : '\u270D\uFE0F By {UserName}'",
-  "Save Shared Image To Folder For Mobile": "Sauvegarde des images partag\xE9s dans un dossier sur mobile.",
-  "Save image to folder for mobile. False by Default": "Sauvegarder les images dans un dossier sur mobile. D\xE9sactiv\xE9 par d\xE9faut.",
-  "Say Thank You": "Dites Merci",
-  Donate: "Faire un don",
-  "If you like this plugin, consider donating to support continued development:": "Si vous aimez ce plugin, envisagez de faire un don pour soutenir le d\xE9veloppement continu :",
-  "File Name of Recycle Bin": "Nom de la corbeille",
-  "Set the filename for recycle bin. 'delete' By default": "D\xE9finition du nom de la poubelle. D\xE9faut : 'Delete'",
-  "Set the filename for query file. 'query' By default": "D\xE9finit le nom de fichier pour les requ\xEAte. D\xE9faut : 'Query'",
-  "Use Tags In Vault": "Utiliser des tags dans le Coffre",
-  "Use tags in vault rather than only in Memos. False by default.": "Utiliser des tags du coffre plut\xF4t que ceux que seulement dans M\xE9mo. D\xE9sactiv\xE9 par d\xE9faut.",
-  "Ready to convert image into background": "Pr\xEAt pour convertir des image en arri\xE8re-plan.",
-  List: "Liste",
-  Task: "T\xE2che",
-  Top: "Haut",
-  Bottom: "Bas",
-  TAG: "TAG",
-  MEMO: "MEMO",
-  DAY: "JOUR",
-  QUERY: "RECHERCHE",
-  EDIT: "EDITER",
-  PIN: "PIN",
-  UNPIN: "\xC9PINGLER",
-  DELETE: "DES\xC9PINGLER",
-  "CONFIRM\uFF01": "CONFIRMER \uFF01",
-  "CREATE FILTER": "CR\xC9ER FILTRE",
-  Settings: "Param\xE8tres",
-  "Recycle bin": "Corbeille",
-  "Enable Recycle Bin": "Activer la corbeille",
-  "Memo": "M\xE9mo",
-  "List & Sidebar": "Liste et barre lat\xE9rale",
-  "Startup & Opening": "D\xE9marrage et ouverture",
-  "Memo heading": "Titre de la section M\xE9mo",
-  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "Les nouveaux m\xE9mos sont \xE9crits sous ce titre, et seuls les \xE9l\xE9ments sous celui-ci sont lus. S'il est absent, il sera cr\xE9\xE9 automatiquement. Par d\xE9faut : ## Memo",
-  "Show Heat Map": "Afficher la carte de chaleur",
-  "Whether to show the usage heat map in the sidebar. True by default.": "Afficher la carte de chaleur d'utilisation dans la barre lat\xE9rale. Activ\xE9 par d\xE9faut.",
-  "Start day of week": "Premier jour de la semaine",
-  "The first day of each column in the heat map. Sunday by default.": "Premier jour de chaque colonne de la carte de chaleur. Dimanche par d\xE9faut.",
-  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Lorsque cette option est d\xE9sactiv\xE9e, supprimer un m\xE9mo le retire d\xE9finitivement au lieu de le d\xE9placer dans la corbeille. Les m\xE9mos d\xE9j\xE0 dans la corbeille sont conserv\xE9s et r\xE9apparaissent lorsque cette option est r\xE9activ\xE9e.",
-  "DELETE FOREVER?": "SUPPRIMER D\xC9FINITIVEMENT ?",
-  "About Me": "\xC0 propos de moi",
-  "Fetching data...": "R\xE9cup\xE9ration des donn\xE9es...",
-  "Here is No Zettels.": "Il n'y a pas de Zettels.",
-  "Frequently Used Tags": "Tags fr\xE9quemment utilis\xE9s",
-  "Flat view": "Vue \xE0 plat",
-  "Tree view": "Vue arborescente",
-  "What do you think now...": "Que pensez-vous maintenant...",
-  READ: "LU",
-  MARK: "MARQUER",
-  SHARE: "PARTAGER",
-  SOURCE: "SOURCE",
-  RESTORE: "RESTAURER",
-  "DELETE AT": "SUPPRIMER",
-  "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "C\u2019est tout \u{1F389}",
-  "Quick filter": "Filtre rapide",
-  TYPE: "TYPE",
-  LINKED: "LIEN",
-  "NO TAGS": "PAS DE TAGS",
-  "HAS LINKS": "A DES LIENS",
-  "HAS IMAGES": "A DES IMAGES",
-  INCLUDE: "INCLUS",
-  EXCLUDE: "EXCLUS",
-  TEXT: "TEXTE",
-  IS: "EST",
-  ISNOT: "N'EST PAS",
-  SELECT: "SELECTION",
-  "ADD FILTER TERMS": "AJOUTER DES TERMES FILTR\xC9",
-  FILTER: "FILTRE",
-  TITLE: "TITRE",
-  "CREATE QUERY": "CR\xC9ER UNE RECHERCHE",
-  "EDIT QUERY": "\xC9DITER UNE RECHERCHE",
-  MATCH: "MATCH",
-  TIMES: "HEURE",
-  "Share Memo Image": "Partager un m\xE9mo image",
-  "\u2197Click the button to save": "\u2197Clique pour sauvegarder",
-  "Image is generating...": "G\xE9n\xE9ration de l'image...",
-  "Image is loading...": "Image en chargement...",
-  "Loading...": "Chargement...",
-  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} Impossible de charger l'image, le lien peut \xEAtre bris\xE9",
-  "Daily Memos": "M\xE9mo quotidien",
-  "CANCEL EDIT": "ANNULER L'\xC9DITION",
-  "LINK TO THE": "LIENS \xC0",
-  "Mobile Options": "Options mobile",
-  "Don't support web image yet, please input image path in vault": "Ne supporte pas les images webs. Merci d'ins\xE9rer le chemin de l'image depuis le coffre.",
-  "Background Image in Dark Theme": "Image de fond en th\xE8me sombre",
-  "Background Image in Light Theme": "Image de fond en th\xE8me clair",
-  'Set background image in dark theme. Set something like "Daily/one.png"': "D\xE9finir l'image de fond en th\xE8me sombre. D\xE9finir 'Daily/one.png' par exemple.",
-  'Set background image in light theme. Set something like "Daily/one.png"': "D\xE9finir l'image de fond en th\xE8me clair. D\xE9finir 'Daily/one.png' par exemple.",
-  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'D\xE9finir la composition par d\xE9faut du m\xE9mo, vous devez utiliser {TIME} comme "HH:mm" et {CONTENT} comme contenu. "{TIME} {CONTENT}" par d\xE9faut',
-  "Default Memo Composition": "Composition par d\xE9faut du m\xE9mo",
-  "Show Tasks Label": "Afficher les \xE9tiquettes des t\xE2ches",
-  "Show tasks label near the time text. False by default": "Afficher les \xE9tiquettes des t\xE2ches \xE0 c\xF4t\xE9 du texte horaire. D\xE9sactiv\xE9 par d\xE9faut.",
-  "Please Open Memos First": "Merci d'ouvrir les m\xE9mos en premier",
-  "Previous page": "Page pr\xE9c\xE9dente",
-  "Next page": "Page suivante",
-  "Type Here": "Saisissez ici",
-  TagTipFirst: "Saisissez ",
-  TagTipSecond: "pour cr\xE9er une \xE9tiquette...",
-  "Failed to save: ": "\xC9chec de l'enregistrement : ",
-  "Auto-clean Recycle Bin": "Nettoyage auto de la corbeille",
-  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Supprime d\xE9finitivement les m\xE9mos pr\xE9sents dans la corbeille au-del\xE0 de la p\xE9riode de conservation. Action irr\xE9versible.",
-  "Never delete": "Ne jamais supprimer",
-  "7 days": "7 jours",
-  "30 days": "30 jours",
-  "90 days": "90 jours",
-  "180 days": "180 jours",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Corbeille : {N} m\xE9mos expir\xE9s supprim\xE9s d\xE9finitivement",
-  "Send sound": "Son d'envoi",
-  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Joue un son lorsqu'un nouveau m\xE9mo est envoy\xE9. Choisissez le son int\xE9gr\xE9 ou votre propre fichier audio.",
-  "Built-in (card deal)": "Int\xE9gr\xE9 (carte distribu\xE9e)",
-  "Custom path": "Chemin personnalis\xE9",
-  "Not played": "Aucun son",
-  "Sound file path": "Chemin du fichier son",
-  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indiquez un chemin relatif au coffre (ex. : assets/send.mp3).",
-  Preview: "\xC9couter",
-  "Failed to play the sound: ": "Impossible de lire le son : ",
-  "Tag position": "Position des \xE9tiquettes",
-  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Affiche les \xE9tiquettes en bas de la carte ou \xE0 leur emplacement d'origine dans le texte.",
-  "In place": "Sur place",
-  "What needs doing...": "Qu'y a-t-il \xE0 faire...",
-  Afdian: "Afdian",
-  "Data health check": "\u{1FA7A} V\xE9rification des donn\xE9es",
-  "Recently fixed": "\u2705 Corrig\xE9s r\xE9cemment",
-  Clear: "Effacer",
-  "Re-scan": "Relancer l'analyse",
-  "Migrate all legacy files ({n})": "Migrer tous les fichiers anciens ({n})",
-  "Auto-fix all ({n})": "Tout corriger automatiquement ({n})",
-  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} fichiers \xB7 {lines} memos \xB7 {issues} probl\xE8mes",
-  " (incl. {n} legacy-format files)": " (dont {n} fichiers \xE0 l'ancien format)",
-  " ({n} auto-fixable)": " ({n} corrigeables)",
-  "Scanning\u2026 {done}/{total}": "Analyse\u2026 {done}/{total}",
-  "Working\u2026": "Traitement\u2026",
-  "No problems found \u{1F389}": "Aucun probl\xE8me trouv\xE9 \u{1F389}",
-  "{n} errors": "{n} erreurs",
-  "{n} memos": "{n} memos",
-  "Migrate file": "Migrer le fichier",
-  "Migrating\u2026": "Migration\u2026",
-  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Convertit les lignes \xE0 l'ancien format de ce fichier en blocs-cartes (sauvegarde automatique). Vos memos r\xE9apparaissent ensuite dans le fil.",
-  "{rule} \u2014 fix to:": "{rule} \u2014 corriger en :",
-  "Fix this line": "Corriger cette ligne",
-  View: "Voir",
-  Ignore: "Ignorer",
-  "Fix all": "Tout corriger",
-  "Scan failed: ": "\xC9chec de l'analyse : ",
-  "Migration failed: ": "\xC9chec de la migration : ",
-  "no auto-fixable issues": "aucun probl\xE8me corrigeable automatiquement",
-  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "correction automatique impossible \u2014 les probl\xE8mes restants demandent une intervention manuelle ou une migration",
-  "fix-round limit reached; re-scan to check what is left": "limite de cycles atteinte ; relancez l'analyse pour voir ce qu'il reste",
-  "Migration done: {n} entries converted": "Migration termin\xE9e : {n} entr\xE9es converties",
-  "Migrated all: {files} files \xB7 {n} entries converted": "Migration compl\xE8te : {files} fichiers \xB7 {n} entr\xE9es converties",
-  ", {n} cross-day comments moved to their daily notes": ", {n} commentaires inter-journ\xE9es d\xE9plac\xE9s dans leur note quotidienne",
-  ", {n} deleted comments dropped": ", {n} commentaires supprim\xE9s abandonn\xE9s",
-  ", {n} entries kept as-is (could not be mapped)": ", {n} entr\xE9es conserv\xE9es telles quelles (non mappables)",
-  ", failed: {list}": ", \xE9checs : {list}",
-  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Les sauvegardes sont dans .rememo-backup/migrate-*. Vos anciens memos sont maintenant des blocs-cartes.",
-  ". Backups are in .rememo-backup/migrate-*.": ". Les sauvegardes sont dans .rememo-backup/migrate-*.",
-  "Nothing to migrate ({n} lines lack a time and need manual work).": "Rien \xE0 migrer ({n} lignes sans horaire, \xE0 traiter manuellement).",
-  "This file has no legacy-format lines \u2014 no migration needed.": "Ce fichier ne contient pas de lignes \xE0 l'ancien format \u2014 aucune migration n\xE9cessaire.",
-  "Legacy <br> line breaks": "Sauts de ligne <br> h\xE9rit\xE9s",
-  "Duplicate ^id": "^id en double",
-  "Legacy format row": "Ligne \xE0 l ancien format",
-  "Legacy 14-digit timestamp": "Horodatage h\xE9rit\xE9 \xE0 14 chiffres",
-  "Missing ^id": "^id manquant",
-  "Your old memos are still here": "Vos anciens memos sont toujours l\xE0",
-  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Ce coffre contient {n} lignes de memos \xE0 l'ancien format Memos, que Rememo n'affiche pas encore. Rien n'est perdu \u2014 lancez la v\xE9rification des donn\xE9es pour les convertir en blocs-cartes.",
-  "Open data health check": "Ouvrir la v\xE9rification des donn\xE9es"
-};
-var hi = {};
-var id = {};
-var it = {};
-var ja = {};
-var ko = {};
-var nl = {};
-var no = {};
-var pl = {};
-var pt = {
-  welcome: "Bem-vindo ao Memos!",
-  ribbonIconTitle: "Rememo",
-  months: [
-    "Janeiro",
-    "Fevereiro",
-    "Mar\xE7o",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro"
-  ],
-  monthsShort: ["Jan.", "Fev.", "Mar.", "Abr.", "Maio", "Jun.", "Jul.", "Ago.", "Set.", "Out.", "Nov.", "Dez."],
-  weekDays: ["Domingo", "Segunda", "Ter\xE7a", "Quarta", "Quinta", "Sexta", "S\xE1bado"],
-  weekDaysShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "S\xE1b"],
-  to: "para",
-  year: null,
-  month: null,
-  "Basic Options": "Op\xE7\xF5es B\xE1sicas",
-  "User name in Memos": "Nome de Usu\xE1rio no Memos",
-  "Set your user name here. 'Memos \u{1F60F}' By default": "Defina o nome de usu\xE1rio. Padr\xE3o: 'Memos \u{1F60F}'.",
-  "Insert after heading": "Inserir ap\xF3s o cabe\xE7alho",
-  "You should set the same heading below if you want to insert and process memos below the same heading.": "Deve definir o mesmo cabe\xE7alho na configura\xE7\xE3o posterior se pretende inserir e processar memorandos abaixo do cabe\xE7alho aqui definido.",
-  "Allows admonitions to be created using ": "Permitir que Admonitions sejam criadas usando ",
-  "Process Memos below": "Processar Memorandos abaixo do Cabe\xE7alho",
-  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Somente as entradas abaixo deste cabe\xE7alho ser\xE3o processadas nas suas notas. Se n\xE3o configurar esta funcionalidade, nenhuma nota ser\xE1 processada para o ficheiro respetivo.",
-  "Save Memo button label": "Legenda do Bot\xE3o de Guardar Memorandos",
-  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": 'Define o texto apresentado na UI do bot\xE3o guardar memorandos. Padr\xE3o: "NOTEIT".',
-  "Focus on editor when open memos": "Focar no Editor ao iniciar o Memos",
-  "Focus on Editor when open memos. Focus by default.": 'Focar no editor ao iniciar o Memos. Padr\xE3o: "Focar".',
-  "Open daily memos with open memos": "Abrir memorandos di\xE1rios ao iniciar o Memos",
-  "Open daily memos with open memos. Open by default.": 'Abrir memorandos di\xE1rios ao iniciar o Memos. Padr\xE3o: "Abrir".',
-  "Open Memos when obsidian opens": "Abrir Memos quando o Obsidian inicia",
-  "When enable this, Memos will open when Obsidian opens. False by default.": 'Quando esta op\xE7\xE3o est\xE1 activa, o Memos abrir\xE1 quando o Obsidian inicia. Padr\xE3o: "Falso".',
-  "Hide done tasks in Memo list": "Ocultar tarefas conclu\xEDdas na lista de memorandos",
-  "Hide all done tasks in Memo list. Show done tasks by default.": 'Ocultar todas as tarefas conclu\xEDdas na lista de memorandos. Padr\xE3o: "Mostrar tarefas conclu\xEDdas".',
-  "Advanced Options": "Op\xE7\xF5es Avan\xE7adas",
-  "UI language for date": "Idioma na UI da Data ",
-  "Translates the date UI language. Only 'en' and 'zh' are available.": "Define o idioma na UI da Data. De momento, apenas 'en', 'fr', 'pt' e 'zh' est\xE3o dispon\xEDveis.",
-  "Default prefix": "Prefixo Padr\xE3o",
-  "Set the default prefix when create memo, 'List' by default.": "Define o prefixo padr\xE3o quando um memorando \xE9 criado. Padr\xE3o: 'Lista'.",
-  "Default insert date format": "Formato Padr\xE3o para Inser\xE7\xE3o de Data",
-  "Set the default date format when insert date by @, 'Tasks' by default.": "Define o formato de Data padr\xE3o ao inserir a data usando '@'. Padr\xE3o: 'Tarefas'.",
-  "Default editor position on mobile": "Posi\xE7\xE3o Padr\xE3o do Editor de Memorandos na Vers\xE3o M\xF3vel",
-  "Set the default editor position on Mobile, 'Top' by default.": "Define a posi\xE7\xE3o padr\xE3o do editor de memorandos na vers\xE3o m\xF3vel. Padr\xE3o: 'Topo'.",
-  "Use button to show editor on mobile": "Usar Bot\xE3o para Mostrar o Editor na Vers\xE3o M\xF3vel",
-  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Define um bot\xE3o flutuante para abrir o editor na vers\xE3o m\xF3vel. Op\xE7\xE3o dispon\xEDvel somente quando a posi\xE7\xE3o do editor est\xE1 definida para 'Fundo'.",
-  "Show Time When Copy Results": "Mostrar a Hora ao Copiar os Resultados",
-  "Show time when you copy results, like 12:00. Copy time by default.": "Mostrar a Hora, no formato '12:00', ao copiar os resultados. Padr\xE3o: 'Copiar a hora'.",
-  "Show Date When Copy Results": "Mostrar a Data ao Copiar os Resultados",
-  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": 'Mostrar a Data, no formato [[2022-01-01]], ao copiar os resultados. Padr\xE3o: "Copiar a hora".',
-  "Add Blank Line Between Different Date": "Adicionar Linha em Branco entre Datas Diferentes.",
-  "Add blank line when copy result with date. No blank line by default.": 'Adicionar linha em branco ao copiar resultados com Data. Padr\xE3o: "N\xE3o adicionar linha."',
-  "Share Options": "Op\xE7\xF5es de Partilha",
-  "Share Memos Image Footer Start": "Partilhar a Imagem de um memorando - In\xEDcio do Rodap\xE9",
-  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Defina como preferir, use {MemosNum} para mostrar o n\xFAmero de memorandos e use {UsedDay} para dias. 'Padr\xE3o: {MemosNum} Memorandos {UsedDay} Dias'.",
-  "Share Memos Image Footer End": "Partilhar a Imagem de um memorando - Fim do Rodap\xE9",
-  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "Defina como preferir, use {UserName} como o seu nome de usu\xE1rio. Padr\xE3o: '\u270D\uFE0F Por {UserName}'.",
-  "Save Shared Image To Folder For Mobile": "Guardar a Imagem Partilhada para Pasta na Vers\xE3o M\xF3vel",
-  "Save image to folder for mobile. False by Default": 'Guardar a imagem partilhada para pasta na vers\xE3o m\xF3vel. Padr\xE3o: "Falso".',
-  "Say Thank You": "Agrade\xE7a",
-  Donate: "Doar",
-  "If you like this plugin, consider donating to support continued development:": "Se gosta deste plugin, considere doar para apoiar o seu desenvolvimento cont\xEDnuo:",
-  "File Name of Recycle Bin": "Nome da Reciclagem",
-  "Set the filename for recycle bin. 'delete' By default": "Define o nome do ficheiro para a Reciclagem. Padr\xE3o: 'delete'.",
-  "File Name of Query File": "Nome do Ficheiro de Query",
-  "Set the filename for query file. 'query' By default": "Define o nome do ficheiro de Query. Padr\xE3o: 'Query'.",
-  "Use Tags In Vault": "Usar Tags no Vault",
-  "Use tags in vault rather than only in Memos. False by default.": 'Usar as Tags do Vault e n\xE3o somente dos memorandos. Padr\xE3o: "Falso".',
-  "Ready to convert image into background": "Pronto para converter imagem em fundo",
-  List: "Lista",
-  Task: "Tarefa",
-  Top: "Topo",
-  Bottom: "Fundo",
-  TAG: "TAG",
-  MEMO: "MEMO",
-  DAY: "DIA",
-  QUERY: "QUERY",
-  EDIT: "EDITAR",
-  PIN: "FIXAR",
-  UNPIN: "DESAFIXAR",
-  DELETE: "ELIMINAR",
-  "CONFIRM\uFF01": "CONFIRMAR\uFF01",
-  "CREATE FILTER": "CRIAR FILTRO",
-  Settings: "Defini\xE7\xF5es",
-  "Recycle bin": "Reciclagem",
-  "Enable Recycle Bin": "Ativar a lixeira",
-  "Memo": "Memo",
-  "List & Sidebar": "Lista e barra lateral",
-  "Startup & Opening": "Inicializa\xE7\xE3o e abertura",
-  "Memo heading": "T\xEDtulo da se\xE7\xE3o de memos",
-  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "Novos memos s\xE3o gravados abaixo deste t\xEDtulo, e apenas os itens abaixo dele s\xE3o lidos. Se estiver ausente, ser\xE1 criado automaticamente. Padr\xE3o: ## Memo",
-  "Show Heat Map": "Mostrar mapa de calor",
-  "Whether to show the usage heat map in the sidebar. True by default.": "Mostrar o mapa de calor de uso na barra lateral. Ativado por padr\xE3o.",
-  "Start day of week": "Primeiro dia da semana",
-  "The first day of each column in the heat map. Sunday by default.": "Primeiro dia de cada coluna do mapa de calor. Domingo por padr\xE3o.",
-  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
-  "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
-  "About Me": "Acerca de mim",
-  "Fetching data...": "A obter dados...",
-  "Here is No Zettels.": "N\xE3o existem Zettels.",
-  "Frequently Used Tags": "Tags Usadas Frequentemente",
-  "Flat view": "Vis\xE3o plana",
-  "Tree view": "Vis\xE3o em \xE1rvore",
-  "What do you think now...": "Em que est\xE1 a pensar...",
-  READ: "LER",
-  MARK: "ASSINALAR",
-  SHARE: "PARTILHAR",
-  SOURCE: "ORIGEM",
-  RESTORE: "RESTAURAR",
-  "DELETE AT": "ELIMINADO EM",
-  "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "\xC9 s\xF3 isso \u{1F389}",
-  "Quick filter": "Filtro r\xE1pido",
-  TYPE: "TIPO",
-  LINKED: "LINKED",
-  "NO TAGS": "SEM TAGS",
-  "HAS LINKS": "TEM LINKS",
-  "HAS IMAGES": "TEM IMAGENS",
-  INCLUDE: "INCLUIR",
-  EXCLUDE: "EXCLUIR",
-  TEXT: "TEXTO",
-  IS: "\xC9",
-  ISNOT: "N\xC3O \xC9",
-  SELECT: "SELECCIONAR",
-  "ADD FILTER TERMS": "ADICIONAR TERMOS DE FILTRAGEM",
-  FILTER: "FILTRAR",
-  TITLE: "T\xCDTULO",
-  "CREATE QUERY": "CRIAR QUERY",
-  "EDIT QUERY": "EDITAR QUERY",
-  MATCH: "IGUALA",
-  TIMES: "VEZES",
-  "Share Memo Image": "Partilhar Imagem de Memo",
-  "\u2197Click the button to save": "\u2197Clique no bot\xE3o para guardar",
-  "Image is generating...": "A gerar Imagem..",
-  "Image is loading...": "A carregar Imagem...",
-  "Loading...": "Carregando...",
-  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} N\xE3o \xE9 poss\xEDvel carregar a imagem, o link da imagem pode estar incorrecto",
-  "Daily Memos": "Memos Di\xE1rios",
-  "CANCEL EDIT": "CANCELAR EDI\xC7\xC3O",
-  "LINK TO THE": "LINK PARA O",
-  "Mobile Options": "Op\xE7\xF5es M\xF3veis",
-  "Don't support web image yet, please input image path in vault": "Ainda n\xE3o existe suporte para imagens de web. Por favor, insira o link para uma imagem do vault",
-  "Experimental Options": "Op\xE7\xF5es Experimentais",
-  "Background Image in Dark Theme": "Imagem de Fundo no Tema Escuro",
-  "Background Image in Light Theme": "Imagem de Fundo no Tema Claro",
-  'Set background image in dark theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema escuro. Defina da seguinte forma: "Daily/one.png".',
-  'Set background image in light theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema claro. Defina da seguinte forma: "Daily/one.png".',
-  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Defina a composi\xE7\xE3o padr\xE3o do memorando, deve usar {TIME} como "HH:mm" e {CONTENT} como conte\xFAdo. Padr\xE3o: "{TIME} {CONTENT}".',
-  "Default Memo Composition": "Composi\xE7\xE3o Padr\xE3o de um Memorando",
-  "Show Tasks Label": "Mostrar Etiquetas de Tarefas",
-  "Show tasks label near the time text. False by default": 'Mostrar etiquetas de tarefas pr\xF3ximas do texto de tempo. Padr\xE3o: "Falso".',
-  "Please Open Memos First": "Por favor, abra o Memos primeiro",
-  DATE: "DATA",
-  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
-  BEFORE: "ANTES",
-  AFTER: "DEPOIS",
-  "Allow Comments On Memos": "Permitir Coment\xE1rios nos Memorandos",
-  "You can comment on memos. False by default": 'Permite que comente os memorandos. Padr\xE3o: "Falso".',
-  Import: "Importar",
-  "TITLE CANNOT BE NULL!": "O T\xCDTULO N\xC3O PODE SER NULO!",
-  "FILTER CANNOT BE NULL!": "O FILTRO N\xC3O PODE SER NULO!",
-  "Comments In Original DailyNotes/Notes": "Coment\xE1rios nas Notas/Notas Di\xE1rias Originais",
-  "You should install Dataview Plug-in ver 0.5.9 or later to use this feature.": "Deve instalar a vers\xE3o 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.",
-  "Fetch Error": "\u{1F62D} Erro de Fetch",
-  "Copied to clipboard Successfully": "Copiado para a \xE1rea de transfer\xEAncia com sucesso",
-  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Verifique se abriu o plugin de Notas Di\xE1rias ou de Notas Peri\xF3dicas",
-  "Please finish the last filter setting first": "Por favor, termine  primeiro a configura\xE7\xE3o do \xFAltimo filtro",
-  "Close Memos Successfully": "Memos Fechado com Sucesso",
-  "Insert as Memo": "Inserir como um Memorando",
-  "Insert file as memo content": "Inserir ficheiro como conte\xFAdo de um memorando",
-  "Image load failed": "Falha no carregamento da imagem",
-  "Content cannot be empty": "O Conte\xFAdo n\xE3o pode estar vazio",
-  "Unable to create new file.": "N\xE3o foi poss\xEDvel criar um novo ficheiro.",
-  "Failed to fetch deleted memos: ": "Falha no fetch dos memorandos removidos: ",
-  "RESTORE SUCCEED": "RESTAURO BEM SUCEDIDO",
-  "Save Memo button icon": "\xCDcone do Bot\xE3o para Guardar Memorandos",
-  "The icon shown on the save Memo button in the UI.": "O \xEDcone exibido na UI do bot\xE3o para guardar memorandos.",
-  "Fetch Memos From Particular Notes": "Obter Memorandos de Notas Espec\xEDficas",
-  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'Pode definir qualquer Query de Dataview para o Memos procurar. Todos os memorandos nessas notas ser\xE3o mostrados na lista. Padr\xE3o: "#memo".',
-  "Allow Memos to Fetch Memo from Notes": "Permitir que o Memos Obtenha memorandos das Notas",
-  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": 'Use o Memos para gerir todos os memorandos nas suas notas e n\xE3o apenas nas notas di\xE1rias. Padr\xE3o: "Falso".',
-  "Always Show Memo Comments": "Mostrar Coment\xE1rios dos Memorandos",
-  "Always show memo comments on memos. False by default": 'Mostrar sempre os coment\xE1rios dos memorandos. Padr\xE3o: "Falso".',
-  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "N\xE3o definiu a pasta para as notas di\xE1rias, quer no plugin the Notas Peri\xF3dicas ou de Notas Di\xE1rias.",
-  "Please check your daily note plugin OR periodic notes plugin settings": "Por favor, verifique as configura\xE7\xF5es dos plugins de Notas Di\xE1rias OU de Notas Peri\xF3dicas",
-  "Use Which Plugin's Default Configuration": "Usar a Configura\xE7\xE3o Padr\xE3o do Plugin",
-  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "O Memos usa a configura\xE7\xE3o padr\xE3o do plugin seleccionado para obter memorandos diariamente. Padr\xE3o: 'Notas Di\xE1rias'.",
-  Daily: "Di\xE1rio",
-  "Previous page": "P\xE1gina anterior",
-  "Next page": "Pr\xF3xima p\xE1gina",
-  "Type Here": "Digite aqui",
-  TagTipFirst: "Digite ",
-  TagTipSecond: "para criar uma etiqueta...",
-  "Failed to save: ": "Falha ao salvar: ",
-  "Auto-clean Recycle Bin": "Limpeza autom\xE1tica da reciclagem",
-  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Elimina permanentemente os memorandos que est\xE3o na reciclagem h\xE1 mais tempo do que o per\xEDodo de reten\xE7\xE3o. N\xE3o pode ser anulado.",
-  "Never delete": "Nunca eliminar",
-  "7 days": "7 dias",
-  "30 days": "30 dias",
-  "90 days": "90 dias",
-  "180 days": "180 dias",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente",
-  "Send sound": "Som de envio",
-  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Toca um som quando um novo memorando \xE9 enviado. Escolha o som integrado ou o seu pr\xF3prio ficheiro de \xE1udio.",
-  "Built-in (card deal)": "Integrado (cartas)",
-  "Custom path": "Caminho personalizado",
-  "Not played": "N\xE3o tocar",
-  "Sound file path": "Caminho do ficheiro de som",
-  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
-  Preview: "Ouvir",
-  "Failed to play the sound: ": "Falha ao reproduzir o som: ",
-  "Tag position": "Posi\xE7\xE3o das etiquetas",
-  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as etiquetas no fim do cart\xE3o ou no local original no texto.",
-  "In place": "No local",
-  "What needs doing...": "O que h\xE1 para fazer...",
-  Afdian: "Afdian",
-  "Data health check": "\u{1FA7A} Verifica\xE7\xE3o de dados",
-  "Recently fixed": "\u2705 Corrigidos recentemente",
-  Clear: "Limpar",
-  "Re-scan": "Reanalisar",
-  "Migrate all legacy files ({n})": "Migrar todos os ficheiros antigos ({n})",
-  "Auto-fix all ({n})": "Corrigir tudo automaticamente ({n})",
-  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} ficheiros \xB7 {lines} memos \xB7 {issues} problemas",
-  " (incl. {n} legacy-format files)": " (incl. {n} ficheiros em formato antigo)",
-  " ({n} auto-fixable)": " ({n} corrig\xEDveis)",
-  "Scanning\u2026 {done}/{total}": "A analisar\u2026 {done}/{total}",
-  "Working\u2026": "A processar\u2026",
-  "No problems found \u{1F389}": "Nenhum problema encontrado \u{1F389}",
-  "{n} errors": "{n} erros",
-  "{n} memos": "{n} memos",
-  "Migrate file": "Migrar ficheiro",
-  "Migrating\u2026": "A migrar\u2026",
-  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Converte as linhas em formato antigo deste ficheiro em blocos-cart\xE3o (c\xF3pia de seguran\xE7a autom\xE1tica). Os seus memos voltam a aparecer na lista.",
-  "{rule} \u2014 fix to:": "{rule} \u2014 corrigir para:",
-  "Fix this line": "Corrigir esta linha",
-  View: "Ver",
-  Ignore: "Ignorar",
-  "Fix all": "Corrigir tudo",
-  "Scan failed: ": "Falha na an\xE1lise: ",
-  "Migration failed: ": "Falha na migra\xE7\xE3o: ",
-  "no auto-fixable issues": "sem problemas corrig\xEDveis automaticamente",
-  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "n\xE3o \xE9 poss\xEDvel continuar a corre\xE7\xE3o autom\xE1tica \u2014 os problemas restantes exigem interven\xE7\xE3o manual ou migra\xE7\xE3o",
-  "fix-round limit reached; re-scan to check what is left": "limite de ciclos atingido; reanalise para ver o que falta",
-  "Migration done: {n} entries converted": "Migra\xE7\xE3o conclu\xEDda: {n} entradas convertidas",
-  "Migrated all: {files} files \xB7 {n} entries converted": "Migra\xE7\xE3o completa: {files} ficheiros \xB7 {n} entradas convertidas",
-  ", {n} cross-day comments moved to their daily notes": ", {n} coment\xE1rios entre dias movidos para as respetivas notas di\xE1rias",
-  ", {n} deleted comments dropped": ", {n} coment\xE1rios eliminados descartados",
-  ", {n} entries kept as-is (could not be mapped)": ", {n} entradas mantidas como estavam (n\xE3o mape\xE1veis)",
-  ", failed: {list}": ", falhas: {list}",
-  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". As c\xF3pias est\xE3o em .rememo-backup/migrate-*. Os seus memos antigos s\xE3o agora blocos-cart\xE3o.",
-  ". Backups are in .rememo-backup/migrate-*.": ". As c\xF3pias est\xE3o em .rememo-backup/migrate-*.",
-  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nada a migrar ({n} linhas sem hora, requerem trabalho manual).",
-  "This file has no legacy-format lines \u2014 no migration needed.": "Este ficheiro n\xE3o tem linhas em formato antigo \u2014 n\xE3o \xE9 precisa migra\xE7\xE3o.",
-  "Legacy <br> line breaks": "Quebras de linha <br> antigas",
-  "Duplicate ^id": "^id duplicado",
-  "Legacy format row": "Linha em formato antigo",
-  "Legacy 14-digit timestamp": "Data/hora antiga de 14 d\xEDgitos",
-  "Missing ^id": "^id em falta",
-  "Your old memos are still here": "Os seus memos antigos continuam aqui",
-  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Este cofre cont\xE9m {n} linhas de memos no formato antigo do Memos, que o Rememo ainda n\xE3o apresenta. Nada foi perdido \u2014 execute a verifica\xE7\xE3o de dados para as converter em blocos-cart\xE3o.",
-  "Open data health check": "Abrir verifica\xE7\xE3o de dados"
-};
-var ptBR = {
-  welcome: "Bem-vindo ao Memos!",
-  ribbonIconTitle: "Rememo",
-  months: [
-    "Janeiro",
-    "Fevereiro",
-    "Mar\xE7o",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro"
-  ],
-  monthsShort: ["Jan.", "Fev.", "Mar.", "Abr.", "Maio", "Jun.", "Jul.", "Ago.", "Set.", "Out.", "Nov.", "Dez."],
-  weekDays: ["Domingo", "Segunda", "Ter\xE7a", "Quarta", "Quinta", "Sexta", "S\xE1bado"],
-  weekDaysShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "S\xE1b"],
-  to: "para",
-  year: null,
-  month: null,
-  "Basic Options": "Op\xE7\xF5es B\xE1sicas",
-  "User name in Memos": "Nome de Usu\xE1rio no Memos",
-  "Set your user name here. 'Memos \u{1F60F}' By default": "Defina o nome de usu\xE1rio. Padr\xE3o: 'Memos \u{1F60F}'.",
-  "Insert after heading": "Inserir ap\xF3s o cabe\xE7alho",
-  "You should set the same heading below if you want to insert and process memos below the same heading.": "Deve definir o mesmo cabe\xE7alho na configura\xE7\xE3o posterior se pretende inserir e processar memorandos abaixo do cabe\xE7alho aqui definido.",
-  "Allows admonitions to be created using ": "Permitir que Admonitions sejam criadas usando ",
-  "Process Memos below": "Processar Memorandos abaixo do Cabe\xE7alho",
-  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "Somente as entradas abaixo deste cabe\xE7alho ser\xE3o processadas nas suas notas. Se n\xE3o configurar esta funcionalidade, nenhuma nota ser\xE1 processada para o ficheiro respetivo.",
-  "Save Memo button label": "Legenda do Bot\xE3o de Guardar Memorandos",
-  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": 'Define o texto apresentado na UI do bot\xE3o guardar memorandos. Padr\xE3o: "NOTEIT".',
-  "Focus on editor when open memos": "Focar no Editor ao iniciar o Memos",
-  "Focus on Editor when open memos. Focus by default.": 'Focar no editor ao iniciar o Memos. Padr\xE3o: "Focar".',
-  "Open daily memos with open memos": "Abrir memorandos di\xE1rios ao iniciar o Memos",
-  "Open daily memos with open memos. Open by default.": 'Abrir memorandos di\xE1rios ao iniciar o Memos. Padr\xE3o: "Abrir".',
-  "Open Memos when obsidian opens": "Abrir Memos quando o Obsidian inicia",
-  "When enable this, Memos will open when Obsidian opens. False by default.": 'Quando esta op\xE7\xE3o est\xE1 activa, o Memos abrir\xE1 quando o Obsidian inicia. Padr\xE3o: "Falso".',
-  "Hide done tasks in Memo list": "Ocultar tarefas conclu\xEDdas na lista de memorandos",
-  "Hide all done tasks in Memo list. Show done tasks by default.": 'Ocultar todas as tarefas conclu\xEDdas na lista de memorandos. Padr\xE3o: "Mostrar tarefas conclu\xEDdas".',
-  "Advanced Options": "Op\xE7\xF5es Avan\xE7adas",
-  "UI language for date": "Idioma na UI da Data ",
-  "Translates the date UI language. Only 'en' and 'zh' are available.": "Define o idioma na UI da Data. De momento, apenas 'en', 'fr', 'pt' e 'zh' est\xE3o dispon\xEDveis.",
-  "Default prefix": "Prefixo Padr\xE3o",
-  "Set the default prefix when create memo, 'List' by default.": "Define o prefixo padr\xE3o quando um memorando \xE9 criado. Padr\xE3o: 'Lista'.",
-  "Default insert date format": "Formato Padr\xE3o para Inser\xE7\xE3o de Data",
-  "Set the default date format when insert date by @, 'Tasks' by default.": "Define o formato de Data padr\xE3o ao inserir a data usando '@'. Padr\xE3o: 'Tarefas'.",
-  "Default editor position on mobile": "Posi\xE7\xE3o Padr\xE3o do Editor de Memorandos na Vers\xE3o M\xF3vel",
-  "Set the default editor position on Mobile, 'Top' by default.": "Define a posi\xE7\xE3o padr\xE3o do editor de memorandos na vers\xE3o m\xF3vel. Padr\xE3o: 'Topo'.",
-  "Use button to show editor on mobile": "Usar Bot\xE3o para Mostrar o Editor na Vers\xE3o M\xF3vel",
-  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "Define um bot\xE3o flutuante para abrir o editor na vers\xE3o m\xF3vel. Op\xE7\xE3o dispon\xEDvel somente quando a posi\xE7\xE3o do editor est\xE1 definida para 'Fundo'.",
-  "Show Time When Copy Results": "Mostrar a Hora ao Copiar os Resultados",
-  "Show time when you copy results, like 12:00. Copy time by default.": "Mostrar a Hora, no formato '12:00', ao copiar os resultados. Padr\xE3o: 'Copiar a hora'.",
-  "Show Date When Copy Results": "Mostrar a Data ao Copiar os Resultados",
-  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": 'Mostrar a Data, no formato [[2022-01-01]], ao copiar os resultados. Padr\xE3o: "Copiar a hora".',
-  "Add Blank Line Between Different Date": "Adicionar Linha em Branco entre Datas Diferentes.",
-  "Add blank line when copy result with date. No blank line by default.": 'Adicionar linha em branco ao copiar resultados com Data. Padr\xE3o: "N\xE3o adicionar linha."',
-  "Share Options": "Op\xE7\xF5es de Partilha",
-  "Share Memos Image Footer Start": "Partilhar a Imagem de um memorando - In\xEDcio do Rodap\xE9",
-  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "Defina como preferir, use {MemosNum} para mostrar o n\xFAmero de memorandos e use {UsedDay} para dias. 'Padr\xE3o: {MemosNum} Memorandos {UsedDay} Dias'.",
-  "Share Memos Image Footer End": "Partilhar a Imagem de um memorando - Fim do Rodap\xE9",
-  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "Defina como preferir, use {UserName} como o seu nome de usu\xE1rio. Padr\xE3o: '\u270D\uFE0F Por {UserName}'.",
-  "Save Shared Image To Folder For Mobile": "Guardar a Imagem Partilhada para Pasta na Vers\xE3o M\xF3vel",
-  "Save image to folder for mobile. False by Default": 'Guardar a imagem partilhada para pasta na vers\xE3o m\xF3vel. Padr\xE3o: "Falso".',
-  "Say Thank You": "Agrade\xE7a",
-  Donate: "Doar",
-  "If you like this plugin, consider donating to support continued development:": "Se gosta deste plugin, considere doar para apoiar o seu desenvolvimento cont\xEDnuo:",
-  "File Name of Recycle Bin": "Nome da Reciclagem",
-  "Set the filename for recycle bin. 'delete' By default": "Define o nome do ficheiro para a Reciclagem. Padr\xE3o: 'delete'.",
-  "File Name of Query File": "Nome do Ficheiro de Query",
-  "Set the filename for query file. 'query' By default": "Define o nome do ficheiro de Query. Padr\xE3o: 'Query'.",
-  "Use Tags In Vault": "Usar Tags no Vault",
-  "Use tags in vault rather than only in Memos. False by default.": 'Usar as Tags do Vault e n\xE3o somente dos memorandos. Padr\xE3o: "Falso".',
-  "Ready to convert image into background": "Pronto para converter imagem em fundo",
-  List: "Lista",
-  Task: "Tarefa",
-  Top: "Topo",
-  Bottom: "Fundo",
-  TAG: "TAG",
-  MEMO: "MEMO",
-  DAY: "DIA",
-  QUERY: "QUERY",
-  EDIT: "EDITAR",
-  PIN: "FIXAR",
-  UNPIN: "DESAFIXAR",
-  DELETE: "ELIMINAR",
-  "CONFIRM\uFF01": "CONFIRMAR\uFF01",
-  "CREATE FILTER": "CRIAR FILTRO",
-  Settings: "Defini\xE7\xF5es",
-  "Recycle bin": "Reciclagem",
-  "Enable Recycle Bin": "Ativar a lixeira",
-  "Memo": "Memo",
-  "List & Sidebar": "Lista e barra lateral",
-  "Startup & Opening": "Inicializa\xE7\xE3o e abertura",
-  "Memo heading": "T\xEDtulo da se\xE7\xE3o de memos",
-  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "Novos memos s\xE3o gravados abaixo deste t\xEDtulo, e apenas os itens abaixo dele s\xE3o lidos. Se estiver ausente, ser\xE1 criado automaticamente. Padr\xE3o: ## Memo",
-  "Show Heat Map": "Mostrar mapa de calor",
-  "Whether to show the usage heat map in the sidebar. True by default.": "Mostrar o mapa de calor de uso na barra lateral. Ativado por padr\xE3o.",
-  "Start day of week": "Primeiro dia da semana",
-  "The first day of each column in the heat map. Sunday by default.": "Primeiro dia de cada coluna do mapa de calor. Domingo por padr\xE3o.",
-  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "Quando desativada, excluir um memo o remove permanentemente em vez de mov\xEA-lo para a lixeira. Os memos j\xE1 na lixeira s\xE3o mantidos e voltam quando esta op\xE7\xE3o \xE9 reativada.",
-  "DELETE FOREVER?": "EXCLUIR PERMANENTEMENTE?",
-  "About Me": "Acerca de mim",
-  "Fetching data...": "A obter dados...",
-  "Here is No Zettels.": "N\xE3o existem Zettels.",
-  "Frequently Used Tags": "Tags Usadas Frequentemente",
-  "Flat view": "Vis\xE3o plana",
-  "Tree view": "Vis\xE3o em \xE1rvore",
-  "What do you think now...": "Em que est\xE1 a pensar...",
-  READ: "LER",
-  MARK: "ASSINALAR",
-  SHARE: "PARTILHAR",
-  SOURCE: "ORIGEM",
-  RESTORE: "RESTAURAR",
-  "DELETE AT": "ELIMINADO EM",
-  "Noooop!": "Noooop!",
-  "All Data is Loaded \u{1F389}": "\xC9 s\xF3 isso \u{1F389}",
-  "Quick filter": "Filtro r\xE1pido",
-  TYPE: "TIPO",
-  LINKED: "LINKED",
-  "NO TAGS": "SEM TAGS",
-  "HAS LINKS": "TEM LINKS",
-  "HAS IMAGES": "TEM IMAGENS",
-  INCLUDE: "INCLUIR",
-  EXCLUDE: "EXCLUIR",
-  TEXT: "TEXTO",
-  IS: "\xC9",
-  ISNOT: "N\xC3O \xC9",
-  SELECT: "SELECCIONAR",
-  "ADD FILTER TERMS": "ADICIONAR TERMOS DE FILTRAGEM",
-  FILTER: "FILTRAR",
-  TITLE: "T\xCDTULO",
-  "CREATE QUERY": "CRIAR QUERY",
-  "EDIT QUERY": "EDITAR QUERY",
-  MATCH: "IGUALA",
-  TIMES: "VEZES",
-  "Share Memo Image": "Partilhar Imagem de Memo",
-  "\u2197Click the button to save": "\u2197Clique no bot\xE3o para guardar",
-  "Image is generating...": "A gerar Imagem..",
-  "Image is loading...": "A carregar Imagem...",
-  "Loading...": "Carregando...",
-  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} N\xE3o \xE9 poss\xEDvel carregar a imagem, o link da imagem pode estar incorrecto",
-  "Daily Memos": "Memos Di\xE1rios",
-  "CANCEL EDIT": "CANCELAR EDI\xC7\xC3O",
-  "LINK TO THE": "LINK PARA O",
-  "Mobile Options": "Op\xE7\xF5es M\xF3veis",
-  "Don't support web image yet, please input image path in vault": "Ainda n\xE3o existe suporte para imagens de web. Por favor, insira o link para uma imagem do vault",
-  "Experimental Options": "Op\xE7\xF5es Experimentais",
-  "Background Image in Dark Theme": "Imagem de Fundo no Tema Escuro",
-  "Background Image in Light Theme": "Imagem de Fundo no Tema Claro",
-  'Set background image in dark theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema escuro. Defina da seguinte forma: "Daily/one.png".',
-  'Set background image in light theme. Set something like "Daily/one.png"': 'Defina a imagem de fundo para o tema claro. Defina da seguinte forma: "Daily/one.png".',
-  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': 'Defina a composi\xE7\xE3o padr\xE3o do memorando, deve usar {TIME} como "HH:mm" e {CONTENT} como conte\xFAdo. Padr\xE3o: "{TIME} {CONTENT}".',
-  "Default Memo Composition": "Composi\xE7\xE3o Padr\xE3o de um Memorando",
-  "Show Tasks Label": "Mostrar Etiquetas de Tarefas",
-  "Show tasks label near the time text. False by default": 'Mostrar etiquetas de tarefas pr\xF3ximas do texto de tempo. Padr\xE3o: "Falso".',
-  "Please Open Memos First": "Por favor, abra o Memos primeiro",
-  DATE: "DATA",
-  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED",
-  BEFORE: "ANTES",
-  AFTER: "DEPOIS",
-  "Allow Comments On Memos": "Permitir Coment\xE1rios nos Memorandos",
-  "You can comment on memos. False by default": 'Permite que comente os memorandos. Padr\xE3o: "Falso".',
-  Import: "Importar",
-  "TITLE CANNOT BE NULL!": "O T\xCDTULO N\xC3O PODE SER NULO!",
-  "FILTER CANNOT BE NULL!": "O FILTRO N\xC3O PODE SER NULO!",
-  "Comments In Original DailyNotes/Notes": "Coment\xE1rios nas Notas/Notas Di\xE1rias Originais",
-  "You should install Dataview Plug-in ver 0.5.9 or later to use this feature.": "Deve instalar a vers\xE3o 0.5.9 ou posterior do plugin Dataview para usar esta funcionalidade.",
-  "Fetch Error": "\u{1F62D} Erro de Fetch",
-  "Copied to clipboard Successfully": "Copiado para a \xE1rea de transfer\xEAncia com sucesso",
-  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "Verifique se abriu o plugin de Notas Di\xE1rias ou de Notas Peri\xF3dicas",
-  "Please finish the last filter setting first": "Por favor, termine  primeiro a configura\xE7\xE3o do \xFAltimo filtro",
-  "Close Memos Successfully": "Memos Fechado com Sucesso",
-  "Insert as Memo": "Inserir como um Memorando",
-  "Insert file as memo content": "Inserir ficheiro como conte\xFAdo de um memorando",
-  "Image load failed": "Falha no carregamento da imagem",
-  "Content cannot be empty": "O Conte\xFAdo n\xE3o pode estar vazio",
-  "Unable to create new file.": "N\xE3o foi poss\xEDvel criar um novo ficheiro.",
-  "Failed to fetch deleted memos: ": "Falha no fetch dos memorandos removidos: ",
-  "RESTORE SUCCEED": "RESTAURO BEM SUCEDIDO",
-  "Save Memo button icon": "\xCDcone do Bot\xE3o para Guardar Memorandos",
-  "The icon shown on the save Memo button in the UI.": "O \xEDcone exibido na UI do bot\xE3o para guardar memorandos.",
-  "Fetch Memos From Particular Notes": "Obter Memorandos de Notas Espec\xEDficas",
-  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': 'Pode definir qualquer Query de Dataview para o Memos procurar. Todos os memorandos nessas notas ser\xE3o mostrados na lista. Padr\xE3o: "#memo".',
-  "Allow Memos to Fetch Memo from Notes": "Permitir que o Memos Obtenha memorandos das Notas",
-  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": 'Use o Memos para gerir todos os memorandos nas suas notas e n\xE3o apenas nas notas di\xE1rias. Padr\xE3o: "Falso".',
-  "Always Show Memo Comments": "Mostrar Coment\xE1rios dos Memorandos",
-  "Always show memo comments on memos. False by default": 'Mostrar sempre os coment\xE1rios dos memorandos. Padr\xE3o: "Falso".',
-  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "N\xE3o definiu a pasta para as notas di\xE1rias, quer no plugin the Notas Peri\xF3dicas ou de Notas Di\xE1rias.",
-  "Please check your daily note plugin OR periodic notes plugin settings": "Por favor, verifique as configura\xE7\xF5es dos plugins de Notas Di\xE1rias OU de Notas Peri\xF3dicas",
-  "Use Which Plugin's Default Configuration": "Usar a Configura\xE7\xE3o Padr\xE3o do Plugin",
-  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "O Memos usa a configura\xE7\xE3o padr\xE3o do plugin seleccionado para obter memorandos diariamente. Padr\xE3o: 'Notas Di\xE1rias'.",
-  Daily: "Di\xE1rio",
-  "Previous page": "P\xE1gina anterior",
-  "Next page": "Pr\xF3xima p\xE1gina",
-  "Type Here": "Digite aqui",
-  TagTipFirst: "Digite ",
-  TagTipSecond: "para criar uma etiqueta...",
-  "Failed to save: ": "Falha ao salvar: ",
-  "Auto-clean Recycle Bin": "Limpeza autom\xE1tica da reciclagem",
-  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "Elimina permanentemente os memorandos que est\xE3o na reciclagem h\xE1 mais tempo do que o per\xEDodo de reten\xE7\xE3o. N\xE3o pode ser anulado.",
-  "Never delete": "Nunca eliminar",
-  "7 days": "7 dias",
-  "30 days": "30 dias",
-  "90 days": "90 dias",
-  "180 days": "180 dias",
-  "Auto-cleaned {N} expired memos from the recycle bin": "Reciclagem: {N} memorandos expirados eliminados permanentemente",
-  "Send sound": "Som de envio",
-  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "Toca um som quando um novo memorando \xE9 enviado. Escolha o som integrado ou o seu pr\xF3prio arquivo de \xE1udio.",
-  "Built-in (card deal)": "Integrado (cartas)",
-  "Custom path": "Caminho personalizado",
-  "Not played": "N\xE3o tocar",
-  "Sound file path": "Caminho do arquivo de som",
-  "Enter a vault-relative path (e.g. assets/send.mp3).": "Indique um caminho relativo ao cofre (ex.: assets/send.mp3).",
-  Preview: "Ouvir",
-  "Failed to play the sound: ": "Falha ao reproduzir o som: ",
-  "Tag position": "Posi\xE7\xE3o das tags",
-  "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as tags no fim do cart\xE3o ou no local original no texto.",
-  "In place": "No local",
-  "What needs doing...": "O que h\xE1 para fazer...",
-  Afdian: "Afdian",
-  "Data health check": "\u{1FA7A} Verifica\xE7\xE3o de dados",
-  "Recently fixed": "\u2705 Corrigidos recentemente",
-  Clear: "Limpar",
-  "Re-scan": "Verificar novamente",
-  "Migrate all legacy files ({n})": "Migrar todos os arquivos antigos ({n})",
-  "Auto-fix all ({n})": "Corrigir tudo automaticamente ({n})",
-  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} arquivos \xB7 {lines} memos \xB7 {issues} problemas",
-  " (incl. {n} legacy-format files)": " (incl. {n} arquivos em formato antigo)",
-  " ({n} auto-fixable)": " ({n} corrig\xEDveis)",
-  "Scanning\u2026 {done}/{total}": "Verificando\u2026 {done}/{total}",
-  "Working\u2026": "Processando\u2026",
-  "No problems found \u{1F389}": "Nenhum problema encontrado \u{1F389}",
-  "{n} errors": "{n} erros",
-  "{n} memos": "{n} memos",
-  "Migrate file": "Migrar arquivo",
-  "Migrating\u2026": "Migrando\u2026",
-  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Converte as linhas em formato antigo deste arquivo em blocos-cart\xE3o (backup autom\xE1tico). Seus memos voltam a aparecer na lista depois disso.",
-  "{rule} \u2014 fix to:": "{rule} \u2014 corrigir para:",
-  "Fix this line": "Corrigir esta linha",
-  View: "Ver",
-  Ignore: "Ignorar",
-  "Fix all": "Corrigir tudo",
-  "Scan failed: ": "Falha na verifica\xE7\xE3o: ",
-  "Migration failed: ": "Falha na migra\xE7\xE3o: ",
-  "no auto-fixable issues": "nenhum problema corrig\xEDvel automaticamente",
-  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "n\xE3o \xE9 poss\xEDvel continuar a corre\xE7\xE3o autom\xE1tica \u2014 os problemas restantes exigem trabalho manual ou migra\xE7\xE3o",
-  "fix-round limit reached; re-scan to check what is left": "limite de rodadas atingido; verifique novamente para ver o que resta",
-  "Migration done: {n} entries converted": "Migra\xE7\xE3o conclu\xEDda: {n} entradas convertidas",
-  "Migrated all: {files} files \xB7 {n} entries converted": "Migra\xE7\xE3o completa: {files} arquivos \xB7 {n} entradas convertidas",
-  ", {n} cross-day comments moved to their daily notes": ", {n} coment\xE1rios entre dias movidos para as respectivas notas di\xE1rias",
-  ", {n} deleted comments dropped": ", {n} coment\xE1rios exclu\xEDdos descartados",
-  ", {n} entries kept as-is (could not be mapped)": ", {n} entradas mantidas como estavam (n\xE3o mape\xE1veis)",
-  ", failed: {list}": ", falhas: {list}",
-  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Os backups est\xE3o em .rememo-backup/migrate-*. Seus memos antigos agora s\xE3o blocos-cart\xE3o.",
-  ". Backups are in .rememo-backup/migrate-*.": ". Os backups est\xE3o em .rememo-backup/migrate-*.",
-  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nada a migrar ({n} linhas sem hor\xE1rio, precisam de trabalho manual).",
-  "This file has no legacy-format lines \u2014 no migration needed.": "Este arquivo n\xE3o tem linhas em formato antigo \u2014 n\xE3o \xE9 necess\xE1ria migra\xE7\xE3o.",
-  "Legacy <br> line breaks": "Quebras de linha <br> antigas",
-  "Duplicate ^id": "^id duplicado",
-  "Legacy format row": "Linha em formato antigo",
-  "Legacy 14-digit timestamp": "Data/hora antiga de 14 d\xEDgitos",
-  "Missing ^id": "^id ausente",
-  "Your old memos are still here": "Seus memos antigos continuam aqui",
-  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Este cofre cont\xE9m {n} linhas de memos no formato antigo do Memos, que o Rememo ainda n\xE3o exibe. Nada foi perdido \u2014 rode a verifica\xE7\xE3o de dados para convert\xEA-las em blocos-cart\xE3o.",
-  "Open data health check": "Abrir verifica\xE7\xE3o de dados"
-};
-var ro = {};
-var ru = {};
-var tr = {};
-var zhCN = {
-  welcome: "\u6B22\u8FCE\u4F7F\u7528 Memos ",
-  ribbonIconTitle: "Rememo",
-  months: ["\u4E00\u6708", "\u4E8C\u6708", "\u4E09\u6708", "\u56DB\u6708", "\u4E94\u6708", "\u516D\u6708", "\u4E03\u6708", "\u516B\u6708", "\u4E5D\u6708", "\u5341\u6708", "\u5341\u4E00\u6708", "\u5341\u4E8C\u6708"],
-  monthsShort: [null, null, null, null, null, null, null, null, null, null, null, null],
-  weekDays: ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"],
-  weekDaysShort: ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"],
-  to: "\u81F3",
-  year: "\u5E74",
-  month: "\u6708",
-  "Basic Options": "\u57FA\u7840\u9009\u9879",
-  "User name in Memos": "\u5728 Memos \u4E2D\u663E\u793A\u7684\u7528\u6237\u540D",
-  "Set your user name here. 'Memos \u{1F60F}' By default": "\u5728\u8FD9\u91CC\u8BBE\u7F6E\u4F60\u559C\u6B22\u7684\u7528\u6237\u540D\u3002 \u9ED8\u8BA4\u4E3A 'Memos \u{1F60F}'",
-  "Insert after heading": "\u5728\u6307\u5B9A\u6807\u9898\u540E\u63D2\u5165 Memo",
-  "You should set the same heading below if you want to insert and process memos below the same heading.": "\u4F60\u5982\u679C\u60F3\u8981\u63D2\u5165\u6807\u9898\u7684\u540C\u65F6\u663E\u793A\u5BF9\u5E94\u6807\u9898\u4E0B\u7684 Memo\uFF0C\u4F60\u5FC5\u987B\u4FDD\u8BC1\u5F53\u524D\u8BBE\u7F6E\u4E0E\u4E0B\u65B9\u7684\u89E3\u6790\u8BBE\u7F6E\u662F\u4E00\u81F4\u7684\u3002\u5F53\u4E3A\u7A7A\u65F6\u63D2\u5165\u5230\u6587\u672B",
-  "Process Memos below": "\u89E3\u6790\u6307\u5B9A\u6807\u9898\u540E\u7684 Memo",
-  "Only entries below this string/section in your notes will be processed. If it does not exist no notes will be processed for that file.": "\u53EA\u6709\u5728\u8BBE\u7F6E\u7684\u6807\u9898\u540E\u7684 Memo \u624D\u4F1A\u88AB\u89E3\u6790\u3002\u5F53\u4E3A\u7A7A\u65F6\u89E3\u6790\u5168\u6587\u7684 Memo",
-  "Save Memo button label": "\u4FDD\u5B58\u6309\u94AE\u4E0A\u7684\u6587\u672C",
-  "The text shown on the save Memo button in the UI. 'NOTEIT' by default.": "\u5728\u4FDD\u5B58\u6309\u94AE\u4E0A\u5C55\u793A\u7684\u6587\u672C\u3002\u9ED8\u8BA4\u4E3A 'NOTEIT'",
-  "Focus on editor when open memos": "\u81EA\u52A8\u805A\u7126\u5230 Memos \u8F93\u5165\u6846",
-  "Focus on editor when open memos. Focus by default.": "\u5F53\u6253\u5F00 Memos \u7684\u65F6\u5019\u81EA\u52A8\u805A\u7126\u5230 Memos \u8F93\u5165\u6846\u3002\u9ED8\u8BA4\u5F00\u542F",
-  "Open daily memos with open memos": "\u6253\u5F00\u6BCF\u65E5 Memo \u7684\u65F6\u5019\u6253\u5F00 Memos \u754C\u9762",
-  "Open daily memos with open memos. Open by default.": "\u6253\u5F00\u6BCF\u65E5 Memo \u7684\u65F6\u5019\u6253\u5F00 Memos \u754C\u9762\u3002\u9ED8\u8BA4\u5F00\u542F",
-  "Open Memos when obsidian opens": "\u5F53\u5F00\u542F Obsidian \u7684\u65F6\u5019\u81EA\u52A8\u6253\u5F00 Memos",
-  "When enable this, Memos will open when Obsidian opens. False by default.": "\u5F53\u5F00\u542F\u8BE5\u9009\u9879, Memos \u4F1A\u5728 Obsidian \u6253\u5F00\u65F6\u81EA\u52A8\u6253\u5F00\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F\u3002",
-  "Hide done tasks in Memo list": "\u5728 memo \u5217\u8868\u4E2D\u9690\u85CF\u5DF2\u5B8C\u6210 memo",
-  "Hide all done tasks in Memo list. Show done tasks by default.": "\u5728 memo \u5217\u8868\u4E2D\u9690\u85CF\u5DF2\u5B8C\u6210 memo\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F",
-  "Send memo by Enter key": "\u6309 Enter \u76F4\u63A5\u53D1\u9001",
-  "When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.": "\u5F00\u542F\u540E\u6309 Enter \u76F4\u63A5\u53D1\u9001 memo\uFF0CCtrl/Cmd+Enter \u6362\u884C\u3002\u9ED8\u8BA4\u5173\u95ED\uFF08Enter \u6362\u884C\u3001Ctrl+Enter \u53D1\u9001\uFF09\u3002",
-  "Advanced Options": "\u8FDB\u9636\u9009\u9879",
-  "UI language for date": "\u9488\u5BF9\u65E5\u671F\u5C55\u793A\u7684\u8BED\u8A00\u754C\u9762",
-  "Translates the date UI language. Only 'en' and 'zh' are available.": "\u5BF9\u65E5\u671F\u7684\u4E0D\u540C\u7FFB\u8BD1\u3002\u76EE\u524D\u53EA\u80FD\u9009\u62E9 'en' \u548C 'zh'\uFF08\u672A\u6765\u4F1A\u5E9F\u7F6E\uFF09",
-  "Default prefix": "\u9ED8\u8BA4\u524D\u7F00",
-  "Time display format": "\u65F6\u95F4\u663E\u793A\u683C\u5F0F",
-  "Time display format description": "\u754C\u9762\u65F6\u95F4\u663E\u793A HH:mm:ss\uFF08\u5E26\u79D2\uFF0C\u9ED8\u8BA4\uFF09\u6216 HH:mm\uFF08\u4E0D\u5E26\u79D2\uFF09\u3002\u8BE5\u9009\u9879\u53EA\u5F71\u54CD\u663E\u793A\uFF0C\u4E0D\u4F1A\u4FEE\u6539\u65E5\u8BB0\u6587\u4EF6\u91CC\u7684\u6570\u636E\u3002",
-  "Set the default prefix when create memo, 'List' by default.": "\u8BBE\u7F6E\u9ED8\u8BA4\u7684\u524D\u7F00\u6837\u5F0F\u3002\u9ED8\u8BA4\u4E3A\u5217\u8868",
-  "Default insert date format": "\u63D2\u5165\u65E5\u671F\u9644\u5E26\u7684\u6837\u5F0F",
-  "Set the default date format when insert date by @, 'Tasks' by default.": "\u5F53\u4F7F\u7528 @ \u6765\u5FEB\u901F\u63D2\u5165\u65E5\u671F\u65F6\uFF0C\u63D2\u5165\u65E5\u671F\u9644\u5E26\u7684\u6837\u5F0F\uFF0C\u9ED8\u8BA4\u4E3A 'Tasks' \u6837\u5F0F",
-  "Default editor position on mobile": "\u5728\u79FB\u52A8\u7AEF\u4E0A\u7684\u9ED8\u8BA4\u7F16\u8F91\u5668\u4F4D\u7F6E",
-  "Set the default editor position on Mobile, 'Top' by default.": "\u8BBE\u7F6E\u5728\u79FB\u52A8\u7AEF\u4E0A\u7684\u9ED8\u8BA4\u7F16\u8F91\u5668\u4F4D\u7F6E\uFF0C\u9ED8\u8BA4\u5728\u9876\u90E8\u3002",
-  "Use button to show editor on mobile": "\u5F53\u7F16\u8F91\u5668\u4F4D\u7F6E\u5728\u5E95\u90E8\u65F6\uFF0C\u7528\u6309\u94AE\u6765\u5524\u51FA\u7F16\u8F91\u5668",
-  "Set a float button to call editor on mobile. Only when editor located at the bottom works.": "\u8BBE\u7F6E\u4E00\u4E2A\u6D6E\u52A8\u6309\u94AE\u6765\u5524\u51FA\u7F16\u8F91\u5668\u3002\u5F53\u5728\u79FB\u52A8\u7AEF\u4E0A\u542F\u7528\u8BE5\u9009\u9879\u624D\u4F1A\u751F\u6548",
-  "Show Time When Copy Results": "\u5F53\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u65F6\u95F4",
-  "Show time when you copy results, like 12:00. Copy time by default.": "\u5728\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u5176\u65F6\u95F4\uFF0C\u4F8B\u5982 12:00 \u3002\u9ED8\u8BA4\u5F00\u542F",
-  "Show Date When Copy Results": "\u5F53\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u65E5\u671F",
-  "Show date when you copy results, like [[2022-01-01]]. Copy date by default.": "\u5728\u590D\u5236\u68C0\u7D22\u7ED3\u679C\u65F6\u9644\u5E26\u5176\u65E5\u671F\uFF0C\u4F8B\u5982 [[2022-01-01]]\u3002\u9ED8\u8BA4\u5F00\u542F",
-  "Add Blank Line Between Different Date": "\u5728\u590D\u5236\u65E5\u671F\u7684\u65F6\u5019\u52A0\u4E0A\u7A7A\u884C",
-  "Add blank line when copy result with date. No blank line by default.": "\u5728\u590D\u5236\u65E5\u671F\u7684\u65F6\u5019\u5728\u76F8\u90BB\u7684\u65E5\u671F\u4E4B\u95F4\u52A0\u4E0A\u7A7A\u884C\u3002\u9ED8\u8BA4\u65E0\u7A7A\u884C",
-  "Share Options": "\u5206\u4EAB\u9009\u9879",
-  "Share Memos Image Footer Start": "\u5206\u4EAB memo \u56FE\u7247\u7684\u5DE6\u8FB9\u9875\u811A",
-  "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default": "\u4F60\u53EF\u4EE5\u5728\u8FD9\u91CC\u8BBE\u7F6E\u4F60\u60F3\u8981\u7684\u4EFB\u610F\u6587\u672C\uFF0C\u7528 {MemosNum} \u6765\u5C55\u793A\u4F60\u8BB0\u5F55\u7684 memo \u6570\u91CF\uFF0C{UsedDay} \u6765\u5C55\u793A\u4F7F\u7528\u65E5\u671F\u3002\u9ED8\u8BA4\u4E3A'{MemosNum} Memos {UsedDay} Days'",
-  "Share Memos Image Footer End": "\u5206\u4EAB memo \u56FE\u7247\u7684\u53F3\u8FB9\u9875\u811A",
-  "Set anything you want here, use {UserName} as your username. '\u270D\uFE0F By {UserName}' By default": "\u4F60\u53EF\u4EE5\u5728\u8FD9\u91CC\u8BBE\u7F6E\u4F60\u60F3\u8981\u7684\u4EFB\u610F\u6587\u672C\uFF0C\u7528 {UserName} \u6765\u5C55\u793A\u4F60\u7684\u7528\u6237\u540D\u3002\u9ED8\u8BA4\u4E3A '\u270D\uFE0F By {UserName}'",
-  "Save Shared Image To Folder For Mobile": "\u5F53\u5728\u79FB\u52A8\u7AEF\u4E0A\u65F6\u4FDD\u5B58\u56FE\u7247\u5230\u6587\u4EF6\u5939",
-  "Save image to folder for mobile. False by Default": "\u5F53\u5728\u79FB\u52A8\u7AEF\u4E0A\u65F6\uFF0C\u4FDD\u5B58\u751F\u6210\u7684\u56FE\u7247\u5230\u6587\u4EF6\u5939",
-  "Say Thank You": "\u611F\u8C22\u5F00\u53D1",
-  Donate: "\u6350\u8D60",
-  "If you like this plugin, consider donating to support continued development:": "\u5982\u679C\u4F60\u559C\u6B22\u8FD9\u4E2A\u63D2\u4EF6\uFF0C\u800C\u4E14\u4E5F\u5E0C\u671B\u7ED9\u6211\u4E70\u9E21\u817F\uFF0C\u90A3\u4E48\u53EF\u4EE5\u8003\u8651 Github \u9875\u9762\u53F3\u8FB9\u7684 Sponsor~",
-  "File Name of Recycle Bin": "\u56DE\u6536\u7AD9\u7684\u6587\u4EF6\u540D",
-  "Set the filename for recycle bin. 'delete' By default": "\u7ED9\u56DE\u6536\u7AD9\u8BBE\u7F6E\u4E00\u4E2A\u6587\u4EF6\u540D\u3002\u9ED8\u8BA4\u4E3A'delete'",
-  "File Name of Query File": "\u68C0\u7D22\u6587\u4EF6\u7684\u6587\u4EF6\u540D",
-  "Set the filename for query file. 'query' By default": "\u8BBE\u7F6E\u5B58\u653E\u68C0\u7D22\u5F0F\u7684\u6587\u4EF6\u7684\u6587\u4EF6\u540D\u3002\u9ED8\u8BA4\u4E3A'query'",
-  "Use Tags In Vault": "\u4F7F\u7528\u5728\u5E93\u5185\u7684\u6240\u6709\u6807\u7B7E",
-  "Use tags in vault rather than only in Memos. False by default.": "\u4F7F\u7528\u5728\u5E93\u5185\u7684\u800C\u4E0D\u662F Memos \u5185\u7684\u6807\u7B7E\u3002\u9ED8\u8BA4\u5173\u95ED",
-  "Hide Memos With References In List": "\u5728\u4E3B\u5217\u8868\u9690\u85CF\u5F15\u7528\u5361",
-  "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default.": "\u4E3B\u5217\u8868\u4E0D\u663E\u793A\u5F15\u7528\u5361\uFF08\u5B83\u4EEC\u663E\u793A\u5728\u88AB\u5F15\u7528 memo \u7684\u805A\u5408\u533A\uFF09\u3002\u641C\u7D22/\u7B5B\u9009\u65F6\u4ECD\u53EF\u89C1\u3002\u9ED8\u8BA4\u5F00\u542F",
-  REFS: "\u5F15\u7528",
-  "Reference target deleted": "\u5F15\u7528\u76EE\u6807\u5DF2\u5220\u9664",
-  Reply: "\u56DE\u590D",
-  "Reply to this memo": "\u56DE\u590D\u8FD9\u6761 memo",
-  "Reply to": "\u56DE\u590D",
-  "Reference a memo": "\u5F15\u7528\u4E00\u6761 memo",
-  "Search memos...": "\u641C\u7D22 memo...",
-  "No memos found": "\u6CA1\u6709\u5339\u914D\u7684 memo",
-  Cancel: "\u53D6\u6D88",
-  "Don't support web image yet, please input image path in vault": "\u6682\u4E0D\u652F\u6301\u7F51\u7EDC\u56FE\u7247\uFF0C\u8BF7\u4F7F\u7528\u672C\u5730\u56FE\u7247",
-  "Ready to convert image into background": "\u6B63\u5728\u5C06\u56FE\u7247\u8F6C\u6362\u4E3A\u80CC\u666F\u56FE",
-  List: "\u5217\u8868",
-  Task: "\u4EFB\u52A1",
-  Top: "\u9876\u90E8",
-  Bottom: "\u5E95\u90E8",
-  TAG: "\u6807\u7B7E",
-  MEMO: "MEMO",
-  DAY: "\u5929",
-  QUERY: "\u68C0\u7D22\u5F0F",
-  EDIT: "\u7F16\u8F91",
-  PIN: "\u7F6E\u9876",
-  UNPIN: "\u53D6\u6D88\u7F6E\u9876",
-  DELETE: "\u5220\u9664",
-  "CONFIRM\uFF01": "\u786E\u5B9A\u5220\u9664",
-  "CREATE FILTER": "\u521B\u5EFA\u68C0\u7D22\u5F0F",
-  Settings: "\u8BBE\u7F6E",
-  "Recycle bin": "\u56DE\u6536\u7AD9",
-  "Enable Recycle Bin": "\u542F\u7528\u56DE\u6536\u7AD9",
-  "Memo": "Memo \u8BB0\u5F55",
-  "List & Sidebar": "\u5217\u8868\u4E0E\u4FA7\u680F",
-  "Startup & Opening": "\u542F\u52A8\u4E0E\u6253\u5F00",
-  "Memo heading": "Memo \u533A\u6807\u9898",
-  "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo": "\u65B0\u95EA\u5FF5\u5199\u5165\u8BE5\u6807\u9898\u4E0B\uFF0C\u4E14\u53EA\u8BFB\u53D6\u8BE5\u6807\u9898\u4E0B\u7684\u5185\u5BB9\uFF1B\u6807\u9898\u4E0D\u5B58\u5728\u65F6\u4F1A\u81EA\u52A8\u521B\u5EFA\u3002\u9ED8\u8BA4\uFF1A## Memo",
-  "Show Heat Map": "\u663E\u793A\u70ED\u529B\u56FE",
-  "Whether to show the usage heat map in the sidebar. True by default.": "\u662F\u5426\u5728\u4FA7\u680F\u663E\u793A\u6D3B\u8DC3\u70ED\u529B\u56FE\u3002\u9ED8\u8BA4\u5F00\u542F\u3002",
-  "Start day of week": "\u5468\u8D77\u59CB\u65E5",
-  "The first day of each column in the heat map. Sunday by default.": "\u70ED\u529B\u56FE\u6BCF\u5217\u4EE5\u5468\u51E0\u5F00\u59CB\u3002\u9ED8\u8BA4\u5468\u65E5\u3002",
-  "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled.": "\u5173\u95ED\u540E\uFF0C\u5220\u9664\u95EA\u5FF5\u4F1A\u76F4\u63A5\u6C38\u4E45\u79FB\u9664\uFF0C\u4E0D\u518D\u79FB\u5165\u56DE\u6536\u7AD9\u3002\u5DF2\u5728\u56DE\u6536\u7AD9\u4E2D\u7684\u95EA\u5FF5\u4F1A\u4FDD\u7559\uFF0C\u91CD\u65B0\u6253\u5F00\u6B64\u5F00\u5173\u540E\u6062\u590D\u3002",
-  "DELETE FOREVER?": "\u6C38\u4E45\u5220\u9664?",
-  "Audit data": "\u6570\u636E\u4F53\u68C0",
-  "About Me": "\u5173\u4E8E",
-  "Fetching data...": "\u83B7\u53D6\u6570\u636E\u4E2D...",
-  "Here is No Zettels.": "\u6CA1\u6709\u627E\u5230 memo",
-  "Frequently Used Tags": "\u5E38\u7528\u6807\u7B7E",
-  "Flat view": "\u5E73\u94FA\u89C6\u56FE",
-  "Tree view": "\u6811\u72B6\u89C6\u56FE",
-  "What do you think now...": "\u4F60\u73B0\u5728\u5728\u60F3\u4EC0\u4E48\uFF1F",
-  READ: "\u9605\u8BFB",
-  MARK: "\u5F15\u7528",
-  SHARE: "\u5206\u4EAB",
-  SOURCE: "\u6765\u6E90",
-  RESTORE: "\u6062\u590D",
-  "Mark as done": "\u6807\u8BB0\u4E3A\u5DF2\u5B8C\u6210",
-  "Mark as todo": "\u6807\u8BB0\u4E3A\u672A\u5B8C\u6210",
-  "TURN INTO TASK": "\u8BBE\u4E3A\u4EFB\u52A1\u5361",
-  "TURN INTO MEMO": "\u53D6\u6D88\u4EFB\u52A1\u5361",
-  "DELETE AT": "\u5220\u9664\u4E8E",
-  "Noooop!": "\u5565\u90FD\u6CA1\u6709\uFF01",
-  "All Data is Loaded \u{1F389}": "\u5C31\u8FD9\u4E9B\u5566 \u{1F389}",
-  "Quick filter": "\u5FEB\u901F\u7B5B\u9009",
-  TYPE: "\u7C7B\u578B",
-  LINKED: "\u94FE\u63A5",
-  "NO TAGS": "\u65E0\u6807\u7B7E",
-  "HAS LINKS": "\u6709\u8D85\u94FE\u63A5",
-  "HAS IMAGES": "\u6709\u56FE\u7247",
-  INCLUDE: "\u5305\u62EC",
-  EXCLUDE: "\u6392\u9664",
-  TEXT: "\u6587\u672C",
-  IS: "\u662F",
-  ISNOT: "\u4E0D\u662F",
-  SELECT: "\u9009\u62E9",
-  "ADD FILTER TERMS": "\u6DFB\u52A0\u68C0\u7D22\u6761\u4EF6",
-  FILTER: "\u68C0\u7D22\u5668",
-  TITLE: "\u6807\u9898",
-  "CREATE QUERY": "\u521B\u5EFA\u68C0\u7D22\u5F0F",
-  "EDIT QUERY": "\u7F16\u8F91\u68C0\u7D22\u5F0F",
-  MATCH: "\u5339\u914D",
-  TIMES: "\u6B21",
-  "Share Memo Image": "\u5206\u4EAB Memo \u56FE\u7247",
-  "\u2197Click the button to save": "\u2197\u70B9\u51FB\u53F3\u4E0A\u89D2\u7684\u6309\u94AE\u6765\u4FDD\u5B58",
-  "Image is generating...": "\u56FE\u7247\u6B63\u5728\u751F\u6210\u4E2D...",
-  "Image is loading...": "\u56FE\u7247\u6B63\u5728\u52A0\u8F7D\u4E2D...",
-  "\u{1F61F} Cannot load image, image link maybe broken": "\u{1F61F} \u65E0\u6CD5\u52A0\u8F7D\u56FE\u7247\uFF0C\u56FE\u7247\u94FE\u63A5\u4E5F\u8BB8\u4E0D\u5B58\u5728",
-  "Loading...": "\u52AA\u529B\u52A0\u8F7D\u4E2D...",
-  "Daily Memos": "\u6BCF\u65E5 Memos",
-  "CANCEL EDIT": "\u53D6\u6D88\u7F16\u8F91",
-  "Write to date": "\u8BBE\u7F6E\u5199\u5165\u65E5\u671F",
-  "Write on": "\u5199\u5165",
-  "Back to now": "\u6062\u590D\u73B0\u5728",
-  Home: "\u4E3B\u9875",
-  "Random memo": "\u968F\u673A\u8BBF\u95EE",
-  "Draw another": "\u518D\u62BD\u4E00\u5F20",
-  "Open the daily note": "\u6253\u5F00\u5F53\u5929\u65E5\u8BB0",
-  "No memo found": "\u6CA1\u6709\u627E\u5230 memo",
-  "Data tools": "\u6570\u636E\u5DE5\u5177",
-  "Data Audit": "\u6570\u636E\u5BA1\u8BA1",
-  "Open the audit page to inspect and migrate memo data in daily notes.": "\u6253\u5F00\u5BA1\u8BA1\u9875\u68C0\u67E5\u4E0E\u8FC1\u79FB\u65E5\u8BB0\u4E2D\u7684 memo \u6570\u636E\u3002",
-  Today: "\u4ECA\u5929",
-  Time: "\u65F6\u95F4",
-  "LINK TO THE": "\u94FE\u63A5\u5230",
-  "Mobile Options": "\u79FB\u52A8\u7AEF\u9009\u9879",
-  "Experimental Options": "\u5B9E\u9A8C\u6027\u9009\u9879",
-  "Background Image in Dark Theme": "\u6DF1\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE",
-  "Background Image in Light Theme": "\u6D45\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE",
-  'Set background image in dark theme. Set something like "Daily/one.png"': '\u8BBE\u7F6E\u6DF1\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE\u3002\u8BF7\u8BBE\u7F6E\u7C7B\u4F3C"Daily/one.png"\u7684\u8DEF\u5F84',
-  'Set background image in light theme. Set something like "Daily/one.png"': '\u8BBE\u7F6E\u6D45\u8272\u4E3B\u9898\u7684\u80CC\u666F\u56FE\u3002\u8BF7\u8BBE\u7F6E\u7C7B\u4F3C"Daily/one.png"\u7684\u8DEF\u5F84',
-  'Set default memo composition, you should use {TIME} as "HH:mm" and {CONTENT} as content. "{TIME} {CONTENT}" by default': '\u8BBE\u7F6E\u9ED8\u8BA4 Memo \u7EC4\u6210\uFF0C\u4F60\u5FC5\u987B\u8981\u4F7F\u7528 {TIME} \u4F5C\u4E3A "HH:mm" \u800C\u4E14\u8981\u8BBE\u7F6E {CONTENT} \u4F5C\u4E3A\u5185\u5BB9\u8BC6\u522B\u3002\u9ED8\u8BA4\u60C5\u51B5\u4E0B\uFF0C Memo \u57FA\u4E8E "{TIME} {CONTENT}" \u8BC6\u522B',
-  "Default Memo Composition": "\u9ED8\u8BA4 Memo \u7EC4\u6210",
-  "Show tasks label near the time text. False by default": "\u5728 Memo \u7684\u65F6\u95F4\u65C1\u5C55\u793A\u4EFB\u52A1\u6807\u7B7E\u3002\u9ED8\u8BA4\u60C5\u51B5\u4E0B\u4E0D\u5C55\u793A",
-  "Please Open Memos First": "\u8BF7\u5148\u6253\u5F00 Memos",
-  DATE: "\u65E5\u671F",
-  OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED: "Obsidian Natrual DATES language \u63D2\u4EF6\u6CA1\u542F\u52A8",
-  BEFORE: "\u5728\u4E4B\u524D",
-  AFTER: "\u5728\u4E4B\u540E",
-  "You can comment on memos. False by default": "\u4F60\u53EF\u4EE5\u5728 Memos \u70B9\u51FB\u56FE\u6807\u8FDB\u884C\u8BC4\u8BBA\u4E86\u3002\u9ED8\u8BA4\u4E0D\u5F00\u542F",
-  Import: "\u5BFC\u5165",
-  "TITLE CANNOT BE NULL!": "\u6807\u9898\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
-  "FILTER CANNOT BE NULL!": "\u7B5B\u9009\u5668\u4E0D\u53EF\u4EE5\u4E3A\u7A7A\uFF01",
-  "You should install Dataview Plugin ver 0.5.9 or later to use this feature.": "\u4F60\u9700\u8981\u5B89\u88C5 0.5.9 \u7248\u672C\u4EE5\u4E0A\u7684 Dataview \u63D2\u4EF6\u6765\u4F7F\u7528\u8BE5\u529F\u80FD",
-  "Fetch Error": "\u{1F62D} Memos \u83B7\u53D6\u5931\u8D25",
-  "Copied to clipboard Successfully": "\u590D\u5236\u6210\u529F",
-  "Check if you opened Daily Notes Plugin Or Periodic Notes Plugin": "\u8BF7\u68C0\u67E5\u4F60\u6709\u6CA1\u6709\u5F00\u542F\u65E5\u8BB0\u63D2\u4EF6\u6216\u8005 Periodic Notes \u63D2\u4EF6\u4E14\u542F\u7528\u4E86\u65E5\u8BB0\u6A21\u5F0F",
-  "Please finish the last filter setting first": "\u5148\u5B8C\u5584\u4E0A\u4E00\u4E2A\u8FC7\u6EE4\u5668\u5427",
-  "Close Memos Successfully": "\u6210\u529F\u5173\u95ED Memos ",
-  "Insert as Memo": "\u63D2\u5165\u5185\u5BB9\u4E3A Memo",
-  "Insert file as memo content": "\u63D2\u5165\u6587\u4EF6\u4E3A Memo",
-  "Image load failed": "\u6709\u4E2A\u56FE\u7247\u52A0\u8F7D\u5931\u8D25\u4E86\u{1F61F}",
-  "Content cannot be empty": "\u5185\u5BB9\u4E0D\u80FD\u4E3A\u7A7A\u5440",
-  "Unable to create new file.": "\u65E0\u6CD5\u65B0\u5EFA\u6587\u4EF6",
-  "Failed to fetch deleted memos: ": "\u65E0\u6CD5\u83B7\u53D6\u5DF2\u5220\u9664\u7684 Memos \uFF1A",
-  "RESTORE SUCCEED": "\u6210\u529F\u6062\u590D Memo",
-  "Save Memo button icon": "\u4FDD\u5B58\u6309\u94AE\u4E0A\u7684\u56FE\u6807",
-  "The icon shown on the save Memo button in the UI.": "\u4F60\u53EF\u4EE5\u8BBE\u7F6E\u4FDD\u5B58\u6309\u94AE\u4E0A\u7684\u56FE\u6807",
-  "Fetch Memos From Particular Notes": "\u4ECE\u6307\u5B9A\u7684\u6587\u4EF6\u4E2D\u83B7\u53D6 Memos",
-  'You can set any Dataview Query for memos to fetch it. All memos in those notes will show on list. "#memo" by default': '\u4F60\u53EF\u4EE5\u7ED9\u7B14\u8BB0\u8BBE\u7F6E\u6307\u5B9A\u68C0\u7D22\u5F0F\u6765\u8BA9 Memos \u53EF\u4EE5\u7D22\u5F15\u5230\u5B83\u3002\u9ED8\u8BA4\u4E3A "#memo" ',
-  "Allow Memos to Fetch Memo from Notes": "\u5141\u8BB8 Memos \u4ECE\u7B14\u8BB0\u4E2D\u83B7\u53D6 Memo",
-  "Use Memos to manage all memos in your notes, not only in daily notes. False by default": "\u4F7F\u7528 Memos \u6765\u7BA1\u7406\u4F60\u7B14\u8BB0\u4E2D\u7684 Memos\uFF0C\u4E0D\u5355\u53EA DailyNotes \u4E2D\u7684\u5185\u5BB9\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
-  "Always show memo comments on memos. False by default": "\u5F53\u5F00\u542F\u540E\u8BC4\u8BBA\u603B\u662F\u4F1A\u5728 Memo \u7684\u4E0B\u65B9\u5C55\u793A\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
-  "You didn't set folder for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u6240\u5728\u6587\u4EF6\u5939",
-  "Please check your daily note plugin OR periodic notes plugin settings": "\u8BF7\u68C0\u67E5\u4F60\u7684\u65E5\u8BB0\u63D2\u4EF6\u548C/\u6216 Periodic Notes \u63D2\u4EF6\u7684\u8BBE\u7F6E",
-  "Use Which Plugin's Default Configuration": "\u4F7F\u7528\u54EA\u4E2A\u63D2\u4EF6\u7684\u9ED8\u8BA4\u65E5\u8BB0\u914D\u7F6E",
-  "Memos use the plugin's default configuration to fetch memos from daily, 'Daily' by default.": "Memos \u91C7\u7528\u6307\u5B9A\u63D2\u4EF6\u7684\u9ED8\u8BA4\u914D\u7F6E\u6765\u83B7\u53D6 Memos\u3002\u9ED8\u8BA4\u4E3A\u65E5\u8BB0\u63D2\u4EF6\u3002",
-  Daily: "\u65E5\u8BB0\u63D2\u4EF6",
-  "Always Show Leaf Sidebar on PC": "\u5728 PC \u4E0A\u603B\u662F\u5C55\u793A\u5DE6\u4FA7\u680F",
-  "Show left sidebar on PC even when the leaf width is less than 875px. False by default.": "\u5728 PC \u4E0A\u5373\u4F7F\u9875\u9762\u5BBD\u5EA6\u5C0F\u4E8E 875px \u65F6\u90FD\u5C55\u793A\u5DE6\u4FA7\u680F\u3002\u9ED8\u8BA4\u4E3A\u5173\u95ED",
-  "You didn't set format for daily notes in both periodic-notes and daily-notes plugins.": "\u4F60\u5728 Periodic Notes \u63D2\u4EF6\u548C\u65E5\u8BB0\u63D2\u4EF6\u90FD\u6CA1\u8BBE\u7F6E\u65E5\u8BB0\u7684\u683C\u5F0F",
-  "Previous page": "\u4E0A\u4E00\u9875",
-  "Next page": "\u4E0B\u4E00\u9875",
-  "Type Here": "\u8F93\u5165\u4EE5\u8FC7\u6EE4",
-  TagTipFirst: "\u8F93\u5165 ",
-  TagTipSecond: "\u5373\u53EF\u521B\u5EFA\u4E00\u4E2A\u6807\u7B7E",
-  "Failed to save: ": "\u4FDD\u5B58\u5931\u8D25\uFF1A",
-  "Auto-clean Recycle Bin": "\u81EA\u52A8\u6E05\u7406\u56DE\u6536\u7AD9",
-  "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone.": "\u8D85\u8FC7\u4FDD\u7559\u671F\u7684\u5DF2\u5220\u5361\u4F1A\u88AB\u6574\u5757\u6C38\u4E45\u5220\u9664\uFF0C\u4E0D\u53EF\u6062\u590D\u3002",
-  "Never delete": "\u6C38\u4E0D\u5220\u9664",
-  "7 days": "7 \u5929",
-  "30 days": "30 \u5929",
-  "90 days": "90 \u5929",
-  "180 days": "180 \u5929",
-  "Auto-cleaned {N} expired memos from the recycle bin": "\u56DE\u6536\u7AD9\u81EA\u52A8\u6E05\u7406\uFF1A\u5DF2\u6C38\u4E45\u5220\u9664 {N} \u6761\u8FC7\u671F\u5361",
-  "Send sound": "\u53D1\u9001\u97F3\u6548",
-  "Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.": "\u53D1\u51FA\u4E00\u6761\u65B0\u95EA\u5FF5\u65F6\u64AD\u653E\u97F3\u6548\u3002\u53EF\u9009\u63D2\u4EF6\u81EA\u5E26\u7684\u53D1\u724C\u58F0\uFF0C\u6216\u4F60\u81EA\u5DF1\u7684\u97F3\u9891\u6587\u4EF6\u3002",
-  "Built-in (card deal)": "\u5185\u7F6E\xB7\u53D1\u724C\u58F0",
-  "Custom path": "\u81EA\u5B9A\u4E49\u8DEF\u5F84",
-  "Not played": "\u4E0D\u64AD\u653E",
-  "Sound file path": "\u97F3\u6548\u6587\u4EF6\u8DEF\u5F84",
-  "Enter a vault-relative path (e.g. assets/send.mp3).": "\u586B\u5E93\u5185\u76F8\u5BF9\u8DEF\u5F84\uFF08\u5982 assets/send.mp3\uFF09\u3002",
-  Preview: "\u8BD5\u542C",
-  "Failed to play the sound: ": "\u97F3\u6548\u64AD\u653E\u5931\u8D25\uFF1A",
-  "Tag position": "\u6807\u7B7E\u4F4D\u7F6E",
-  "Show tags at the bottom of the card, or keep them where they appear in the text.": "\u6807\u7B7E\u62BD\u5230\u5361\u7247\u6B63\u6587\u672B\u5C3E\uFF0C\u8FD8\u662F\u4FDD\u7559\u5728\u53E5\u5B50\u91CC\u539F\u6765\u7684\u4F4D\u7F6E\u3002",
-  "In place": "\u539F\u4F4D",
-  "What needs doing...": "\u8981\u505A\u4EC0\u4E48\uFF1F\u5199\u4E0B\u6765\u2026",
-  Afdian: "\u7231\u53D1\u7535",
-  "Data health check": "\u{1FA7A} \u6570\u636E\u4F53\u68C0",
-  "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.": "\u68C0\u6D4B\u65E5\u8BB0\u6587\u4EF6\u4E2D\u7684\u6570\u636E\u7ED3\u6784\u95EE\u9898\uFF0C\u4EE5\u53CA\u65E7\u7248 Memos \u63D2\u4EF6\u5199\u4E0B\u7684 memo\u3002\u4FEE\u590D\u524D\u4F1A\u81EA\u52A8\u5907\u4EFD\u5230 .rememo-backup/\uFF0C\u53EF\u653E\u5FC3\u64CD\u4F5C\u3002",
-  "Recently fixed": "\u2705 \u6700\u8FD1\u4FEE\u590D",
-  Clear: "\u6E05\u7A7A",
-  "Re-scan": "\u91CD\u65B0\u4F53\u68C0",
-  "Migrate all legacy files ({n})": "\u4E00\u952E\u8FC1\u79FB\u5168\u90E8\u65E7\u6587\u4EF6\uFF08{n} \u4E2A\uFF09",
-  "Auto-fix all ({n})": "\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08{n} \u6761\uFF09",
-  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "\u6709\u95EE\u9898\u6587\u4EF6 {files} \xB7 memo {lines} \u6761 \xB7 \u95EE\u9898 {issues} \u4E2A",
-  " (incl. {n} legacy-format files)": "\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 {n} \u4E2A\uFF09",
-  " ({n} auto-fixable)": "\uFF08\u53EF\u4FEE {n} \u6761\uFF09",
-  "Scanning\u2026 {done}/{total}": "\u626B\u63CF\u4E2D\u2026 {done}/{total}",
-  "Working\u2026": "\u5904\u7406\u4E2D\u2026",
-  "No problems found \u{1F389}": "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}",
-  "{n} errors": "{n} \u5904\u9519\u8BEF",
-  "{n} memos": "{n} \u6761 memo",
-  "Migrate file": "\u6574\u6587\u4EF6\u8FC1\u79FB",
-  "Migrating\u2026": "\u8FC1\u79FB\u4E2D\u2026",
-  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "\u628A\u672C\u6587\u4EF6\u7684\u65E7\u683C\u5F0F\u884C\u6574\u4F53\u8FC1\u79FB\u4E3A\u65B0\u5361\u7247\u5757\uFF08\u81EA\u52A8\u5907\u4EFD\uFF09\uFF0C\u8FC1\u79FB\u540E\u65E7\u6570\u636E\u6062\u590D\u6E32\u67D3\u3002",
-  "{rule} \u2014 fix to:": "\u300C{rule}\u300D\u4FEE\u590D\u4E3A\uFF1A",
-  "Fix this line": "\u4FEE\u590D\u8FD9\u6761",
-  View: "\u67E5\u770B",
-  Ignore: "\u5FFD\u7565",
-  "Fix all": "\u4E00\u952E\u4FEE\u590D",
-  "Scan failed: ": "\u626B\u63CF\u5931\u8D25\uFF1A",
-  "Migration failed: ": "\u8FC1\u79FB\u5931\u8D25\uFF1A",
-  "no auto-fixable issues": "\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898",
-  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5\u5904\u7406\u6216\u8FC1\u79FB\uFF09",
-  "fix-round limit reached; re-scan to check what is left": "\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879",
-  "Migration done: {n} entries converted": "\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 {n} \u4E2A\u65E7\u5355\u4F4D",
-  "Migrated all: {files} files \xB7 {n} entries converted": "\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A{files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 {n} \u4E2A\u65E7\u5355\u4F4D",
-  ", {n} cross-day comments moved to their daily notes": "\uFF0C{n} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0",
-  ", {n} deleted comments dropped": "\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA {n} \u884C",
-  ", {n} entries kept as-is (could not be mapped)": "\uFF0C{n} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559",
-  ", failed: {list}": "\uFF0C\u5931\u8D25\uFF1A{list}",
-  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002",
-  ". Backups are in .rememo-backup/migrate-*.": "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002",
-  "Nothing to migrate ({n} lines lack a time and need manual work).": "\u6CA1\u6709\u53EF\u8FC1\u79FB\u7684\u65E7\u5355\u4F4D\uFF08{n} \u884C\u7F3A\u65F6\u95F4\u7B49\uFF0C\u9700\u4EBA\u5DE5\u5904\u7406\uFF09\u3002",
-  "This file has no legacy-format lines \u2014 no migration needed.": "\u8FD9\u4E2A\u6587\u4EF6\u6CA1\u6709\u65E7\u683C\u5F0F\u884C\uFF0C\u65E0\u9700\u8FC1\u79FB\u3002",
-  "Legacy <br> line breaks": "\u65E7 <br> \u6362\u884C\u7F16\u7801",
-  "Duplicate ^id": "\u91CD\u590D ^id",
-  "Legacy format row": "\u65E7\u683C\u5F0F\u884C",
-  "Legacy 14-digit timestamp": "\u65E7 14 \u4F4D\u65F6\u95F4\u6233",
-  "Missing ^id": "\u7F3A\u5C11 ^id",
-  "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.": "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\u3002",
-  "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.": "\u9876\u5C42\u884C\u4E0D\u662F\u65B0\u683C\u5F0F\u7684\u7EAF\u6807\u8BC6\u5934\uFF08\u65E7\u5355\u884C\u6570\u636E/\u624B\u5199\u6DF7\u5165\uFF09\uFF0C\u8BFB\u53D6\u7AEF\u4E0D\u6E32\u67D3\u5B83\u3002\u4FEE\u590D\uFF1A\u70B9\u672C\u6587\u4EF6\u7684\u300C\u6574\u6587\u4EF6\u8FC1\u79FB\u300D\u7EDF\u4E00\u8F6C\u6362\uFF08\u81EA\u52A8\u5907\u4EFD\uFF0C\u65E7\u8BC4\u8BBA\u5B50\u6811\u4F1A\u6298\u53E0\u8FDB\u7236\u5361\u6B63\u6587\uFF09\u3002",
-  "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.": "\u540C\u4E00\u6587\u4EF6\u91CC\u51FA\u73B0\u91CD\u590D\u7684 ^id\u3002^id \u662F memo/\u8BC4\u8BBA\u7684\u6301\u4E45\u4E3B\u952E\uFF0C\u91CD\u590D\u4F1A\u4F7F\u8BC4\u8BBA\u5F52\u5C5E\u3001\u56DE\u6536\u7AD9\u3001\u5F15\u7528\u5168\u90E8\u6B67\u4E49\u3002\u4FEE\u590D\uFF1A\u4FDD\u7559\u7B2C\u4E00\u4E2A\u51FA\u73B0\u7684 id\uFF0C\u540E\u7EED\u91CD\u590D\u884C\u6362\u6210\u4E00\u4E2A\u65B0\u7684\u968F\u673A ^id\u3002",
-  "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.": "\u884C\u9996\u662F\u65E7\u7248 14 \u4F4D\u65F6\u95F4\u6233\uFF08YYYYMMDDHHmmss\uFF09\u3002\u65F6\u95F4\u5E94\u7EDF\u4E00\u4E3A HH:mm:ss\uFF08\u5E26\u79D2\uFF09\u3002\u4FEE\u590D\uFF1A\u53EA\u66FF\u6362\u65F6\u95F4\u4F4D\u4E3A HH:mm:ss\uFF0C\u5185\u5BB9\u4E0E ^id \u4E0D\u52A8\u3002",
-  "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.": "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
-  "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file": "\u8BE5\u884C\u542B {n} \u5904 <br>\uFF1B\u672C\u6587\u4EF6\u5171 {m} \u884C\u53D7\u5F71\u54CD\uFF0C\u5EFA\u8BAE\u6574\u4F53\u8FC1\u79FB",
-  "legacy-format row: a whole-file migration converts it into a card block": "\u65E7\u683C\u5F0F\u884C\uFF1A\u6574\u6587\u4EF6\u8FC1\u79FB\u53EF\u5C06\u5176\u8F6C\u6210\u65B0\u683C\u5F0F\u5361\u7247\u5757",
-  "first seen at line {n}": "\u9996\u6B21\u51FA\u73B0\u5728\u7B2C {n} \u884C",
-  "Your old memos are still here": "\u4F60\u7684\u65E7 memo \u8FD8\u5728",
-  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "\u5E93\u91CC\u68C0\u6D4B\u5230 {n} \u884C\u65E7\u7248 Memos \u683C\u5F0F\u7684 memo\uFF0CRememo \u76EE\u524D\u4E0D\u6E32\u67D3\u5B83\u4EEC\u3002\u6570\u636E\u6CA1\u6709\u4E22\u2014\u2014\u8DD1\u4E00\u6B21\u300C\u6570\u636E\u4F53\u68C0\u300D\u5373\u53EF\u628A\u5B83\u4EEC\u8F6C\u6210\u5361\u7247\u5757\u3002",
-  "Open data health check": "\u6253\u5F00\u6570\u636E\u4F53\u68C0"
-};
-var zhTW = {};
-const localeMap = {
-  ar,
-  cs: cz,
-  da,
-  de,
-  en,
-  "en-gb": enGB,
-  es,
-  fr,
-  hi,
-  id,
-  it,
-  ja,
-  ko,
-  nl,
-  nn: no,
-  pl,
-  pt,
-  "pt-br": ptBR,
-  ro,
-  ru,
-  tr,
-  "zh-cn": zhCN,
-  "zh-tw": zhTW
-};
-const locale = localeMap[require$$0.moment.locale()];
-function t$2(str) {
-  return locale && locale[str] || en[str] || str;
-}
-function tf(str, vars) {
-  const template = t$2(str);
-  return typeof template === "string" ? template.replace(/\{(\w+)\}/g, (_, k) => {
-    var _a2;
-    return String((_a2 = vars[k]) != null ? _a2 : "");
-  }) : String(str);
-}
-function extractDeletedAt(content2) {
-  const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content2);
-  if (m2) {
-    const value = m2[1].trim();
-    if (/^\d{14}$/.test(value) || /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
-      return {
-        isDeleted: true,
-        deletedAt: value,
-        rest: content2.slice(0, m2.index).trimEnd()
-      };
-    }
-  }
-  return { isDeleted: false, deletedAt: "", rest: content2 };
-}
-function parseDeletedAtMs(value) {
-  const m2 = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(value) || /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
-  if (!m2)
-    return null;
-  const y2 = Number(m2[1]);
-  const mo = Number(m2[2]);
-  const d = Number(m2[3]);
-  const h2 = Number(m2[4]);
-  const mi2 = Number(m2[5]);
-  const s = Number(m2[6]);
-  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h2 > 23 || mi2 > 59 || s > 59)
-    return null;
-  const t2 = new Date(y2, mo - 1, d, h2, mi2, s).getTime();
-  return Number.isNaN(t2) ? null : t2;
-}
-function extractMemoTaskTypeFromLine(line) {
-  const match = /^[\s-*]*\[(.{1})\]/.exec(line);
-  return match ? match[1] : "";
-}
-const getTaskType = (memoTaskType) => {
-  if (memoTaskType === " ")
-    return "TASK-TODO";
-  if (memoTaskType === "x" || memoTaskType === "X")
-    return "TASK-DONE";
-  return "TASK-" + memoTaskType;
-};
-function extractMemoTime(rawContent) {
-  const t2 = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(rawContent);
-  if (t2) {
-    return {
-      time: t2[3] ? `${t2[1]}:${t2[2]}:${t2[3]}` : `${t2[1]}:${t2[2]}`,
-      isOld: !t2[3],
-      rest: rawContent.slice(t2[0].length).replace(/^ /, "")
-    };
-  }
-  const ts = /^(\d{14})\s?(.*)$/.exec(rawContent);
-  if (ts) {
-    const hh2 = ts[1].slice(8, 10);
-    const mm = ts[1].slice(10, 12);
-    const ss = ts[1].slice(12, 14);
-    return { time: `${hh2}:${mm}:${ss}`, isOld: true, rest: ts[2].trim() };
-  }
-  return { time: "", isOld: false, rest: rawContent.trim() };
-}
-const INDENT_UNIT = 4;
-function getIndentWidth(line) {
-  let width = 0;
-  for (const ch2 of line) {
-    if (ch2 === " ")
-      width += 1;
-    else if (ch2 === "	")
-      width += INDENT_UNIT;
-    else
-      break;
-  }
-  return width;
-}
-function unindentContentLine(line) {
-  return line.length >= 4 ? line.slice(4) : line;
-}
-const TIME_TEXT = String.raw`(?:\d{1,2}:\d{2}(?::\d{2})?|\d{14})`;
-const DELETED_AT_VALUE = String.raw`(?:\d{14}|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`;
-const PURE_HEADER_LINE = new RegExp(
-  String.raw`^[-*]\s(\[[^\]]{1}\]\s?)?${TIME_TEXT}(\s+deletedAt:\s*${DELETED_AT_VALUE})?\s*(\^[A-Za-z0-9]{6})?\s*$`
-);
-const TOP_BULLET_LINE = /^[-*]\s/;
-function classifyMemoRow(line) {
-  if (!TOP_BULLET_LINE.test(line))
-    return "other";
-  return PURE_HEADER_LINE.test(line) ? "pure-header" : "old-top-row";
-}
-function detectFileEra(lines) {
-  for (const line of lines) {
-    if (TOP_BULLET_LINE.test(line)) {
-      return PURE_HEADER_LINE.test(line) ? "new" : "old";
-    }
-  }
-  return "unknown";
-}
-class DailyNotesFolderMissingError extends Error {
-}
-async function getMemosFromDailyNote(dailyNote, allMemos) {
-  if (!dailyNote) {
-    return [];
-  }
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let fileContents = await vault.read(dailyNote);
-  let fileLines = getAllLinesFromFile$5(fileContents);
-  const baseDate = getDateFromFile_1(dailyNote, "day");
-  parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate);
-  return allMemos;
-}
-function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
-  const rule = getMemoSectionRule(MemoHeading);
-  let active = false;
-  let current = null;
-  let pendingBlanks = 0;
-  let legacyRows = 0;
-  const flush = () => {
-    if (!current) {
-      pendingBlanks = 0;
-      return;
-    }
-    const memoDate = require$$0.moment(baseDate);
-    if (current.time) {
-      const [h2, m2, s] = current.time.split(":").map((x2) => parseInt(x2));
-      memoDate.hours(h2).minutes(m2);
-      if (!isNaN(s))
-        memoDate.seconds(s);
-    }
-    const content2 = current.body.join("\n");
-    allMemos.push({
-      id: memoDate.format("YYYYMMDDHHmmss") + current.idx,
-      content: content2,
-      user_id: 1,
-      createdAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
-      updatedAt: memoDate.format("YYYY/MM/DD HH:mm:ss"),
-      memoType: current.memoType,
-      hasId: current.hasId,
-      linkId: "",
-      isDeleted: current.isDeleted,
-      deletedAt: current.deletedAt,
-      path: dailyNote.path,
-      blockStart: current.idx,
-      blockEnd: current.bodyEnd
-    });
-    current = null;
-    pendingBlanks = 0;
-  };
-  const parseHeader = (line, i2) => {
-    const memoType = /^[-*]\s\[(.{1})\]\s?/.test(line) ? getTaskType(extractMemoTaskTypeFromLine(line)) : "JOURNAL";
-    const stripped = line.replace(/^[-*]\s(\[[^\]]{1}\]\s?)?/, "");
-    const { time, rest } = extractMemoTime(stripped);
-    let content2 = rest;
-    let hasId;
-    const idMatch = /\^([A-Za-z0-9]{6})\s*$/.exec(content2);
-    if (idMatch) {
-      hasId = idMatch[1];
-      content2 = content2.slice(0, idMatch.index).trimEnd();
-    } else {
-      hasId = Math.random().toString(36).slice(-6);
-    }
-    const delMatch = extractDeletedAt(content2);
-    let isDeleted = false;
-    let deletedAt = "";
-    if (delMatch.isDeleted) {
-      isDeleted = true;
-      deletedAt = delMatch.deletedAt;
-    }
-    return {
-      idx: i2,
-      hasId,
-      time: time || "",
-      deletedAt,
-      isDeleted,
-      memoType,
-      body: [],
-      bodyEnd: i2
-    };
-  };
-  for (let i2 = 0; i2 < fileLines.length; i2++) {
-    const line = fileLines[i2];
-    if (isMemoHeadingLine(line, rule)) {
-      flush();
-      active = true;
-      continue;
-    }
-    if (active && isMemoSectionBoundary(line, rule)) {
-      active = false;
-      flush();
-      continue;
-    }
-    if (!active)
-      continue;
-    const cls = classifyMemoRow(line);
-    if (cls === "pure-header") {
-      flush();
-      current = parseHeader(line, i2);
-      continue;
-    }
-    if (cls === "old-top-row") {
-      legacyRows++;
-      flush();
-      continue;
-    }
-    if (!current) {
-      continue;
-    }
-    if (line.trim() === "") {
-      pendingBlanks++;
-      continue;
-    }
-    if (getIndentWidth(line) >= 4) {
-      if (pendingBlanks > 0) {
-        for (let b = 0; b < pendingBlanks; b++)
-          current.body.push("");
-        pendingBlanks = 0;
-      }
-      current.body.push(unindentContentLine(line));
-      current.bodyEnd = i2;
-      continue;
-    }
-    flush();
-  }
-  flush();
-  legacySignal.report(dailyNote.path, legacyRows);
-}
-async function getMemos(onBatch) {
-  const memos = [];
-  const { vault } = appStore.getState().dailyNotesState.app;
-  const folder = getDailyNotePath();
-  if (folder === "" || folder === void 0) {
-    new require$$0.Notice(t$2("Please check your daily note plugin OR periodic notes plugin settings"));
-    return memos;
-  }
-  const dailyNotesFolder = vault.getAbstractFileByPath(require$$0.normalizePath(folder));
-  if (!(dailyNotesFolder instanceof require$$0.TFolder)) {
-    throw new DailyNotesFolderMissingError("Failed to find daily notes folder");
-  }
-  const dailyNotes = getAllDailyNotes_1();
-  const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").sort((a, b) => b[0].localeCompare(a[0]));
-  legacySignal.reset();
-  const BATCH_SIZE = 5;
-  for (let i2 = 0; i2 < files.length; i2++) {
-    await getMemosFromDailyNote(files[i2][1], memos);
-    if (onBatch && (i2 + 1) % BATCH_SIZE === 0) {
-      await onBatch([...memos]);
-    }
-  }
-  if (onBatch && files.length > 0) {
-    await onBatch([...memos]);
-  }
-  return memos;
-}
-const getAllLinesFromFile$5 = (cache) => cache.split(/\r?\n/);
-class MemoService {
-  constructor() {
-    this.initialized = false;
-    this.autoCleaning = false;
-  }
-  getState() {
-    return appStore.getState().memoState;
-  }
-  get isInitialized() {
-    return this.initialized;
-  }
-  invalidate() {
-    this.initialized = false;
-  }
-  async fetchAllMemos(options) {
-    const accumulatedMemos = [];
-    await getMemos(async (batchMemos) => {
-      accumulatedMemos.push(...batchMemos);
-      if (!(options == null ? void 0 : options.silent)) {
-        this.updateMemoStore(accumulatedMemos);
-      }
-    });
-    if (options == null ? void 0 : options.silent) {
-      this.updateMemoStore(accumulatedMemos);
-    }
-    if (!this.initialized) {
-      this.initialized = true;
-    }
-    await this.autoCleanRecycleBin();
-    return accumulatedMemos;
-  }
-  async fetchMemosFromFile(file) {
-    const memos = [];
-    await getMemosFromDailyNote(file, memos);
-    const { memoState } = appStore.getState();
-    const others = memoState.memos.filter((m2) => m2.path !== file.path);
-    this.updateMemoStore([...others, ...memos]);
-  }
-  async fetchDeletedMemos() {
-    const deletedMemos = this.getState().memos.filter((m2) => m2.isDeleted);
-    return deletedMemos.sort(
-      (a, b) => new Date(b.deletedAt || "").getTime() - new Date(a.deletedAt || "").getTime()
-    );
-  }
-  async autoCleanRecycleBin() {
-    if (this.autoCleaning)
-      return;
-    this.autoCleaning = true;
-    try {
-      const { settings } = appStore.getState().settingsState;
-      if (!settings.EnableRecycleBin || settings.RecycleBinRetention === "never")
-        return;
-      const days = Number(settings.RecycleBinRetention);
-      if (!Number.isFinite(days) || days <= 0)
-        return;
-      const cutoff = Date.now() - days * 24 * 60 * 60 * 1e3;
-      const expired = this.getState().memos.filter((m2) => {
-        if (!m2.isDeleted)
-          return false;
-        const deletedAtMs = parseDeletedAtMs(m2.deletedAt);
-        return deletedAtMs !== null && deletedAtMs <= cutoff;
-      });
-      if (expired.length === 0)
-        return;
-      let cleaned = 0;
-      for (const memo2 of expired) {
-        try {
-          await this.deleteMemoById(memo2.id, memo2.hasId, memo2.path);
-          cleaned += 1;
-        } catch (error) {
-          console.error("[rememo] auto-clean failed:", memo2.id, error);
-        }
-      }
-      if (cleaned > 0) {
-        new require$$0.Notice(
-          t$2("Auto-cleaned {N} expired memos from the recycle bin").replace("{N}", String(cleaned)),
-          8e3
-        );
-      }
-    } catch (error) {
-      console.error("[rememo] auto-clean error:", error);
-    } finally {
-      this.autoCleaning = false;
-    }
-  }
-  pushMemo(memo2) {
-    appStore.dispatch({
-      type: "INSERT_MEMO",
-      payload: { memo: { ...memo2 } }
-    });
-  }
-  pushCommentMemo(memo2) {
-    appStore.dispatch({
-      type: "INSERT_MEMO",
-      payload: { memo: { ...memo2 } }
-    });
-  }
-  getMemoById(id2) {
-    return this.getState().memos.find((m2) => m2.id === id2) || null;
-  }
-  getMemoByLinkTarget(target) {
-    const parsed = parseLinkTarget(target);
-    if (!parsed)
-      return null;
-    if (!parsed.isLegacy && parsed.fileName) {
-      return this.getState().memos.find(
-        (m2) => m2.hasId === parsed.id && (m2.path === parsed.fileName || m2.path.endsWith("/" + parsed.fileName))
-      ) || null;
-    }
-    return this.getMemoById(parsed.id) || null;
-  }
-  async hideMemoById(id2, hasId, path) {
-    const file = await obHideMemo(id2, hasId, path);
-    if (file) {
-      await this.fetchMemosFromFile(file);
-    }
-  }
-  async restoreMemoById(id2, hasId, path) {
-    const file = await restoreMemo(id2, hasId, path);
-    if (file) {
-      await this.fetchMemosFromFile(file);
-    }
-  }
-  async deleteMemoById(id2, hasId, path) {
-    const file = await deleteMemo(id2, hasId, path);
-    if (file) {
-      await this.fetchMemosFromFile(file);
-    }
-  }
-  async toggleMemoTask(memo2) {
-    const file = await toggleMemoTask(memo2.id, memo2.hasId, memo2.path);
-    if (file) {
-      await this.fetchMemosFromFile(file);
-    }
-  }
-  async toggleMemoTaskType(memo2) {
-    const file = await toggleMemoTaskType(memo2.id, memo2.hasId, memo2.path);
-    if (file) {
-      await this.fetchMemosFromFile(file);
-    }
-  }
-  editMemo(memo2) {
-    appStore.dispatch({
-      type: "EDIT_MEMO",
-      payload: memo2
-    });
-  }
-  updateTagsState() {
-    const { memos } = this.getState();
-    const uniqueTags = /* @__PURE__ */ new Set();
-    const tagCounts = {};
-    memos.filter((memo2) => !memo2.isDeleted).forEach((memo2) => {
-      const tags2 = this.extractTagsFromContent(memo2.content);
-      tags2.forEach((tag) => {
-        uniqueTags.add(tag);
-        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-      });
-    });
-    appStore.dispatch({
-      type: "SET_TAGS",
-      payload: {
-        tags: Array.from(uniqueTags),
-        tagsNum: tagCounts
-      }
-    });
-  }
-  clearMemos() {
-    appStore.dispatch({
-      type: "SET_MEMOS",
-      payload: { memos: [] }
-    });
-  }
-  getLinkedMemos(memo2) {
-    var _a2;
-    const fileName = (_a2 = memo2.path.split("/").pop()) != null ? _a2 : memo2.path;
-    const targets = memo2.hasId ? [`${fileName}#^${memo2.hasId}`] : [];
-    return this.getState().memos.filter(
-      (m2) => m2.id !== memo2.id && !m2.isDeleted && (targets.some((t2) => m2.content.includes(t2)) || m2.content.includes(memo2.id))
-    );
-  }
-  async createMemo(text, isTask, date) {
-    return await waitForInsert(text, isTask, date);
-  }
-  async importMemos(text, isList2, date) {
-    return await waitForInsert(text, isList2, date);
-  }
-  async updateMemo(params) {
-    return await changeMemo(
-      params.memoId,
-      params.text,
-      params.type,
-      params.path,
-      params.hasId
-    );
-  }
-  extractTagsFromContent(content2) {
-    const tags2 = /* @__PURE__ */ new Set();
-    const matches = [
-      ...content2.match(TAG_REG) || [],
-      ...content2.match(NOP_FIRST_TAG_REG) || [],
-      ...content2.match(FIRST_TAG_REG) || []
-    ];
-    matches.forEach((match) => {
-      if (TAG_REG.test(match)) {
-        tags2.add(match.replace(TAG_REG, "$1").trim());
-      } else if (NOP_FIRST_TAG_REG.test(match)) {
-        tags2.add(match.replace(NOP_FIRST_TAG_REG, "$1").trim());
-      } else if (FIRST_TAG_REG.test(match)) {
-        tags2.add(match.replace(FIRST_TAG_REG, "$2").trim());
-      }
-    });
-    return Array.from(tags2).filter((tag) => !tag.endsWith("/") && !tag.startsWith("/"));
-  }
-  updateMemoStore(memos) {
-    appStore.dispatch({
-      type: "SET_MEMOS",
-      payload: { memos }
-    });
-  }
-}
-const memoService = new MemoService();
-const findQuery = async () => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const queryList2 = [];
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (queryFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$4(fileContents);
-    if (fileLines && fileLines.length != 0) {
-      for (let i2 = 0; i2 < fileLines.length; i2++) {
-        if (fileLines[i2] === "")
-          continue;
-        const createdDateString = getCreatedDateFromLine(fileLines[i2]);
-        const createdDate = require$$0.moment(createdDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
-        const updatedDate = createdDate;
-        const id2 = createdDateString + getIDFromLine$1(fileLines[i2]);
-        const querystring = getStringFromLine(fileLines[i2]);
-        const title = getTitleFromLine(fileLines[i2]);
-        let pinnedDate;
-        if (/^(.+)pinnedAt(.+)$/.test(fileLines[i2])) {
-          pinnedDate = require$$0.moment(getPinnedDateFromLine$1(fileLines[i2]), "YYYYMMDDHHmmss");
-          queryList2.push({
-            createdAt: createdDate,
-            id: id2,
-            pinnedAt: pinnedDate.format("YYYY/MM/DD HH:mm:ss"),
-            querystring,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          });
-        } else if (/^(.+)\[\](.+)?$/.test(fileLines[i2])) {
-          queryList2.push({
-            createdAt: createdDate,
-            id: id2,
-            pinnedAt: "",
-            querystring: "",
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          });
-        } else {
-          queryList2.push({
-            createdAt: createdDate,
-            id: id2,
-            pinnedAt: "",
-            querystring,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          });
-        }
-      }
-    }
-  }
-  return queryList2;
-};
-const getAllLinesFromFile$4 = (cache) => cache.split(/\r?\n/);
-const getCreatedDateFromLine = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})/.exec(line)) == null ? void 0 : _a2[1];
-};
-const getIDFromLine$1 = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s/.exec(line)) == null ? void 0 : _a2[2];
-};
-const getStringFromLine = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)?\])/.exec(line)) == null ? void 0 : _a2[4];
-};
-const getTitleFromLine = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])/.exec(line)) == null ? void 0 : _a2[3];
-};
-const getPinnedDateFromLine$1 = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14}))/.exec(line)) == null ? void 0 : _a2[7];
-};
-async function deleteQueryForever(queryID) {
-  const { vault, metadataCache } = appStore.getState().dailyNotesState.app;
-  if (/\d{14,}/.test(queryID)) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
-    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-    if (queryFile instanceof require$$0.TFile) {
-      let fileContents = await vault.read(queryFile);
-      let fileLines = getAllLinesFromFile$3(fileContents);
-      if (fileLines.length === 0) {
-        return;
-      } else {
-        const lineNum = parseInt(queryID.slice(14));
-        const line = fileLines[lineNum - 1];
-        if (/^\d{14,}(.+)$/.test(line)) {
-          const newFileContent = fileContents.replace(line, "");
-          await vault.modify(queryFile, newFileContent);
-        }
-      }
-    }
-  }
-}
-const getAllLinesFromFile$3 = (cache) => cache.split(/\r?\n/);
-const createObsidianQuery = async (title, querystring) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (queryFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$2(fileContents);
-    const date = require$$0.moment();
-    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
-    const updatedDate = createdDate;
-    let lineNum;
-    if (fileLines.length === 1 && fileLines[0] === "") {
-      lineNum = 1;
-    } else {
-      lineNum = fileLines.length + 1;
-    }
-    const id2 = date.format("YYYYMMDDHHmmss") + lineNum;
-    await createQueryInFile(queryFile, fileContents, id2, title, querystring);
-    return [
-      {
-        createdAt: createdDate,
-        id: id2,
-        pinnedAt: "",
-        querystring,
-        title,
-        updatedAt: updatedDate,
-        userId: ""
-      }
-    ];
-  } else {
-    const queryFilePath = require$$0.normalizePath(absolutePath);
-    const file = await createQueryFile(queryFilePath);
-    const fileContents = await vault.read(file);
-    const date = require$$0.moment();
-    const createdDate = date.format("YYYY/MM/DD HH:mm:ss");
-    const updatedDate = createdDate;
-    const id2 = date.format("YYYYMMDDHHmmss") + 1;
-    await createQueryInFile(file, fileContents, id2, title, querystring);
-    return [
-      {
-        createdAt: createdDate,
-        id: id2,
-        pinnedAt: "",
-        querystring,
-        title,
-        updatedAt: updatedDate,
-        userId: ""
-      }
-    ];
-  }
-};
-const createQueryInFile = async (file, fileContent, id2, title, queryString) => {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  let newContent;
-  if (fileContent === "") {
-    newContent = id2 + " " + title + " " + queryString;
-  } else {
-    newContent = fileContent + "\n" + id2 + " " + title + " " + queryString;
-  }
-  await vault.modify(file, newContent);
-  return true;
-};
-const createQueryFile = async (path) => {
-  const { vault } = appStore.getState().dailyNotesState.app;
-  try {
-    const createdFile = await vault.create(path, "");
-    return createdFile;
-  } catch (err) {
-    console.error(`Failed to create file: '${path}'`, err);
-    new require$$0.Notice(t("Unable to create new file."));
-  }
-};
-const getAllLinesFromFile$2 = (cache) => cache.split(/\r?\n/);
-const updateObsidianQuery = async (queryId, title, queryString) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (queryFile instanceof require$$0.TFile) {
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile$1(fileContents);
-    let lineID;
-    if (/^\d{1,3}$/.test(queryId)) {
-      lineID = queryId;
-    } else {
-      lineID = getIDFromLine(queryId);
-    }
-    const lineNum = parseInt(lineID) - 1;
-    if (fileLines && fileLines.length != 0) {
-      const oldContent = fileLines[lineNum];
-      const date = require$$0.moment();
-      const updatedDateString = date.format("YYYYMMDDHHmmss");
-      const updatedDate = date.format("YYYY/MM/DD HH:mm:ss");
-      const newLineNum = lineNum + 1;
-      const id2 = updatedDateString + newLineNum;
-      if (/^(.+)pinnedAt(.+)$/.test(oldContent)) {
-        const pinnedString = getPinnedStringFromLine(oldContent);
-        const pinnedDateString = getPinnedDateFromLine(oldContent);
-        const newContent = id2 + " " + title + " " + queryString + " " + pinnedString;
-        const pinnedAtDate = require$$0.moment(pinnedDateString, "YYYYMMDDHHmmss").format("YYYY/MM/DD HH:mm:ss");
-        const newFileContents = fileContents.replace(oldContent, newContent);
-        await vault.modify(queryFile, newFileContents);
-        return [
-          {
-            createdAt: updatedDate,
-            id: id2,
-            pinnedAt: pinnedAtDate,
-            querystring: queryString,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          }
-        ];
-      } else {
-        const newContent = id2 + " " + title + " " + queryString;
-        const newFileContents = fileContents.replace(oldContent, newContent);
-        await vault.modify(queryFile, newFileContents);
-        return [
-          {
-            createdAt: updatedDate,
-            id: id2,
-            pinnedAt: "",
-            querystring: queryString,
-            title,
-            updatedAt: updatedDate,
-            userId: ""
-          }
-        ];
-      }
-    }
-  }
-};
-const getAllLinesFromFile$1 = (cache) => cache.split(/\r?\n/);
-const getIDFromLine = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})/.exec(line)) == null ? void 0 : _a2[2];
-};
-const getPinnedStringFromLine = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a2[6];
-};
-const getPinnedDateFromLine = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])\s(pinnedAt: (\d{14})\d+)/.exec(line)) == null ? void 0 : _a2[7];
-};
-const pinQueryInFile = async (queryID) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  if (/\d{14,}/.test(queryID)) {
-    const filePath = getDailyNotePath();
-    const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
-    const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-    if (!(queryFile instanceof require$$0.TFile)) {
-      return;
-    }
-    const fileContents = await vault.read(queryFile);
-    const fileLines = getAllLinesFromFile(fileContents);
-    const date = require$$0.moment();
-    const originalLineNum = parseInt(queryID.slice(14));
-    const originalContent = fileLines[originalLineNum - 1];
-    const pinnedAtDate = date.format("YYYY/MM/DD HH:mm:ss");
-    let lineNum;
-    if (fileLines.length === 1 && fileLines[0] === "") {
-      lineNum = 1;
-    } else {
-      lineNum = fileLines.length + 1;
-    }
-    const pinnedAtDateID = date.format("YYYYMMDDHHmmss") + lineNum;
-    const newQuery = originalContent + " pinnedAt: " + pinnedAtDateID;
-    const newContent = fileContents.replace(originalContent, newQuery);
-    await vault.modify(queryFile, newContent);
-    return pinnedAtDate;
-  }
-};
-const unpinQueryInFile = async (queryID) => {
-  const { metadataCache, vault } = appStore.getState().dailyNotesState.app;
-  const filePath = getDailyNotePath();
-  const absolutePath = filePath + "/" + QUERY_FILE_NAME + ".md";
-  const queryFile = metadataCache.getFirstLinkpathDest("", absolutePath);
-  if (!(queryFile instanceof require$$0.TFile)) {
-    return;
-  }
-  const fileContents = await vault.read(queryFile);
-  const fileLines = getAllLinesFromFile(fileContents);
-  const originalLineNum = parseInt(queryID.slice(14));
-  const originalContent = fileLines[originalLineNum - 1];
-  const pinnedAtString = extractPinnedAtfromText(originalContent);
-  const newFileContents = fileContents.replace(pinnedAtString, "");
-  await vault.modify(queryFile, newFileContents);
-  return;
-};
-const getAllLinesFromFile = (cache) => cache.split(/\r?\n/);
-const extractPinnedAtfromText = (line) => {
-  var _a2;
-  return (_a2 = /^(\d{14})(\d{1,})\s(.+)\s(\[(.+)\])(\spinnedAt: (\d{14,}))$/.exec(line)) == null ? void 0 : _a2[6];
-};
-class QueryService {
-  getState() {
-    return appStore.getState().queryState;
-  }
-  async getMyAllQueries() {
-    const data = await findQuery();
-    appStore.dispatch({
-      type: "SET_QUERIES",
-      payload: {
-        queries: data
-      }
-    });
-    return data;
-  }
-  getQueryById(id2) {
-    for (const q2 of this.getState().queries) {
-      if (q2.id === id2) {
-        return q2;
-      }
-    }
-  }
-  pushQuery(query) {
-    appStore.dispatch({
-      type: "INSERT_QUERY",
-      payload: {
-        query: {
-          ...query
-        }
-      }
-    });
-  }
-  editQuery(query) {
-    appStore.dispatch({
-      type: "UPDATE_QUERY",
-      payload: query
-    });
-  }
-  async deleteQuery(queryId) {
-    await deleteQueryForever(queryId);
-    appStore.dispatch({
-      type: "DELETE_QUERY_BY_ID",
-      payload: {
-        id: queryId
-      }
-    });
-  }
-  async createQuery(title, querystring) {
-    const data = await createObsidianQuery(title, querystring);
-    return data;
-  }
-  async updateQuery(queryId, title, querystring) {
-    const data = await updateObsidianQuery(queryId, title, querystring);
-    return data;
-  }
-  async pinQuery(queryId) {
-    await pinQueryInFile(queryId);
-  }
-  async unpinQuery(queryId) {
-    await unpinQueryInFile(queryId);
-  }
-}
-const queryService = new QueryService();
-class ResourceService {
-  async upload(file) {
-    const { vault, fileManager } = appStore.getState().dailyNotesState.app;
-    const fileArray = await file.arrayBuffer();
-    const ext = getExt(file.type);
-    const dailyNotes = getAllDailyNotes_1();
-    const date = require$$0.moment();
-    const existingFile = getDailyNote_1(date, dailyNotes);
-    let newFile;
-    if (!existingFile) {
-      const dailyFile = await createDailyNote_1(date);
-      newFile = await vault.createBinary(
-        await vault.getAvailablePathForAttachments(`Pasted Image ${require$$0.moment().format("YYYYMMDDHHmmss")}`, ext, dailyFile),
-        fileArray
-      );
-    } else if (existingFile instanceof require$$0.TFile) {
-      newFile = await vault.createBinary(
-        await vault.getAvailablePathForAttachments(
-          `Pasted Image ${require$$0.moment().format("YYYYMMDDHHmmss")}`,
-          ext,
-          existingFile
-        ),
-        fileArray
-      );
-    }
-    return fileManager.generateMarkdownLink(newFile, newFile.path, "", "");
-  }
-}
-const getExt = (line) => {
-  var _a2;
-  return (_a2 = /^image\/(.+)$/.exec(line)) == null ? void 0 : _a2[1];
-};
-const resourceService = new ResourceService();
 const cachedResourceMap = /* @__PURE__ */ new Map();
 const convertResourceToDataURL = async (url, useCache = true) => {
   const { vault } = dailyNotesService.getState().app;
@@ -13482,10 +13918,10 @@ const LightboxHost = ({
     },
     render: {
       iconLoading: () => /* @__PURE__ */ jsx("div", {
-        children: t$2("Image is loading...")
+        children: t$3("Image is loading...")
       }),
       iconError: () => /* @__PURE__ */ jsx("div", {
-        children: t$2("\u{1F61F} Cannot load image, image link maybe broken")
+        children: t$3("\u{1F61F} Cannot load image, image link maybe broken")
       }),
       buttonPrev: hasMultipleImages ? void 0 : () => null,
       buttonNext: hasMultipleImages ? void 0 : () => null
@@ -13612,7 +14048,7 @@ const MemoRefBar = ({
       if (!tm) {
         return /* @__PURE__ */ jsxs("span", {
           className: "memo-ref-item missing",
-          children: ["\u2197 ", t$2("Reference target deleted")]
+          children: ["\u2197 ", t$3("Reference target deleted")]
         }, target);
       }
       const timeLabel = refTimeLabel((_a2 = tm.createdAt) != null ? _a2 : "", tm.path, currentPath);
@@ -14035,7 +14471,7 @@ const MemoCardDialog = (props) => {
         setLinkedMemos([]);
         setMemo(nextMemo);
       } else {
-        new require$$0.Notice(t$2("No memo found"));
+        new require$$0.Notice(t$3("No memo found"));
         targetEl.classList.remove("memo-link-text");
       }
     }
@@ -14086,7 +14522,7 @@ const MemoCardDialog = (props) => {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("button", {
             className: `btn delete-btn ${showConfirmDelete ? "confirm" : ""}`,
-            title: showConfirmDelete ? appStore.getState().settingsState.settings.EnableRecycleBin ? t$2("CONFIRM\uFF01") : t$2("DELETE FOREVER?") : t$2("DELETE"),
+            title: showConfirmDelete ? appStore.getState().settingsState.settings.EnableRecycleBin ? t$3("CONFIRM\uFF01") : t$3("DELETE FOREVER?") : t$3("DELETE"),
             onClick: handleDeleteMemoClick,
             children: /* @__PURE__ */ jsx(SvgDelete, {
               className: "icon-img"
@@ -14139,7 +14575,7 @@ const MemoCardDialog = (props) => {
       className: "linked-memos-wrapper ref-comment-list",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "normal-text",
-        children: [linkMemos.length, " ", t$2("LINKED")]
+        children: [linkMemos.length, " ", t$3("LINKED")]
       }), linkMemos.map((m2) => /* @__PURE__ */ jsxs("div", {
         className: "linked-memo-container",
         onClick: () => handleLinkedMemoClick(m2),
@@ -14152,7 +14588,7 @@ const MemoCardDialog = (props) => {
       className: "linked-memos-wrapper ref-comment-list",
       children: [/* @__PURE__ */ jsxs("p", {
         className: "normal-text",
-        children: [linkedMemos.length, " ", t$2("REFS")]
+        children: [linkedMemos.length, " ", t$3("REFS")]
       }), linkedMemos.map((m2) => /* @__PURE__ */ jsxs("div", {
         className: "ref-comment-item",
         onClick: (e) => {
@@ -14374,7 +14810,7 @@ const ShareMemoImageDialog = (props) => {
   };
   const handleImageOnLoad = (ev) => {
     if (ev.type === "error") {
-      new require$$0.Notice(t$2("Image load failed"));
+      new require$$0.Notice(t$3("Image load failed"));
       ev.target.remove();
     }
     setImgAmount((n2) => n2 - 1);
@@ -14387,7 +14823,7 @@ const ShareMemoImageDialog = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "icon-text",
           children: "\u{1F970}"
-        }), t$2("Share Memo Image")]
+        }), t$3("Share Memo Image")]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btn-group",
         children: [/* @__PURE__ */ jsx("button", {
@@ -14410,7 +14846,7 @@ const ShareMemoImageDialog = (props) => {
         className: `tip-words-container ${shortcutImgUrl ? "finish" : "loading"}`,
         children: /* @__PURE__ */ jsx("p", {
           className: "tip-text",
-          children: shortcutImgUrl ? t$2("\u2197Click the button to save") : t$2("Image is generating...")
+          children: shortcutImgUrl ? t$3("\u2197Click the button to save") : t$3("Image is generating...")
         })
       }), /* @__PURE__ */ jsxs("div", {
         className: "memo-container",
@@ -14797,7 +15233,7 @@ const Memo = (props) => {
       if (memoTemp) {
         showMemoCardDialog(memoTemp);
       } else {
-        new require$$0.Notice(t$2("No memo found"));
+        new require$$0.Notice(t$3("No memo found"));
         targetEl.classList.remove("memo-link-text");
       }
     } else if (targetEl.className === "todo-block")
@@ -14828,7 +15264,7 @@ const Memo = (props) => {
           children: utils$1.getDateTimeString(propsMemo.createdAt, settings.TimeFormat !== "HH:mm")
         }), isTaskCard ? /* @__PURE__ */ jsx("span", {
           className: `memo-task-toggle ${propsMemo.memoType === "TASK-DONE" ? "done" : ""}`,
-          title: t$2(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
+          title: t$3(propsMemo.memoType === "TASK-DONE" ? "Mark as todo" : "Mark as done"),
           onClick: handleToggleTaskClick,
           children: propsMemo.memoType === "TASK-DONE" ? /* @__PURE__ */ jsx(SvgTask, {}) : /* @__PURE__ */ jsx(SvgTaskBlank, {})
         }) : null]
@@ -14836,7 +15272,7 @@ const Memo = (props) => {
         className: "memo-top-right-wrapper",
         children: [/* @__PURE__ */ jsx("span", {
           className: `reply-button-wrapper ${markActive ? "active" : ""}`,
-          title: markActive ? t$2("Reply to this memo") : t$2("Reply"),
+          title: markActive ? t$3("Reply to this memo") : t$3("Reply"),
           onClick: handleMarkMemoClick,
           children: /* @__PURE__ */ jsx(SvgReply, {
             className: "icon-img"
@@ -14861,32 +15297,32 @@ const Memo = (props) => {
                 type: "button",
                 className: "btn",
                 onClick: handleShowMemoStoryDialog,
-                children: t$2("READ")
+                children: t$3("READ")
               }), /* @__PURE__ */ jsx("button", {
                 type: "button",
                 className: "btn",
                 onClick: handleGenMemoImageBtnClick,
-                children: t$2("SHARE")
+                children: t$3("SHARE")
               }), /* @__PURE__ */ jsx("button", {
                 type: "button",
                 className: "btn",
                 onClick: handleEditMemoClick,
-                children: t$2("EDIT")
+                children: t$3("EDIT")
               }), /* @__PURE__ */ jsx("button", {
                 type: "button",
                 className: "btn",
                 onClick: handleToggleTaskTypeClick,
-                children: isTaskCard ? t$2("TURN INTO MEMO") : t$2("TURN INTO TASK")
+                children: isTaskCard ? t$3("TURN INTO MEMO") : t$3("TURN INTO TASK")
               }), /* @__PURE__ */ jsx("button", {
                 type: "button",
                 className: "btn",
                 onClick: () => handleSourceMemoClick(propsMemo),
-                children: t$2("SOURCE")
+                children: t$3("SOURCE")
               }), /* @__PURE__ */ jsx("button", {
                 type: "button",
                 className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
                 onClick: handleDeleteMemoClick,
-                children: showConfirmDeleteBtn ? settings.EnableRecycleBin ? t$2("CONFIRM\uFF01") : t$2("DELETE FOREVER?") : t$2("DELETE")
+                children: showConfirmDeleteBtn ? settings.EnableRecycleBin ? t$3("CONFIRM\uFF01") : t$3("DELETE FOREVER?") : t$3("DELETE")
               })]
             })
           })]
@@ -14910,11 +15346,11 @@ const Memo = (props) => {
       onOpenMemo: (tm) => showMemoCardDialog(tm)
     }), referenced.length > 0 && /* @__PURE__ */ jsxs("div", {
       className: "memo-referenced-bar",
-      title: `${referenced.length} ${t$2("REFS")}`,
+      title: `${referenced.length} ${t$3("REFS")}`,
       onClick: () => showMemoCardDialog(propsMemo),
       children: [/* @__PURE__ */ jsxs("span", {
         className: "memo-ref-count",
-        children: [referenced.length, " ", t$2("REFS")]
+        children: [referenced.length, " ", t$3("REFS")]
       }), referencedTop.map((m2) => {
         var _a3;
         return /* @__PURE__ */ jsxs("span", {
@@ -15132,7 +15568,7 @@ const DatePicker = (props) => {
         })
       }), /* @__PURE__ */ jsxs("span", {
         className: "normal-text",
-        children: [firstDate.getFullYear(), " ", t$2("year"), " ", (_a2 = t$2("monthsShort")[firstDate.getMonth()]) != null ? _a2 : firstDate.getMonth() + 1, " ", (_b = t$2("month")) != null ? _b : ""]
+        children: [firstDate.getFullYear(), " ", t$3("year"), " ", (_a2 = t$3("monthsShort")[firstDate.getMonth()]) != null ? _a2 : firstDate.getMonth() + 1, " ", (_b = t$3("month")) != null ? _b : ""]
       }), /* @__PURE__ */ jsx("span", {
         className: "btn-text",
         onClick: () => handleChangeMonthBtnClick(1),
@@ -15146,25 +15582,25 @@ const DatePicker = (props) => {
         className: "date-picker-day-header",
         children: [/* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[0]
+          children: t$3("weekDaysShort")[0]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[1]
+          children: t$3("weekDaysShort")[1]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[2]
+          children: t$3("weekDaysShort")[2]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[3]
+          children: t$3("weekDaysShort")[3]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[4]
+          children: t$3("weekDaysShort")[4]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[5]
+          children: t$3("weekDaysShort")[5]
         }), /* @__PURE__ */ jsx("span", {
           className: "day-item",
-          children: t$2("weekDaysShort")[6]
+          children: t$3("weekDaysShort")[6]
         })]
       }), dayList.map((d) => {
         if (d.date === 0) {
@@ -15271,7 +15707,7 @@ const DailyMemoDiaryDialog = (props) => {
         className: "header-wrapper",
         children: [/* @__PURE__ */ jsx("p", {
           className: "title-text",
-          children: t$2("Daily Memos")
+          children: t$3("Daily Memos")
         }), /* @__PURE__ */ jsxs("div", {
           className: "btns-container",
           children: [/* @__PURE__ */ jsx("span", {
@@ -15314,13 +15750,13 @@ const DailyMemoDiaryDialog = (props) => {
           className: "date-container",
           children: [/* @__PURE__ */ jsx("div", {
             className: "month-text",
-            children: t$2("months")[currentDate.getMonth()]
+            children: t$3("months")[currentDate.getMonth()]
           }), /* @__PURE__ */ jsx("div", {
             className: "date-text",
             children: currentDate.getDate()
           }), /* @__PURE__ */ jsx("div", {
             className: "day-text",
-            children: t$2("weekDays")[currentDate.getDay()]
+            children: t$3("weekDays")[currentDate.getDay()]
           })]
         })]
       }), /* @__PURE__ */ jsx(DatePicker, {
@@ -15331,13 +15767,13 @@ const DailyMemoDiaryDialog = (props) => {
         className: "tip-container",
         children: /* @__PURE__ */ jsx("p", {
           className: "tip-text",
-          children: t$2("Loading...")
+          children: t$3("Loading...")
         })
       }) : memos.length === 0 ? /* @__PURE__ */ jsx("div", {
         className: "tip-container",
         children: /* @__PURE__ */ jsx("p", {
           className: "tip-text",
-          children: t$2("Noooop!")
+          children: t$3("Noooop!")
         })
       }) : /* @__PURE__ */ jsx("div", {
         className: "dailymemos-wrapper",
@@ -15427,7 +15863,7 @@ const UserBanner = () => {
           value: visibleMemos.length
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
-          children: t$2("MEMO")
+          children: t$3("MEMO")
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "status-text tags-text",
@@ -15435,7 +15871,7 @@ const UserBanner = () => {
           value: tags2.length
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
-          children: t$2("TAG")
+          children: t$3("TAG")
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "status-text duration-text",
@@ -15444,7 +15880,7 @@ const UserBanner = () => {
           value: createdDays != null ? createdDays : 0
         }), /* @__PURE__ */ jsx("span", {
           className: "type-text",
-          children: t$2("DAY")
+          children: t$3("DAY")
         })]
       })]
     })
@@ -15495,7 +15931,7 @@ const RandomMemoDialog = ({
     const hideRef = appStore.getState().settingsState.settings.HideRefMemosInList;
     const pool = memos.filter((m2) => !m2.linkId && !m2.isDeleted && !(hideRef && hasMemoReferences(m2.content)));
     if (pool.length === 0) {
-      new require$$0.Notice(t$2("No memo found"));
+      new require$$0.Notice(t$3("No memo found"));
       return;
     }
     let pick = pool[Math.floor(Math.random() * pool.length)];
@@ -15523,7 +15959,7 @@ const RandomMemoDialog = ({
         active: true
       });
     } else {
-      new require$$0.Notice(t$2("No memo found"));
+      new require$$0.Notice(t$3("No memo found"));
     }
   }, [memo2]);
   return /* @__PURE__ */ jsxs(Fragment, {
@@ -15533,7 +15969,7 @@ const RandomMemoDialog = ({
         className: "title-text",
         children: [/* @__PURE__ */ jsx(SvgCasino, {
           className: "icon-img"
-        }), t$2("Random memo")]
+        }), t$3("Random memo")]
       }), /* @__PURE__ */ jsx("button", {
         className: "btn close-btn",
         onClick: destroy,
@@ -15567,13 +16003,13 @@ const RandomMemoDialog = ({
           onClick: pickRandom,
           children: [/* @__PURE__ */ jsx(SvgCasino, {
             className: "icon-img"
-          }), t$2("Draw another")]
+          }), t$3("Draw another")]
         }), /* @__PURE__ */ jsxs("button", {
           className: "btn diary-btn",
           onClick: handleOpenDiary,
           children: [/* @__PURE__ */ jsx(SvgJournal, {
             className: "icon-img"
-          }), t$2("Open the daily note")]
+          }), t$3("Open the daily note")]
         })]
       })]
     }) : null]
@@ -15641,42 +16077,42 @@ const SidebarNav = () => {
     children: [/* @__PURE__ */ jsxs("div", {
       className: `memos-nav-item${onHome ? " active" : ""}`,
       onClick: handleHomeClick,
-      title: t$2("Home"),
+      title: t$3("Home"),
       children: [/* @__PURE__ */ jsx(SvgHome, {
         className: "icon-img"
       }), /* @__PURE__ */ jsx("span", {
         className: "nav-text",
-        children: t$2("Home")
+        children: t$3("Home")
       })]
     }), settings.EnableRecycleBin && /* @__PURE__ */ jsxs("div", {
       className: `memos-nav-item${onRecycle ? " active" : ""}`,
       onClick: handleRecycleClick,
-      title: t$2("Recycle bin"),
+      title: t$3("Recycle bin"),
       children: [/* @__PURE__ */ jsx(SvgDelete, {
         className: "icon-img"
       }), /* @__PURE__ */ jsx("span", {
         className: "nav-text",
-        children: t$2("Recycle bin")
+        children: t$3("Recycle bin")
       })]
     }), /* @__PURE__ */ jsxs("div", {
       className: "memos-nav-item",
       onClick: handleSettingsClick,
-      title: t$2("Settings"),
+      title: t$3("Settings"),
       children: [/* @__PURE__ */ jsx(SvgSettings, {
         className: "icon-img"
       }), /* @__PURE__ */ jsx("span", {
         className: "nav-text",
-        children: t$2("Settings")
+        children: t$3("Settings")
       })]
     }), /* @__PURE__ */ jsxs("div", {
       className: "memos-nav-item action",
       onClick: handleRandomClick,
-      title: t$2("Random memo"),
+      title: t$3("Random memo"),
       children: [/* @__PURE__ */ jsx(SvgCasino, {
         className: "icon-img"
       }), /* @__PURE__ */ jsx("span", {
         className: "nav-text",
-        children: t$2("Random memo")
+        children: t$3("Random memo")
       })]
     })]
   });
@@ -15688,75 +16124,75 @@ const relationConsts = [
 const filterConsts = {
   TAG: {
     value: "TAG",
-    text: t$2("TAG"),
+    text: t$3("TAG"),
     operators: [
       {
-        text: t$2("INCLUDE"),
+        text: t$3("INCLUDE"),
         value: "CONTAIN"
       },
       {
-        text: t$2("EXCLUDE"),
+        text: t$3("EXCLUDE"),
         value: "NOT_CONTAIN"
       }
     ]
   },
   TYPE: {
     value: "TYPE",
-    text: t$2("TYPE"),
+    text: t$3("TYPE"),
     operators: [
       {
         value: "IS",
-        text: t$2("IS")
+        text: t$3("IS")
       },
       {
         value: "IS_NOT",
-        text: t$2("ISNOT")
+        text: t$3("ISNOT")
       }
     ],
     values: [
       {
         value: "CONNECTED",
-        text: t$2("LINKED")
+        text: t$3("LINKED")
       },
       {
         value: "NOT_TAGGED",
-        text: t$2("NO TAGS")
+        text: t$3("NO TAGS")
       },
       {
         value: "LINKED",
-        text: t$2("HAS LINKS")
+        text: t$3("HAS LINKS")
       },
       {
         value: "IMAGED",
-        text: t$2("HAS IMAGES")
+        text: t$3("HAS IMAGES")
       }
     ]
   },
   TEXT: {
     value: "TEXT",
-    text: t$2("TEXT"),
+    text: t$3("TEXT"),
     operators: [
       {
         value: "CONTAIN",
-        text: t$2("INCLUDE")
+        text: t$3("INCLUDE")
       },
       {
         value: "NOT_CONTAIN",
-        text: t$2("EXCLUDE")
+        text: t$3("EXCLUDE")
       }
     ]
   },
   DATE: {
     value: "DATE",
-    text: t$2("DATE"),
+    text: t$3("DATE"),
     operators: [
       {
         value: "NOT_CONTAIN",
-        text: t$2("BEFORE")
+        text: t$3("BEFORE")
       },
       {
         value: "CONTAIN",
-        text: t$2("AFTER")
+        text: t$3("AFTER")
       }
     ]
   }
@@ -15857,7 +16293,7 @@ const checkShouldShowMemo = (memo2, filter) => {
   } else if (type === "DATE") {
     const app2 = appStore.getState().dailyNotesState.app;
     if (!app2.plugins.enabledPlugins.has("nldates-obsidian")) {
-      new require$$0.Notice(t$2("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
+      new require$$0.Notice(t$3("OBSIDIAN_NLDATES_PLUGIN_NOT_ENABLED"));
     } else {
       const nldatesPlugin = app2.plugins.getPlugin("nldates-obsidian");
       const parsedResult = nldatesPlugin.parseDate(value);
@@ -15876,7 +16312,7 @@ const checkShouldShowMemo = (memo2, filter) => {
 };
 var selector = "";
 const nullItem = {
-  text: t$2("SELECT"),
+  text: t$3("SELECT"),
   value: ""
 };
 const Selector = (props) => {
@@ -15977,11 +16413,11 @@ const CreateQueryDialog = (props) => {
   };
   const handleSaveBtnClick = async () => {
     if (!title) {
-      new require$$0.Notice(t$2("TITLE CANNOT BE NULL!"));
+      new require$$0.Notice(t$3("TITLE CANNOT BE NULL!"));
       return;
     }
     if (filters.length === 0) {
-      new require$$0.Notice(t$2("FILTER CANNOT BE NULL!"));
+      new require$$0.Notice(t$3("FILTER CANNOT BE NULL!"));
       return;
     }
     try {
@@ -16003,7 +16439,7 @@ const CreateQueryDialog = (props) => {
     if (filters.length > 0) {
       const lastFilter = filters[filters.length - 1];
       if (lastFilter.value.value === "") {
-        new require$$0.Notice(t$2("Please finish the last filter setting first"));
+        new require$$0.Notice(t$3("Please finish the last filter setting first"));
         return;
       }
     }
@@ -16030,7 +16466,7 @@ const CreateQueryDialog = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "icon-text",
           children: "\u{1F516}"
-        }), queryId ? t$2("EDIT QUERY") : t$2("CREATE QUERY")]
+        }), queryId ? t$3("EDIT QUERY") : t$3("CREATE QUERY")]
       }), /* @__PURE__ */ jsx("button", {
         className: "btn close-btn",
         onClick: destroy,
@@ -16044,7 +16480,7 @@ const CreateQueryDialog = (props) => {
         className: "form-item-container input-form-container",
         children: [/* @__PURE__ */ jsx("span", {
           className: "normal-text",
-          children: t$2("TITLE")
+          children: t$3("TITLE")
         }), /* @__PURE__ */ jsx("input", {
           className: "title-input",
           type: "text",
@@ -16055,7 +16491,7 @@ const CreateQueryDialog = (props) => {
         className: "form-item-container filter-form-container",
         children: [/* @__PURE__ */ jsx("span", {
           className: "normal-text",
-          children: t$2("FILTER")
+          children: t$3("FILTER")
         }), /* @__PURE__ */ jsxs("div", {
           className: "filters-wrapper",
           children: [filters.map((f2, index) => {
@@ -16068,7 +16504,7 @@ const CreateQueryDialog = (props) => {
           }), /* @__PURE__ */ jsx("div", {
             className: "create-filter-btn",
             onClick: handleAddFilterBenClick,
-            children: t$2("ADD FILTER TERMS")
+            children: t$3("ADD FILTER TERMS")
           })]
         })]
       })]
@@ -16078,9 +16514,9 @@ const CreateQueryDialog = (props) => {
         className: "btns-container",
         children: [/* @__PURE__ */ jsxs("span", {
           className: `tip-text ${filters.length === 0 && "hidden"}`,
-          children: [t$2("MATCH"), " Memo ", /* @__PURE__ */ jsx("strong", {
+          children: [t$3("MATCH"), " Memo ", /* @__PURE__ */ jsx("strong", {
             children: shownMemoLength
-          }), " ", t$2("TIMES")]
+          }), " ", t$3("TIMES")]
         }), /* @__PURE__ */ jsx("button", {
           className: `btn save-btn ${requestState.isLoading ? "requesting" : ""}`,
           onClick: handleSaveBtnClick,
@@ -16277,7 +16713,7 @@ const QueryList = () => {
       className: "title-text",
       children: [/* @__PURE__ */ jsx("span", {
         className: "normal-text",
-        children: t$2("QUERY")
+        children: t$3("QUERY")
       }), /* @__PURE__ */ jsx("button", {
         type: "button",
         className: "btn",
@@ -16292,7 +16728,7 @@ const QueryList = () => {
           type: "button",
           className: "btn",
           onClick: () => showCreateQueryDialog(),
-          children: t$2("CREATE FILTER")
+          children: t$3("CREATE FILTER")
         })
       })
     }), /* @__PURE__ */ jsx("div", {
@@ -16394,18 +16830,18 @@ const QueryItemContainer = (props) => {
               type: "button",
               className: "btn",
               onClick: handlePinQueryBtnClick,
-              children: query.pinnedAt ? t$2("UNPIN") : t$2("PIN")
+              children: query.pinnedAt ? t$3("UNPIN") : t$3("PIN")
             }), /* @__PURE__ */ jsx("button", {
               type: "button",
               className: "btn",
               onClick: handleEditQueryBtnClick,
-              children: t$2("EDIT")
+              children: t$3("EDIT")
             }), /* @__PURE__ */ jsx("button", {
               type: "button",
               className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
               onClick: handleDeleteMemoClick,
               onMouseLeave: handleDeleteBtnMouseLeave,
-              children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
+              children: showConfirmDeleteBtn ? t$3("CONFIRM\uFF01") : t$3("DELETE")
             })]
           })
         })]
@@ -16537,14 +16973,14 @@ const TagList = () => {
     children: [/* @__PURE__ */ jsxs("p", {
       className: "title-text",
       children: [/* @__PURE__ */ jsx("span", {
-        children: t$2("Frequently Used Tags")
+        children: t$3("Frequently Used Tags")
       }), /* @__PURE__ */ jsxs("span", {
         className: "view-switch",
         children: [/* @__PURE__ */ jsx("button", {
           type: "button",
           className: `view-btn ${isFlat ? "active" : ""}`,
           onClick: () => handleViewSwitch("flat"),
-          title: t$2("Flat view"),
+          title: t$3("Flat view"),
           "aria-pressed": isFlat,
           children: /* @__PURE__ */ jsx(SvgViewList, {
             className: "icon-img"
@@ -16553,7 +16989,7 @@ const TagList = () => {
           type: "button",
           className: `view-btn ${!isFlat ? "active" : ""}`,
           onClick: () => handleViewSwitch("tree"),
-          title: t$2("Tree view"),
+          title: t$3("Tree view"),
           "aria-pressed": !isFlat,
           children: /* @__PURE__ */ jsx(SvgTree, {
             className: "icon-img"
@@ -16573,10 +17009,10 @@ const TagList = () => {
         when: tags2.length < 5 && memoService.initialized,
         children: /* @__PURE__ */ jsxs("p", {
           className: "tag-tip-container",
-          children: [t$2("TagTipFirst"), /* @__PURE__ */ jsx("span", {
+          children: [t$3("TagTipFirst"), /* @__PURE__ */ jsx("span", {
             className: "code-text",
             children: "#Tag "
-          }), t$2("TagTipSecond")]
+          }), t$3("TagTipSecond")]
         })
       })]
     })]
@@ -16787,7 +17223,7 @@ const UsageHeatMap = () => {
       className: "day-tip-text-container",
       children: [0, 1, 2, 3, 4, 5, 6].map((i2) => /* @__PURE__ */ jsx("span", {
         className: "tip-text",
-        children: i2 % 2 === 0 ? t$2("weekDaysShort")[(weekStartDay + i2) % 7] : ""
+        children: i2 % 2 === 0 ? t$3("weekDaysShort")[(weekStartDay + i2) % 7] : ""
       }, i2))
     }), /* @__PURE__ */ jsxs("div", {
       ref: popupRef,
@@ -16938,128 +17374,6 @@ function Home() {
 const appRouter = {
   "*": /* @__PURE__ */ jsx(Home, {})
 };
-function errorMessage(e) {
-  var _a2;
-  if (e instanceof Error)
-    return e.message;
-  if (typeof e === "string")
-    return e;
-  if (typeof e === "number" || typeof e === "boolean")
-    return String(e);
-  try {
-    return (_a2 = JSON.stringify(e)) != null ? _a2 : "Unknown error";
-  } catch {
-    return "Unknown error";
-  }
-}
-const BUILTIN_SEND_SOUND_URI = "data:audio/wav;base64,UklGRjQrAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YRArAABc/w8JsfOz45kQjv+MBOMvQdb13Ik5Xv8l4Jj93g18EX7de/0qC8vxsgNeDyL8sgCIDejyn+tvD1gSkvKv9a8IFgMU+LwOl/st9scNkviP+kYJ4vvh97cG7QjE8owCYgor9m8GGgR99OMEAgZl+NEAHgM7/p0CfP7N/wACff4C/88BgAIJALD/TP1H/1UC4Pyw/zUD6v5f/kP/7/+k/wwA3/4N/+oANP9w/9YAmACg/yQA7ABdAMP+7v2q/kf/z/6O/gL/hP/E/7z/yv8cAEoALAAAADMAkwBvAOv/df8t/2H/CADCANQAxv/v/mr/UwC5AHcAJQAuACEAAwDl/yYAVQFxAcr/Nv8WAPMAHQFgAKgAKgJwAi0BUP8V/7gAMgAF/1QAnABt/z3/4P8eAasA//6h/2UAFwD0/3H/rwCUAcP+8v1xAEUBBgB7/isATAMqAYX+BQEJA3kBHv+r/38CsAGB/6ABhwNUAb/9y/xwAN0CW/+C/Pz+rgFWAOj9l/6/AKkAPf/q/qH/7QCoAff/iv5WAJoBhABY/xr+nP4eAYkBaQCI/wL/d//t/uz+twAO/+j8wf62/0f/wf5A/sX/a/9q/kgB8QDt/Vz/HAG5AGf/tv7+ALQAdv5mAPgA0P9zABv/d/80AtkAsf4S/9wAHAILAIT/DwEf/9r+3gBT/4H9mv0j/+AAQP8A/qz/cgABALH++P68ATEBwf6r/qz/jwFdAVH/3P8zAJgAjQJrAT3/YP9XARoENwKm/uv/LAHWASkCyP4n/zUEUgTU/xr9NwA9A1X/R/67AfX/FP4i/xT/4f+P/4T+nf8j/+j+j/8R/kT/EQH1/n3+mf93AIABIf9E/kgCfwKD/6f/pwBFACr/6v4NAIX/Bf4p/zIB+wDh/ub93/9bAUYA3P+y/2T+DP/K/0r+7P4YAL7+8P5kAJEBSAHh/C39FgMjAPT6yv7JAboAAwCz/9MA5ADJALoBpf8wAMICgf/Z/vgAaP+QAekCCACoAncDS//BAHQDqQIuAb7/6AC6AQsBPwJFAKX9kQB3Aav/UwDe/zH+wv7uAXIDsf95/usBYAE9AJ0BBgBL/q/+IgBrBNkCIfWN7wwBgQo57/bZKvIFEV8MZPg78Hv6mgvZCn3+3wAUCPgBYfwNAVYDZ//l/cP+iv0c/pEC9QMRAf8ApgOYBM4EyQN4Ad4CKAUtApsAvQSABWsBRgHNA8sCzgGnAhAB9//JAYgBEAAEAI//qQDtAT3/L//RA74DHQAlAHIBXwH9AIgAEAGRAWQAf/82/+z+Xf+y//AA3QHv/pT+lwJnAaf/kQKx/8T6CP1K/kf99f05+wL5vPpk+3D/6QLa+/n3bP3R/5kBkgCw97H5IgQwAQL9k//M+zL8kQR/AiD8O/67AAEAT/8d/6sAfgEFAIr/4wB3A+MDzf9s/8wDggJc/w0BuwBg/zsBNgCD/tj/Xf7e/bMACv+V/osCUgD5/Lz/TABw/xgB5v/8/qUBmwDp/HX+CAIjADL8df06AbMBH/8G/OL7Rf8fAY7/tf3d/lQCpAHr/f3+EwE6AK4AGABF/joAWQG8/2QAYQCi/k3/LQC/AEsCGQA5/egAGATdAfwA1gDs/+kBOgEU/iYBngKb/ZL9LwGWAKX+L/41AM8BXP+1/lYAJACJARgBO/6MAXQDtv7j/lEBqv9cAIEBMwC8AEQAmP6sAPUBzP+I/10AEwAzAd0B2QD+Aa0CgACeAJsBmQATAQcBHQCbAez/e/xl/4YC7QDe/gr99/0nAbX/9fxV/tz/1f9M/03+7P42ABr/MP4jAMwAtf4B/6wA4f/s/4MAYv8NAJsADP8IADYBlv8t/0wARAHwAAT/oP9tASAAe/+hAJoAAABB//H/egEjAFP/uwANAKr/qACU/0v/oAAmAFD/dv8WABEBJgCS/sz/7f+Q/ef+wQAq/lP/cwIA/tv8vgO/Ayz/Yv9IAPQB1wKc/6H/YgGj/3EASQHy/9sC+AJb/d/95QHlABr/a//h/zUANwCe/9z+aP+uAPr/2P6U/0MA9v/e/ygAPAAEAPf/0//W/4YAcwDG/wUAGQDb/94ADwI7AEb9NgB0BEUAhvw/AN4B5QAOAA/9U//qBCIC6v12/x0BkAEcACX+VgDZABf9T/1kAOP/wP32/cb/8f/S/tL+Kf+9/40A2v+S/ygBpgGRAEQAVQHvAZwAuP+ZAfYCQQB5/bP/qAIsAjgBpP/w/QIA7wHsAKQAeQD5/3T/t/44AZwBNvxW/UoCAf/+/PT/rf6p/eb/5v9K/2b/J/8yAAoBGAAk/+b+ef+pAJQAC//O/xMDYAIL/rv9SgBiAJX/3f+P/5T+mf/xAMT9N/sF/xwB6/3x/Ef/YgH8AZIAPv8PAIIBVQEvAJ0AEgEvAMkAdgGlANz/9f2z/hAD7wGp/nsA6gAZACYBGABEALAB1/9zAF0Ckv/u/ZX/QgEJAlD/1/0nAdcA5f5vAbAA7/2SABoAw/vB/iEC+f3F/Dv/lv5yALYC9f48/cX+4P6RASYCpP0j/QD+M/4uA7MDvP0s/mACGAKm/iv9TALGBPz9D/2lA90D1wCo/67+9f+nAGz/gv8D/08AZANfAO39ugJpAo38sf7iBMoD/P6Y/pgAhADGAJ8Ai/wu/AAC4AAl+83+aAKE/IL7WwE8AeH+Gv8v/ikA+gJp/7H9bQGhAT0AlQGzAcwAIQHwAZoCEgKAAOT+W/9XA6gDif4q/2wCMf+G/sEBRQBk/53/Ff3R/wMDqf7n/sUCj/8T/rP/oP3S/pMB3/9r/xn+evyAAXYCKP1z/zgCSP7V/rwBFADF/04AQ/4A/5YBWf+//Hn/cQAf/cf99wDxACoAxf4i/iYBSACf+7z+pwQvArD9//5QAcv/3v0O//QAigCW/if+PQAxAiECcf+n/M//fwT8AST+mf5HAEkCugG6/50BqwFY/60BJgIy/wYBHgI//k/9lwDCAiQB4/zt+jL+WAKTApkBSAAj/bb/DQUVAUL+fQGx/Wj8sgOrAy7/0v1c/VgBWALo/Pf++gOHAQX+l/2xAO0CnP+U/mL/fP1KAFMDgwArAMYAOP8mAWcDrQHA/sH9JAC0AmoClf9a/XgADwK7/U7/2AIZ/1YASQRv/qX7cQJHBFz/jv6OAjwCQv5kAO4Dsv/c+1f/IgLK/5n+FADV/lL9Xv/Q/xX/agEpAWD8SfzoAr8DDfxf/OICov73+08DZwBR+VP/cgIa/j0BCwMl/V7+RQNw/+X9vANIA63+0P4v/20APwKc/qr+owSIAcv67f3MAYP/FQAuA63+cvlU/94DQQBoAlMDBvu9/AkFGgGW/fYAGf5q/FYCQQMaALf/Z/36+wUAwAIKAbP8Jfps/6ADXf+B/mYBD/+e/VcAYgIBAk7/v/56APQAuAHp/r78dQPeAwz9Uf93AAT/YAOt/5z7CwIgAF39RQSpAAn7hQJqA5b8NQBqBW//xvvAAr8D+/wv/jkC0gH7AX4ANv9SAccBxADA/fP87QLlAJ76oAApA2z+gf8n/Sr8PATYAjH7Cf0lAfQBTAFqAOz/wf1g/rkBkwBu/sX94/9rBfMBRPuEAKgDBwC///r8mvz2As0BAv6iABYAwf0CAdIDav9S+qUAvggzAjn7NQBhAnH+/f8LBB8A4fkb/5YGhACx+6oCaAMK/jQByAMS//r9LAAs/7X+WwG6AhP/1vvk/ywDSwBy/4X+V/zZAHYCOv39/moBb/78AK8CWP67/iMBPgAR/2H9SP64ASEBXP56/Q7/HAI8ATP9Q/3OAJoB6v5x/+sCpACV/fkAigHw/KL8LQEHAxn/hv2oAfMAnf3/ABoDBAEmAm4BFfzT/G0DUwNs/rD+cf8N/lIArAGiAMIAMf3R+z4CVwMO/mT9xgEQBXv/mvjp/kgGhgJk/QD9MwGtA0//+/7SAc39Pf2oARr/t/w+AUgCk/0G/hUEGQS7/mL9vf9rAmQBoPyy/Y0C7wHb/xL/PP7v/ygDdAMO/sr6RACJAYv+LgPCAlL7u/zgACsBZgA3/5UBkf9G+jABUgQC/aYBIgYU/nb72/2tAOAEpQAv/IoBLAKU+5X8vwQSBWf+pv97AXn8S//sART7Vf/9BuH93fjxAnIGV/4v+r79XAAnA6YFeP5k+20FLARP+8b/BwOqATUE0f7P/N0G5AJJ+8kEPQP69mr+5AYe/xn9fQGZ/24AoQSgAMv6TP40BCgDiv0Q+1UAkAIT+wb+pAe3/sT4aAEC/uX9hAfq/qX6QQM6/F382gezAHz6Dv5d/2MGOgPE9z7+cgMEAKcBTv0t/IYBqv3A/00CvfhV/e0FKP6b/KsBaQIUAv38Vf6rBNn+I/5NA/L82v5cBcf7HvvSBt0Dnf3i/9v/jgEaBbgCXQHt/xT8CwF2A5b7eQADCO/9NPvMAg3/9/v6AMcDXAHu+o7+3gZN/HP29QWkCGP8kvks/pgC5AFN/vP/cAGiAD4Aff5eADkBU/1DAQ8EJvxi/bUF/gBK+u8A3AU8/Vv6gQPkAtn8YQALATb9uP7J/yr/OAHVA64BC/sM/oEHgAOG+xv7GP2ZBToIEvws+l8C/wK6Ab/9Lvx2BPkAhPfRAFkG9vyP/MIBlgEo/7z7CAIWC5MAGPfL/7kA/fu5AtMEpf2h+Av5mQIYCXIC0/3o/C78EQJ0BBABu//4+y39DAL8/DD+OQciA2n9K/8aAfUEagGb+a3/iwTL/bn9DQPNAb/9bP70A2wDE/ss+2ED/AOaANwBuQA//LT77v79A7kBuPnQAxcM+PeI9dkGuvuk+BwLzgCa9R4CeQMcAewAAvoe/q0Bb/39AyQFUvyq+rH9QQYLCLP9+v9jApz5HP4+BL8C8gQF/On14QUCCSv6TvujBeECkfxW/+j/8f7xB+oFkviZ/icF4PvY+yoA0f6+/p38zgDPA633Wvl3Bm4C/wCmA9j7Ov92BYr+xwA/BHv7yPxDA/7/gv/K/2/8dgAeBNMAcgCi/0L+TQJjAez+7QOLAHT4rf39AQ78DPkL/VEEmweoBNkAb/p0+CwBHQXMAtoA+flA+74GOwQ9+8L+HQQGAp/9Yv57A9ABgPx0/i0BYP9hAYwHBAQ597/4CQdwBgr+EwE4Abv6l/4+BRcDbABc/f36cALTBGj7H/zRAGD9nv/w/wP8qwNfBMn7wABtAm38dAGoAyX+bf3V/q4AAgFAAb4A6feT+z4LAQIV91QE/gV6+2X8FQJrBygD5Pcv/OEGEgZD/CvzjPz7CnkBu/ZkACUF3/pa+zoKpQbX+I0EwArr+B/7/Qax/zT7bvoU+RQBLQLs/Tr/Tvlv+3kMGgi+9Uv8KAq2ADf4NgM5BJr5nf6kBYgAS/1y/ToBDAZNAK38dgNjAw/9yf4QBv4D6fmL/OkD5PyG+9MEagCb9zf+uAgRBnn8yfywAXoC8gSf/0v3+gFYCF37MfpeAnoBQgI4A4H+K/26/wMD6QOhATgCUf3j85H+Ewxy+7nvewMhC+D7aPwvCHwFFP5PAGkGSwUN/Nj2f/yTA9z/HvgE//QI5v9y95j/ZQTU/278nfxM/1MBUwH0/E34vgFYC3oA7Pac/7AKPghz/NP+UAes/YH9pQiN+xD1egayBqP8T/xB+mP7zQFIBhoFA/rN+C8GYwZ3//D9mfks/S4F6gCG/isDhAJA/4f7G/wqByoI4/aX9FIE0QRxAOQGOwGr+nsCdf5M+/oGygHF91z9Wv/xAVsE8fxG/O37//q5CP8IIPqn+9sA+QM/CHf9WPb7/vYAwv/b/9P7hv/MBewAaPtWAeMJNQNh9xz71gDn/00BSwA/Ai4HHf4r9mj/0giBB3v8FffPBPYKqv4U/L3/efxIAWUHzP5b+Uv/hv+O/Hz/iwCf/2P98vZQ+/YFAf/9+LUDrANx+10C8QVG+yL96goKB/P47Pt5BjwGxgDt/BD+hwMhAwX/WwCsAND7+/sPBEIFg/ka9bcBHgk3/8L4LgEDAqn5JASHDWf8lPbyAWf/0wE1CTH9kPrFB+4EwP30/SH6nftaA2EDU/9s/BH6J/xYATAESAIV+mX1HwJBD1YGHftv/owAe/9jBDYIBwDe8QP4uQxWCj/+UwC9/Sf9IwYHAQv5Iv1aAZcFdQJP+Tr9sAFGAKYD5v6a9xb8EgBaAsMCgP/YA24C5/iQAGYIJf/S+/H+df64AKgBC/70+9oAzAtsCYX2qPKoAuQIPACJ+v78VgAp/m/6hv9KBwwDdPpc+Zn9EwYCB3v4QvQ3AoQJjAZE/lD04vrqCFQF2fyV/nQAoP/UAO8BYQCK/iH/f/6y/McAWAbeA/z9ev74A3wDj/yl/NIC0AKH/03+5/zD/cb/gP7X/i0Bj/55+yX+wgCC/zr+If+xAcYCEv/z+k39+APeBskCev0E/ukBcQKMAFwAhwHuAdkAIQATAn0D8P9h+3j81AF/BA0BdPwB/pwDkwTP/2z8DP79AHkB/QDsAdgCjQEG/2T+pQB2ApkA6vxA/L3/lwJmAbP/hAA9ASQAKP/T/xABOgC7/VX+JgMyBjkDpv18+/v91wBsAIb+lf5bAHsBeAGDAX0B5v+L/a39kAD/AUr/afto+7D/6wIrAZj9cP1xAD4CwQBw/oz+XQCZANz+5P3v/kgAVQDs/6MAHAKHAjMBd//K/tT+Y/6U/cr9Vv92ANH/mf7S/oIAQQFx/yj9nv2OAHICDAEs/j79I/+NAQsC4QAKAHgAZAHHAaoBTwFXAE3/mv8kAR8CVwHm/9v/RgFnAtsBFADl/jj/WgAqARIBbwCR/+v+i//XAA4BGQAm/1f/SQBUAHz/Ff+c/4UABQFTAbwBUwHh/6z+3f4WABQBTgFaAL3+av4B/9D+Y/6r/l7/u//d/1gAWADC/87/CwBf/+/9OP0Y/gz/GgDgAc4Bxf/g/jr/Bv88/kX+J/8KAF4BpQJ1An4AYf4O/9wATQFuAuEBPv68/ff/xv9d/gv/kgHDAX3/Wv9sAIwAIACp/18A8P/H/h4A5P98/qz/GAGTA4AELQAL/RT9wP5cAUEBfAGoAUv/uQHIBHsC7gHNAHn9y/5KAez/QP3I/a8BHgRIBNkC9ABb/gb5IfzLBUUCP/wT/pT8Jf6hAHr8yv5fAgIAwgDo/mb77/4VAxwDkv3p9/j7KwK3AXP9r/vNAPoEyQEf/Hz6VwH9B0YFgP4N+rD+0QMK/X37yQAk/60A2v8y+SP+kgPyA1QHcf6W8yz86QW6BHABRP9V/m39cP0/ADADHgEc+279FAWaA9n/4f1m+8YAuQWIApYAPv7D/G8BLQYbBxQBPftr/rP+9/7UBOT/svoeArsDX//8/34ClAIR/RH8kAOGAXb6GAAUBmb8bfQxA7QO0v5k9NL8zv8bAq8I9AWc/QL5NfuAAaYEvwRBARX6T/ktA6gKCQNM+uT94//YAsUM3Amh/iH5+PVd/EgDJfsI9kP9qwORAE76KwARBjX+8/80D70POfs76SrydgkYDtr9PPWI//gHSQWOAND5+/wnCIUBO/s/A8n/kfc/9N/vbfUnAXcNQhOf+1zfue2oF18qYQ0N6zny+vx666vtnxT0HPPw1dZm5Wv7Yhd9FXfuJOvwBpIFKPrkBGQUrwkV8xj3Hf+Z/aoOXhXv/RvuY/ZDDZAXrgGr7wX/IBU5EYf7a/Y0B+YSKAgW/M0PSx07Arn3pwtcCdr5AfrpB6sL3/Qh6r/42wDTBooC/e5J9w0Lpf+b9vkDQgMC9db7xQWa+Z74uwP8/vYA1gj9AI3/EAhEB5ACxQeECl73GPvMHccNDO/KAkMHlQF/DXz2Hu+9F9oXHfdc9gUJVAc1+KIEUhMUA8D67PYQ8p4Fuwho/JIF+//j8qD8FQIw/eT8PwV9A9j0CwFtCSf4NQQxB6TzRAVTBLHvqQRmA13r9vcFBp4C7PbV8qMBzf5q/lwLJPVh9XgXaQE05+z+0AgS/137IPu9/kr8Xvqw/VT8CAN2CBr7JvWN/qH9GPi1BNcKCvY69TsI5PtX9C0J/ARk9zoHww7T+UfvxQAmCn/+UQEKCycB1/le+Zz1wQJND/b+Y/qVDBoAE+gc9v4HugetBff5RPb4ALj9bf0GAoD7d/7I/XH6fwjKA976RAQE/BMALQ4P+UT2tQOl+M4FExTP+/jywP+HAh358vNvBU0Fp+36+qINq/qt7in6m/7a70D2fBah/QfZ0xS+Ozj2zNMBESoZy+mODmExCt/ly3cx3UOgJaobOM1UxJJEpkNYvkPs63H7J6+VUtq8NDr5HvZPK4Pmkqr61uv5agu+LMQpWxDnCgMQ9v5R71YKOy+AI7QEAP8G96bYp9hf82vwWuRaBiwlyRRc9OPQAMgS7YAN3uYoz+gDjit5Cp/hE+S6/SP7lt3N90ZBYzlJDisgLSkB3pbFvfYUAqf4BRHcCVDlm+GC5hfduN0R64IDNSGGId4N0w1gEs4EMRAdJiQXuRc2MB8ZKfvfGjUpChJnGXoiog6yDBQGVtop29QE4fLoxUrbbPYZ0sO5Wc5F2ojP7NoX7PLKBqqfvqPikt0S3IoDQQkb7XD9ERrIDQwEABEeF9EZPxbGB9cQOB1y/Gzo/wjpEaoGDCIJJT74RfUDGOMOAv6fB/oFcgp0IRwYiAGBEGEc7BBZGoYkdRPeDfYRP/rh6lL8LQI7+OH+ighMAGz1uvpTCWEC7eV/56QGGgWN6ZDtd/1i9v/10gnnEFUDBvjm/gMMRQR69ksGhBUUAm71IQGq/rD1GPi97ljqpwKjCb3z1PWfAJfyffDd+7vyOfI7Ak/18Obp/i4J3vOp91sJ+gG/ABYPYwnP/KD/Uf6w+aYAKgRaAuMJgwsuAXMFVBHJBz780whzFY8MXgI4CrEURhEzDXwPWArbAwsJqAkx/9UBJhIgFIoJUAdrCWUHQgasBJECMAVwCPYIDgryCCUCK/9+BisK2gNPAHEC4AX/CCgFO/3w/fgF/QdUAIb7MP9pAaP+kPr1+cv/3AKA/TX5Gf7iBp8E2PqN++EDVQmbBfj5s/ofBz8JkgEc+qD+7wvsCAr9VvsS/owFEgjd/FT4GP4MAsoAPfnb9mT8gf4G/qP9/P7k/uT4VfpVA5MEQf+Y+Hn3Wv1LACT/rvrK+mgF5gbh/an55vYc9WD1X/1kClAADvB0+/MHmQCK8rby9QbHA1Tnqe8ZCzkDafG79sv8hvXZ+GEI0wnn/8j66/6CBGr3WuXa75sNTx2ZDo/vY+Hs9/sR4vFXxP7n9in5I5ACLPZK9VPvI+Wr+I8Z+Ax39Mn78Q2OEvgHfwMICbYGzwYgDesNFAoQAoX/wwVgCS8Hzfs29gYCrAWQ/aP86QQYCYv9EP94EOsGA/3mCCoFhvhO7qvsNgPOCRn5n/s6BLoIjweP+Yz7aQIR9sTyb/d6+Bf/yP9K/KQA7gawBnr6APQt/Lb+cwEBCNsDMgHYAFf3+/Mn+mn5hfU5//4HU/sY9Y/7E/Im8ZgBEwCh+Sf5xPJb+A0At/gX+icElQbLA0H/7/44/pX65v8zBaQEvgRu/p392QbzAiH92AE2AVIAngHW/uMATwB0+vr/eQYbAMf5F/0YBeAGMwG8/5cDRwReAbIBhQa1Bev/ZgE/BEoApP6cAfYAlf0H/1gBHvyN+bf/0v9o+r76sPw0/n3/zf34/hoCrv9Z/D/+iQPuAzT8hPpgAzAIQgXX/zz+/gO8BLn+JP8RANf9FAHdA9UCwgHC/X37Ov8WA10DXQDNAOIFygQp/0T90/9UBY0EZv/bAgAFlv9I/48C+QPUAuX9Jf26AAICYAJ2/6z9DwE5//H91gJqAav+AQBn/0gCUwRnAAAB3wKsAX0BYP4i/i8F7gYgAHP5R/3kBkkC3vtaB18LpvyI9jH/mAM4/Wv8CAj6CT7/fP0EAr0AjP6hAEIDtwDA/kkC1gDn/UEDQQXWAE7+0/zB/jwBDP2/+u//dASiAAb5OfwlA5T97Po2A7QDuvyw+70AWwK3+xn7EAShA679kf8UAaj/UACTAMH+Rv0eAfUEcQBh/ksBqf4F/sMBSwDf/qQBowI7/8z7n//8Agz+Pf4WA/H+nfpo/zUE5gAh/JAAugSo/vr7kADGAQYAY/7c/q0A7P4F/pX/8f4AAP8BvAE9AVn9bvu5AIgAXfuC/RwCXgFa/Sr98QDs/rT8UgNvBQT/of1bAsMDXv6P+3kAcAGg/jcAbP9r/bQAagPkAkL/wPtY/ov/kf0ZAMIAJ/44/pD94P3j//f/awIHBN//8/xr/WL/GQFdAMgAFgAW/cv/mQKZ/6X+tf9PAEkAVP8fA3oEIf36/DUCE//D/MP/SQG1AGf+7/7nAX0ARAAIA3AB0v6f/z4CowNzAYb/Ev71+2z+AAFcAOUB+AAX/6oBp/87/Dj/KgGGAl8D9/5p/Zz+yfzb/fb/7P4k/zUAVgB9/5T+zP+8AH4BmQG6/XD9OAHkAIMBxQFP/r//7ACm/qgAoP+5/LMABALT/1cAK/9q/o//ev+BAHMBNwEzAXoA6P+E/iH/aAMgAjf/gwCZ/Z79fgM2AyIDQQN//RX++wB2/1YDZwRj/0QA3gDR/ZH+HwHnAdwAUAEcAmj+sP3DAJIAuQHdAIb9XgHVAZ383P4SAbIAHAP8ALD+IgF9AOf+qf5X/vsAvwFL/nn9G//4/ygBywLeAS3+if3H/wgBAwPfAeP9FQCLAUz+t/8u/kX6wgKkCIMCDQKCAkv8Rvw1AfgC7gDl/Ev+7AHI/9z7hfn6/V4FUAIb/sv9LPySAvoDaPrQ/jgF6QB6AXD///zI/yD9XAP7CG38tPsQATr8jwPpBhf+jf+6/rn9GgStAHr+bADW/GT/WgAt/igA/frB/SIH4P7p+rz/v/10AiIDQPyyABoCXf4//x/90v8gAzv9yftu/uICLAbp/CD6pAP1An//hwH9AboB5/8VAQACFfwa/wwGGQEH/8YAnvxb/BoAIQJXA7cAJP4gAToBuPs8/TQDvQCx/zwCJPwH+/YCIAKM/Kr7TABLAzn8gPzxAkf8AP6MB6MAr/wK/9H70QANBoIDIwBB+NP5FQTDAVr/BgC1+hv9MwG2/00BN/+G/30ELv3O+R8EaAVqAAkARAEUA87+NfvHAj8Fzf7J/UEBqQQvA2j9xP96BK4BQwJlBF3+Y/zGAxMEHvz2/CsEzQN5ACf/Gf1x/zsD1f/L/Q8DlgSL/iD62/v/ArgIjwAo+MgBpgPe9/n9QAes/7D7Cf1V/0EGAgNA+bf89AJC+9v2igXRB+722fuuA035ogEXBlX1dAFHEHv8t/VZAwYFqf9E/P391gBe/NX7DAKeAN/6nfzDAAsAQADpAMX+KALbBDr+T/zVA/gHOwD4+ZUFRAmO/IEAhwTO+jkBnwZc/ur+f/4PADoGS/sN+dgFkP2i+KYFHgFW+OQAagQB/7T+tv8N/2IA5QDfAAUCBv8n/On/1ANlA9z9/vyRBg0C/vb3Ao8GHvfu+oAEDQCD/Wv/iwIe/g73hgPeCf758vkWBXkAE/uA//4CkP+x/rsDov/c+tsBCwN3/wgAnvuF+5kEewRH/Aj93AKC/yL+XQZLAhP6HgJEA5/7CQG+A679gv9eAMH7XgG6B7r/pPxwA/kA1ACUBRX9RPsrBA8A9/5CBBr+A/5+BbMB5/wTAGwEzwP//Z792wFIAIn/8QEU/qf7fALtA778Vv04A1oC7P5P/gMANwCp/Tf+av4k/UwBEAHr+6z9Z/6A/+0Evf+p+Z4AHgR8AFQAewBP/p3+twBY/yL+ZgBnABYALABs/vQBGgNJ/af/yQEM/QkAGgLD/vMAsQC2/T//MQCbAcwCsQAz/z3+IwAqAzcBPwBq/7j9dAKaAgT9XABJA7X/Kv8sAeECDAAN/CQBjwS//4b+gACFAA7+sPxMAWgCvf7a/mT9lP8iBZr+I/vzAAv+dP4hBNr+NPxDAe8CEAIW/ZH6NQGTBAYB0Pz/+wMAcAAi/mf//v7J/wICCf99/ukAgQFEA8IAl/1yAdsC/gHbAdz++gB5Ayn+p/6AA70BZwA3AFn+UABCAvj+cv2tAfQC0P2k/WoDQgL8+wX8nAI2BnUAS/s//0IB7/4XAF/+LPxbAh8D0/vp/AkA+P0BAcED0/3v+lUBbgQK/tH7vQFTAmP/iP8I/rP+cAP0Ak77VvfeAVAK1P3D9R4AHAQQ/9D/kARyAcT2Svq9Bz8DFvpKAOwGSAIy+QH76gQ8A1L/jQS4AQT5ZP4xCpgFGvpWAPYFvPw+/+wFHP7l/N8AWfxf/vIEUQEM/DH+AwKOAYT+jf7RAcL/b/pCACEGPvyH+coDxgBq+oUBFQQrAWgD/PsO9B0Eyw0o/fD5OgTQ/uf5SP91A9wDOf7O/m0IxwBN78r48BGrC8vxDvgXCU/+xvkZBmMDWfZ095gI7AkV9Vj4aQuyAzT45QD+CWoEXvyBAEkAXvxuBigEMPc6AN4GYPr290sFVgaT9GH5ARG7BJzvI/7/C2MEB/tA+Tz/EgWaBGr9AfgG/i0B6v2jAqgHGwT++hb4zgXxC/37ovaSCOQLKPSr8+0PIArp7gj20QnxBm732/hLCg4GQvad/r8ID/5C+WEKmwpe87z74gn59l7/KxG4+cLv1P60BcwGlPtS9CcClg0CAgPt2P1mF37+xPIuA6X53QLDEFj4GvTxApABjwAO/w0Hrwll7gHyhxiUB0zd4QNPKdLg29K1MNcgFsAf8S9ClQYJxmn58TT4FITiMPSCE48D2vSO9pv20P77/XTtg/FwBTsD7uzl71gO8QoM68P4aBJTBWv5sfrmBr0Rnfeb7PoNBhFB+OX5GgzQB3v7Cw2pB7rtuA0cFq30zgIrB3D8cRDvBa763wYyC/0SMPnh64kWQRFH/6r8+e4oFAMSuuhwIcIidNAw4K9C+js08PG2QeKNOQDwG83I50gfqhZD727+D94K3forriQd+Pjv4dt97n4wAhgn7L7iU/2vExYELQVA8rTlfxACBTnuzBCQ+Invjg3q+YIBmgpA66DyVwi7EQoB3eeCAC8AfPO6GgwKQuSZ+3oHQhAICbzk1/oVFugAXv4E/qP3sALiA0T5svqvDYYHKuq9/WUTIvwN/3UF2vXN/q8DMAA5CNH8OPIF/24M8Ar69bnvXgVTBu3+IAka+ODmdAV2HpQDhOyL9uIAKQzZDOD6mPFp/K0J1QpC+gLx4gBBDcQCBPaf9k7+MQhRClb7dvCV/sAMWgPl9VD8hgZY/3n9qASN/9sABAUs+SH8lAhRApX+9v66+z4DqQeqAQz9c/g1/pAMTwe99qL5jwibBHT2a/2+Cp4CCfhw/3QH3v85+KsAGggkAb366/xVA3MFV/0E+yYC5AAeALwEwP4O+6oBPgAw/vsCdwBH/eUA+P+2/SkC6QRq/3/5VP01BRUFh/9b/Er9uQBkA5wC9/0M+4MA2QUDAeT6W/15AooBz/4bAKH+5PyUArECFvzS/lgCcf8SAYQBx/xW/pUCigE3ACoAzf6v/mEBwgK0ADf/N/+O/gUABQNpAZz9i/5RAY0AUv9OAIYAl/8d/xP/OABIAUUA6v58/nH/pgFWAd3+3v73/yEAvQB5AHP/DgA9ABr/wv9NAc0Adf8Q/2L//f+JAKMA8P/9/kH/NgB5AIAAHgBb/7n/VQAxAKIA3gDz/6j/SwCpALUAmgA4AMj/7/9/AJgAeAAtAGD/UP83AKIAWgC3/yj/a/8OAEYAGgC+/3P/g//d//r/9/9NABIARf9s/x8AeQCGAOj/Uf+B/+n/bwCcAOr/R/9P/+f/cQA6AMz/aP8V/7r/pgB/AM3/e/+r//P/KQB+AG8A5f+l/wAAtADDABYA6/8TAAcARAB9AGsALwDl//7/IQADAC4AXAAkALT/gP/4/18ANgANALH/Uv/R/5IAagCz/4X/zv8GAFMAQwDA/9H/+f/M/x0AOgC0/6H/4P/b/+7/IQD9/6L/mf/Q//7/HgD3/9r/IAAPAKv/4v9JADMAFwDs/6P/HQCZAPb/uv8iAOH/+P9nAPv/xP8YABwA8P/T/woALwDM/9P/IgALAAcA8P/G/+z/JAAvAO3/7P85AOT/5/9wAAwAz/8UANP/FQB7APf/rf/i/x0AQADg/6r/OQBoAMT/j/8VAE8APwAMAKP/9/92APn/yP8mACQABQDi/wEAUAAWAND/3/8CADQADgDj/wAA7v8CABYAFAAbAJz/sv9xABMAx/8eANf/7f9LAAgA2P/Z/x0ARADR/+z/OwDw//r/AgDk/yEA9P/d/yoA3P+o/woANQAQAMj/wP8SAA8Axv/K/xEAIADa/8L/7v8JAAoA6P/E/9X/AQAeAP3/zf/r/xEABAD1//b/CAAMAPn/+P8FAA0ABAANACsAAADh/xQAEgAQACwA+P/t/yQAGAALABAAAAACAAYADwAUAPH/8f8TAAwA+f/6/wIA+f/o/wIAGgD9/+v/8/8DABIA+P/j//v/BAD8/wYA/P/s//n/BAAAAAEA+v/0//3/BgAEAAAA+//8/wQABgAHAPv/8v8BAAkAAQD8//3/AwAEAPf/+v8IAAEA+f/+//7/AAACAP3/+/8AAP7//f8AAP7/+//+/wAA/v/9//7/AAAAAP3/AQABAPz//v8CAAAA/f8AAAAAAAAAAP7/AAAAAAAAAAAAAAAA/v/+/wAAAAAAAP7//v8AAAAA/v8AAA==";
-const AUDIO_MIME = {
-  mp3: "audio/mpeg",
-  wav: "audio/wav",
-  ogg: "audio/ogg",
-  oga: "audio/ogg",
-  m4a: "audio/mp4",
-  aac: "audio/aac",
-  flac: "audio/flac",
-  webm: "audio/webm"
-};
-const AUDIO_EXT = new Set(Object.keys(AUDIO_MIME));
-const isAudioPath = (p2) => {
-  var _a2, _b;
-  return AUDIO_EXT.has((_b = (_a2 = p2.split(".").pop()) == null ? void 0 : _a2.toLowerCase()) != null ? _b : "");
-};
-const AbstractInputSuggestCtor = require$$0.AbstractInputSuggest;
-function attachAudioPathSuggest(app2, inputEl, onPick) {
-  if (!AbstractInputSuggestCtor)
-    return;
-  class AudioPathSuggest extends AbstractInputSuggestCtor {
-    constructor() {
-      super(app2, inputEl);
-    }
-    getSuggestions(query) {
-      const q2 = (query != null ? query : "").trim().toLowerCase();
-      const files = app2.vault.getFiles().filter((f2) => isAudioPath(f2.path));
-      const matched = q2 ? files.filter((f2) => f2.path.toLowerCase().includes(q2)) : files;
-      return matched.sort((a, b) => a.path.localeCompare(b.path)).slice(0, 50);
-    }
-    renderSuggestion(file, el) {
-      el.setText(file.path);
-    }
-    selectSuggestion(file) {
-      onPick(file.path);
-      this.close();
-    }
-  }
-  new AudioPathSuggest();
-}
-function targetOf(settings) {
-  var _a2;
-  if (settings.SendSoundSource === "builtin") {
-    return { key: "__builtin__", uri: BUILTIN_SEND_SOUND_URI };
-  }
-  if (settings.SendSoundSource === "custom") {
-    const path = ((_a2 = settings.SendSoundPath) != null ? _a2 : "").trim();
-    return path ? { key: path, vaultPath: path } : null;
-  }
-  return null;
-}
-let cachedKey = "";
-let cachedBlobUrl = "";
-let cachedAudio = null;
-let warnedKey = "";
-async function ensureAudio(target) {
-  var _a2, _b, _c;
-  if (cachedKey === target.key && cachedAudio)
-    return cachedAudio;
-  let url = (_a2 = target.uri) != null ? _a2 : "";
-  if (!url && target.vaultPath) {
-    const { app: app2 } = dailyNotesService.getState();
-    const buffer = await app2.vault.adapter.readBinary(target.vaultPath);
-    const ext = (_c = (_b = target.vaultPath.split(".").pop()) == null ? void 0 : _b.toLowerCase()) != null ? _c : "";
-    const mime = AUDIO_MIME[ext];
-    if (cachedBlobUrl)
-      URL.revokeObjectURL(cachedBlobUrl);
-    cachedBlobUrl = URL.createObjectURL(
-      new Blob([new Uint8Array(buffer)], mime ? { type: mime } : void 0)
-    );
-    url = cachedBlobUrl;
-  }
-  const audio = new Audio(url);
-  audio.preload = "auto";
-  audio.load();
-  cachedKey = target.key;
-  cachedAudio = audio;
-  return audio;
-}
-function preloadSendSound(settings) {
-  const target = targetOf(settings);
-  if (!target)
-    return;
-  void ensureAudio(target).catch((error) => {
-    console.error("[rememo] send sound preload failed:", target.key, error);
-  });
-}
-async function playSendSound(settings, options) {
-  const target = targetOf(settings);
-  if (!target)
-    return false;
-  try {
-    const audio = await ensureAudio(target);
-    const volume = settings.SendSoundVolume;
-    audio.volume = Math.max(0, Math.min(1, (typeof volume === "number" ? volume : 100) / 100));
-    if (audio.readyState > 0)
-      audio.currentTime = 0;
-    await audio.play();
-    return true;
-  } catch (error) {
-    if ((options == null ? void 0 : options.manual) || warnedKey !== target.key) {
-      new require$$0.Notice(t$2("Failed to play the sound: ") + errorMessage(error), 8e3);
-      warnedKey = target.key;
-    }
-    console.error("[rememo] send sound failed:", target.key, error);
-    return false;
-  }
-}
 let rangeFrom = [], rangeTo = [];
 (() => {
   let numbers = "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,1n,9,16,o,,x,1i,3,,i,,7,a,2,t,3,1k,,,7,2,2,2,3,9,,a,2,q,,2,3,1k,,,5,4,2,2,3,3,,u,2,3,,b,3,1k,,,8,,3,,3,k,2,m,6,,3,1k,,,7,2,2,2,3,7,3,a,2,u,,1n,5,3,3,,4,9,,14,5,1j,,,7,,3,,4,7,2,b,2,t,3,1k,,,7,,3,,4,7,2,b,2,f,,c,4,1j,2,,7,,3,,4,9,,a,2,t,3,1y,,4,6,,,,8,i,2,1p,,,8,c,8,2q,,,a,b,7,21,2,r,,,,,,4,2,1d,k,,2,5,b,,10,9,,2u,b,,6,n,4,4,3,g,4,d,,,3,6,,f,,jj,3,qa,4,s,3,t,2,u,2,1s,w,9,,19,3,,,39,2,y,,3a,c,4,c,63,5,1l,a,,,,,2,o,2,,1c,1a,2,c,k,5,1b,h,12,9,c,3,u,d,1k,e,1c,k,48,3,,l,4,,6,,2,3,5i,1s,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,n,5,4,,2b,2,1e,i,q,i,d,,12,8,p,d,18,4,1b,e,10,,1v,e,c,,8,2,1a,,1f,,,3,2,2,5,2,,,15,5,5,2,6k,8,,2,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,1t,5,8t,2,25,6,1y,b,1d,4,3e,3,1h,f,15,,2,2,a,4,19,b,7,,1p,3,10,e,g,2,18,,c,3,1c,e,8,4,,2,2k,c,6,,2,,4d,c,l,4,1j,2,,7,2,2,2,3,9,,a,2,2,7,3,5,1v,9,,,2,,,4,,5,,,e,2,2a,i,n,,29,k,6j,7,2,9,r,2,2a,h,2y,d,2t,3,2,a,74,f,6t,6,,2,2,4,,,,2,3x,7,2,7,3,,s,a,14,7,,4,8,,9,b,1a,g,5i,8,5j,8,,8,2a,m,,e,3e,6,3,,,2,,7,,,1u,5,,2,,5,9n,4,9,2,,,1c,7,3,5,n,,44l,,6,f,8ug,i,1xc,5,1n,7,t4,,,1j,7,4,29,,b,2,f57,2,3mp,1a,2,n,f2,5,3,6,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,2s,,4g,7,af,,1p,4,e4,4,72,2,6r,,2,,7,2,5,,d6,7,31,7,240,5".split(",").map((s) => s ? parseInt(s, 36) : 1);
@@ -31658,6 +31972,9 @@ const Editor = react.exports.forwardRef((props, ref) => {
       className: "cm-host" + (hasContent2 ? "" : " is-empty"),
       "data-placeholder": placeholderText,
       ref: mountRef
+    }), !hasContent2 && /* @__PURE__ */ jsx("span", {
+      className: "memo-editor-placeholder",
+      children: placeholderText
     }), /* @__PURE__ */ jsxs("div", {
       className: "common-tools-wrapper",
       children: [/* @__PURE__ */ jsx("div", {
@@ -31676,7 +31993,7 @@ const Editor = react.exports.forwardRef((props, ref) => {
           children: /* @__PURE__ */ jsx("button", {
             className: "action-btn cancel-btn",
             onClick: handleCommonCancelBtnClick,
-            children: t$2("CANCEL EDIT")
+            children: t$3("CANCEL EDIT")
           })
         }), /* @__PURE__ */ jsx(Only, {
           when: showConfirmBtn,
@@ -33345,7 +33662,7 @@ const WriteDatePopover = (props) => {
       className: "write-date-row",
       children: [/* @__PURE__ */ jsx("span", {
         className: "write-date-label",
-        children: t$2("Time")
+        children: t$3("Time")
       }), /* @__PURE__ */ jsx("input", {
         className: "write-date-time",
         type: "time",
@@ -33360,16 +33677,16 @@ const WriteDatePopover = (props) => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "ghost-btn",
           onClick: handleToday,
-          children: t$2("Today")
+          children: t$3("Today")
         }), value && /* @__PURE__ */ jsx("span", {
           className: "ghost-btn danger",
           onClick: handleClear,
-          children: t$2("Back to now")
+          children: t$3("Back to now")
         })]
       }), /* @__PURE__ */ jsxs("button", {
         className: "write-date-confirm",
         onClick: handleConfirm,
-        children: [t$2("Write on"), " ", draftLabel, " ", draftTime]
+        children: [t$3("Write on"), " ", draftLabel, " ", draftTime]
       })]
     })]
   });
@@ -33442,7 +33759,7 @@ const RefMemoPicker = ({
     children: [/* @__PURE__ */ jsx("input", {
       className: "memo-ref-picker-search",
       autoFocus: true,
-      placeholder: t$2("Search memos..."),
+      placeholder: t$3("Search memos..."),
       value: query,
       onChange: (e) => setQuery(e.target.value),
       onKeyDown: (e) => {
@@ -33470,7 +33787,7 @@ const RefMemoPicker = ({
         }, m2.id);
       }), list.length === 0 && /* @__PURE__ */ jsx("div", {
         className: "memo-ref-picker-empty",
-        children: t$2("No memos found")
+        children: t$3("No memos found")
       })]
     })]
   });
@@ -33779,7 +34096,7 @@ const MemoEditor = () => {
       if (!editMemoId) {
         return;
       }
-      new require$$0.Notice(t$2("Content cannot be empty"));
+      new require$$0.Notice(t$3("Content cannot be empty"));
       return;
     }
     if (refLine) {
@@ -33839,7 +34156,7 @@ ${content2.trimStart()}`.trimEnd();
     } catch (error) {
       sendingRef.current = false;
       (_b2 = editorRef.current) == null ? void 0 : _b2.setEditable(true);
-      new require$$0.Notice(t$2("Failed to save: ") + errorMessage(error), 8e3);
+      new require$$0.Notice(t$3("Failed to save: ") + errorMessage(error), 8e3);
     }
   }, []);
   const handleCancelBtnClick = react.exports.useCallback(() => {
@@ -33921,7 +34238,7 @@ ${content2.trimStart()}`.trimEnd();
   const editorConfig = react.exports.useMemo(() => ({
     className: "memo-editor",
     initialContent: getEditorContentCache(),
-    placeholder: isListShown ? t$2("What needs doing...") : t$2("What do you think now..."),
+    placeholder: isListShown ? t$3("What needs doing...") : t$3("What do you think now..."),
     showConfirmBtn: true,
     showCancelBtn: showEditStatus,
     showTools: true,
@@ -33943,7 +34260,7 @@ ${content2.trimStart()}`.trimEnd();
         children: [!showEditStatus && /* @__PURE__ */ jsx("span", {
           ref: setCalAnchor,
           className: `memo-write-date-anchor ${isWriteDateOpen ? "active" : ""}`,
-          title: t$2("Write to date"),
+          title: t$3("Write to date"),
           onClick: (e) => {
             e.stopPropagation();
             toggleWriteDateOpen();
@@ -33957,7 +34274,7 @@ ${content2.trimStart()}`.trimEnd();
         }), /* @__PURE__ */ jsx("span", {
           ref: setRefPickAnchor,
           className: `memo-ref-pick-anchor ${isRefPickerOpen ? "active" : ""}`,
-          title: t$2("Reference a memo"),
+          title: t$3("Reference a memo"),
           children: /* @__PURE__ */ jsx(SvgAt, {
             className: "action-btn add-ref",
             onClick: (e) => {
@@ -33972,7 +34289,7 @@ ${content2.trimStart()}`.trimEnd();
       }),
       btns: /* @__PURE__ */ jsxs("span", {
         className: "list-or-task-slider",
-        title: isListShown ? t$2("Task") : t$2("List"),
+        title: isListShown ? t$3("Task") : t$3("List"),
         children: [/* @__PURE__ */ jsx("span", {
           className: `list-or-task-thumb ${isListShown ? "to-task" : ""}`
         }), /* @__PURE__ */ jsx("span", {
@@ -33998,7 +34315,7 @@ ${content2.trimStart()}`.trimEnd();
             children: [((_a3 = mm.createdAt) != null ? _a3 : "").slice(2, 16), " \xB7 ", refPreview(mm.content, 18)]
           }), /* @__PURE__ */ jsx("span", {
             className: "ref-chip-clear",
-            title: t$2("Cancel"),
+            title: t$3("Cancel"),
             onClick: (e) => {
               e.stopPropagation();
               globalStateService.setMarkMemoId(mm.id);
@@ -34014,10 +34331,10 @@ ${content2.trimStart()}`.trimEnd();
         className: "icon-img"
       }), /* @__PURE__ */ jsxs("span", {
         className: "target-text",
-        children: [t$2("Write on"), " ", targetDate.format("YYYY-MM-DD HH:mm")]
+        children: [t$3("Write on"), " ", targetDate.format("YYYY-MM-DD HH:mm")]
       }), /* @__PURE__ */ jsx("span", {
         className: "target-clear",
-        title: t$2("Back to now"),
+        title: t$3("Back to now"),
         onClick: (e) => {
           e.stopPropagation();
           handleClearTargetDate();
@@ -34129,7 +34446,7 @@ const SearchBar = () => {
         type: "text",
         onMouseOver: mouseIn,
         onMouseOut: mouseOut,
-        placeholder: isSearchBarShow ? t$2("Type Here") : "",
+        placeholder: isSearchBarShow ? t$3("Type Here") : "",
         onChange: handleTextQueryInput
       })]
     }), /* @__PURE__ */ jsx("div", {
@@ -34138,12 +34455,12 @@ const SearchBar = () => {
         className: "quickly-action-container",
         children: [/* @__PURE__ */ jsx("p", {
           className: "title-text",
-          children: t$2("Quick filter")
+          children: t$3("Quick filter")
         }), /* @__PURE__ */ jsxs("div", {
           className: "section-container types-container",
           children: [/* @__PURE__ */ jsxs("span", {
             className: "section-text",
-            children: [t$2("TYPE"), ":"]
+            children: [t$3("TYPE"), ":"]
           }), /* @__PURE__ */ jsx("div", {
             className: "values-container",
             children: memoSpecialTypes.map((t2, idx) => {
@@ -34255,7 +34572,7 @@ const MemoFilter = () => {
       className: "filter-query",
       children: [/* @__PURE__ */ jsxs("span", {
         className: "tip-text",
-        children: [t$2("FILTER"), ": "]
+        children: [t$3("FILTER"), ": "]
       }), /* @__PURE__ */ jsxs("div", {
         className: "filter-item-container " + (queryFilter ? "" : "hidden"),
         onClick: () => {
@@ -34291,7 +34608,7 @@ const MemoFilter = () => {
         children: [/* @__PURE__ */ jsx("span", {
           className: "icon-text",
           children: "\u{1F5D3}\uFE0F"
-        }), " ", require$$0.moment(duration.from, "x").format("YYYY/MM/DD"), " ", t$2("to"), " ", require$$0.moment(duration.to, "x").add(1, "days").format("YYYY/MM/DD")]
+        }), " ", require$$0.moment(duration.from, "x").format("YYYY/MM/DD"), " ", t$3("to"), " ", require$$0.moment(duration.to, "x").add(1, "days").format("YYYY/MM/DD")]
       }) : null, /* @__PURE__ */ jsxs("div", {
         className: "filter-item-container " + (textQuery ? "" : "hidden"),
         onClick: () => {
@@ -34364,7 +34681,7 @@ const Pagination = ({
       className: "nav-button",
       onClick: () => onPageChange(currentPage - 1),
       disabled: currentPage === 1,
-      children: t$2("Previous page")
+      children: t$3("Previous page")
     }), /* @__PURE__ */ jsx("div", {
       className: "page-numbers",
       children: renderPageNumbers()
@@ -34372,7 +34689,7 @@ const Pagination = ({
       className: "nav-button",
       onClick: () => onPageChange(currentPage + 1),
       disabled: currentPage === totalPages,
-      children: t$2("Next page")
+      children: t$3("Next page")
     })]
   });
 };
@@ -34510,7 +34827,7 @@ const MemoList = () => {
         }).then(() => {
           setFetchStatus(false);
         }).catch(() => {
-          new require$$0.Notice(t$2("Fetch Error"));
+          new require$$0.Notice(t$3("Fetch Error"));
         });
       }, 400);
     }
@@ -34700,7 +35017,7 @@ const MemoList = () => {
     }
   }, []);
   const statusKind = isFetching ? "is-fetching" : shownMemos.length === 0 ? "is-empty" : showMemoFilter ? "" : currentPage === totalPages ? "is-end" : "";
-  const statusText = statusKind === "is-fetching" ? t$2("Fetching data...") : statusKind === "is-empty" ? t$2("Noooop!") : statusKind === "is-end" ? t$2("All Data is Loaded \u{1F389}") : "";
+  const statusText = statusKind === "is-fetching" ? t$3("Fetching data...") : statusKind === "is-empty" ? t$3("Noooop!") : statusKind === "is-end" ? t$3("All Data is Loaded \u{1F389}") : "";
   return /* @__PURE__ */ jsxs("div", {
     className: `memolist-wrapper ${isFetching ? "" : "completed"}`,
     onClick: handleMemoListClick,
@@ -34709,16 +35026,16 @@ const MemoList = () => {
       className: "legacy-hint",
       children: [/* @__PURE__ */ jsx("p", {
         className: "legacy-hint-title",
-        children: t$2("Your old memos are still here")
+        children: t$3("Your old memos are still here")
       }), /* @__PURE__ */ jsx("p", {
         className: "legacy-hint-body",
-        children: tf("This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.", {
+        children: tf$1("This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.", {
           n: legacyRows
         })
       }), /* @__PURE__ */ jsx("button", {
         className: "legacy-hint-btn",
         onClick: () => locationService.pushHistory("/audit"),
-        children: t$2("Open data health check")
+        children: t$3("Open data health check")
       })]
     }), paginatedMemos.map((memo2) => /* @__PURE__ */ jsx(Memo, {
       memo: memo2
@@ -34854,7 +35171,7 @@ const DeletedMemo = (props) => {
       await animateOut(true);
       await memoService.restoreMemoById(memo2.id, memo2.hasId, memo2.path);
       handleDeletedMemoAction(memo2.id);
-      new require$$0.Notice(t$2("RESTORE SUCCEED"));
+      new require$$0.Notice(t$3("RESTORE SUCCEED"));
     } catch (error) {
       new require$$0.Notice(error.message);
     }
@@ -34876,7 +35193,7 @@ const DeletedMemo = (props) => {
       className: "memo-top-wrapper",
       children: [/* @__PURE__ */ jsxs("span", {
         className: "time-text",
-        children: [t$2("DELETE AT"), " ", memo2.deletedAtStr]
+        children: [t$3("DELETE AT"), " ", memo2.deletedAtStr]
       }), /* @__PURE__ */ jsxs("div", {
         className: "btns-container",
         children: [/* @__PURE__ */ jsx("button", {
@@ -34897,12 +35214,12 @@ const DeletedMemo = (props) => {
               type: "button",
               className: "btn restore-btn",
               onClick: handleRestoreMemoClick,
-              children: t$2("RESTORE")
+              children: t$3("RESTORE")
             }), /* @__PURE__ */ jsx("button", {
               type: "button",
               className: `btn delete-btn ${showConfirmDeleteBtn ? "final-confirm" : ""}`,
               onClick: handleDeleteMemoClick,
-              children: showConfirmDeleteBtn ? t$2("CONFIRM\uFF01") : t$2("DELETE")
+              children: showConfirmDeleteBtn ? t$3("CONFIRM\uFF01") : t$3("DELETE")
             })]
           })
         })]
@@ -35007,7 +35324,7 @@ const MemoTrash = () => {
         setDeletedMemos(result);
       }
     }).catch((error) => {
-      new require$$0.Notice(t$2("Failed to fetch deleted memos: ") + error);
+      new require$$0.Notice(t$3("Failed to fetch deleted memos: ") + error);
     }).finally(() => {
       loadingState.setFinish();
     });
@@ -35036,20 +35353,20 @@ const MemoTrash = () => {
           })
         }), /* @__PURE__ */ jsx("span", {
           className: "normal-text",
-          children: t$2("Recycle bin")
+          children: t$3("Recycle bin")
         })]
       })
     }), /* @__PURE__ */ jsx(MemoFilter, {}), loadingState.isLoading ? /* @__PURE__ */ jsx("div", {
       className: "tip-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: "tip-text",
-        children: t$2("Fetching data...")
+        children: t$3("Fetching data...")
       })
     }) : deletedMemos.length === 0 ? /* @__PURE__ */ jsx("div", {
       className: "tip-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: "tip-text",
-        children: t$2("Here is No Zettels.")
+        children: t$3("Here is No Zettels.")
       })
     }) : /* @__PURE__ */ jsx("div", {
       className: "deleted-memos-container",
@@ -35066,8 +35383,8 @@ function toClockTime(ts) {
 }
 const legacyTimeRule = {
   id: "legacy-time",
-  name: t$2("Legacy 14-digit timestamp"),
-  why: t$2(
+  name: t$3("Legacy 14-digit timestamp"),
+  why: t$3(
     "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id."
   ),
   severity: "warning",
@@ -35100,8 +35417,8 @@ function randomId$1(exclude) {
 }
 const dupIdRule = {
   id: "dup-id",
-  name: t$2("Duplicate ^id"),
-  why: t$2(
+  name: t$3("Duplicate ^id"),
+  why: t$3(
     "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id."
   ),
   severity: "error",
@@ -35130,7 +35447,7 @@ const dupIdRule = {
           path: ctx.path,
           line: idx + 1,
           raw: line,
-          note: tf("first seen at line {n}", { n: (_a2 = seen.get(id2)) != null ? _a2 : 0 }),
+          note: tf$1("first seen at line {n}", { n: (_a2 = seen.get(id2)) != null ? _a2 : 0 }),
           fixedLine: line.slice(0, m2.index) + "^" + fresh
         });
       } else {
@@ -35148,8 +35465,8 @@ function randomId() {
 }
 const missingIdRule = {
   id: "missing-id",
-  name: t$2("Missing ^id"),
-  why: t$2(
+  name: t$3("Missing ^id"),
+  why: t$3(
     "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id."
   ),
   severity: "warning",
@@ -35181,8 +35498,8 @@ const missingIdRule = {
 const BR_REG$1 = /<br\s*\/?>|&lt;br\s*\/?&gt;/gi;
 const bareBrRule = {
   id: "bare-br",
-  name: t$2("Legacy <br> line breaks"),
-  why: t$2(
+  name: t$3("Legacy <br> line breaks"),
+  why: t$3(
     "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format."
   ),
   severity: "info",
@@ -35202,7 +35519,7 @@ const bareBrRule = {
           path: ctx.path,
           line: idx + 1,
           raw: line,
-          note: tf("contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file", {
+          note: tf$1("contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file", {
             n: count,
             m: affectedLines.length
           })
@@ -35214,8 +35531,8 @@ const bareBrRule = {
 };
 const legacyRowRule = {
   id: "legacy-row",
-  name: t$2("Legacy format row"),
-  why: t$2(
+  name: t$3("Legacy format row"),
+  why: t$3(
     "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card."
   ),
   severity: "warning",
@@ -35231,7 +35548,7 @@ const legacyRowRule = {
         path: ctx.path,
         line: idx + 1,
         raw: line,
-        note: t$2("legacy-format row: a whole-file migration converts it into a card block")
+        note: t$3("legacy-format row: a whole-file migration converts it into a card block")
       });
     });
     return issues;
@@ -35635,7 +35952,7 @@ const AuditPage = () => {
       }));
       setResult(res);
     } catch (e) {
-      setMsg(t$2("Scan failed: ") + errorMessage(e));
+      setMsg(t$3("Scan failed: ") + errorMessage(e));
     } finally {
       setBusy(false);
       setProgress(null);
@@ -35669,18 +35986,18 @@ const AuditPage = () => {
         const targets = res.issues.filter((i2) => i2.fixedLine && pred(i2) && !ignored[lineKey(i2.path, i2.line)]);
         if (targets.length === 0) {
           if (round2 === 0)
-            setMsg(`${scopeLabel}: ${t$2("no auto-fixable issues")}`);
+            setMsg(`${scopeLabel}: ${t$3("no auto-fixable issues")}`);
           return;
         }
         const out = await applyFixes(targets);
         if (out.appliedLines.length > 0)
           pushFlash(out.appliedLines);
         if (out.applied === 0) {
-          setMsg(`${scopeLabel}: ${t$2("cannot auto-fix further \u2014 the remaining issues need manual work or a migration")}`);
+          setMsg(`${scopeLabel}: ${t$3("cannot auto-fix further \u2014 the remaining issues need manual work or a migration")}`);
           return;
         }
       }
-      setMsg(`${scopeLabel}: ${t$2("fix-round limit reached; re-scan to check what is left")}`);
+      setMsg(`${scopeLabel}: ${t$3("fix-round limit reached; re-scan to check what is left")}`);
     } finally {
       setBusy(false);
     }
@@ -35689,7 +36006,7 @@ const AuditPage = () => {
     });
   };
   const fixOneLine = (path, line) => runFixLoop((i2) => i2.path === path && i2.line === line, `L${line}`);
-  const fixAll = () => runFixLoop(() => true, t$2("Fix all"));
+  const fixAll = () => runFixLoop(() => true, t$3("Fix all"));
   const toggleIgnore = (path, line) => {
     const key = lineKey(path, line);
     const next = {
@@ -35727,28 +36044,28 @@ const AuditPage = () => {
     try {
       const rep = await migrateFiles([file]);
       if (rep.files > 0) {
-        setMsg(tf("Migration done: {n} entries converted", {
+        setMsg(tf$1("Migration done: {n} entries converted", {
           n: rep.converted
-        }) + (rep.crossMoved > 0 ? tf(", {n} cross-day comments moved to their daily notes", {
+        }) + (rep.crossMoved > 0 ? tf$1(", {n} cross-day comments moved to their daily notes", {
           n: rep.crossMoved
-        }) : "") + (rep.droppedComments > 0 ? tf(", {n} deleted comments dropped", {
+        }) : "") + (rep.droppedComments > 0 ? tf$1(", {n} deleted comments dropped", {
           n: rep.droppedComments
-        }) : "") + (rep.skipped > 0 ? tf(", {n} entries kept as-is (could not be mapped)", {
+        }) : "") + (rep.skipped > 0 ? tf$1(", {n} entries kept as-is (could not be mapped)", {
           n: rep.skipped
-        }) : "") + (rep.failed.length > 0 ? tf(", failed: {list}", {
+        }) : "") + (rep.failed.length > 0 ? tf$1(", failed: {list}", {
           list: rep.failed.join(", ")
-        }) : "") + t$2(". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks."));
+        }) : "") + t$3(". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks."));
       } else {
-        setMsg(rep.skipped > 0 ? tf("Nothing to migrate ({n} lines lack a time and need manual work).", {
+        setMsg(rep.skipped > 0 ? tf$1("Nothing to migrate ({n} lines lack a time and need manual work).", {
           n: rep.skipped
-        }) : t$2("This file has no legacy-format lines \u2014 no migration needed."));
+        }) : t$3("This file has no legacy-format lines \u2014 no migration needed."));
       }
       await scan({
         silent: true
       });
       await memoService.fetchAllMemos();
     } catch (e) {
-      setMsg(t$2("Migration failed: ") + errorMessage(e));
+      setMsg(t$3("Migration failed: ") + errorMessage(e));
     } finally {
       setBusy(false);
       setMigratingPath("");
@@ -35766,24 +36083,24 @@ const AuditPage = () => {
     try {
       const fileList = paths.map((p2) => app2.vault.getAbstractFileByPath(p2)).filter((f2) => f2 instanceof require$$0.TFile);
       const rep = await migrateFiles(fileList);
-      setMsg(tf("Migrated all: {files} files \xB7 {n} entries converted", {
+      setMsg(tf$1("Migrated all: {files} files \xB7 {n} entries converted", {
         files: rep.files,
         n: rep.converted
-      }) + (rep.crossMoved > 0 ? tf(", {n} cross-day comments moved to their daily notes", {
+      }) + (rep.crossMoved > 0 ? tf$1(", {n} cross-day comments moved to their daily notes", {
         n: rep.crossMoved
-      }) : "") + (rep.droppedComments > 0 ? tf(", {n} deleted comments dropped", {
+      }) : "") + (rep.droppedComments > 0 ? tf$1(", {n} deleted comments dropped", {
         n: rep.droppedComments
-      }) : "") + (rep.skipped > 0 ? tf(", {n} entries kept as-is (could not be mapped)", {
+      }) : "") + (rep.skipped > 0 ? tf$1(", {n} entries kept as-is (could not be mapped)", {
         n: rep.skipped
-      }) : "") + (rep.failed.length > 0 ? tf(", failed: {list}", {
+      }) : "") + (rep.failed.length > 0 ? tf$1(", failed: {list}", {
         list: rep.failed.join(", ")
-      }) : "") + t$2(". Backups are in .rememo-backup/migrate-*."));
+      }) : "") + t$3(". Backups are in .rememo-backup/migrate-*."));
       await scan({
         silent: true
       });
       await memoService.fetchAllMemos();
     } catch (e) {
-      setMsg(t$2("Migration failed: ") + errorMessage(e));
+      setMsg(t$3("Migration failed: ") + errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -35838,21 +36155,21 @@ const AuditPage = () => {
         className: "audit-page-header",
         children: [/* @__PURE__ */ jsx("p", {
           className: "title-text",
-          children: t$2("Data health check")
+          children: t$3("Data health check")
         }), /* @__PURE__ */ jsx("p", {
           className: "sub-text",
-          children: t$2("Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.")
+          children: t$3("Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.")
         })]
       }), fixedFlash.length > 0 && /* @__PURE__ */ jsxs("div", {
         className: "audit-flash",
         children: [/* @__PURE__ */ jsxs("div", {
           className: "audit-flash-head",
           children: [/* @__PURE__ */ jsx("span", {
-            children: t$2("Recently fixed")
+            children: t$3("Recently fixed")
           }), /* @__PURE__ */ jsx("button", {
             className: "btn clear-flash-btn",
             onClick: () => setFixedFlash([]),
-            children: t$2("Clear")
+            children: t$3("Clear")
           })]
         }), fixedFlash.map((f2) => /* @__PURE__ */ jsxs("div", {
           className: "audit-flash-item",
@@ -35872,47 +36189,47 @@ const AuditPage = () => {
         className: "audit-toolbar",
         children: [/* @__PURE__ */ jsxs("span", {
           className: "audit-stats",
-          children: [tf("{files} files \xB7 {lines} memos \xB7 {issues} issues", {
+          children: [tf$1("{files} files \xB7 {lines} memos \xB7 {issues} issues", {
             files: (_a2 = stats == null ? void 0 : stats.files) != null ? _a2 : 0,
             lines: (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0,
             issues: (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0
-          }), stats && stats.legacyFiles > 0 ? tf(" (incl. {n} legacy-format files)", {
+          }), stats && stats.legacyFiles > 0 ? tf$1(" (incl. {n} legacy-format files)", {
             n: stats.legacyFiles
-          }) : "", stats && stats.fixableLines > 0 ? tf(" ({n} auto-fixable)", {
+          }) : "", stats && stats.fixableLines > 0 ? tf$1(" ({n} auto-fixable)", {
             n: stats.fixableLines
           }) : ""]
         }), /* @__PURE__ */ jsx("button", {
           className: "btn refresh-btn",
           onClick: () => scan(),
           disabled: busy,
-          children: t$2("Re-scan")
+          children: t$3("Re-scan")
         }), stats && stats.legacyFiles > 0 && /* @__PURE__ */ jsx("button", {
           className: "btn migrate-all-btn",
           onClick: migrateAllLegacy,
           disabled: busy,
-          children: tf("Migrate all legacy files ({n})", {
+          children: tf$1("Migrate all legacy files ({n})", {
             n: stats.legacyFiles
           })
         }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsx("button", {
           className: "btn fix-all-btn",
           onClick: fixAll,
           disabled: busy,
-          children: tf("Auto-fix all ({n})", {
+          children: tf$1("Auto-fix all ({n})", {
             n: stats.fixableLines
           })
         })]
       }), busy && /* @__PURE__ */ jsx("div", {
         className: "audit-busy",
-        children: progress ? tf("Scanning\u2026 {done}/{total}", {
+        children: progress ? tf$1("Scanning\u2026 {done}/{total}", {
           done: progress.done,
           total: progress.total
-        }) : t$2("Working\u2026")
+        }) : t$3("Working\u2026")
       }), msg && /* @__PURE__ */ jsx("div", {
         className: "audit-msg",
         children: msg
       }), !busy && result && tree.length === 0 && /* @__PURE__ */ jsx("div", {
         className: "audit-empty",
-        children: t$2("No problems found \u{1F389}")
+        children: t$3("No problems found \u{1F389}")
       }), !busy && pageFiles.length > 0 && /* @__PURE__ */ jsx("div", {
         className: "audit-file-list",
         children: pageFiles.map((file) => {
@@ -35939,23 +36256,23 @@ const AuditPage = () => {
                 children: shortName(file.path)
               }), errCount > 0 && /* @__PURE__ */ jsx("span", {
                 className: "audit-file-err",
-                children: tf("{n} errors", {
+                children: tf$1("{n} errors", {
                   n: errCount
                 })
               }), /* @__PURE__ */ jsx("span", {
                 className: "audit-file-count",
-                children: tf("{n} memos", {
+                children: tf$1("{n} memos", {
                   n: file.lines.length
                 })
               }), hasLegacy && /* @__PURE__ */ jsx("button", {
                 className: "btn migrate-btn",
-                title: t$2("Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards."),
+                title: t$3("Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards."),
                 onClick: (e) => {
                   e.stopPropagation();
                   void migrateOneFile(file.path);
                 },
                 disabled: busy,
-                children: migratingPath === file.path ? t$2("Migrating\u2026") : t$2("Migrate file")
+                children: migratingPath === file.path ? t$3("Migrating\u2026") : t$3("Migrate file")
               })]
             }), !collapsed && /* @__PURE__ */ jsx("div", {
               className: "audit-line-list",
@@ -35996,7 +36313,7 @@ const AuditPage = () => {
                       title: issue.fixedLine,
                       children: [/* @__PURE__ */ jsx("span", {
                         className: "audit-fix-label",
-                        children: tf("{rule} \u2014 fix to:", {
+                        children: tf$1("{rule} \u2014 fix to:", {
                           rule: (_b2 = (_a3 = ruleById[issue.ruleId]) == null ? void 0 : _a3.name) != null ? _b2 : issue.ruleId
                         })
                       }), issue.fixedLine]
@@ -36007,15 +36324,15 @@ const AuditPage = () => {
                       className: "btn fix-one-btn",
                       onClick: () => fixOneLine(file.path, line),
                       disabled: busy,
-                      children: t$2("Fix this line")
+                      children: t$3("Fix this line")
                     }), /* @__PURE__ */ jsx("button", {
                       className: "btn view-btn",
                       onClick: () => openFile(file.path, line),
-                      children: t$2("View")
+                      children: t$3("View")
                     }), /* @__PURE__ */ jsx("button", {
                       className: "btn ignore-btn",
                       onClick: () => toggleIgnore(file.path, line),
-                      children: t$2("Ignore")
+                      children: t$3("Ignore")
                     })]
                   })]
                 }, key);
@@ -36067,7 +36384,7 @@ function App() {
     }
   } = react.exports.useContext(appContext);
   if (!appHasDailyNotesPluginLoaded_1() && !window.app.plugins.getPlugin("periodic-notes")) {
-    new require$$0.Notice(t$2("Check if you opened Daily Notes Plugin Or Periodic Notes Plugin"));
+    new require$$0.Notice(t$3("Check if you opened Daily Notes Plugin Or Periodic Notes Plugin"));
   }
   return /* @__PURE__ */ jsx(Fragment, {
     children: appRouterSwitch(pathname)
@@ -36137,6 +36454,7 @@ class Memos extends require$$0.ItemView {
     dailyNotesService.getApp(this.app);
     memoService.invalidate();
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.plugin.settings } });
+    applyContentFontSize(this.plugin.settings);
     preloadSendSound(this.plugin.settings);
     MemoHeading = this.plugin.settings.MemoHeading;
     this.plugin.settings.DefaultPrefix;
@@ -36166,293 +36484,6 @@ function addIcons() {
     require$$0.addIcon(key, icons[key]);
   });
 }
-const TIME_FORMAT_OPTIONS = [
-  { value: "HH:mm", label: "HH:mm" },
-  { value: "HH:mm:ss", label: "HH:mm:ss" }
-];
-const DONATE_AFDIAN_URL = "";
-const DONATE_KOFI_URL = "";
-const DEFAULT_SETTINGS = {
-  MemoHeading: "## Memo",
-  ShareFooterStart: "{MemosNum} Memos {UsedDay} Day",
-  ShareFooterEnd: "\u270D\uFE0F Rememo",
-  DefaultPrefix: "List",
-  DefaultEditorLocation: "Top",
-  UseButtonToShowEditor: false,
-  FocusOnEditor: true,
-  HideDoneTasks: false,
-  HideRefMemosInList: true,
-  EnableRecycleBin: true,
-  RecycleBinRetention: "never",
-  TagListView: "flat",
-  TagRenderPosition: "bottom",
-  HeatMapStartDay: "sunday",
-  ShowHeatMap: true,
-  EnterToSend: false,
-  SendSoundSource: "builtin",
-  SendSoundPath: "",
-  SendSoundVolume: 25,
-  OpenMemosAutomatically: false,
-  AutoSaveWhenOnMobile: false,
-  DefaultLightBackgroundImage: "",
-  DefaultDarkBackgroundImage: "",
-  ShowLeftSideBar: false,
-  TimeFormat: "HH:mm"
-};
-class MemosSettingTab extends require$$0.PluginSettingTab {
-  constructor(app2, plugin) {
-    super(app2, plugin);
-    this.applyDebounceTimer = 0;
-    this.plugin = plugin;
-  }
-  applySettingsUpdate() {
-    window.clearTimeout(this.applyDebounceTimer);
-    const plugin = this.plugin;
-    this.applyDebounceTimer = window.setTimeout(() => {
-      void plugin.saveSettings();
-    }, 100);
-    memoService.updateTagsState();
-  }
-  async display() {
-    await this.plugin.loadSettings();
-    const { containerEl } = this;
-    this.containerEl.empty();
-    new require$$0.Setting(containerEl).setName(t$2("Memo")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Memo heading")).setDesc(
-      t$2(
-        "New memos are written below this heading, and only entries below it are read. If the heading is missing, it will be created automatically. Default: ## Memo"
-      )
-    ).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.MemoHeading).setValue(this.plugin.settings.MemoHeading).onChange(async (value) => {
-        this.plugin.settings.MemoHeading = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Default prefix")).setDesc(t$2("Set the default prefix when create memo, 'List' by default.")).addDropdown(async (d) => {
-      d.addOption("List", t$2("List"));
-      d.addOption("Task", t$2("Task"));
-      d.setValue(this.plugin.settings.DefaultPrefix).onChange(async (value) => {
-        this.plugin.settings.DefaultPrefix = value;
-        this.applySettingsUpdate();
-      });
-    });
-    new require$$0.Setting(containerEl).setName(t$2("Time display format")).setDesc(t$2("Time display format description")).addDropdown(async (d) => {
-      for (const opt of TIME_FORMAT_OPTIONS)
-        d.addOption(opt.value, opt.label);
-      d.setValue(this.plugin.settings.TimeFormat).onChange(async (value) => {
-        this.plugin.settings.TimeFormat = value;
-        this.applySettingsUpdate();
-      });
-    });
-    new require$$0.Setting(containerEl).setName(t$2("Send memo by Enter key")).setDesc(t$2("When enabled, pressing Enter sends the memo and Ctrl/Cmd+Enter inserts a new line. Off by default.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.EnterToSend).onChange(async (value) => {
-        this.plugin.settings.EnterToSend = value;
-        this.applySettingsUpdate();
-      })
-    );
-    const sendSoundRow = new require$$0.Setting(containerEl).setName(t$2("Send sound")).setDesc(t$2("Play a sound when a new memo is sent. Choose the bundled sound or your own audio file.")).addDropdown((d) => {
-      d.addOption("builtin", t$2("Built-in (card deal)"));
-      d.addOption("custom", t$2("Custom path"));
-      d.addOption("none", t$2("Not played"));
-      d.setValue(this.plugin.settings.SendSoundSource).onChange(
-        async (value) => {
-          this.plugin.settings.SendSoundSource = value;
-          await this.plugin.saveSettings();
-          void this.display();
-        }
-      );
-    });
-    if (this.plugin.settings.SendSoundSource !== "none") {
-      sendSoundRow.addSlider(
-        (slider) => slider.setLimits(0, 100, 5).setValue(this.plugin.settings.SendSoundVolume).setDynamicTooltip().onChange(async (value) => {
-          this.plugin.settings.SendSoundVolume = value;
-          this.applySettingsUpdate();
-        })
-      );
-    }
-    if (this.plugin.settings.SendSoundSource === "custom") {
-      new require$$0.Setting(containerEl).setName(t$2("Sound file path")).setDesc(t$2("Enter a vault-relative path (e.g. assets/send.mp3).")).addText((text) => {
-        text.setPlaceholder("assets/send.mp3").setValue(this.plugin.settings.SendSoundPath).onChange(async (value) => {
-          this.plugin.settings.SendSoundPath = value;
-          this.applySettingsUpdate();
-        });
-        attachAudioPathSuggest(this.app, text.inputEl, (picked) => {
-          text.setValue(picked);
-          this.plugin.settings.SendSoundPath = picked;
-          this.applySettingsUpdate();
-        });
-      }).addExtraButton(
-        (button) => button.setIcon("play").setTooltip(t$2("Preview")).onClick(async () => {
-          await playSendSound(this.plugin.settings, { manual: true });
-        })
-      );
-    }
-    new require$$0.Setting(containerEl).setName(t$2("Focus on editor when open memos")).setDesc(t$2("Focus on editor when open memos. Focus by default.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.FocusOnEditor).onChange(async (value) => {
-        this.plugin.settings.FocusOnEditor = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("List & Sidebar")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Tag position")).setDesc(t$2("Show tags at the bottom of the card, or keep them where they appear in the text.")).addDropdown((d) => {
-      d.addOption("bottom", t$2("Bottom"));
-      d.addOption("inline", t$2("In place"));
-      d.setValue(this.plugin.settings.TagRenderPosition).onChange(
-        async (value) => {
-          this.plugin.settings.TagRenderPosition = value;
-          this.applySettingsUpdate();
-        }
-      );
-    });
-    new require$$0.Setting(containerEl).setName(t$2("Hide done tasks in Memo list")).setDesc(t$2("Hide all done tasks in Memo list. Show done tasks by default.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.HideDoneTasks).onChange(async (value) => {
-        this.plugin.settings.HideDoneTasks = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Hide Memos With References In List")).setDesc(
-      t$2(
-        "Hide referenced memos in the main list (they are shown under the memo they reference). They still appear when searching/filtering. True by default."
-      )
-    ).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.HideRefMemosInList).onChange(async (value) => {
-        this.plugin.settings.HideRefMemosInList = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Show Heat Map")).setDesc(t$2("Whether to show the usage heat map in the sidebar. True by default.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.ShowHeatMap).onChange(async (value) => {
-        this.plugin.settings.ShowHeatMap = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Start day of week")).setDesc(t$2("The first day of each column in the heat map. Sunday by default.")).addDropdown(async (d) => {
-      d.addOption("sunday", t$2("weekDays")[0]);
-      d.addOption("monday", t$2("weekDays")[1]);
-      d.setValue(this.plugin.settings.HeatMapStartDay).onChange(async (value) => {
-        this.plugin.settings.HeatMapStartDay = value;
-        this.applySettingsUpdate();
-      });
-    });
-    new require$$0.Setting(containerEl).setName(t$2("Always Show Leaf Sidebar on PC")).setDesc(t$2("Show left sidebar on PC even when the leaf width is less than 875px. False by default.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.ShowLeftSideBar).onChange(async (value) => {
-        this.plugin.settings.ShowLeftSideBar = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Recycle bin")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Enable Recycle Bin")).setDesc(
-      t$2(
-        "When turned off, deleting a memo removes it permanently instead of moving it to the recycle bin. Memos already in the recycle bin are kept and come back when this is re-enabled."
-      )
-    ).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.EnableRecycleBin).onChange(async (value) => {
-        this.plugin.settings.EnableRecycleBin = value;
-        await this.plugin.saveSettings();
-        void this.display();
-      })
-    );
-    if (this.plugin.settings.EnableRecycleBin) {
-      new require$$0.Setting(containerEl).setName(t$2("Auto-clean Recycle Bin")).setDesc(
-        t$2(
-          "Permanently deletes memos that have been in the recycle bin longer than the retention period. This cannot be undone."
-        )
-      ).addDropdown(async (d) => {
-        d.addOption("never", t$2("Never delete"));
-        d.addOption("7", t$2("7 days"));
-        d.addOption("30", t$2("30 days"));
-        d.addOption("90", t$2("90 days"));
-        d.addOption("180", t$2("180 days"));
-        d.setValue(this.plugin.settings.RecycleBinRetention).onChange(
-          async (value) => {
-            this.plugin.settings.RecycleBinRetention = value;
-            this.applySettingsUpdate();
-          }
-        );
-      });
-    }
-    new require$$0.Setting(containerEl).setName(t$2("Startup & Opening")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Open Memos when obsidian opens")).setDesc(t$2("When enable this, Memos will open when Obsidian opens. False by default.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.OpenMemosAutomatically).onChange(async (value) => {
-        this.plugin.settings.OpenMemosAutomatically = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Share Options")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Share Memos Image Footer Start")).setDesc(
-      t$2(
-        "Set anything you want here, use {MemosNum} to display Number of memos, {UsedDay} for days. '{MemosNum} Memos {UsedDay} Days' By default"
-      )
-    ).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.ShareFooterStart).setValue(this.plugin.settings.ShareFooterStart).onChange(async (value) => {
-        this.plugin.settings.ShareFooterStart = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Share Memos Image Footer End")).setDesc(t$2("Set anything you want here. '\u270D\uFE0F Rememo' By default")).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.ShareFooterEnd).setValue(this.plugin.settings.ShareFooterEnd).onChange(async (value) => {
-        this.plugin.settings.ShareFooterEnd = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Background Image in Light Theme")).setDesc(t$2('Set background image in light theme. Set something like "Daily/one.png"')).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultLightBackgroundImage).setValue(this.plugin.settings.DefaultLightBackgroundImage).onChange(async (value) => {
-        this.plugin.settings.DefaultLightBackgroundImage = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Background Image in Dark Theme")).setDesc(t$2('Set background image in dark theme. Set something like "Daily/one.png"')).addText(
-      (text) => text.setPlaceholder(DEFAULT_SETTINGS.DefaultDarkBackgroundImage).setValue(this.plugin.settings.DefaultDarkBackgroundImage).onChange(async (value) => {
-        this.plugin.settings.DefaultDarkBackgroundImage = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Mobile Options")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Default editor position on mobile")).setDesc(t$2("Set the default editor position on Mobile, 'Top' by default.")).addDropdown(async (d) => {
-      d.addOption("Top", t$2("Top"));
-      d.addOption("Bottom", t$2("Bottom"));
-      d.setValue(this.plugin.settings.DefaultEditorLocation).onChange(async (value) => {
-        this.plugin.settings.DefaultEditorLocation = value;
-        this.applySettingsUpdate();
-      });
-    });
-    new require$$0.Setting(containerEl).setName(t$2("Use button to show editor on mobile")).setDesc(t$2("Set a float button to call editor on mobile. Only when editor located at the bottom works.")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.UseButtonToShowEditor).onChange(async (value) => {
-        this.plugin.settings.UseButtonToShowEditor = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Save Shared Image To Folder For Mobile")).setDesc(t$2("Save image to folder for mobile. False by Default")).addToggle(
-      (toggle) => toggle.setValue(this.plugin.settings.AutoSaveWhenOnMobile).onChange(async (value) => {
-        this.plugin.settings.AutoSaveWhenOnMobile = value;
-        this.applySettingsUpdate();
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Data tools")).setHeading();
-    new require$$0.Setting(containerEl).setName(t$2("Data Audit")).setDesc(t$2("Open the audit page to inspect and migrate memo data in daily notes.")).addButton(
-      (bt) => bt.setButtonText(t$2("Audit data")).onClick(async () => {
-        const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);
-        if (leaves.length === 0) {
-          await this.plugin.openMemos();
-        } else {
-          this.app.workspace.setActiveLeaf(leaves[0]);
-        }
-        locationService.pushHistory("/audit");
-      })
-    );
-    new require$$0.Setting(containerEl).setName(t$2("Say Thank You")).setHeading();
-    const donateLinks = [
-      [t$2("Afdian"), DONATE_AFDIAN_URL],
-      ["Ko-fi", DONATE_KOFI_URL]
-    ].filter(([, url]) => url !== "");
-    if (donateLinks.length > 0) {
-      const donateSetting = new require$$0.Setting(containerEl).setName(t$2("Donate")).setDesc(t$2("If you like this plugin, consider donating to support continued development:"));
-      for (const [label2, url] of donateLinks) {
-        donateSetting.addButton((bt) => bt.setButtonText(label2).onClick(() => window.open(url, "_blank")));
-      }
-    }
-  }
-}
 class MemosPlugin extends require$$0.Plugin {
   async onload() {
     await this.loadSettings();
@@ -36478,12 +36509,13 @@ class MemosPlugin extends require$$0.Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
     appStore.dispatch({ type: "SET_SETTINGS", payload: { settings: this.settings } });
+    applyContentFontSize(this.settings);
   }
   registerMobileEvent() {
     this.registerEvent(
       this.app.workspace.on("receive-text-menu", (menu, source) => {
         menu.addItem((item) => {
-          item.setIcon("popup-open").setTitle(t$2("Insert as Memo")).onClick(async () => {
+          item.setIcon("popup-open").setTitle(t$3("Insert as Memo")).onClick(async () => {
             const newMemo = await memoService.createMemo(source, false);
             memoService.pushMemo(newMemo);
           });
@@ -36493,7 +36525,7 @@ class MemosPlugin extends require$$0.Plugin {
     this.registerEvent(
       this.app.workspace.on("receive-files-menu", (menu, source) => {
         menu.addItem((item) => {
-          item.setIcon("popup-open").setTitle(t$2("Insert file as memo content")).onClick(async () => {
+          item.setIcon("popup-open").setTitle(t$3("Insert file as memo content")).onClick(async () => {
             const fileName = source.map((file) => {
               return this.app.fileManager.generateMarkdownLink(file, file.path);
             });
@@ -36525,7 +36557,7 @@ class MemosPlugin extends require$$0.Plugin {
     if (require$$0.Platform.isMobile) {
       this.registerMobileEvent();
     }
-    this.addRibbonIcon("Memos", t$2("ribbonIconTitle"), () => {
+    this.addRibbonIcon("Memos", t$3("ribbonIconTitle"), () => {
       void this.openMemos();
     });
     const leaves = this.app.workspace.getLeavesOfType(MEMOS_VIEW_TYPE);

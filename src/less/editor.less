@@ -17,27 +17,10 @@ div[data-type='memos_view'] .common-editor-wrapper {
     width: 100%;
     margin-bottom: 4px;
 
-    // 空内容占位（CSS 叠层：不依赖内核 placeholder 扩展）
-    &.is-empty::before {
-      content: attr(data-placeholder);
-      position: absolute;
-      top: 0;
-      left: 4px;
-      max-width: calc(100% - 8px);
-      color: var(--memo-text-faint);
-      // 跟随 Obsidian 正文字号（与 .cm-editor 同源，占位与首行对齐）
-      font-size: var(--font-text-size, 16px);
-      line-height: var(--line-height-normal, 1.5);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      pointer-events: none;
-    }
-
     > .cm-editor {
       width: 100%;
       // 输入正文 = Obsidian 正文字号（旧 15px 比笔记小一号，2026-09-11 owner 报）
-      font-size: var(--font-text-size, 16px);
+      font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
       color: var(--memo-text);
       background-color: transparent;
       // Obsidian 会给 textarea/输入元素盖白底与渐变——cm 层显式清掉
@@ -93,8 +76,26 @@ div[data-type='memos_view'] .common-editor-wrapper {
       line-height: 24px;
     }
 
-    // 占位 = 上方 .is-empty::before CSS 叠层（不依赖内核 placeholder 扩展——
-    // 2026-09-05 收敛，对应扩展已从 buildLocalExtensions 移除）
+    // 占位 = .memo-editor-placeholder 真实 DOM 元素（不依赖内核 placeholder 扩展——
+    // 2026-09-05 收敛，对应扩展已从 buildLocalExtensions 移除；2026-09-13 由 CSS 伪元素迁移到真元素）
+  }
+
+  // 空内容占位（Editor.tsx 渲染，cm-host 的兄弟层）：真元素不依赖 ::before，
+  // 正式库自定义 CSS 的伪元素全局重置杀不到它。定位基准 = 本 wrapper（position:relative）
+  > .memo-editor-placeholder {
+    position: absolute;
+    // 与 cm 首行对齐：cm-host 有 4px 下边距，工具条在下方；顶部取 cm-content 的起始位置
+    top: 0;
+    left: 4px;
+    max-width: calc(100% - 8px);
+    color: var(--memo-text-faint);
+    // 跟随 Obsidian 正文字号（与 .cm-editor 同源，占位与首行对齐）
+    font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
+    line-height: var(--line-height-normal, 1.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
   }
 
   > .common-tools-wrapper {

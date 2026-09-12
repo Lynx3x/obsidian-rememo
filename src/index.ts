@@ -2,7 +2,7 @@ import { Platform, Plugin, TFile } from 'obsidian';
 import { FocusOnEditor, Memos } from './memos';
 import { MEMOS_VIEW_TYPE } from './constants';
 import addIcons from './obComponents/customIcons';
-import { DEFAULT_SETTINGS, MemosSettings, MemosSettingTab } from './setting';
+import { DEFAULT_SETTINGS, MemosSettings, MemosSettingTab, applyContentFontSize } from './setting';
 import { t } from './translations/helper';
 import { memoService } from './services';
 import appStore from './stores/appStore';
@@ -42,6 +42,8 @@ export default class MemosPlugin extends Plugin {
         await this.saveData(this.settings);
         // 设置变更后同步到响应式 store，让 UI 组件立即更新
         appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.settings } });
+        // 字号设置：即时应用到已打开的 Rememo 视图（视图未开时无元素可改，下次 onOpen 会再应用）
+        applyContentFontSize(this.settings);
     }
 
     registerMobileEvent() {

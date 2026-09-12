@@ -25,7 +25,9 @@ import Only from '../common/OnlyWhen';
  * 不是同一模块实例——buildLocalExtensions 里推入的插件侧 facet 扩展（updateListener/
  * placeholder/keymap/roCompartment）对内核创建的 state 不生效。实测：只留
  * updateListener 时发送按钮可用态完全不更新。可靠通道 = 内核直调实例方法
- * （onUpdate 覆写）与 DOM 事件（input/focus/blur）；占位因此走 CSS 叠层；
+ * （onUpdate 覆写）与 DOM 事件（input/focus/blur）；占位因此走自绘元素
+ * （2026-09-13 起为真实 DOM span；此前是 CSS ::before 叠层，被宿主自定义 CSS 的
+ * 伪元素重置杀没）；
  * readOnly 靠 setEditable 的 catch 退 DOM 锁兜底。
  *
  * 职责分工：
@@ -455,6 +457,11 @@ const Editor = forwardRef((props: EditorProps, ref: React.ForwardedRef<EditorRef
         data-placeholder={placeholderText}
         ref={mountRef}
       />
+      {/* 占位词 = 真实 DOM 元素（2026-09-13）：旧实现是 .cm-host.is-empty::before + content:attr()，
+          正式库自定义 CSS 的 ::before 全局重置会把它杀没。真元素不依赖伪元素；
+          挂 cm-host 的兄弟层（cm 挂载点之外）避免与内核清容器/React 重绘打架。
+          定位基准 = .common-editor-wrapper（position:relative），对齐 cm 首行（top 由 .cm-content padding 决定，此处与旧伪元素同位） */}
+      {!hasContent && <span className="memo-editor-placeholder">{placeholderText}</span>}
       <div className="common-tools-wrapper">
         <div className="common-tools-container">
           <Only when={props.tools !== undefined}>{props.tools}</Only>

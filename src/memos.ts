@@ -1,5 +1,6 @@
 import { debounce, HoverPopover, ItemView, Platform, TFile, WorkspaceLeaf } from 'obsidian';
 import { MEMOS_VIEW_TYPE } from './constants';
+import { applyContentFontSize } from './setting';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
@@ -99,6 +100,8 @@ export class Memos extends ItemView {
 
     // 把设置注入响应式 store（组件经 context 订阅，实现响应式）
     appStore.dispatch({ type: 'SET_SETTINGS', payload: { settings: this.plugin.settings } });
+    // 自定义字号：每次打开视图应用一次（设置页改动由 saveSettings 即时应用）
+    applyContentFontSize(this.plugin.settings);
 
     // 发送音效预读+预解码：发送那刻起播没有"读盘+解码"延迟（2026-09-10）
     preloadSendSound(this.plugin.settings);

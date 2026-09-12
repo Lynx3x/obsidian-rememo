@@ -55,6 +55,8 @@ export interface MemosSettings {
   ShowLeftSideBar: boolean;
   /** 界面时间显示格式：'HH:mm'（不带秒，默认）| 'HH:mm:ss'（带秒）。只影响渲染，不改文件数据 */
   TimeFormat: 'HH:mm:ss' | 'HH:mm';
+  /** Rememo 内正文/编辑器字号（2026-09-13）：'' = 跟随 Obsidian 正文字号（默认）；'15'|'16'|'17'|'18'|'20' = 该 px 值。只影响 Rememo 界面，不动全局笔记 */
+  ContentFontSize: string;
 }
 
 export const DEFAULT_SETTINGS: MemosSettings = {
@@ -83,7 +85,24 @@ export const DEFAULT_SETTINGS: MemosSettings = {
   DefaultDarkBackgroundImage: '',
   ShowLeftSideBar: false,
   TimeFormat: 'HH:mm',
+  // 默认 16px：大字号库（19px）下跟随全局会让卡片一行仅 ≈31 字、界面件显小（2026-09-13 owner 报）；
+  // 想要跟全局同步在设置里选「跟随 Obsidian」
+  ContentFontSize: '16',
 };
+
+/** Rememo 内字号自定义（setting.ts ContentFontSize）：'' = 跟随 Obsidian 正文字号。
+ *  写成插件自有变量 --memo-content-font-size，由 less 侧消费（var(--memo-content-font-size, var(--font-text-size))），
+ *  不直接改写宿主的 --font-text-size，避免与 Obsidian 全局变量定义打架 */
+export function applyContentFontSize(settings: MemosSettings): void {
+  const els = document.querySelectorAll<HTMLElement>(`div[data-type='${MEMOS_VIEW_TYPE}']`);
+  els.forEach((el) => {
+    if (settings.ContentFontSize) {
+      el.style.setProperty('--memo-content-font-size', `${settings.ContentFontSize}px`);
+    } else {
+      el.style.removeProperty('--memo-content-font-size');
+    }
+  });
+}
 
 export class MemosSettingTab extends PluginSettingTab {
   plugin: MemosPlugin;
@@ -148,6 +167,22 @@ export class MemosSettingTab extends PluginSettingTab {
         for (const opt of TIME_FORMAT_OPTIONS) d.addOption(opt.value, opt.label);
         d.setValue(this.plugin.settings.TimeFormat).onChange(async (value: 'HH:mm:ss' | 'HH:mm') => {
           this.plugin.settings.TimeFormat = value;
+          this.applySettingsUpdate();
+        });
+      });
+
+    // Rememo 内字号（2026-09-13）：全景跟随全局正文字号时，19px 大字号库下卡片一行仅 ≈31 字、界面件显小；
+    // 这里给 Rememo 局部一个自己的字号（不影响全局笔记）。默认 16px。
+    new Setting(containerEl)
+      .setName(t('Content font size'))
+      .setDesc(t('Font size of memo content inside Rememo only. Does not affect your notes.'))
+      .addDropdown(async (d: DropdownComponent) => {
+        d.addOption('', t('Follow Obsidian'));
+        for (const size of ['14', '15', '16', '17', '18', '20'] as const) {
+          d.addOption(size, `${size}px`);
+        }
+        d.setValue(this.plugin.settings.ContentFontSize).onChange(async (value) => {
+          this.plugin.settings.ContentFontSize = value;
           this.applySettingsUpdate();
         });
       });

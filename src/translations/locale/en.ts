@@ -56,6 +56,10 @@ export default {
     "Translates the date UI language. Only 'en' and 'zh' are available.",
   'Default prefix': 'Default prefix',
   'Time display format': 'Time display format',
+  'Content font size': 'Content font size',
+  'Font size of memo content inside Rememo only. Does not affect your notes.':
+    'Font size of memo content inside Rememo only. Does not affect your notes.',
+  'Follow Obsidian': 'Follow Obsidian',
   'Time display format description':
     "Time in the UI: HH:mm:ss (with seconds, default) or HH:mm (without seconds). This option only affects display - data in your note files is never modified.",
   "Set the default prefix when create memo, 'List' by default.":

@@ -1102,7 +1102,7 @@ div[data-type='memos_view'] .image-container > img {
   padding-left: 8%;
   width: 100%;
   overflow-wrap: break-word;
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   background-color: var(--memo-bg);
 }
 .dialog-wrapper.share-memo-image-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-background > .memo-content-text > blockquote {
@@ -1562,7 +1562,7 @@ div[data-type='memos_view'] svg.action-btn,
   height: auto;
   margin-bottom: 4px;
   margin-top: -2px;
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: var(--line-height-normal, 1.5);
   min-height: 1.5em;
   white-space: pre-wrap;
@@ -1578,7 +1578,7 @@ div[data-type='memos_view'] svg.action-btn,
   display: block;
   width: 100%;
   margin: 0 0 2px;
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: var(--line-height-normal, 1.5);
   min-height: 1.5em;
   white-space: pre-wrap;
@@ -1649,7 +1649,7 @@ div[data-type='memos_view'] svg.action-btn,
   margin: 4px 0;
   padding: 8px 12px;
   border-radius: var(--radius-s, 4px);
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: 1.5;
   background-color: var(--background-modifier-hover);
   white-space: pre-wrap;
@@ -1667,7 +1667,7 @@ div[data-type='memos_view'] svg.action-btn,
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > blockquote > p,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text > blockquote > p {
   margin: 0;
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: var(--line-height-normal, 1.5);
   white-space: pre-wrap;
 }
@@ -1689,7 +1689,7 @@ div[data-type='memos_view'] svg.action-btn,
   width: 400px;
 }
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text > p {
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: 1.6;
   min-height: 1.6em;
   white-space: pre-wrap;
@@ -2931,7 +2931,7 @@ div[data-type='memos_view'] svg.action-btn,
 }
 .dialog-wrapper.random-memo-dialog > .dialog-container > .dialog-content-container > .memo-container > .memo-content-text {
   width: 100%;
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: 1.6;
   color: var(--memo-text);
   overflow-wrap: break-word;
@@ -4661,23 +4661,9 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host {
   width: 100%;
   margin-bottom: 4px;
 }
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host.is-empty::before {
-  content: attr(data-placeholder);
-  position: absolute;
-  top: 0;
-  left: 4px;
-  max-width: calc(100% - 8px);
-  color: var(--memo-text-faint);
-  font-size: var(--font-text-size, 16px);
-  line-height: var(--line-height-normal, 1.5);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
-}
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host > .cm-editor {
   width: 100%;
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   color: var(--memo-text);
   background-color: transparent;
   background-image: none;
@@ -4719,6 +4705,19 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-content:focus-
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-line {
   padding: 0;
   line-height: 24px;
+}
+div[data-type='memos_view'] .common-editor-wrapper > .memo-editor-placeholder {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  max-width: calc(100% - 8px);
+  color: var(--memo-text-faint);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
+  line-height: var(--line-height-normal, 1.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 div[data-type='memos_view'] .common-editor-wrapper > .common-tools-wrapper {
   display: flex;
@@ -7305,7 +7304,7 @@ div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container::-web
   display: none;
 }
 div[data-type='memos_view'] .memo-trash-wrapper > .deleted-memos-container > .memo-wrapper > .memo-content-text {
-  font-size: var(--font-text-size, 16px);
+  font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   line-height: var(--line-height-normal, 1.5);
   overflow-wrap: break-word;
   white-space: pre-wrap;

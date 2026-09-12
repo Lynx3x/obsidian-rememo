@@ -38,6 +38,10 @@ export default {
     "对日期的不同翻译。目前只能选择 'en' 和 'zh'（未来会废置）",
   'Default prefix': '默认前缀',
   'Time display format': '时间显示格式',
+  'Content font size': '正文与输入字号',
+  'Font size of memo content inside Rememo only. Does not affect your notes.':
+    '只影响 Rememo 里正文和输入框的字号，不改动你的全局笔记设置。',
+  'Follow Obsidian': '跟随 Obsidian',
   'Time display format description': '界面时间显示 HH:mm:ss（带秒，默认）或 HH:mm（不带秒）。该选项只影响显示，不会修改日记文件里的数据。',
   "Set the default prefix when create memo, 'List' by default.": '设置默认的前缀样式。默认为列表',
   'Default insert date format': '插入日期附带的样式',

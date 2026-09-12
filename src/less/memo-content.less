@@ -129,7 +129,7 @@
     margin-top: -2px;
     // 跟随 Obsidian 正文字号/行高（设置→外观→字体大小）——旧值 15px/24px 是网页版血统，
     // 会比同一篇日记在笔记视图里小一号（x-height 肉眼可辨），2026-09-11 owner 报
-    font-size: var(--font-text-size, 16px);
+    font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
     line-height: var(--line-height-normal, 1.5);
     min-height: 1.5em;
     white-space: pre-wrap;
@@ -146,7 +146,7 @@
     display: block;
     width: 100%;
     margin: 0 0 2px;
-    font-size: var(--font-text-size, 16px);
+    font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
     line-height: var(--line-height-normal, 1.5);
     min-height: 1.5em;
     white-space: pre-wrap;
@@ -224,7 +224,7 @@
     margin: 4px 0;
     padding: 8px 12px;
     border-radius: var(--radius-s, 4px);
-    font-size: var(--font-text-size, 16px);
+    font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
     line-height: 1.5;
     background-color: var(--background-modifier-hover);
     white-space: pre-wrap;
@@ -243,7 +243,7 @@
 
     > p {
       margin: 0;
-      font-size: var(--font-text-size, 16px);
+      font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
       line-height: var(--line-height-normal, 1.5);
       white-space: pre-wrap;
     }
@@ -274,7 +274,7 @@
 // 移动端放大型
 [data-type='memos_view'].mobile-view .memolist-wrapper .memo-content-text {
   > p {
-    font-size: var(--font-text-size, 16px);
+    font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
     line-height: 1.6;
     min-height: 1.6em;
     white-space: pre-wrap;
