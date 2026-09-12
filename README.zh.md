@@ -4,7 +4,7 @@
 
 [English](README.md) | **中文**
 
-Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) 的增强重写（曾用名 Memos Plus）。所有 memo 都存储在**你的日记文件**里，不做私有数据库——Obsidian 文件归你，随时可读、可改、可迁移。
+Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos)（现名 **Thino**）的增强重写。所有 memo 都存储在**你的日记文件**里，不做私有数据库——Obsidian 文件归你，随时可读、可改、可迁移。
 
 ## 截图
 
@@ -39,15 +39,15 @@ Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com
 
 需要 Obsidian **1.7.2** 及以上。
 
-## 从旧版 Memos（或「Memos Plus」）迁过来？先看这里
+## 从旧版 Memos（现名 Thino）迁过来？先看这里
 
 **你的 memo 没丢。** Rememo 读的就是你日记文件里已有的 memo——它不会自己搬动、改写或删除任何东西。
 
-有一件事要先知道：旧版 Obsidian-Memos 写下的 memo 是**旧的单行格式**，而 Rememo 只渲染新的卡片块格式。所以刚装好时，你原来的 memo 不会出现在列表里——它们**还好好地躺在你的文件里**，只是没被显示。
+有一件事要先知道：Thino（原 Obsidian-Memos）写下的 memo 是**旧的单行格式**，而 Rememo 只渲染新的卡片块格式。所以刚装好时，你原来的 memo 不会出现在列表里——它们**还好好地躺在你的文件里**，只是没被显示。
 
 **用内置的迁移把它找回来：**
 
-1. 打开 Rememo 设置 → 「**数据工具**」→ 「**数据体检**」
+1. 检测到旧格式 memo 时，列表顶部会出现一条提示横幅——点上面的「**打开数据体检**」即可（也可以从 Rememo 设置 → 「**数据工具**」→ 「**数据体检**」进入）
 2. 体检会扫描你的日记，列出所有含旧格式行的文件
 3. 点文件旁的「整文件迁移」，或用「一键迁移全部旧文件」一次转完
 4. 写盘前每个文件都会先备份到 `.rememo-backup/`，随时可以手工还原

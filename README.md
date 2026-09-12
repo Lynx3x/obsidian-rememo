@@ -4,7 +4,7 @@
 
 **English** | [中文](README.zh.md)
 
-Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten fork of [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) (previously named “Memos Plus”). All memos live inside **your daily notes** — plain Markdown, readable and editable at any time, yours to keep.
+Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten fork of [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) — the plugin now known as **Thino**. All memos live inside **your daily notes** — plain Markdown, readable and editable at any time, yours to keep.
 
 ## Screenshots
 
@@ -38,15 +38,15 @@ Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten
 
 Requires Obsidian **1.7.2** or newer.
 
-## Coming from Memos (or “Memos Plus”)? Read this first
+## Coming from Thino (the old Memos plugin)? Read this first
 
 **Your memos are safe.** Rememo reads the memos that are already inside your daily notes — it never moves, rewrites or deletes anything on its own.
 
-One thing to know: memos written by the old Obsidian-Memos plugin use an **older line format**, and Rememo only renders the new card-block format. So right after you install, your existing memos won't appear in the feed yet — they are still sitting in your files, untouched.
+One thing to know: memos written by Thino (formerly Obsidian-Memos) use an **older line format**, and Rememo only renders the new card-block format. So right after you install, your existing memos won't appear in the feed yet — they are still sitting in your files, untouched.
 
 **To bring them back, run the built-in migration:**
 
-1. Open Rememo's settings → **Data tools** → **Audit data**.
+1. When legacy memos are detected, a banner appears at the top of the feed — click **Open data health check** on it. (You can also open it from Rememo's settings → **Data tools** → **Audit data**.)
 2. The audit scans your daily notes and lists every file containing old-format lines.
 3. Use the migrate button next to a file — or the migrate-all button to convert them in one go.
 4. Before writing anything, a copy of each file is saved to `.rememo-backup/`, so you can always restore by hand.
