@@ -4,7 +4,7 @@
 
 [English](README.md) | **中文**
 
-Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos)（现名 **Thino**）的增强重写。所有 memo 都存储在**你的日记文件**里，不做私有数据库——Obsidian 文件归你，随时可读、可改、可迁移。
+Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) 的增强重写。所有 memo 都存储在**你的日记文件**里，不做私有数据库——Obsidian 文件归你，随时可读、可改、可迁移。
 
 ## 截图
 
@@ -39,11 +39,11 @@ Rememo 是 Obsidian 备忘录插件，源自 [Obsidian-Memos](https://github.com
 
 需要 Obsidian **1.7.2** 及以上。
 
-## 从旧版 Memos（现名 Thino）迁过来？先看这里
+## 从旧版 Memos 插件迁过来？先看这里
 
 **你的 memo 没丢。** Rememo 读的就是你日记文件里已有的 memo——它不会自己搬动、改写或删除任何东西。
 
-有一件事要先知道：Thino（原 Obsidian-Memos）写下的 memo 是**旧的单行格式**，而 Rememo 只渲染新的卡片块格式。所以刚装好时，你原来的 memo 不会出现在列表里——它们**还好好地躺在你的文件里**，只是没被显示。
+有一件事要先知道：Memos 插件（Obsidian-Memos）写下的 memo 是**旧的单行格式**，而 Rememo 只渲染新的卡片块格式。所以刚装好时，你原来的 memo 不会出现在列表里——它们**还好好地躺在你的文件里**，只是没被显示。
 
 **用内置的迁移把它找回来：**
 

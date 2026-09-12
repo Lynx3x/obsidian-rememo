@@ -4,7 +4,7 @@
 
 **English** | [中文](README.zh.md)
 
-Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten fork of [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos) — the plugin now known as **Thino**. All memos live inside **your daily notes** — plain Markdown, readable and editable at any time, yours to keep.
+Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten fork of [Obsidian-Memos](https://github.com/Quorafind/Obsidian-Memos). All memos live inside **your daily notes** — plain Markdown, readable and editable at any time, yours to keep.
 
 ## Screenshots
 
@@ -38,11 +38,11 @@ Rememo is a memo plugin for [Obsidian](https://obsidian.md): a heavily rewritten
 
 Requires Obsidian **1.7.2** or newer.
 
-## Coming from Thino (the old Memos plugin)? Read this first
+## Coming from the Memos plugin? Read this first
 
 **Your memos are safe.** Rememo reads the memos that are already inside your daily notes — it never moves, rewrites or deletes anything on its own.
 
-One thing to know: memos written by Thino (formerly Obsidian-Memos) use an **older line format**, and Rememo only renders the new card-block format. So right after you install, your existing memos won't appear in the feed yet — they are still sitting in your files, untouched.
+One thing to know: memos written by the old Memos plugin use an **older line format**, and Rememo only renders the new card-block format. So right after you install, your existing memos won't appear in the feed yet — they are still sitting in your files, untouched.
 
 **To bring them back, run the built-in migration:**
 
