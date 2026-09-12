@@ -10,7 +10,8 @@ import '../less/memolist.less';
 import dailyNotesService from '../services/dailyNotesService';
 import appStore from '../stores/appStore';
 import { Notice, Platform } from 'obsidian';
-import { t } from '../translations/helper';
+import { t, tf } from '../translations/helper';
+import { legacySignal } from '../helpers/legacySignal';
 import Pagination from './Pagination';
 
 type Props = object;
@@ -26,6 +27,9 @@ const MemoList: React.FC<Props> = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isFetching, setFetchStatus] = useState(true);
+  // 旧格式行数（0 = 没有旧数据）：>0 且列表为空时给迁移引导，避免迁移用户以为数据丢了
+  const [legacyRows, setLegacyRows] = useState(() => legacySignal.total());
+  useEffect(() => legacySignal.subscribe(() => setLegacyRows(legacySignal.total())), []);
   const wrapperElement = useRef<HTMLDivElement>(null);
   // 上一次布局快照（新 memo 入场时对下方卡片做 FLIP 位移）
   const layoutSnapRef = useRef<{ keys: string[]; tops: number[] }>({ keys: [], tops: [] });
@@ -377,10 +381,24 @@ const MemoList: React.FC<Props> = () => {
       onClick={handleMemoListClick}
       ref={wrapperElement}
     >
+      {!isFetching && legacyRows > 0 && (
+        <div className="legacy-hint">
+          <p className="legacy-hint-title">{t('Your old memos are still here')}</p>
+          <p className="legacy-hint-body">
+            {tf(
+              'This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost — run the data health check to convert them into card blocks.',
+              { n: legacyRows },
+            )}
+          </p>
+          <button className="legacy-hint-btn" onClick={() => locationService.pushHistory('/audit')}>
+            {t('Open data health check')}
+          </button>
+        </div>
+      )}
       {paginatedMemos.map((memo) => (
         <Memo key={`${memo.id}-${memo.updatedAt}`} memo={memo} />
       ))}
-      {statusText && (
+      {statusText && !(legacyRows > 0 && statusKind === 'is-empty') && (
         <div className="status-text-container">
           <p className={`status-text ${statusKind}`}>{statusText}</p>
         </div>

@@ -3,6 +3,7 @@
 // 范围守卫：新格式文件里“缩进正文的列表行”本就无 id（正文内容），只查顶层卡行；旧格式文件（缩进=评论）查全部列表行。
 import { Rule, Issue, DetectContext } from '../types';
 import { detectFileEra } from '../../helpers/memoLine';
+import { t } from '../../translations/helper';
 
 // 顶层 bullet 行（- 或 - [ ]，无缩进）
 const TOP_BULLET = /^[-*]\s(\[[^\]]{1}\]\s+)?/;
@@ -16,8 +17,10 @@ function randomId(): string {
 
 export const missingIdRule: Rule = {
   id: 'missing-id',
-  name: '缺少 ^id',
-  why: '列表行（memo/评论）没有行尾 ^id。没有持久块 id 的行，一旦行号变化就无法被编辑、评论、回收或引用（Obsidian 原生 ^id 是行挪位不变的）。修复：行尾补一个 6 位随机 ^id。',
+  name: t('Missing ^id'),
+  why: t(
+    'This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.',
+  ),
   severity: 'warning',
   detect(ctx: DetectContext): Issue[] {
     const era = detectFileEra(ctx.lines);

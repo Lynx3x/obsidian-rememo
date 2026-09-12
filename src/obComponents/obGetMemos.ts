@@ -1,6 +1,7 @@
 import { moment, normalizePath, Notice, TFile, TFolder } from 'obsidian';
 import { getAllDailyNotes, getDateFromFile } from 'obsidian-daily-notes-interface';
 import appStore from '../stores/appStore';
+import { legacySignal } from '../helpers/legacySignal';
 import { MemoHeading } from '../memos';
 import { t } from '../translations/helper';
 import { getDailyNotePath } from '../helpers/utils';
@@ -72,6 +73,8 @@ function parseMemosFromNote(
     let active = false;
     let current: PendingBlock | null = null;
     let pendingBlanks = 0;
+    /** 本文件里被跳过的旧格式行数（旧插件数据）——上报给 legacySignal 供空态引导 */
+    let legacyRows = 0;
 
     const flush = () => {
         if (!current) {
@@ -162,6 +165,7 @@ function parseMemosFromNote(
         }
         if (cls === 'old-top-row') {
             // 旧数据行 = 块边界：关闭当前块并跳过（含其后无主缩进残留行）
+            legacyRows++;
             flush();
             continue;
         }
@@ -187,6 +191,7 @@ function parseMemosFromNote(
         flush();
     }
     flush();
+    legacySignal.report(dailyNote.path, legacyRows);
 }
 
 export async function getMemos(
@@ -212,6 +217,9 @@ export async function getMemos(
     const files = Object.entries(dailyNotes)
         .filter(([, f]) => f instanceof TFile && f.extension === 'md')
         .sort((a, b) => b[0].localeCompare(a[0]));
+
+    // 全量重读：先清旧计数，各文件解析时重新上报
+    legacySignal.reset();
 
     const BATCH_SIZE = 5;
     for (let i = 0; i < files.length; i++) {

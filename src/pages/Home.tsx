@@ -3,6 +3,7 @@ import React, { useContext, useEffect } from 'react';
 import { homeRouterSwitch } from '../routers';
 import appContext from '../stores/appContext';
 import Sidebar from '../components/Sidebar';
+import ErrorBoundary from '../components/ErrorBoundary';
 import useLoading from '../hooks/useLoading';
 import '../less/home.less';
 
@@ -41,7 +42,10 @@ function Home() {
       {/* {loadingState.isLoading ? null : ( */}
       <section id="page-wrapper">
         <Sidebar />
-        <main className="content-wrapper">{homeRouterSwitch(settings.EnableRecycleBin)(pathname)}</main>
+        <main className="content-wrapper">
+          {/* key=pathname：切页时重置边界状态，避免上一页的错误把下一页也挡住 */}
+          <ErrorBoundary key={pathname}>{homeRouterSwitch(settings.EnableRecycleBin)(pathname)}</ErrorBoundary>
+        </main>
       </section>
       {/* )} */}
     </>

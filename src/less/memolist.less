@@ -68,4 +68,46 @@ div[data-type='memos_view'] {
   &.mobile-view .memolist-wrapper {
     padding: 0 12px 24px;
   }
+
+  // 旧数据迁移引导（列表空态且检测到旧格式行时显示）
+  .legacy-hint {
+    align-self: center;
+    max-width: 420px;
+    margin: 8px 12px 0;
+    padding: 14px 16px;
+    text-align: center;
+    background: var(--memo-canvas);
+    border: 1px solid var(--memo-border);
+    border-radius: var(--memo-radius-m);
+
+    > .legacy-hint-title {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--memo-text);
+    }
+
+    > .legacy-hint-body {
+      margin: 0 0 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--memo-text-muted);
+    }
+
+    > .legacy-hint-btn {
+      padding: 4px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--memo-accent);
+      background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+      background-image: none;
+      border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+      border-radius: var(--memo-radius-s);
+
+      &:hover {
+        color: var(--memo-accent);
+        background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
+      }
+    }
+  }
 }

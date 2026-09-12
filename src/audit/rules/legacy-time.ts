@@ -1,6 +1,7 @@
 // 规则：旧 14 位时间戳（YYYYMMDDHHmmss）
 // 读取端已支持并迁移这类行（isOld → backfill 补写 HH:mm:ss），此规则负责检出遗漏行并就地修复。
 import { Rule, Issue, DetectContext } from '../types';
+import { t } from '../../translations/helper';
 
 const LEGACY_TIME_REG = /^(\s*[-*]\s(\[[^\]]{1}\]\s+)?)(\d{14})(?=\s|$)/;
 
@@ -11,8 +12,10 @@ function toClockTime(ts: string): string {
 
 export const legacyTimeRule: Rule = {
   id: 'legacy-time',
-  name: '旧 14 位时间戳',
-  why: '行首是旧版 14 位时间戳（YYYYMMDDHHmmss）。时间应统一为 HH:mm:ss（带秒）——旧版读取端会把它当“旧格式”反复要求回写。修复：只替换时间位为 HH:mm:ss，内容与 ^id 不动。',
+  name: t('Legacy 14-digit timestamp'),
+  why: t(
+    'The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss — the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.',
+  ),
   severity: 'warning',
   detect(ctx: DetectContext): Issue[] {
     const issues: Issue[] = [];

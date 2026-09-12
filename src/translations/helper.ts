@@ -55,5 +55,14 @@ const localeMap: { [k: string]: Partial<typeof en> } = {
 const locale = localeMap[moment.locale()];
 
 export function t(str: keyof typeof en): string {
-  return (locale && locale[str]) || en[str];
+  // 兜底返回 key 本身：缺词条时显示英文键，而不是 undefined（undefined 会让 .replace 之类的调用直接抛错白屏）
+  return (locale && locale[str]) || en[str] || str;
+}
+
+/** 带占位符的词条：{name} 用 vars 填充（体检页/迁移提示等多处带计数） */
+export function tf(str: keyof typeof en, vars: Record<string, string | number>): string {
+  const template = t(str);
+  return typeof template === 'string'
+    ? template.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ''))
+    : String(str);
 }

@@ -5,11 +5,14 @@
 // 浮出到体检树并计数受影响行，无行级 fixedLine——行级修复引擎无法增删行/重排卡片块）。
 import { Rule, Issue, DetectContext } from '../types';
 import { classifyMemoRow } from '../../helpers/memoLine';
+import { t } from '../../translations/helper';
 
 export const legacyRowRule: Rule = {
   id: 'legacy-row',
-  name: '旧格式行',
-  why: '顶层行不是新格式的纯标识头（旧单行数据/手写混入），读取端不渲染它。修复：在文件头部点「整文件迁移为最新格式」统一转换（自动备份，评论子树会折叠进父卡正文）。',
+  name: t('Legacy format row'),
+  why: t(
+    'This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once — a backup is taken automatically and old comments fold into their parent card.',
+  ),
   severity: 'warning',
   detect(ctx: DetectContext): Issue[] {
     const issues: Issue[] = [];
@@ -21,7 +24,7 @@ export const legacyRowRule: Rule = {
         path: ctx.path,
         line: idx + 1,
         raw: line,
-        note: '旧格式行：整文件迁移可将其转成新格式卡片块',
+        note: t('legacy-format row: a whole-file migration converts it into a card block'),
       });
     });
     return issues;

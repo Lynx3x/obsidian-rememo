@@ -310,4 +310,78 @@ export default {
 
   // 2026-09-11 上架准备：捐赠渠道
   Afdian: 'Afdian',
+  // 2026-09-12 数据体检页 i18n（原为硬编码中文）+ 旧数据迁移引导
+  'Data health check': '🩺 Data health check',
+  'Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.':
+    'Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.',
+  'Recently fixed': '✅ Recently fixed',
+  Clear: 'Clear',
+  'Re-scan': 'Re-scan',
+  'Migrate all legacy files ({n})': 'Migrate all legacy files ({n})',
+  'Auto-fix all ({n})': 'Auto-fix all ({n})',
+  '{files} files · {lines} memos · {issues} issues': '{files} files · {lines} memos · {issues} issues',
+  ' (incl. {n} legacy-format files)': ' (incl. {n} legacy-format files)',
+  ' ({n} auto-fixable)': ' ({n} auto-fixable)',
+  'Scanning… {done}/{total}': 'Scanning… {done}/{total}',
+  'Working…': 'Working…',
+  'No problems found 🎉': 'No problems found 🎉',
+  '{n} errors': '{n} errors',
+  '{n} memos': '{n} memos',
+  'Migrate file': 'Migrate file',
+  'Migrating…': 'Migrating…',
+  'Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.':
+    'Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.',
+  '{rule} — fix to:': '{rule} — fix to:',
+  'Fix this line': 'Fix this line',
+  View: 'View',
+  Ignore: 'Ignore',
+  'Fix all': 'Fix all',
+  'Scan failed: ': 'Scan failed: ',
+  'Migration failed: ': 'Migration failed: ',
+  'no auto-fixable issues': 'no auto-fixable issues',
+  'cannot auto-fix further — the remaining issues need manual work or a migration':
+    'cannot auto-fix further — the remaining issues need manual work or a migration',
+  'fix-round limit reached; re-scan to check what is left':
+    'fix-round limit reached; re-scan to check what is left',
+  'Migration done: {n} entries converted': 'Migration done: {n} entries converted',
+  'Migrated all: {files} files · {n} entries converted': 'Migrated all: {files} files · {n} entries converted',
+  ', {n} cross-day comments moved to their daily notes': ', {n} cross-day comments moved to their daily notes',
+  ', {n} deleted comments dropped': ', {n} deleted comments dropped',
+  ', {n} entries kept as-is (could not be mapped)': ', {n} entries kept as-is (could not be mapped)',
+  ', failed: {list}': ', failed: {list}',
+  '. Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.':
+    '. Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.',
+  '. Backups are in .rememo-backup/migrate-*.': '. Backups are in .rememo-backup/migrate-*.',
+  'Nothing to migrate ({n} lines lack a time and need manual work).':
+    'Nothing to migrate ({n} lines lack a time and need manual work).',
+  'This file has no legacy-format lines — no migration needed.':
+    'This file has no legacy-format lines — no migration needed.',
+
+  // 体检规则名 / 说明 / 行注（长说明仅 en + zh-cn，其余语言回退英文）
+  'Legacy <br> line breaks': 'Legacy <br> line breaks',
+  'Duplicate ^id': 'Duplicate ^id',
+  'Legacy format row': 'Legacy format row',
+  'Legacy 14-digit timestamp': 'Legacy 14-digit timestamp',
+  'Missing ^id': 'Missing ^id',
+  'This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line — migrate the whole file to the new card-block format.':
+    'This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line — migrate the whole file to the new card-block format.',
+  'This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once — a backup is taken automatically and old comments fold into their parent card.':
+    'This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once — a backup is taken automatically and old comments fold into their parent card.',
+  'The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.':
+    'The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.',
+  'The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss — the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.':
+    'The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss — the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.',
+  'This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.':
+    'This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.',
+  'contains {n} <br>; {m} lines affected in this file — migrate the whole file':
+    'contains {n} <br>; {m} lines affected in this file — migrate the whole file',
+  'legacy-format row: a whole-file migration converts it into a card block':
+    'legacy-format row: a whole-file migration converts it into a card block',
+  'first seen at line {n}': 'first seen at line {n}',
+
+  // 旧数据迁移引导（列表空态）
+  'Your old memos are still here': 'Your old memos are still here',
+  'This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost — run the data health check to convert them into card blocks.':
+    'This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost — run the data health check to convert them into card blocks.',
+  'Open data health check': 'Open data health check',
 };

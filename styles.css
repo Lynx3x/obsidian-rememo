@@ -4407,6 +4407,41 @@ div[data-type='memos_view'].mobile-view #page-wrapper > .content-wrapper {
   transition: all 0.4s ease;
   transform: translateX(0);
 }
+.rememo-error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px;
+}
+.rememo-error-boundary > .rememo-error-boundary-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--memo-danger);
+}
+.rememo-error-boundary > .rememo-error-boundary-msg {
+  max-width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+  color: var(--memo-text-muted);
+  background: var(--memo-canvas);
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-s);
+}
+.rememo-error-boundary > .rememo-error-boundary-btn {
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+  background-image: none;
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+  border-radius: var(--memo-radius-s);
+}
 .mono-font-family {
   font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
 }
@@ -6593,6 +6628,42 @@ div[data-type='memos_view'] .memolist-wrapper.completed {
 }
 div[data-type='memos_view'].mobile-view .memolist-wrapper {
   padding: 0 12px 24px;
+}
+div[data-type='memos_view'] .legacy-hint {
+  align-self: center;
+  max-width: 420px;
+  margin: 8px 12px 0;
+  padding: 14px 16px;
+  text-align: center;
+  background: var(--memo-canvas);
+  border: 1px solid var(--memo-border);
+  border-radius: var(--memo-radius-m);
+}
+div[data-type='memos_view'] .legacy-hint > .legacy-hint-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--memo-text);
+}
+div[data-type='memos_view'] .legacy-hint > .legacy-hint-body {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--memo-text-muted);
+}
+div[data-type='memos_view'] .legacy-hint > .legacy-hint-btn {
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 12%, var(--memo-surface-hover));
+  background-image: none;
+  border: 1px solid color-mix(in srgb, var(--memo-accent) 45%, transparent);
+  border-radius: var(--memo-radius-s);
+}
+div[data-type='memos_view'] .legacy-hint > .legacy-hint-btn:hover {
+  color: var(--memo-accent);
+  background-color: color-mix(in srgb, var(--memo-accent) 22%, var(--memo-surface-hover));
 }
 .mono-font-family {
   font-family: 'ubuntu-mono', SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;

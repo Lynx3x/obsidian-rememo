@@ -12,6 +12,8 @@ import { storage } from '../../helpers/storage';
 import appStore from '../../stores/appStore';
 import { memoService } from '../../services';
 import Pagination from '../../components/Pagination';
+import { t, tf } from '../../translations/helper';
+import { errorMessage } from '../../helpers/errorMessage';
 import '../../less/audit-page.less';
 
 const IGNORED_KEY = 'auditIgnoredLines';
@@ -48,7 +50,7 @@ const AuditPage: React.FC = () => {
       const res = await runAudit((done, total) => setProgress({ done, total }));
       setResult(res);
     } catch (e: unknown) {
-      setMsg(`扫描失败：${e?.message ?? e}`);
+      setMsg(t('Scan failed: ') + errorMessage(e));
     } finally {
       setBusy(false);
       setProgress(null);
@@ -86,17 +88,19 @@ const AuditPage: React.FC = () => {
           (i) => i.fixedLine && pred(i) && !ignored[lineKey(i.path, i.line)],
         );
         if (targets.length === 0) {
-          if (round === 0) setMsg(`${scopeLabel}：没有可自动修复的问题`);
+          if (round === 0) setMsg(`${scopeLabel}: ${t('no auto-fixable issues')}`);
           return;
         }
         const out = await applyFixes(targets);
         if (out.appliedLines.length > 0) pushFlash(out.appliedLines);
         if (out.applied === 0) {
-          setMsg(`${scopeLabel}：无法继续自动修复（剩余问题需人工/迁移）`);
+          setMsg(
+            `${scopeLabel}: ${t('cannot auto-fix further — the remaining issues need manual work or a migration')}`,
+          );
           return;
         }
       }
-      setMsg(`${scopeLabel}：已达修复轮次上限，请再点「重新体检」确认剩余项`);
+      setMsg(`${scopeLabel}: ${t('fix-round limit reached; re-scan to check what is left')}`);
     } finally {
       setBusy(false);
     }
@@ -106,7 +110,7 @@ const AuditPage: React.FC = () => {
   const fixOneLine = (path: string, line: number) =>
     runFixLoop((i) => i.path === path && i.line === line, `L${line}`);
 
-  const fixAll = () => runFixLoop(() => true, '一键修复');
+  const fixAll = () => runFixLoop(() => true, t('Fix all'));
 
   const toggleIgnore = (path: string, line: number) => {
     const key = lineKey(path, line);
@@ -139,25 +143,25 @@ const AuditPage: React.FC = () => {
       const rep = await migrateFiles([file]);
       if (rep.files > 0) {
         setMsg(
-          `迁移完成：转换 ${rep.converted} 个旧单位` +
-            (rep.crossMoved > 0 ? `，${rep.crossMoved} 条跨天评论已落到对应日记` : '') +
-            (rep.droppedComments > 0 ? `，丢弃已删评论 ${rep.droppedComments} 行` : '') +
-            (rep.skipped > 0 ? `，${rep.skipped} 个单位无法映射已原样保留` : '') +
-            (rep.failed.length > 0 ? `，失败：${rep.failed.join('、')}` : '') +
-            '。备份在 .rememo-backup/migrate-*，旧数据已恢复为新卡片块。',
+          tf('Migration done: {n} entries converted', { n: rep.converted }) +
+            (rep.crossMoved > 0 ? tf(', {n} cross-day comments moved to their daily notes', { n: rep.crossMoved }) : '') +
+            (rep.droppedComments > 0 ? tf(', {n} deleted comments dropped', { n: rep.droppedComments }) : '') +
+            (rep.skipped > 0 ? tf(', {n} entries kept as-is (could not be mapped)', { n: rep.skipped }) : '') +
+            (rep.failed.length > 0 ? tf(', failed: {list}', { list: rep.failed.join(', ') }) : '') +
+            t('. Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.'),
         );
       } else {
         setMsg(
           rep.skipped > 0
-            ? `没有可迁移的旧单位（${rep.skipped} 行缺时间等，需人工处理）。`
-            : '这个文件没有旧格式行，无需迁移。',
+            ? tf('Nothing to migrate ({n} lines lack a time and need manual work).', { n: rep.skipped })
+            : t('This file has no legacy-format lines — no migration needed.'),
         );
       }
       await scan({ silent: true });
       // 迁移改变了整文件行结构，vault 2s debounce 会吞事件 → 显式全量回读
       await memoService.fetchAllMemos();
     } catch (e: unknown) {
-      setMsg(`迁移失败：${e?.message ?? e}`);
+      setMsg(t('Migration failed: ') + errorMessage(e));
     } finally {
       setBusy(false);
       setMigratingPath('');
@@ -184,17 +188,17 @@ const AuditPage: React.FC = () => {
         .filter((f): f is TFile => f instanceof TFile);
       const rep = await migrateFiles(fileList);
       setMsg(
-        `全部迁移完成：${rep.files} 个文件 · 转换 ${rep.converted} 个旧单位` +
-          (rep.crossMoved > 0 ? ` · ${rep.crossMoved} 条跨天评论已落到对应日记` : '') +
-          (rep.droppedComments > 0 ? ` · 丢弃已删评论 ${rep.droppedComments} 行` : '') +
-          (rep.skipped > 0 ? ` · ${rep.skipped} 个单位无法映射已原样保留` : '') +
-          (rep.failed.length > 0 ? ` · 失败：${rep.failed.join('、')}` : '') +
-          '。备份在 .rememo-backup/migrate-*。',
+        tf('Migrated all: {files} files · {n} entries converted', { files: rep.files, n: rep.converted }) +
+          (rep.crossMoved > 0 ? tf(', {n} cross-day comments moved to their daily notes', { n: rep.crossMoved }) : '') +
+          (rep.droppedComments > 0 ? tf(', {n} deleted comments dropped', { n: rep.droppedComments }) : '') +
+          (rep.skipped > 0 ? tf(', {n} entries kept as-is (could not be mapped)', { n: rep.skipped }) : '') +
+          (rep.failed.length > 0 ? tf(', failed: {list}', { list: rep.failed.join(', ') }) : '') +
+          t('. Backups are in .rememo-backup/migrate-*.'),
       );
       await scan({ silent: true });
       await memoService.fetchAllMemos();
     } catch (e: unknown) {
-      setMsg(`迁移失败：${e?.message ?? e}`);
+      setMsg(t('Migration failed: ') + errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -260,9 +264,11 @@ const AuditPage: React.FC = () => {
       <div className="audit-page-inner">
         {/* 页头 */}
         <div className="audit-page-header">
-          <p className="title-text">🩺 数据体检</p>
+          <p className="title-text">{t('Data health check')}</p>
           <p className="sub-text">
-            检测日记文件中的数据结构问题。修复前自动备份到 .rememo-backup/audit-时间戳/，可放心操作。
+            {t(
+              'Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.',
+            )}
           </p>
         </div>
 
@@ -270,9 +276,9 @@ const AuditPage: React.FC = () => {
         {fixedFlash.length > 0 && (
           <div className="audit-flash">
             <div className="audit-flash-head">
-              <span>✅ 最近修复</span>
+              <span>{t('Recently fixed')}</span>
               <button className="btn clear-flash-btn" onClick={() => setFixedFlash([])}>
-                清空
+                {t('Clear')}
               </button>
             </div>
             {fixedFlash.map((f) => (
@@ -290,30 +296,36 @@ const AuditPage: React.FC = () => {
         {/* 工具条 */}
         <div className="audit-toolbar">
           <span className="audit-stats">
-            有问题文件 {stats?.files ?? 0} · memo {stats?.lines ?? 0} 条 · 问题 {stats?.issues ?? 0} 个
-            {stats && stats.legacyFiles > 0 ? `（含旧格式文件 ${stats.legacyFiles} 个）` : ''}
-            {stats && stats.fixableLines > 0 ? `（可修 ${stats.fixableLines} 条）` : ''}
+            {tf('{files} files · {lines} memos · {issues} issues', {
+              files: stats?.files ?? 0,
+              lines: stats?.lines ?? 0,
+              issues: stats?.issues ?? 0,
+            })}
+            {stats && stats.legacyFiles > 0 ? tf(' (incl. {n} legacy-format files)', { n: stats.legacyFiles }) : ''}
+            {stats && stats.fixableLines > 0 ? tf(' ({n} auto-fixable)', { n: stats.fixableLines }) : ''}
           </span>
           <button className="btn refresh-btn" onClick={() => scan()} disabled={busy}>
-            重新体检
+            {t('Re-scan')}
           </button>
           {stats && stats.legacyFiles > 0 && (
             <button className="btn migrate-all-btn" onClick={migrateAllLegacy} disabled={busy}>
-              一键迁移全部旧文件（{stats.legacyFiles} 个）
+              {tf('Migrate all legacy files ({n})', { n: stats.legacyFiles })}
             </button>
           )}
           {stats && stats.fixableLines > 0 && (
             <button className="btn fix-all-btn" onClick={fixAll} disabled={busy}>
-              一键修复全部（{stats.fixableLines} 条）
+              {tf('Auto-fix all ({n})', { n: stats.fixableLines })}
             </button>
           )}
         </div>
         {busy && (
-          <div className="audit-busy">{progress ? `扫描中… ${progress.done}/${progress.total}` : '处理中…'}</div>
+          <div className="audit-busy">
+            {progress ? tf('Scanning… {done}/{total}', { done: progress.done, total: progress.total }) : t('Working…')}
+          </div>
         )}
         {msg && <div className="audit-msg">{msg}</div>}
 
-        {!busy && result && tree.length === 0 && <div className="audit-empty">没发现问题 🎉</div>}
+        {!busy && result && tree.length === 0 && <div className="audit-empty">{t('No problems found 🎉')}</div>}
 
         {!busy && pageFiles.length > 0 && (
           <div className="audit-file-list">
@@ -337,19 +349,21 @@ const AuditPage: React.FC = () => {
                     <span className="audit-file-name" title={file.path}>
                       {shortName(file.path)}
                     </span>
-                    {errCount > 0 && <span className="audit-file-err">{errCount} 处错误</span>}
-                    <span className="audit-file-count">{file.lines.length} 条 memo</span>
+                    {errCount > 0 && <span className="audit-file-err">{tf('{n} errors', { n: errCount })}</span>}
+                    <span className="audit-file-count">{tf('{n} memos', { n: file.lines.length })}</span>
                     {hasLegacy && (
                       <button
                         className="btn migrate-btn"
-                        title="把本文件的旧格式行整体迁移为新卡片块（自动备份），迁移后旧数据恢复渲染"
+                        title={t(
+                          'Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.',
+                        )}
                         onClick={(e) => {
                           e.stopPropagation();
                           void migrateOneFile(file.path);
                         }}
                         disabled={busy}
                       >
-                        {migratingPath === file.path ? '迁移中…' : '整文件迁移'}
+                        {migratingPath === file.path ? t('Migrating…') : t('Migrate file')}
                       </button>
                     )}
                   </header>
@@ -392,7 +406,7 @@ const AuditPage: React.FC = () => {
                                   title={issue.fixedLine}
                                 >
                                   <span className="audit-fix-label">
-                                    「{ruleById[issue.ruleId]?.name ?? issue.ruleId}」修复为：
+                                    {tf('{rule} — fix to:', { rule: ruleById[issue.ruleId]?.name ?? issue.ruleId })}
                                   </span>
                                   {issue.fixedLine}
                                 </div>
@@ -404,17 +418,17 @@ const AuditPage: React.FC = () => {
                                   onClick={() => fixOneLine(file.path, line)}
                                   disabled={busy}
                                 >
-                                  修复这条
+                                  {t('Fix this line')}
                                 </button>
                               )}
                               <button className="btn view-btn" onClick={() => openFile(file.path, line)}>
-                                查看
+                                {t('View')}
                               </button>
                               <button
                                 className="btn ignore-btn"
                                 onClick={() => toggleIgnore(file.path, line)}
                               >
-                                忽略
+                                {t('Ignore')}
                               </button>
                             </div>
                           </div>

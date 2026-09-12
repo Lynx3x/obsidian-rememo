@@ -2752,7 +2752,7 @@ function sf(a) {
   }
   return null;
 }
-var tf = 0;
+var tf$1 = 0;
 function uf(a) {
   return { $$typeof: Ga, toString: a, valueOf: a };
 }
@@ -4022,20 +4022,20 @@ var Gh = { readContext: vg, useCallback: Ah, useContext: Ah, useEffect: Ah, useI
 }, useOpaqueIdentifier: function() {
   if (lh) {
     var a = false, b = uf(function() {
-      a || (a = true, c("r:" + (tf++).toString(36)));
+      a || (a = true, c("r:" + (tf$1++).toString(36)));
       throw Error(y(355));
     }), c = Qh(b)[1];
     0 === (R.mode & 2) && (R.flags |= 516, Rh(
       5,
       function() {
-        c("r:" + (tf++).toString(36));
+        c("r:" + (tf$1++).toString(36));
       },
       void 0,
       null
     ));
     return b;
   }
-  b = "r:" + (tf++).toString(36);
+  b = "r:" + (tf$1++).toString(36);
   Qh(b);
   return b;
 }, unstable_isNewReconciler: false }, Eh = { readContext: vg, useCallback: bi, useContext: vg, useEffect: Xh, useImperativeHandle: $h, useLayoutEffect: Yh, useMemo: ci, useReducer: Kh, useRef: Th, useState: function() {
@@ -6927,25 +6927,25 @@ function combineReducers(reducers) {
   };
 }
 function createStore(preloadedState, reducer2) {
-  const listeners = [];
+  const listeners2 = [];
   let currentState = preloadedState;
   const dispatch = (action) => {
     const nextState = reducer2(currentState, action);
     const prevState = currentState;
     currentState = nextState;
-    for (const cb2 of listeners) {
+    for (const cb2 of listeners2) {
       cb2(currentState, prevState);
     }
   };
   const subscribe = (listener) => {
     let isSubscribed = true;
-    listeners.push(listener);
+    listeners2.push(listener);
     return () => {
       if (!isSubscribed) {
         return;
       }
-      const index = listeners.indexOf(listener);
-      listeners.splice(index, 1);
+      const index = listeners2.indexOf(listener);
+      listeners2.splice(index, 1);
       isSubscribed = false;
     };
   };
@@ -8841,6 +8841,40 @@ async function toggleMemoTaskType(memoid, hasId, path) {
   await vault.modify(loc.file, loc.lines.join("\n"));
   return loc.file;
 }
+const perFile = /* @__PURE__ */ new Map();
+const listeners = /* @__PURE__ */ new Set();
+const notify = () => listeners.forEach((l2) => l2());
+const legacySignal = {
+  report(path, count) {
+    if (count === 0) {
+      if (!perFile.delete(path))
+        return;
+    } else {
+      if (perFile.get(path) === count)
+        return;
+      perFile.set(path, count);
+    }
+    notify();
+  },
+  reset() {
+    if (perFile.size === 0)
+      return;
+    perFile.clear();
+    notify();
+  },
+  total() {
+    let n2 = 0;
+    for (const v2 of perFile.values())
+      n2 += v2;
+    return n2;
+  },
+  subscribe(listener) {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }
+};
 var ar = {};
 var cz = {};
 var da = {};
@@ -9098,7 +9132,61 @@ var en = {
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Show tags at the bottom of the card, or keep them where they appear in the text.",
   "In place": "In place",
   "What needs doing...": "What needs doing...",
-  Afdian: "Afdian"
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} Data health check",
+  "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.": "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.",
+  "Recently fixed": "\u2705 Recently fixed",
+  Clear: "Clear",
+  "Re-scan": "Re-scan",
+  "Migrate all legacy files ({n})": "Migrate all legacy files ({n})",
+  "Auto-fix all ({n})": "Auto-fix all ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} files \xB7 {lines} memos \xB7 {issues} issues",
+  " (incl. {n} legacy-format files)": " (incl. {n} legacy-format files)",
+  " ({n} auto-fixable)": " ({n} auto-fixable)",
+  "Scanning\u2026 {done}/{total}": "Scanning\u2026 {done}/{total}",
+  "Working\u2026": "Working\u2026",
+  "No problems found \u{1F389}": "No problems found \u{1F389}",
+  "{n} errors": "{n} errors",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrate file",
+  "Migrating\u2026": "Migrating\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 fix to:",
+  "Fix this line": "Fix this line",
+  View: "View",
+  Ignore: "Ignore",
+  "Fix all": "Fix all",
+  "Scan failed: ": "Scan failed: ",
+  "Migration failed: ": "Migration failed: ",
+  "no auto-fixable issues": "no auto-fixable issues",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "cannot auto-fix further \u2014 the remaining issues need manual work or a migration",
+  "fix-round limit reached; re-scan to check what is left": "fix-round limit reached; re-scan to check what is left",
+  "Migration done: {n} entries converted": "Migration done: {n} entries converted",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migrated all: {files} files \xB7 {n} entries converted",
+  ", {n} cross-day comments moved to their daily notes": ", {n} cross-day comments moved to their daily notes",
+  ", {n} deleted comments dropped": ", {n} deleted comments dropped",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entries kept as-is (could not be mapped)",
+  ", failed: {list}": ", failed: {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.",
+  ". Backups are in .rememo-backup/migrate-*.": ". Backups are in .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nothing to migrate ({n} lines lack a time and need manual work).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "This file has no legacy-format lines \u2014 no migration needed.",
+  "Legacy <br> line breaks": "Legacy <br> line breaks",
+  "Duplicate ^id": "Duplicate ^id",
+  "Legacy format row": "Legacy format row",
+  "Legacy 14-digit timestamp": "Legacy 14-digit timestamp",
+  "Missing ^id": "Missing ^id",
+  "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.": "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.",
+  "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.": "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.",
+  "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.": "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.",
+  "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.": "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.",
+  "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.": "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.",
+  "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file": "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file",
+  "legacy-format row: a whole-file migration converts it into a card block": "legacy-format row: a whole-file migration converts it into a card block",
+  "first seen at line {n}": "first seen at line {n}",
+  "Your old memos are still here": "Your old memos are still here",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.",
+  "Open data health check": "Open data health check"
 };
 var enGB = {};
 var es = {};
@@ -9285,7 +9373,52 @@ var fr = {
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Affiche les \xE9tiquettes en bas de la carte ou \xE0 leur emplacement d'origine dans le texte.",
   "In place": "Sur place",
   "What needs doing...": "Qu'y a-t-il \xE0 faire...",
-  Afdian: "Afdian"
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} V\xE9rification des donn\xE9es",
+  "Recently fixed": "\u2705 Corrig\xE9s r\xE9cemment",
+  Clear: "Effacer",
+  "Re-scan": "Relancer l'analyse",
+  "Migrate all legacy files ({n})": "Migrer tous les fichiers anciens ({n})",
+  "Auto-fix all ({n})": "Tout corriger automatiquement ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} fichiers \xB7 {lines} memos \xB7 {issues} probl\xE8mes",
+  " (incl. {n} legacy-format files)": " (dont {n} fichiers \xE0 l'ancien format)",
+  " ({n} auto-fixable)": " ({n} corrigeables)",
+  "Scanning\u2026 {done}/{total}": "Analyse\u2026 {done}/{total}",
+  "Working\u2026": "Traitement\u2026",
+  "No problems found \u{1F389}": "Aucun probl\xE8me trouv\xE9 \u{1F389}",
+  "{n} errors": "{n} erreurs",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrer le fichier",
+  "Migrating\u2026": "Migration\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Convertit les lignes \xE0 l'ancien format de ce fichier en blocs-cartes (sauvegarde automatique). Vos memos r\xE9apparaissent ensuite dans le fil.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 corriger en :",
+  "Fix this line": "Corriger cette ligne",
+  View: "Voir",
+  Ignore: "Ignorer",
+  "Fix all": "Tout corriger",
+  "Scan failed: ": "\xC9chec de l'analyse : ",
+  "Migration failed: ": "\xC9chec de la migration : ",
+  "no auto-fixable issues": "aucun probl\xE8me corrigeable automatiquement",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "correction automatique impossible \u2014 les probl\xE8mes restants demandent une intervention manuelle ou une migration",
+  "fix-round limit reached; re-scan to check what is left": "limite de cycles atteinte ; relancez l'analyse pour voir ce qu'il reste",
+  "Migration done: {n} entries converted": "Migration termin\xE9e : {n} entr\xE9es converties",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migration compl\xE8te : {files} fichiers \xB7 {n} entr\xE9es converties",
+  ", {n} cross-day comments moved to their daily notes": ", {n} commentaires inter-journ\xE9es d\xE9plac\xE9s dans leur note quotidienne",
+  ", {n} deleted comments dropped": ", {n} commentaires supprim\xE9s abandonn\xE9s",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entr\xE9es conserv\xE9es telles quelles (non mappables)",
+  ", failed: {list}": ", \xE9checs : {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Les sauvegardes sont dans .rememo-backup/migrate-*. Vos anciens memos sont maintenant des blocs-cartes.",
+  ". Backups are in .rememo-backup/migrate-*.": ". Les sauvegardes sont dans .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Rien \xE0 migrer ({n} lignes sans horaire, \xE0 traiter manuellement).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "Ce fichier ne contient pas de lignes \xE0 l'ancien format \u2014 aucune migration n\xE9cessaire.",
+  "Legacy <br> line breaks": "Sauts de ligne <br> h\xE9rit\xE9s",
+  "Duplicate ^id": "^id en double",
+  "Legacy format row": "Ligne \xE0 l ancien format",
+  "Legacy 14-digit timestamp": "Horodatage h\xE9rit\xE9 \xE0 14 chiffres",
+  "Missing ^id": "^id manquant",
+  "Your old memos are still here": "Vos anciens memos sont toujours l\xE0",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Ce coffre contient {n} lignes de memos \xE0 l'ancien format Memos, que Rememo n'affiche pas encore. Rien n'est perdu \u2014 lancez la v\xE9rification des donn\xE9es pour les convertir en blocs-cartes.",
+  "Open data health check": "Ouvrir la v\xE9rification des donn\xE9es"
 };
 var hi = {};
 var id = {};
@@ -9516,7 +9649,52 @@ var pt = {
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as etiquetas no fim do cart\xE3o ou no local original no texto.",
   "In place": "No local",
   "What needs doing...": "O que h\xE1 para fazer...",
-  Afdian: "Afdian"
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} Verifica\xE7\xE3o de dados",
+  "Recently fixed": "\u2705 Corrigidos recentemente",
+  Clear: "Limpar",
+  "Re-scan": "Reanalisar",
+  "Migrate all legacy files ({n})": "Migrar todos os ficheiros antigos ({n})",
+  "Auto-fix all ({n})": "Corrigir tudo automaticamente ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} ficheiros \xB7 {lines} memos \xB7 {issues} problemas",
+  " (incl. {n} legacy-format files)": " (incl. {n} ficheiros em formato antigo)",
+  " ({n} auto-fixable)": " ({n} corrig\xEDveis)",
+  "Scanning\u2026 {done}/{total}": "A analisar\u2026 {done}/{total}",
+  "Working\u2026": "A processar\u2026",
+  "No problems found \u{1F389}": "Nenhum problema encontrado \u{1F389}",
+  "{n} errors": "{n} erros",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrar ficheiro",
+  "Migrating\u2026": "A migrar\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Converte as linhas em formato antigo deste ficheiro em blocos-cart\xE3o (c\xF3pia de seguran\xE7a autom\xE1tica). Os seus memos voltam a aparecer na lista.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 corrigir para:",
+  "Fix this line": "Corrigir esta linha",
+  View: "Ver",
+  Ignore: "Ignorar",
+  "Fix all": "Corrigir tudo",
+  "Scan failed: ": "Falha na an\xE1lise: ",
+  "Migration failed: ": "Falha na migra\xE7\xE3o: ",
+  "no auto-fixable issues": "sem problemas corrig\xEDveis automaticamente",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "n\xE3o \xE9 poss\xEDvel continuar a corre\xE7\xE3o autom\xE1tica \u2014 os problemas restantes exigem interven\xE7\xE3o manual ou migra\xE7\xE3o",
+  "fix-round limit reached; re-scan to check what is left": "limite de ciclos atingido; reanalise para ver o que falta",
+  "Migration done: {n} entries converted": "Migra\xE7\xE3o conclu\xEDda: {n} entradas convertidas",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migra\xE7\xE3o completa: {files} ficheiros \xB7 {n} entradas convertidas",
+  ", {n} cross-day comments moved to their daily notes": ", {n} coment\xE1rios entre dias movidos para as respetivas notas di\xE1rias",
+  ", {n} deleted comments dropped": ", {n} coment\xE1rios eliminados descartados",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entradas mantidas como estavam (n\xE3o mape\xE1veis)",
+  ", failed: {list}": ", falhas: {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". As c\xF3pias est\xE3o em .rememo-backup/migrate-*. Os seus memos antigos s\xE3o agora blocos-cart\xE3o.",
+  ". Backups are in .rememo-backup/migrate-*.": ". As c\xF3pias est\xE3o em .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nada a migrar ({n} linhas sem hora, requerem trabalho manual).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "Este ficheiro n\xE3o tem linhas em formato antigo \u2014 n\xE3o \xE9 precisa migra\xE7\xE3o.",
+  "Legacy <br> line breaks": "Quebras de linha <br> antigas",
+  "Duplicate ^id": "^id duplicado",
+  "Legacy format row": "Linha em formato antigo",
+  "Legacy 14-digit timestamp": "Data/hora antiga de 14 d\xEDgitos",
+  "Missing ^id": "^id em falta",
+  "Your old memos are still here": "Os seus memos antigos continuam aqui",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Este cofre cont\xE9m {n} linhas de memos no formato antigo do Memos, que o Rememo ainda n\xE3o apresenta. Nada foi perdido \u2014 execute a verifica\xE7\xE3o de dados para as converter em blocos-cart\xE3o.",
+  "Open data health check": "Abrir verifica\xE7\xE3o de dados"
 };
 var ptBR = {
   welcome: "Bem-vindo ao Memos!",
@@ -9739,7 +9917,52 @@ var ptBR = {
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "Mostra as tags no fim do cart\xE3o ou no local original no texto.",
   "In place": "No local",
   "What needs doing...": "O que h\xE1 para fazer...",
-  Afdian: "Afdian"
+  Afdian: "Afdian",
+  "Data health check": "\u{1FA7A} Verifica\xE7\xE3o de dados",
+  "Recently fixed": "\u2705 Corrigidos recentemente",
+  Clear: "Limpar",
+  "Re-scan": "Verificar novamente",
+  "Migrate all legacy files ({n})": "Migrar todos os arquivos antigos ({n})",
+  "Auto-fix all ({n})": "Corrigir tudo automaticamente ({n})",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "{files} arquivos \xB7 {lines} memos \xB7 {issues} problemas",
+  " (incl. {n} legacy-format files)": " (incl. {n} arquivos em formato antigo)",
+  " ({n} auto-fixable)": " ({n} corrig\xEDveis)",
+  "Scanning\u2026 {done}/{total}": "Verificando\u2026 {done}/{total}",
+  "Working\u2026": "Processando\u2026",
+  "No problems found \u{1F389}": "Nenhum problema encontrado \u{1F389}",
+  "{n} errors": "{n} erros",
+  "{n} memos": "{n} memos",
+  "Migrate file": "Migrar arquivo",
+  "Migrating\u2026": "Migrando\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "Converte as linhas em formato antigo deste arquivo em blocos-cart\xE3o (backup autom\xE1tico). Seus memos voltam a aparecer na lista depois disso.",
+  "{rule} \u2014 fix to:": "{rule} \u2014 corrigir para:",
+  "Fix this line": "Corrigir esta linha",
+  View: "Ver",
+  Ignore: "Ignorar",
+  "Fix all": "Corrigir tudo",
+  "Scan failed: ": "Falha na verifica\xE7\xE3o: ",
+  "Migration failed: ": "Falha na migra\xE7\xE3o: ",
+  "no auto-fixable issues": "nenhum problema corrig\xEDvel automaticamente",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "n\xE3o \xE9 poss\xEDvel continuar a corre\xE7\xE3o autom\xE1tica \u2014 os problemas restantes exigem trabalho manual ou migra\xE7\xE3o",
+  "fix-round limit reached; re-scan to check what is left": "limite de rodadas atingido; verifique novamente para ver o que resta",
+  "Migration done: {n} entries converted": "Migra\xE7\xE3o conclu\xEDda: {n} entradas convertidas",
+  "Migrated all: {files} files \xB7 {n} entries converted": "Migra\xE7\xE3o completa: {files} arquivos \xB7 {n} entradas convertidas",
+  ", {n} cross-day comments moved to their daily notes": ", {n} coment\xE1rios entre dias movidos para as respectivas notas di\xE1rias",
+  ", {n} deleted comments dropped": ", {n} coment\xE1rios exclu\xEDdos descartados",
+  ", {n} entries kept as-is (could not be mapped)": ", {n} entradas mantidas como estavam (n\xE3o mape\xE1veis)",
+  ", failed: {list}": ", falhas: {list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": ". Os backups est\xE3o em .rememo-backup/migrate-*. Seus memos antigos agora s\xE3o blocos-cart\xE3o.",
+  ". Backups are in .rememo-backup/migrate-*.": ". Os backups est\xE3o em .rememo-backup/migrate-*.",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "Nada a migrar ({n} linhas sem hor\xE1rio, precisam de trabalho manual).",
+  "This file has no legacy-format lines \u2014 no migration needed.": "Este arquivo n\xE3o tem linhas em formato antigo \u2014 n\xE3o \xE9 necess\xE1ria migra\xE7\xE3o.",
+  "Legacy <br> line breaks": "Quebras de linha <br> antigas",
+  "Duplicate ^id": "^id duplicado",
+  "Legacy format row": "Linha em formato antigo",
+  "Legacy 14-digit timestamp": "Data/hora antiga de 14 d\xEDgitos",
+  "Missing ^id": "^id ausente",
+  "Your old memos are still here": "Seus memos antigos continuam aqui",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "Este cofre cont\xE9m {n} linhas de memos no formato antigo do Memos, que o Rememo ainda n\xE3o exibe. Nada foi perdido \u2014 rode a verifica\xE7\xE3o de dados para convert\xEA-las em blocos-cart\xE3o.",
+  "Open data health check": "Abrir verifica\xE7\xE3o de dados"
 };
 var ro = {};
 var ru = {};
@@ -9983,7 +10206,61 @@ var zhCN = {
   "Show tags at the bottom of the card, or keep them where they appear in the text.": "\u6807\u7B7E\u62BD\u5230\u5361\u7247\u6B63\u6587\u672B\u5C3E\uFF0C\u8FD8\u662F\u4FDD\u7559\u5728\u53E5\u5B50\u91CC\u539F\u6765\u7684\u4F4D\u7F6E\u3002",
   "In place": "\u539F\u4F4D",
   "What needs doing...": "\u8981\u505A\u4EC0\u4E48\uFF1F\u5199\u4E0B\u6765\u2026",
-  Afdian: "\u7231\u53D1\u7535"
+  Afdian: "\u7231\u53D1\u7535",
+  "Data health check": "\u{1FA7A} \u6570\u636E\u4F53\u68C0",
+  "Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.": "\u68C0\u6D4B\u65E5\u8BB0\u6587\u4EF6\u4E2D\u7684\u6570\u636E\u7ED3\u6784\u95EE\u9898\uFF0C\u4EE5\u53CA\u65E7\u7248 Memos \u63D2\u4EF6\u5199\u4E0B\u7684 memo\u3002\u4FEE\u590D\u524D\u4F1A\u81EA\u52A8\u5907\u4EFD\u5230 .rememo-backup/\uFF0C\u53EF\u653E\u5FC3\u64CD\u4F5C\u3002",
+  "Recently fixed": "\u2705 \u6700\u8FD1\u4FEE\u590D",
+  Clear: "\u6E05\u7A7A",
+  "Re-scan": "\u91CD\u65B0\u4F53\u68C0",
+  "Migrate all legacy files ({n})": "\u4E00\u952E\u8FC1\u79FB\u5168\u90E8\u65E7\u6587\u4EF6\uFF08{n} \u4E2A\uFF09",
+  "Auto-fix all ({n})": "\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08{n} \u6761\uFF09",
+  "{files} files \xB7 {lines} memos \xB7 {issues} issues": "\u6709\u95EE\u9898\u6587\u4EF6 {files} \xB7 memo {lines} \u6761 \xB7 \u95EE\u9898 {issues} \u4E2A",
+  " (incl. {n} legacy-format files)": "\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 {n} \u4E2A\uFF09",
+  " ({n} auto-fixable)": "\uFF08\u53EF\u4FEE {n} \u6761\uFF09",
+  "Scanning\u2026 {done}/{total}": "\u626B\u63CF\u4E2D\u2026 {done}/{total}",
+  "Working\u2026": "\u5904\u7406\u4E2D\u2026",
+  "No problems found \u{1F389}": "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}",
+  "{n} errors": "{n} \u5904\u9519\u8BEF",
+  "{n} memos": "{n} \u6761 memo",
+  "Migrate file": "\u6574\u6587\u4EF6\u8FC1\u79FB",
+  "Migrating\u2026": "\u8FC1\u79FB\u4E2D\u2026",
+  "Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.": "\u628A\u672C\u6587\u4EF6\u7684\u65E7\u683C\u5F0F\u884C\u6574\u4F53\u8FC1\u79FB\u4E3A\u65B0\u5361\u7247\u5757\uFF08\u81EA\u52A8\u5907\u4EFD\uFF09\uFF0C\u8FC1\u79FB\u540E\u65E7\u6570\u636E\u6062\u590D\u6E32\u67D3\u3002",
+  "{rule} \u2014 fix to:": "\u300C{rule}\u300D\u4FEE\u590D\u4E3A\uFF1A",
+  "Fix this line": "\u4FEE\u590D\u8FD9\u6761",
+  View: "\u67E5\u770B",
+  Ignore: "\u5FFD\u7565",
+  "Fix all": "\u4E00\u952E\u4FEE\u590D",
+  "Scan failed: ": "\u626B\u63CF\u5931\u8D25\uFF1A",
+  "Migration failed: ": "\u8FC1\u79FB\u5931\u8D25\uFF1A",
+  "no auto-fixable issues": "\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898",
+  "cannot auto-fix further \u2014 the remaining issues need manual work or a migration": "\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5\u5904\u7406\u6216\u8FC1\u79FB\uFF09",
+  "fix-round limit reached; re-scan to check what is left": "\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879",
+  "Migration done: {n} entries converted": "\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 {n} \u4E2A\u65E7\u5355\u4F4D",
+  "Migrated all: {files} files \xB7 {n} entries converted": "\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A{files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 {n} \u4E2A\u65E7\u5355\u4F4D",
+  ", {n} cross-day comments moved to their daily notes": "\uFF0C{n} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0",
+  ", {n} deleted comments dropped": "\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA {n} \u884C",
+  ", {n} entries kept as-is (could not be mapped)": "\uFF0C{n} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559",
+  ", failed: {list}": "\uFF0C\u5931\u8D25\uFF1A{list}",
+  ". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.": "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002",
+  ". Backups are in .rememo-backup/migrate-*.": "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002",
+  "Nothing to migrate ({n} lines lack a time and need manual work).": "\u6CA1\u6709\u53EF\u8FC1\u79FB\u7684\u65E7\u5355\u4F4D\uFF08{n} \u884C\u7F3A\u65F6\u95F4\u7B49\uFF0C\u9700\u4EBA\u5DE5\u5904\u7406\uFF09\u3002",
+  "This file has no legacy-format lines \u2014 no migration needed.": "\u8FD9\u4E2A\u6587\u4EF6\u6CA1\u6709\u65E7\u683C\u5F0F\u884C\uFF0C\u65E0\u9700\u8FC1\u79FB\u3002",
+  "Legacy <br> line breaks": "\u65E7 <br> \u6362\u884C\u7F16\u7801",
+  "Duplicate ^id": "\u91CD\u590D ^id",
+  "Legacy format row": "\u65E7\u683C\u5F0F\u884C",
+  "Legacy 14-digit timestamp": "\u65E7 14 \u4F4D\u65F6\u95F4\u6233",
+  "Missing ^id": "\u7F3A\u5C11 ^id",
+  "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format.": "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\u3002",
+  "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card.": "\u9876\u5C42\u884C\u4E0D\u662F\u65B0\u683C\u5F0F\u7684\u7EAF\u6807\u8BC6\u5934\uFF08\u65E7\u5355\u884C\u6570\u636E/\u624B\u5199\u6DF7\u5165\uFF09\uFF0C\u8BFB\u53D6\u7AEF\u4E0D\u6E32\u67D3\u5B83\u3002\u4FEE\u590D\uFF1A\u70B9\u672C\u6587\u4EF6\u7684\u300C\u6574\u6587\u4EF6\u8FC1\u79FB\u300D\u7EDF\u4E00\u8F6C\u6362\uFF08\u81EA\u52A8\u5907\u4EFD\uFF0C\u65E7\u8BC4\u8BBA\u5B50\u6811\u4F1A\u6298\u53E0\u8FDB\u7236\u5361\u6B63\u6587\uFF09\u3002",
+  "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.": "\u540C\u4E00\u6587\u4EF6\u91CC\u51FA\u73B0\u91CD\u590D\u7684 ^id\u3002^id \u662F memo/\u8BC4\u8BBA\u7684\u6301\u4E45\u4E3B\u952E\uFF0C\u91CD\u590D\u4F1A\u4F7F\u8BC4\u8BBA\u5F52\u5C5E\u3001\u56DE\u6536\u7AD9\u3001\u5F15\u7528\u5168\u90E8\u6B67\u4E49\u3002\u4FEE\u590D\uFF1A\u4FDD\u7559\u7B2C\u4E00\u4E2A\u51FA\u73B0\u7684 id\uFF0C\u540E\u7EED\u91CD\u590D\u884C\u6362\u6210\u4E00\u4E2A\u65B0\u7684\u968F\u673A ^id\u3002",
+  "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.": "\u884C\u9996\u662F\u65E7\u7248 14 \u4F4D\u65F6\u95F4\u6233\uFF08YYYYMMDDHHmmss\uFF09\u3002\u65F6\u95F4\u5E94\u7EDF\u4E00\u4E3A HH:mm:ss\uFF08\u5E26\u79D2\uFF09\u3002\u4FEE\u590D\uFF1A\u53EA\u66FF\u6362\u65F6\u95F4\u4F4D\u4E3A HH:mm:ss\uFF0C\u5185\u5BB9\u4E0E ^id \u4E0D\u52A8\u3002",
+  "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.": "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
+  "contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file": "\u8BE5\u884C\u542B {n} \u5904 <br>\uFF1B\u672C\u6587\u4EF6\u5171 {m} \u884C\u53D7\u5F71\u54CD\uFF0C\u5EFA\u8BAE\u6574\u4F53\u8FC1\u79FB",
+  "legacy-format row: a whole-file migration converts it into a card block": "\u65E7\u683C\u5F0F\u884C\uFF1A\u6574\u6587\u4EF6\u8FC1\u79FB\u53EF\u5C06\u5176\u8F6C\u6210\u65B0\u683C\u5F0F\u5361\u7247\u5757",
+  "first seen at line {n}": "\u9996\u6B21\u51FA\u73B0\u5728\u7B2C {n} \u884C",
+  "Your old memos are still here": "\u4F60\u7684\u65E7 memo \u8FD8\u5728",
+  "This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.": "\u5E93\u91CC\u68C0\u6D4B\u5230 {n} \u884C\u65E7\u7248 Memos \u683C\u5F0F\u7684 memo\uFF0CRememo \u76EE\u524D\u4E0D\u6E32\u67D3\u5B83\u4EEC\u3002\u6570\u636E\u6CA1\u6709\u4E22\u2014\u2014\u8DD1\u4E00\u6B21\u300C\u6570\u636E\u4F53\u68C0\u300D\u5373\u53EF\u628A\u5B83\u4EEC\u8F6C\u6210\u5361\u7247\u5757\u3002",
+  "Open data health check": "\u6253\u5F00\u6570\u636E\u4F53\u68C0"
 };
 var zhTW = {};
 const localeMap = {
@@ -10013,7 +10290,14 @@ const localeMap = {
 };
 const locale = localeMap[require$$0.moment.locale()];
 function t$2(str) {
-  return locale && locale[str] || en[str];
+  return locale && locale[str] || en[str] || str;
+}
+function tf(str, vars) {
+  const template = t$2(str);
+  return typeof template === "string" ? template.replace(/\{(\w+)\}/g, (_, k) => {
+    var _a2;
+    return String((_a2 = vars[k]) != null ? _a2 : "");
+  }) : String(str);
 }
 function extractDeletedAt(content2) {
   const m2 = /(?:^|\s)deletedAt:\s*(.+?)\s*$/.exec(content2);
@@ -10126,6 +10410,7 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
   let active = false;
   let current = null;
   let pendingBlanks = 0;
+  let legacyRows = 0;
   const flush = () => {
     if (!current) {
       pendingBlanks = 0;
@@ -10209,6 +10494,7 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
       continue;
     }
     if (cls === "old-top-row") {
+      legacyRows++;
       flush();
       continue;
     }
@@ -10232,6 +10518,7 @@ function parseMemosFromNote(fileLines, dailyNote, allMemos, baseDate) {
     flush();
   }
   flush();
+  legacySignal.report(dailyNote.path, legacyRows);
 }
 async function getMemos(onBatch) {
   const memos = [];
@@ -10247,6 +10534,7 @@ async function getMemos(onBatch) {
   }
   const dailyNotes = getAllDailyNotes_1();
   const files = Object.entries(dailyNotes).filter(([, f2]) => f2 instanceof require$$0.TFile && f2.extension === "md").sort((a, b) => b[0].localeCompare(a[0]));
+  legacySignal.reset();
   const BATCH_SIZE = 5;
   for (let i2 = 0; i2 < files.length; i2++) {
     await getMemosFromDailyNote(files[i2][1], memos);
@@ -11776,9 +12064,9 @@ function useSensors() {
     }
     subscribers[type].unshift(callback);
     return () => {
-      const listeners = subscribers[type];
-      if (listeners) {
-        listeners.splice(0, listeners.length, ...listeners.filter((el) => el !== callback));
+      const listeners2 = subscribers[type];
+      if (listeners2) {
+        listeners2.splice(0, listeners2.length, ...listeners2.filter((el) => el !== callback));
       }
     };
   }, [subscribers]);
@@ -16584,6 +16872,43 @@ const Sidebar = () => {
     children: [/* @__PURE__ */ jsx(UserBanner, {}), settings.ShowHeatMap ? /* @__PURE__ */ jsx(UsageHeatMap, {}) : null, /* @__PURE__ */ jsx(SidebarNav, {}), /* @__PURE__ */ jsx(QueryList, {}), /* @__PURE__ */ jsx(TagList, {})]
   });
 };
+class ErrorBoundary extends React.Component {
+  constructor() {
+    super(...arguments);
+    this.state = {
+      error: null
+    };
+  }
+  static getDerivedStateFromError(error) {
+    return {
+      error
+    };
+  }
+  render() {
+    const {
+      error
+    } = this.state;
+    if (error) {
+      return /* @__PURE__ */ jsxs("div", {
+        className: "rememo-error-boundary",
+        children: [/* @__PURE__ */ jsx("p", {
+          className: "rememo-error-boundary-title",
+          children: "Something went wrong while rendering this page."
+        }), /* @__PURE__ */ jsx("pre", {
+          className: "rememo-error-boundary-msg",
+          children: (error == null ? void 0 : error.message) || String(error)
+        }), /* @__PURE__ */ jsx("button", {
+          className: "rememo-error-boundary-btn",
+          onClick: () => this.setState({
+            error: null
+          }),
+          children: "Try again"
+        })]
+      });
+    }
+    return this.props.children;
+  }
+}
 var home = "";
 function Home() {
   const {
@@ -16603,7 +16928,9 @@ function Home() {
       id: "page-wrapper",
       children: [/* @__PURE__ */ jsx(Sidebar, {}), /* @__PURE__ */ jsx("main", {
         className: "content-wrapper",
-        children: homeRouterSwitch(settings.EnableRecycleBin)(pathname)
+        children: /* @__PURE__ */ jsx(ErrorBoundary, {
+          children: homeRouterSwitch(settings.EnableRecycleBin)(pathname)
+        }, pathname)
       })]
     })
   });
@@ -34064,6 +34391,8 @@ const MemoList = () => {
   } = react.exports.useContext(appContext);
   const [currentPage, setCurrentPage] = react.exports.useState(1);
   const [isFetching, setFetchStatus] = react.exports.useState(true);
+  const [legacyRows, setLegacyRows] = react.exports.useState(() => legacySignal.total());
+  react.exports.useEffect(() => legacySignal.subscribe(() => setLegacyRows(legacySignal.total())), []);
   const wrapperElement = react.exports.useRef(null);
   const layoutSnapRef = react.exports.useRef({
     keys: [],
@@ -34376,9 +34705,24 @@ const MemoList = () => {
     className: `memolist-wrapper ${isFetching ? "" : "completed"}`,
     onClick: handleMemoListClick,
     ref: wrapperElement,
-    children: [paginatedMemos.map((memo2) => /* @__PURE__ */ jsx(Memo, {
+    children: [!isFetching && legacyRows > 0 && /* @__PURE__ */ jsxs("div", {
+      className: "legacy-hint",
+      children: [/* @__PURE__ */ jsx("p", {
+        className: "legacy-hint-title",
+        children: t$2("Your old memos are still here")
+      }), /* @__PURE__ */ jsx("p", {
+        className: "legacy-hint-body",
+        children: tf("This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost \u2014 run the data health check to convert them into card blocks.", {
+          n: legacyRows
+        })
+      }), /* @__PURE__ */ jsx("button", {
+        className: "legacy-hint-btn",
+        onClick: () => locationService.pushHistory("/audit"),
+        children: t$2("Open data health check")
+      })]
+    }), paginatedMemos.map((memo2) => /* @__PURE__ */ jsx(Memo, {
       memo: memo2
-    }, `${memo2.id}-${memo2.updatedAt}`)), statusText && /* @__PURE__ */ jsx("div", {
+    }, `${memo2.id}-${memo2.updatedAt}`)), statusText && !(legacyRows > 0 && statusKind === "is-empty") && /* @__PURE__ */ jsx("div", {
       className: "status-text-container",
       children: /* @__PURE__ */ jsx("p", {
         className: `status-text ${statusKind}`,
@@ -34722,8 +35066,10 @@ function toClockTime(ts) {
 }
 const legacyTimeRule = {
   id: "legacy-time",
-  name: "\u65E7 14 \u4F4D\u65F6\u95F4\u6233",
-  why: "\u884C\u9996\u662F\u65E7\u7248 14 \u4F4D\u65F6\u95F4\u6233\uFF08YYYYMMDDHHmmss\uFF09\u3002\u65F6\u95F4\u5E94\u7EDF\u4E00\u4E3A HH:mm:ss\uFF08\u5E26\u79D2\uFF09\u2014\u2014\u65E7\u7248\u8BFB\u53D6\u7AEF\u4F1A\u628A\u5B83\u5F53\u201C\u65E7\u683C\u5F0F\u201D\u53CD\u590D\u8981\u6C42\u56DE\u5199\u3002\u4FEE\u590D\uFF1A\u53EA\u66FF\u6362\u65F6\u95F4\u4F4D\u4E3A HH:mm:ss\uFF0C\u5185\u5BB9\u4E0E ^id \u4E0D\u52A8\u3002",
+  name: t$2("Legacy 14-digit timestamp"),
+  why: t$2(
+    "The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss \u2014 the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id."
+  ),
   severity: "warning",
   detect(ctx) {
     const issues = [];
@@ -34754,8 +35100,10 @@ function randomId$1(exclude) {
 }
 const dupIdRule = {
   id: "dup-id",
-  name: "\u91CD\u590D ^id",
-  why: "\u540C\u4E00\u6587\u4EF6\u91CC\u51FA\u73B0\u91CD\u590D\u7684 ^id\u3002^id \u662F memo/\u8BC4\u8BBA\u7684\u6301\u4E45\u4E3B\u952E\uFF0C\u91CD\u590D\u4F1A\u4F7F\u8BC4\u8BBA\u5F52\u5C5E\u3001\u56DE\u6536\u7AD9\u3001\u5F15\u7528\u5168\u90E8\u6B67\u4E49\u3002\u4FEE\u590D\uFF1A\u4FDD\u7559\u7B2C\u4E00\u4E2A\u51FA\u73B0\u7684 id\uFF0C\u540E\u7EED\u91CD\u590D\u884C\u6362\u6210\u4E00\u4E2A\u65B0\u7684\u968F\u673A ^id\uFF08\u5F15\u7528\u65B9\u82E5\u6307\u5411\u88AB\u6362\u6389\u7684\u65E7 id \u9700\u4E00\u5E76\u8FC1\u79FB\u2014\u2014\u8BE5\u573A\u666F\u5728\u8FC1\u79FB\u89C4\u5219\u4E2D\u5904\u7406\uFF09\u3002",
+  name: t$2("Duplicate ^id"),
+  why: t$2(
+    "The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id."
+  ),
   severity: "error",
   detect(ctx) {
     const seen = /* @__PURE__ */ new Map();
@@ -34767,6 +35115,7 @@ const dupIdRule = {
     });
     const issues = [];
     ctx.lines.forEach((line, idx) => {
+      var _a2;
       if (!ctx.inScope[idx])
         return;
       const m2 = ID_AT_END$1.exec(line);
@@ -34781,7 +35130,7 @@ const dupIdRule = {
           path: ctx.path,
           line: idx + 1,
           raw: line,
-          note: `\u9996\u6B21\u51FA\u73B0\u5728\u7B2C ${seen.get(id2)} \u884C`,
+          note: tf("first seen at line {n}", { n: (_a2 = seen.get(id2)) != null ? _a2 : 0 }),
           fixedLine: line.slice(0, m2.index) + "^" + fresh
         });
       } else {
@@ -34799,8 +35148,10 @@ function randomId() {
 }
 const missingIdRule = {
   id: "missing-id",
-  name: "\u7F3A\u5C11 ^id",
-  why: "\u5217\u8868\u884C\uFF08memo/\u8BC4\u8BBA\uFF09\u6CA1\u6709\u884C\u5C3E ^id\u3002\u6CA1\u6709\u6301\u4E45\u5757 id \u7684\u884C\uFF0C\u4E00\u65E6\u884C\u53F7\u53D8\u5316\u5C31\u65E0\u6CD5\u88AB\u7F16\u8F91\u3001\u8BC4\u8BBA\u3001\u56DE\u6536\u6216\u5F15\u7528\uFF08Obsidian \u539F\u751F ^id \u662F\u884C\u632A\u4F4D\u4E0D\u53D8\u7684\uFF09\u3002\u4FEE\u590D\uFF1A\u884C\u5C3E\u8865\u4E00\u4E2A 6 \u4F4D\u968F\u673A ^id\u3002",
+  name: t$2("Missing ^id"),
+  why: t$2(
+    "This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id."
+  ),
   severity: "warning",
   detect(ctx) {
     const era = detectFileEra(ctx.lines);
@@ -34830,8 +35181,10 @@ const missingIdRule = {
 const BR_REG$1 = /<br\s*\/?>|&lt;br\s*\/?&gt;/gi;
 const bareBrRule = {
   id: "bare-br",
-  name: "\u65E7 <br> \u6362\u884C\u7F16\u7801",
-  why: "\u884C\u5185\u5B58\u5728\u65E7\u7248\u6362\u884C\u7F16\u7801 <br>\u3002\u65E7\u5355\u884C\u683C\u5F0F\u5DF2\u5F03\u7528\uFF1A<br> \u65E0\u6CD5\u8868\u8FBE\u5757\u7EA7 markdown\uFF08\u5217\u8868/\u4EE3\u7801\u5757\u9700\u8981\u771F\u5B9E\u6362\u884C\uFF09\uFF0C\u539F\u6587\u4EF6\u89C2\u611F\u4E5F\u5DEE\u3002\u5904\u7406\u65B9\u5F0F\u4E0D\u662F\u9010\u884C\u4FEE\u8865\u2014\u2014\u542B <br> \u7684\u6587\u4EF6\u5E94\u6574\u4F53\u8FC1\u79FB\u5230\u65B0\u5361\u7247\u5757\u683C\u5F0F\uFF08\u8FC1\u79FB\u529F\u80FD\u968F P1.5 \u63D0\u4F9B\uFF0C\u5C4A\u65F6\u6B64\u89C4\u5219\u4F1A\u81EA\u52A8\u5347\u7EA7\u4E3A\u53EF\u4FEE\u590D\uFF09\u3002",
+  name: t$2("Legacy <br> line breaks"),
+  why: t$2(
+    "This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line \u2014 migrate the whole file to the new card-block format."
+  ),
   severity: "info",
   detect(ctx) {
     const affectedLines = ctx.lines.filter((l2) => BR_REG$1.test(l2));
@@ -34849,7 +35202,10 @@ const bareBrRule = {
           path: ctx.path,
           line: idx + 1,
           raw: line,
-          note: `\u8BE5\u884C\u542B ${count} \u5904 <br>\uFF1B\u672C\u6587\u4EF6\u5171 ${affectedLines.length} \u884C\u53D7\u5F71\u54CD\uFF0C\u5EFA\u8BAE\u6574\u4F53\u8FC1\u79FB`
+          note: tf("contains {n} <br>; {m} lines affected in this file \u2014 migrate the whole file", {
+            n: count,
+            m: affectedLines.length
+          })
         });
       }
     });
@@ -34858,8 +35214,10 @@ const bareBrRule = {
 };
 const legacyRowRule = {
   id: "legacy-row",
-  name: "\u65E7\u683C\u5F0F\u884C",
-  why: "\u9876\u5C42\u884C\u4E0D\u662F\u65B0\u683C\u5F0F\u7684\u7EAF\u6807\u8BC6\u5934\uFF08\u65E7\u5355\u884C\u6570\u636E/\u624B\u5199\u6DF7\u5165\uFF09\uFF0C\u8BFB\u53D6\u7AEF\u4E0D\u6E32\u67D3\u5B83\u3002\u4FEE\u590D\uFF1A\u5728\u6587\u4EF6\u5934\u90E8\u70B9\u300C\u6574\u6587\u4EF6\u8FC1\u79FB\u4E3A\u6700\u65B0\u683C\u5F0F\u300D\u7EDF\u4E00\u8F6C\u6362\uFF08\u81EA\u52A8\u5907\u4EFD\uFF0C\u8BC4\u8BBA\u5B50\u6811\u4F1A\u6298\u53E0\u8FDB\u7236\u5361\u6B63\u6587\uFF09\u3002",
+  name: t$2("Legacy format row"),
+  why: t$2(
+    "This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once \u2014 a backup is taken automatically and old comments fold into their parent card."
+  ),
   severity: "warning",
   detect(ctx) {
     const issues = [];
@@ -34873,7 +35231,7 @@ const legacyRowRule = {
         path: ctx.path,
         line: idx + 1,
         raw: line,
-        note: "\u65E7\u683C\u5F0F\u884C\uFF1A\u6574\u6587\u4EF6\u8FC1\u79FB\u53EF\u5C06\u5176\u8F6C\u6210\u65B0\u683C\u5F0F\u5361\u7247\u5757"
+        note: t$2("legacy-format row: a whole-file migration converts it into a card block")
       });
     });
     return issues;
@@ -35267,7 +35625,6 @@ const AuditPage = () => {
   const [page, setPage] = react.exports.useState(1);
   const FILE_PAGE_SIZE = 8;
   const scan = react.exports.useCallback(async (options) => {
-    var _a3;
     setBusy(true);
     if (!(options == null ? void 0 : options.silent))
       setMsg("");
@@ -35278,7 +35635,7 @@ const AuditPage = () => {
       }));
       setResult(res);
     } catch (e) {
-      setMsg(`\u626B\u63CF\u5931\u8D25\uFF1A${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}`);
+      setMsg(t$2("Scan failed: ") + errorMessage(e));
     } finally {
       setBusy(false);
       setProgress(null);
@@ -35312,18 +35669,18 @@ const AuditPage = () => {
         const targets = res.issues.filter((i2) => i2.fixedLine && pred(i2) && !ignored[lineKey(i2.path, i2.line)]);
         if (targets.length === 0) {
           if (round2 === 0)
-            setMsg(`${scopeLabel}\uFF1A\u6CA1\u6709\u53EF\u81EA\u52A8\u4FEE\u590D\u7684\u95EE\u9898`);
+            setMsg(`${scopeLabel}: ${t$2("no auto-fixable issues")}`);
           return;
         }
         const out = await applyFixes(targets);
         if (out.appliedLines.length > 0)
           pushFlash(out.appliedLines);
         if (out.applied === 0) {
-          setMsg(`${scopeLabel}\uFF1A\u65E0\u6CD5\u7EE7\u7EED\u81EA\u52A8\u4FEE\u590D\uFF08\u5269\u4F59\u95EE\u9898\u9700\u4EBA\u5DE5/\u8FC1\u79FB\uFF09`);
+          setMsg(`${scopeLabel}: ${t$2("cannot auto-fix further \u2014 the remaining issues need manual work or a migration")}`);
           return;
         }
       }
-      setMsg(`${scopeLabel}\uFF1A\u5DF2\u8FBE\u4FEE\u590D\u8F6E\u6B21\u4E0A\u9650\uFF0C\u8BF7\u518D\u70B9\u300C\u91CD\u65B0\u4F53\u68C0\u300D\u786E\u8BA4\u5269\u4F59\u9879`);
+      setMsg(`${scopeLabel}: ${t$2("fix-round limit reached; re-scan to check what is left")}`);
     } finally {
       setBusy(false);
     }
@@ -35332,7 +35689,7 @@ const AuditPage = () => {
     });
   };
   const fixOneLine = (path, line) => runFixLoop((i2) => i2.path === path && i2.line === line, `L${line}`);
-  const fixAll = () => runFixLoop(() => true, "\u4E00\u952E\u4FEE\u590D");
+  const fixAll = () => runFixLoop(() => true, t$2("Fix all"));
   const toggleIgnore = (path, line) => {
     const key = lineKey(path, line);
     const next = {
@@ -35360,7 +35717,6 @@ const AuditPage = () => {
   };
   const [migratingPath, setMigratingPath] = react.exports.useState("");
   const migrateOneFile = async (path) => {
-    var _a3;
     const app2 = appStore.getState().dailyNotesState.app;
     const file = app2.vault.getAbstractFileByPath(path);
     if (!(file instanceof require$$0.TFile))
@@ -35371,23 +35727,34 @@ const AuditPage = () => {
     try {
       const rep = await migrateFiles([file]);
       if (rep.files > 0) {
-        setMsg(`\u8FC1\u79FB\u5B8C\u6210\uFF1A\u8F6C\u6362 ${rep.converted} \u4E2A\u65E7\u5355\u4F4D` + (rep.crossMoved > 0 ? `\uFF0C${rep.crossMoved} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0` : "") + (rep.droppedComments > 0 ? `\uFF0C\u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${rep.droppedComments} \u884C` : "") + (rep.skipped > 0 ? `\uFF0C${rep.skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + (rep.failed.length > 0 ? `\uFF0C\u5931\u8D25\uFF1A${rep.failed.join("\u3001")}` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\uFF0C\u65E7\u6570\u636E\u5DF2\u6062\u590D\u4E3A\u65B0\u5361\u7247\u5757\u3002");
+        setMsg(tf("Migration done: {n} entries converted", {
+          n: rep.converted
+        }) + (rep.crossMoved > 0 ? tf(", {n} cross-day comments moved to their daily notes", {
+          n: rep.crossMoved
+        }) : "") + (rep.droppedComments > 0 ? tf(", {n} deleted comments dropped", {
+          n: rep.droppedComments
+        }) : "") + (rep.skipped > 0 ? tf(", {n} entries kept as-is (could not be mapped)", {
+          n: rep.skipped
+        }) : "") + (rep.failed.length > 0 ? tf(", failed: {list}", {
+          list: rep.failed.join(", ")
+        }) : "") + t$2(". Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks."));
       } else {
-        setMsg(rep.skipped > 0 ? `\u6CA1\u6709\u53EF\u8FC1\u79FB\u7684\u65E7\u5355\u4F4D\uFF08${rep.skipped} \u884C\u7F3A\u65F6\u95F4\u7B49\uFF0C\u9700\u4EBA\u5DE5\u5904\u7406\uFF09\u3002` : "\u8FD9\u4E2A\u6587\u4EF6\u6CA1\u6709\u65E7\u683C\u5F0F\u884C\uFF0C\u65E0\u9700\u8FC1\u79FB\u3002");
+        setMsg(rep.skipped > 0 ? tf("Nothing to migrate ({n} lines lack a time and need manual work).", {
+          n: rep.skipped
+        }) : t$2("This file has no legacy-format lines \u2014 no migration needed."));
       }
       await scan({
         silent: true
       });
       await memoService.fetchAllMemos();
     } catch (e) {
-      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}`);
+      setMsg(t$2("Migration failed: ") + errorMessage(e));
     } finally {
       setBusy(false);
       setMigratingPath("");
     }
   };
   const migrateAllLegacy = async () => {
-    var _a3;
     if (!result)
       return;
     const app2 = appStore.getState().dailyNotesState.app;
@@ -35399,13 +35766,24 @@ const AuditPage = () => {
     try {
       const fileList = paths.map((p2) => app2.vault.getAbstractFileByPath(p2)).filter((f2) => f2 instanceof require$$0.TFile);
       const rep = await migrateFiles(fileList);
-      setMsg(`\u5168\u90E8\u8FC1\u79FB\u5B8C\u6210\uFF1A${rep.files} \u4E2A\u6587\u4EF6 \xB7 \u8F6C\u6362 ${rep.converted} \u4E2A\u65E7\u5355\u4F4D` + (rep.crossMoved > 0 ? ` \xB7 ${rep.crossMoved} \u6761\u8DE8\u5929\u8BC4\u8BBA\u5DF2\u843D\u5230\u5BF9\u5E94\u65E5\u8BB0` : "") + (rep.droppedComments > 0 ? ` \xB7 \u4E22\u5F03\u5DF2\u5220\u8BC4\u8BBA ${rep.droppedComments} \u884C` : "") + (rep.skipped > 0 ? ` \xB7 ${rep.skipped} \u4E2A\u5355\u4F4D\u65E0\u6CD5\u6620\u5C04\u5DF2\u539F\u6837\u4FDD\u7559` : "") + (rep.failed.length > 0 ? ` \xB7 \u5931\u8D25\uFF1A${rep.failed.join("\u3001")}` : "") + "\u3002\u5907\u4EFD\u5728 .rememo-backup/migrate-*\u3002");
+      setMsg(tf("Migrated all: {files} files \xB7 {n} entries converted", {
+        files: rep.files,
+        n: rep.converted
+      }) + (rep.crossMoved > 0 ? tf(", {n} cross-day comments moved to their daily notes", {
+        n: rep.crossMoved
+      }) : "") + (rep.droppedComments > 0 ? tf(", {n} deleted comments dropped", {
+        n: rep.droppedComments
+      }) : "") + (rep.skipped > 0 ? tf(", {n} entries kept as-is (could not be mapped)", {
+        n: rep.skipped
+      }) : "") + (rep.failed.length > 0 ? tf(", failed: {list}", {
+        list: rep.failed.join(", ")
+      }) : "") + t$2(". Backups are in .rememo-backup/migrate-*."));
       await scan({
         silent: true
       });
       await memoService.fetchAllMemos();
     } catch (e) {
-      setMsg(`\u8FC1\u79FB\u5931\u8D25\uFF1A${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}`);
+      setMsg(t$2("Migration failed: ") + errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -35460,21 +35838,21 @@ const AuditPage = () => {
         className: "audit-page-header",
         children: [/* @__PURE__ */ jsx("p", {
           className: "title-text",
-          children: "\u{1FA7A} \u6570\u636E\u4F53\u68C0"
+          children: t$2("Data health check")
         }), /* @__PURE__ */ jsx("p", {
           className: "sub-text",
-          children: "\u68C0\u6D4B\u65E5\u8BB0\u6587\u4EF6\u4E2D\u7684\u6570\u636E\u7ED3\u6784\u95EE\u9898\u3002\u4FEE\u590D\u524D\u81EA\u52A8\u5907\u4EFD\u5230 .rememo-backup/audit-\u65F6\u95F4\u6233/\uFF0C\u53EF\u653E\u5FC3\u64CD\u4F5C\u3002"
+          children: t$2("Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.")
         })]
       }), fixedFlash.length > 0 && /* @__PURE__ */ jsxs("div", {
         className: "audit-flash",
         children: [/* @__PURE__ */ jsxs("div", {
           className: "audit-flash-head",
           children: [/* @__PURE__ */ jsx("span", {
-            children: "\u2705 \u6700\u8FD1\u4FEE\u590D"
+            children: t$2("Recently fixed")
           }), /* @__PURE__ */ jsx("button", {
             className: "btn clear-flash-btn",
             onClick: () => setFixedFlash([]),
-            children: "\u6E05\u7A7A"
+            children: t$2("Clear")
           })]
         }), fixedFlash.map((f2) => /* @__PURE__ */ jsxs("div", {
           className: "audit-flash-item",
@@ -35494,32 +35872,47 @@ const AuditPage = () => {
         className: "audit-toolbar",
         children: [/* @__PURE__ */ jsxs("span", {
           className: "audit-stats",
-          children: ["\u6709\u95EE\u9898\u6587\u4EF6 ", (_a2 = stats == null ? void 0 : stats.files) != null ? _a2 : 0, " \xB7 memo ", (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0, " \u6761 \xB7 \u95EE\u9898 ", (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0, " \u4E2A", stats && stats.legacyFiles > 0 ? `\uFF08\u542B\u65E7\u683C\u5F0F\u6587\u4EF6 ${stats.legacyFiles} \u4E2A\uFF09` : "", stats && stats.fixableLines > 0 ? `\uFF08\u53EF\u4FEE ${stats.fixableLines} \u6761\uFF09` : ""]
+          children: [tf("{files} files \xB7 {lines} memos \xB7 {issues} issues", {
+            files: (_a2 = stats == null ? void 0 : stats.files) != null ? _a2 : 0,
+            lines: (_b = stats == null ? void 0 : stats.lines) != null ? _b : 0,
+            issues: (_c = stats == null ? void 0 : stats.issues) != null ? _c : 0
+          }), stats && stats.legacyFiles > 0 ? tf(" (incl. {n} legacy-format files)", {
+            n: stats.legacyFiles
+          }) : "", stats && stats.fixableLines > 0 ? tf(" ({n} auto-fixable)", {
+            n: stats.fixableLines
+          }) : ""]
         }), /* @__PURE__ */ jsx("button", {
           className: "btn refresh-btn",
           onClick: () => scan(),
           disabled: busy,
-          children: "\u91CD\u65B0\u4F53\u68C0"
-        }), stats && stats.legacyFiles > 0 && /* @__PURE__ */ jsxs("button", {
+          children: t$2("Re-scan")
+        }), stats && stats.legacyFiles > 0 && /* @__PURE__ */ jsx("button", {
           className: "btn migrate-all-btn",
           onClick: migrateAllLegacy,
           disabled: busy,
-          children: ["\u4E00\u952E\u8FC1\u79FB\u5168\u90E8\u65E7\u6587\u4EF6\uFF08", stats.legacyFiles, " \u4E2A\uFF09"]
-        }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsxs("button", {
+          children: tf("Migrate all legacy files ({n})", {
+            n: stats.legacyFiles
+          })
+        }), stats && stats.fixableLines > 0 && /* @__PURE__ */ jsx("button", {
           className: "btn fix-all-btn",
           onClick: fixAll,
           disabled: busy,
-          children: ["\u4E00\u952E\u4FEE\u590D\u5168\u90E8\uFF08", stats.fixableLines, " \u6761\uFF09"]
+          children: tf("Auto-fix all ({n})", {
+            n: stats.fixableLines
+          })
         })]
       }), busy && /* @__PURE__ */ jsx("div", {
         className: "audit-busy",
-        children: progress ? `\u626B\u63CF\u4E2D\u2026 ${progress.done}/${progress.total}` : "\u5904\u7406\u4E2D\u2026"
+        children: progress ? tf("Scanning\u2026 {done}/{total}", {
+          done: progress.done,
+          total: progress.total
+        }) : t$2("Working\u2026")
       }), msg && /* @__PURE__ */ jsx("div", {
         className: "audit-msg",
         children: msg
       }), !busy && result && tree.length === 0 && /* @__PURE__ */ jsx("div", {
         className: "audit-empty",
-        children: "\u6CA1\u53D1\u73B0\u95EE\u9898 \u{1F389}"
+        children: t$2("No problems found \u{1F389}")
       }), !busy && pageFiles.length > 0 && /* @__PURE__ */ jsx("div", {
         className: "audit-file-list",
         children: pageFiles.map((file) => {
@@ -35544,21 +35937,25 @@ const AuditPage = () => {
                 className: "audit-file-name",
                 title: file.path,
                 children: shortName(file.path)
-              }), errCount > 0 && /* @__PURE__ */ jsxs("span", {
+              }), errCount > 0 && /* @__PURE__ */ jsx("span", {
                 className: "audit-file-err",
-                children: [errCount, " \u5904\u9519\u8BEF"]
-              }), /* @__PURE__ */ jsxs("span", {
+                children: tf("{n} errors", {
+                  n: errCount
+                })
+              }), /* @__PURE__ */ jsx("span", {
                 className: "audit-file-count",
-                children: [file.lines.length, " \u6761 memo"]
+                children: tf("{n} memos", {
+                  n: file.lines.length
+                })
               }), hasLegacy && /* @__PURE__ */ jsx("button", {
                 className: "btn migrate-btn",
-                title: "\u628A\u672C\u6587\u4EF6\u7684\u65E7\u683C\u5F0F\u884C\u6574\u4F53\u8FC1\u79FB\u4E3A\u65B0\u5361\u7247\u5757\uFF08\u81EA\u52A8\u5907\u4EFD\uFF09\uFF0C\u8FC1\u79FB\u540E\u65E7\u6570\u636E\u6062\u590D\u6E32\u67D3",
+                title: t$2("Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards."),
                 onClick: (e) => {
                   e.stopPropagation();
                   void migrateOneFile(file.path);
                 },
                 disabled: busy,
-                children: migratingPath === file.path ? "\u8FC1\u79FB\u4E2D\u2026" : "\u6574\u6587\u4EF6\u8FC1\u79FB"
+                children: migratingPath === file.path ? t$2("Migrating\u2026") : t$2("Migrate file")
               })]
             }), !collapsed && /* @__PURE__ */ jsx("div", {
               className: "audit-line-list",
@@ -35597,9 +35994,11 @@ const AuditPage = () => {
                     return /* @__PURE__ */ jsxs("div", {
                       className: "audit-fix-preview",
                       title: issue.fixedLine,
-                      children: [/* @__PURE__ */ jsxs("span", {
+                      children: [/* @__PURE__ */ jsx("span", {
                         className: "audit-fix-label",
-                        children: ["\u300C", (_b2 = (_a3 = ruleById[issue.ruleId]) == null ? void 0 : _a3.name) != null ? _b2 : issue.ruleId, "\u300D\u4FEE\u590D\u4E3A\uFF1A"]
+                        children: tf("{rule} \u2014 fix to:", {
+                          rule: (_b2 = (_a3 = ruleById[issue.ruleId]) == null ? void 0 : _a3.name) != null ? _b2 : issue.ruleId
+                        })
                       }), issue.fixedLine]
                     }, `fix-${issue.ruleId}`);
                   }), /* @__PURE__ */ jsxs("div", {
@@ -35608,15 +36007,15 @@ const AuditPage = () => {
                       className: "btn fix-one-btn",
                       onClick: () => fixOneLine(file.path, line),
                       disabled: busy,
-                      children: "\u4FEE\u590D\u8FD9\u6761"
+                      children: t$2("Fix this line")
                     }), /* @__PURE__ */ jsx("button", {
                       className: "btn view-btn",
                       onClick: () => openFile(file.path, line),
-                      children: "\u67E5\u770B"
+                      children: t$2("View")
                     }), /* @__PURE__ */ jsx("button", {
                       className: "btn ignore-btn",
                       onClick: () => toggleIgnore(file.path, line),
-                      children: "\u5FFD\u7565"
+                      children: t$2("Ignore")
                     })]
                   })]
                 }, key);

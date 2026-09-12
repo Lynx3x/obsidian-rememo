@@ -284,4 +284,77 @@ export default {
 
   // 2026-09-11 上架准备：捐赠渠道
   Afdian: '爱发电',
+  // 2026-09-12 数据体检页 i18n（原为硬编码中文）+ 旧数据迁移引导
+  'Data health check': '🩺 数据体检',
+  'Scans your daily notes for structural problems and for memos written by the old Memos plugin. Files are backed up before anything is written.':
+    '检测日记文件中的数据结构问题，以及旧版 Memos 插件写下的 memo。修复前会自动备份到 .rememo-backup/，可放心操作。',
+  'Recently fixed': '✅ 最近修复',
+  Clear: '清空',
+  'Re-scan': '重新体检',
+  'Migrate all legacy files ({n})': '一键迁移全部旧文件（{n} 个）',
+  'Auto-fix all ({n})': '一键修复全部（{n} 条）',
+  '{files} files · {lines} memos · {issues} issues': '有问题文件 {files} · memo {lines} 条 · 问题 {issues} 个',
+  ' (incl. {n} legacy-format files)': '（含旧格式文件 {n} 个）',
+  ' ({n} auto-fixable)': '（可修 {n} 条）',
+  'Scanning… {done}/{total}': '扫描中… {done}/{total}',
+  'Working…': '处理中…',
+  'No problems found 🎉': '没发现问题 🎉',
+  '{n} errors': '{n} 处错误',
+  '{n} memos': '{n} 条 memo',
+  'Migrate file': '整文件迁移',
+  'Migrating…': '迁移中…',
+  'Convert the legacy rows of this file into card blocks (automatic backup). Your memos show up in the feed again afterwards.':
+    '把本文件的旧格式行整体迁移为新卡片块（自动备份），迁移后旧数据恢复渲染。',
+  '{rule} — fix to:': '「{rule}」修复为：',
+  'Fix this line': '修复这条',
+  View: '查看',
+  Ignore: '忽略',
+  'Fix all': '一键修复',
+  'Scan failed: ': '扫描失败：',
+  'Migration failed: ': '迁移失败：',
+  'no auto-fixable issues': '没有可自动修复的问题',
+  'cannot auto-fix further — the remaining issues need manual work or a migration':
+    '无法继续自动修复（剩余问题需人工处理或迁移）',
+  'fix-round limit reached; re-scan to check what is left':
+    '已达修复轮次上限，请再点「重新体检」确认剩余项',
+  'Migration done: {n} entries converted': '迁移完成：转换 {n} 个旧单位',
+  'Migrated all: {files} files · {n} entries converted': '全部迁移完成：{files} 个文件 · 转换 {n} 个旧单位',
+  ', {n} cross-day comments moved to their daily notes': '，{n} 条跨天评论已落到对应日记',
+  ', {n} deleted comments dropped': '，丢弃已删评论 {n} 行',
+  ', {n} entries kept as-is (could not be mapped)': '，{n} 个单位无法映射已原样保留',
+  ', failed: {list}': '，失败：{list}',
+  '. Backups are in .rememo-backup/migrate-*. Your old memos are now card blocks.':
+    '。备份在 .rememo-backup/migrate-*，旧数据已恢复为新卡片块。',
+  '. Backups are in .rememo-backup/migrate-*.': '。备份在 .rememo-backup/migrate-*。',
+  'Nothing to migrate ({n} lines lack a time and need manual work).':
+    '没有可迁移的旧单位（{n} 行缺时间等，需人工处理）。',
+  'This file has no legacy-format lines — no migration needed.': '这个文件没有旧格式行，无需迁移。',
+
+  // 体检规则名 / 说明 / 行注
+  'Legacy <br> line breaks': '旧 <br> 换行编码',
+  'Duplicate ^id': '重复 ^id',
+  'Legacy format row': '旧格式行',
+  'Legacy 14-digit timestamp': '旧 14 位时间戳',
+  'Missing ^id': '缺少 ^id',
+  'This line contains the legacy <br> line-break encoding. The old single-line format is retired: <br> cannot express block-level Markdown, and it reads badly in the file itself. The fix is not line-by-line — migrate the whole file to the new card-block format.':
+    '行内存在旧版换行编码 <br>。旧单行格式已弃用：<br> 无法表达块级 markdown（列表/代码块需要真实换行），原文件观感也差。处理方式不是逐行修补——含 <br> 的文件应整体迁移到新卡片块格式。',
+  'This top-level line is not a card heading (an old single-line memo, or text written by hand), so Rememo does not render it. Fix: use the migrate button on this file to convert everything at once — a backup is taken automatically and old comments fold into their parent card.':
+    '顶层行不是新格式的纯标识头（旧单行数据/手写混入），读取端不渲染它。修复：点本文件的「整文件迁移」统一转换（自动备份，旧评论子树会折叠进父卡正文）。',
+  'The same ^id appears more than once in this file. ^id is the persistent key of a memo or comment: duplicates make comments, the recycle bin and references ambiguous. Fix: keep the first occurrence and give later duplicates a fresh random ^id.':
+    '同一文件里出现重复的 ^id。^id 是 memo/评论的持久主键，重复会使评论归属、回收站、引用全部歧义。修复：保留第一个出现的 id，后续重复行换成一个新的随机 ^id。',
+  'The line starts with a legacy 14-digit timestamp (YYYYMMDDHHmmss). Times are stored as HH:mm:ss — the old reader keeps asking to rewrite it. Fix: replace only the timestamp, keeping the content and the ^id.':
+    '行首是旧版 14 位时间戳（YYYYMMDDHHmmss）。时间应统一为 HH:mm:ss（带秒）。修复：只替换时间位为 HH:mm:ss，内容与 ^id 不动。',
+  'This list line has no trailing ^id. Without a persistent block id, a line cannot be edited, commented on, recycled or referenced once its line number changes. Fix: append a 6-character ^id.':
+    '列表行（memo/评论）没有行尾 ^id。没有持久块 id 的行，一旦行号变化就无法被编辑、评论、回收或引用。修复：行尾补一个 6 位随机 ^id。',
+  'contains {n} <br>; {m} lines affected in this file — migrate the whole file':
+    '该行含 {n} 处 <br>；本文件共 {m} 行受影响，建议整体迁移',
+  'legacy-format row: a whole-file migration converts it into a card block':
+    '旧格式行：整文件迁移可将其转成新格式卡片块',
+  'first seen at line {n}': '首次出现在第 {n} 行',
+
+  // 旧数据迁移引导（列表空态）
+  'Your old memos are still here': '你的旧 memo 还在',
+  'This vault contains {n} memo lines in the old Memos format, which Rememo does not render yet. Nothing is lost — run the data health check to convert them into card blocks.':
+    '库里检测到 {n} 行旧版 Memos 格式的 memo，Rememo 目前不渲染它们。数据没有丢——跑一次「数据体检」即可把它们转成卡片块。',
+  'Open data health check': '打开数据体检',
 };
