@@ -2,7 +2,7 @@
     "id": "rememo",
     "name": "Rememo",
     "description": "Capture fleeting thoughts into your daily notes with a lively memo feed.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "author": "Lynx3x",
     "authorUrl": "https://github.com/Lynx3x",
     "isDesktopOnly": false,
