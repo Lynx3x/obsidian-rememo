@@ -5,6 +5,9 @@
     "version": "1.0.3",
     "author": "Lynx3x",
     "authorUrl": "https://github.com/Lynx3x",
+    "fundingUrl": {
+        "Ko-fi": "https://ko-fi.com/lynx3x"
+    },
     "isDesktopOnly": false,
     "minAppVersion": "1.7.2"
 }

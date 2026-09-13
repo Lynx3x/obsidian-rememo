@@ -17,9 +17,14 @@ div[data-type='memos_view'] .common-editor-wrapper {
     width: 100%;
     margin-bottom: 4px;
 
-    > .cm-editor {
+    // 宿主 DOM（反编译 obsidian.asar 实锤，2026-09-13）：
+    //   .cm-host > .markdown-source-view.cm-s-obsidian.mod-cm6 > .cm-editor > ...
+    // 内核把正文字号写在自己的 .markdown-source-view 层（font-size: var(--font-text-size)）——
+    // 旧规则写 `> .cm-editor`（直连 .cm-host）永不命中：输入框字号一直吃系统值，
+    // 不跟 Rememo 字号设置（owner 2026-09-13 报「输入框字体没跟着」）
+    .markdown-source-view,
+    .cm-editor {
       width: 100%;
-      // 输入正文 = Obsidian 正文字号（旧 15px 比笔记小一号，2026-09-11 owner 报）
       font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
       color: var(--memo-text);
       background-color: transparent;
@@ -73,7 +78,9 @@ div[data-type='memos_view'] .common-editor-wrapper {
 
     .cm-line {
       padding: 0;
-      line-height: 24px;
+      // 行高随字号（--line-height-normal=1.5，与卡片正文同律）：旧写死 24px 只在 16px 字号下正好，
+      // 字号调大/调小会与卡片正文行距不一致
+      line-height: var(--line-height-normal, 1.5);
     }
 
     // 占位 = .memo-editor-placeholder 真实 DOM 元素（不依赖内核 placeholder 扩展——

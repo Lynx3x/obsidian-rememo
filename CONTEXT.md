@@ -115,11 +115,11 @@
 **发布线**：`main` 快进到 `dev`（**默认分支是 main**——市场只读默认分支 HEAD 的 manifest）→ 打 tag **`1.0.0`**（必须与 manifest `version` 一致）→ GitHub Release 附 **main.js / manifest.json / styles.css** 三件套 → 到 **community.obsidian.md** 链接 GitHub 提交（自动审核）。市场插件**必须免费开源、不能卖**——打赏是唯一路子。
 
 **仓库侧已就绪（`1bc9fce` 已 push dev，随发布并入 main）**：
-- manifest：作者 `Lynx3x`、`minAppVersion` `1.5.0`；**`fundingUrl` 待填**（对象形式可挂多渠道，市场页会显示支持入口）；
+- manifest：作者 `Lynx3x`、`minAppVersion` `1.5.0`（后升 1.7.2）；**`fundingUrl` 已填 Ko-fi（2026-09-13，对象形式，爱发电验证后补挂）**；
 - `versions.json`：`{"1.0.0": "1.5.0"}`；LICENSE 追加 Lynx3x 版权行；`main.js.map` 移出版本库、`yarn.lock` 退役（发布物只三件套）；
 - 设置页捐赠区改造：`DONATE_AFDIAN_URL` / `DONATE_KOFI_URL` 两个常量在 [src/setting.ts](src/setting.ts) 顶部，**空串 = 该渠道不显示、两个都空 = 「捐赠」行整体隐藏**；i18n `Afdian` 键。
 
-**待 owner**：注册 **爱发电 + Ko-fi**（**2026-09-11 owner 定：搁置，链接后补**）→ 之后填 `fundingUrl` + 两个常量。
+**待 owner**：**Ko-fi 已就绪并填入（2026-09-13：`https://ko-fi.com/lynx3x` → manifest `fundingUrl` + `DONATE_KOFI_URL`）**；**爱发电验证未过、待补**（之后加常量 + fundingUrl 条目即可）。
 
 **截图批次（2026-09-11 英文版完成，owner 定：主图为主 + 特性图拼排，设置页不做）**：README 顶部用**成品拼图** `00-overview.png`（HTML/CSS 排版 → 无头 Edge 2 倍渲染；源文件 `tools/screenshots/overview.html`），下方保留五张单图——`02-editor` 任务模式 / `03-tags` 标签筛选 / `04-recycle` 回收站 / `05-references` 引用浮窗 / `06-rich-text` 富文本（引用条+引用块+加粗/斜体/行内码/双链，滚动后截，owner 2026-09-11 补要求）；`01-main` 主界面单图存仓库备用。
 - **2026-09-11 字号修复（owner 报"卡片英文比笔记小一号"）**：卡片正文/输入框/回收站/漫游浮窗/分享图的 memo 正文原来全部**写死 15px + 行高 24px**（网页版 Obsidian-Memos 血统），而 Obsidian 正文 = `var(--font-text-size)`（默认 16px，可调）——已全部改为 `var(--font-text-size, 16px)` + `var(--line-height-normal, 1.5)`（移动端 1.6）。实测同一句墨高 15→16 行像素。**改样式前先问"这字号该跟 Obsidian 还是写死"**。
@@ -155,9 +155,9 @@
   4. ⏳ **待 owner**：到 **community.obsidian.md** 提交（网页授权，脚本代不了），仓库地址 `https://github.com/Lynx3x/obsidian-rememo`
 - **自动发版工作流（2026-09-11 改造，替换上游遗留版）**：`.github/workflows/release.yml`——**推 tag 即自动建 Release**（`softprops/action-gh-release@v2`，附三件套 + 自动生成 changelog）。**不重新构建**：传的就是仓库里已提交的 `main.js`/`styles.css`（= owner 验收过的那份）。两道闸：① tag 必须 == `manifest.json` 的 version 且 `versions.json` 里有该条目；② 三件套必须在仓库里（缺则报错提示先 `pnpm build` 并提交）。**以后发版 = 改码 → build → 目视 → 改 version/versions.json → 提交 → 快进 main → 推 tag，Release 自动出**。注：1.0.0 那次 Actions 红叉是历史（旧 workflow 与我手动建的 Release 抢跑报 `already_exists`），不影响发布物；下一次推 tag 即走新流程。
 - **发布前核对（本次已过）**：`pnpm build` 产物与提交版本一字不差（无 drift，styles.css 249.4 KiB / main.js 1334 KiB）；工作树干净（仅未跟踪 `PRODUCT.md`）；README 中英两版引用的七张图均在 `assets/screenshots/`。
-- **待 owner（次要）**：爱发电/Ko-fi 链接（已定搁置）→ 届时填 manifest `fundingUrl` + `src/setting.ts` 顶部两个常量（空串 = 该渠道不显示）。**注意 1.0.0 已发布，之后任何代码/清单改动都需新版本号再走一遍发布线**（改 manifest.version + versions.json → 提交 → 快进 main → 推 tag，**Release 由工作流自动建**）。
+- **待 owner（次要）**：**Ko-fi 已完成（2026-09-13 验证通过，链接已填 manifest `fundingUrl` + `src/setting.ts` `DONATE_KOFI_URL`）**；爱发电验证未过、待补。**注意 1.0.0 已发布，之后任何代码/清单改动都需新版本号再走一遍发布线**（改 manifest.version + versions.json → 提交 → 快进 main → 推 tag，**Release 由工作流自动建**）。
 - **注意**：`PRODUCT.md` 仍未跟踪（owner 未定，**勿提交**）；发布物只三件套（main.js.map / yarn.lock 已退役）。
 
 **已定决策**：README 英文为主；**不做应用内新手引导**（README「快速开始」+ 现有失败 Notice 兜底）；作者名 `Lynx3x`。
 
-**捐赠（2026-09-11 定，暂搁置）**：**爱发电**（国内，微信/支付宝直达，抽 6%）+ **Ko-fi**（海外，平台 0% 抽成、收款走 PayPal/Stripe——owner 接受 PayPal；Stripe 大陆主体不可用）。**owner 定：先搁置，链接后补**——代码端常量位已留好。档位原则：**只开自由打赏、不开带承诺档位**——爱发电开「发电」+ 可选 ¥6/¥30 象征档（不带任何交付承诺）；Ko-fi 只 Tips（预设 $3/$5/$10）、**不开 Memberships**；两边配同一句声明「支持完全自愿，不影响任何功能」。备选记录：Buy Me a Coffee 的「标准打款」走 Payoneer 通道（覆盖大陆），日后若想绕开 PayPal 可切。
+**捐赠（2026-09-11 定；2026-09-13 Ko-fi 已就绪并填入）**：**爱发电**（国内，微信/支付宝直达，抽 6%）+ **Ko-fi**（海外，平台 0% 抽成、收款走 PayPal/Stripe——owner 接受 PayPal；Stripe 大陆主体不可用）。**Ko-fi：验证通过、链接 `https://ko-fi.com/lynx3x` 已填（manifest fundingUrl + setting.ts 常量）；爱发电：验证未过、后补**。档位原则：**只开自由打赏、不开带承诺档位**——爱发电开「发电」+ 可选 ¥6/¥30 象征档（不带任何交付承诺）；Ko-fi 只 Tips（预设 $3/$5/$10）、**不开 Memberships**；两边配同一句声明「支持完全自愿，不影响任何功能」。备选记录：Buy Me a Coffee 的「标准打款」走 Payoneer 通道（覆盖大陆），日后若想绕开 PayPal 可切。

@@ -4381,7 +4381,7 @@ const TIME_FORMAT_OPTIONS = [
   { value: "HH:mm:ss", label: "HH:mm:ss" }
 ];
 const DONATE_AFDIAN_URL = "";
-const DONATE_KOFI_URL = "";
+const DONATE_KOFI_URL = "https://ko-fi.com/lynx3x";
 const DEFAULT_SETTINGS = {
   MemoHeading: "## Memo",
   ShareFooterStart: "{MemosNum} Memos {UsedDay} Day",

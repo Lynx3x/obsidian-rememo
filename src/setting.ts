@@ -14,7 +14,7 @@ import { playSendSound, attachAudioPathSuggest } from './helpers/sendSound';
 
 /** 捐赠链接（2026-09-11 上架准备）：拿到自己的链接后填这里（空串 = 该渠道不显示；两个都空则「捐赠」行隐藏） */
 const DONATE_AFDIAN_URL = '';
-const DONATE_KOFI_URL = '';
+const DONATE_KOFI_URL = 'https://ko-fi.com/lynx3x';
 
 export interface MemosSettings {
   /** Memo 区标题（2026-09-10 合并旧「插入标题/解析标题」两键）：默认 '## Memo'；写入其下、只读其下；缺失时写入端自动创建 */

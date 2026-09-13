@@ -4661,7 +4661,8 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host {
   width: 100%;
   margin-bottom: 4px;
 }
-div[data-type='memos_view'] .common-editor-wrapper > .cm-host > .cm-editor {
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .markdown-source-view,
+div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-editor {
   width: 100%;
   font-size: var(--memo-content-font-size, var(--font-text-size, 16px));
   color: var(--memo-text);
@@ -4704,7 +4705,7 @@ div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-content:focus-
 }
 div[data-type='memos_view'] .common-editor-wrapper > .cm-host .cm-line {
   padding: 0;
-  line-height: 24px;
+  line-height: var(--line-height-normal, 1.5);
 }
 div[data-type='memos_view'] .common-editor-wrapper > .memo-editor-placeholder {
   position: absolute;
