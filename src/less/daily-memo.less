@@ -46,6 +46,9 @@
 
     > .memo-content-text {
       margin-top: -14px;
+      // 长链接/长词按字符折行（旧写法给 a 定宽 20em + 裁切：不折行、也出不了省略号；
+      // 2026-09-13 与主列表统一为折行完整显示）
+      overflow-wrap: break-word;
 
       // Pending #1 blockquote（> 引用）：观感对齐 Obsidian 原生（竖线 + 淡底主题变量），字号继承本容器
       > blockquote {
@@ -75,16 +78,6 @@
           border-left: 3px solid var(--blockquote-border-color);
           background-color: var(--blockquote-background-color);
           border-radius: 0;
-        }
-      }
-
-      p {
-        > a {
-          width: 20em;
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 3;
-          overflow: hidden;
         }
       }
 

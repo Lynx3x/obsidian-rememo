@@ -134,10 +134,12 @@
     min-height: 1.5em;
     white-space: pre-wrap;
 
+    // 长链接按字符折行。旧写法（nowrap + overflow/text-overflow: ellipsis）抄自 Memos 网页版：
+    // 后两条在行内 a 上本就不生效，只有 nowrap 生效 —— 长 URL 变成永不换行的长条，
+    // 撑出卡片宽度、列表出现横向滚动（2026-09-13 修）。折行本体靠本容器的 overflow-wrap，
+    // 这里显式声明一次防上游改动/主题重置。
     > a {
-      overflow: hidden;
-      text-overflow: ellipsis; //文本溢出显示省略号
-      white-space: nowrap; //文本不会换行
+      overflow-wrap: break-word;
     }
   }
 

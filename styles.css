@@ -1569,9 +1569,7 @@ div[data-type='memos_view'] svg.action-btn,
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > p > a,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text > p > a {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
 }
 [data-type='memos_view'] .daily-memo-wrapper .memo-content-text > .memo-md-line,
 [data-type='memos_view'] .memolist-wrapper .memo-content-text > .memo-md-line {
@@ -2205,6 +2203,7 @@ div[data-type='memos_view'].mobile-view .memo-wrapper > .btns-container > .more-
 }
 .daily-memo-wrapper > .memo-content-container > .memo-content-text {
   margin-top: -14px;
+  overflow-wrap: break-word;
 }
 .daily-memo-wrapper > .memo-content-container > .memo-content-text > blockquote {
   width: 100%;
@@ -2229,13 +2228,6 @@ div[data-type='memos_view'].mobile-view .memo-wrapper > .btns-container > .more-
   border-left: 3px solid var(--blockquote-border-color);
   background-color: var(--blockquote-background-color);
   border-radius: 0;
-}
-.daily-memo-wrapper > .memo-content-container > .memo-content-text p > a {
-  width: 20em;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
 }
 .daily-memo-wrapper > .memo-content-container > .memo-content-text .tag-span {
   cursor: unset;
